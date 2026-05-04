@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTST Test Dashboard</title>
+<script src="https://d3js.org/d3.v7.min.js" integrity="sha256-8glLv2FBs1lyLE/kVOtsSw8OQswQzHr5IfwVj864ZTk=" crossorigin="anonymous"></script>
+<style>
+:root {
+  --bg: #0f1117;
+  --card: #1a1d27;
+  --card2: #21253a;
+  --border: #2a2d3e;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --accent: #818cf8;
+  --pass: #4ade80;
+  --fail: #f87171;
+  --skip: #fbbf24;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+#app { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+.stat-title { font-size: 18px; font-weight: 700; white-space: nowrap; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.card-header h2 { margin-bottom: 0; }
+.status-btns { display: flex; gap: 6px; }
+.status-btn {
+  padding: 5px 14px; border-radius: 6px; border: 1px solid #4b5563;
+  font-size: 13px; cursor: pointer; user-select: none; transition: all .15s;
+  background: #374151; color: #d1d5db;
+}
+.status-btn:hover:not(.active) { border-color: var(--accent); color: #fff; }
+.status-btn.active.all  { background: var(--accent); border-color: var(--accent); color: #fff; }
+.status-btn.active.fail { background: var(--fail);   border-color: var(--fail);   color: #fff; }
+.status-btn.active.pass { background: #22c55e;       border-color: #22c55e;       color: #fff; }
+
+.summary-strip { margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 24px; display: inline-flex; align-items: center; gap: 24px;
+}
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-item .val { font-size: 26px; font-weight: 700; }
+.stat-item .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.stat-item.pass .val { color: var(--pass); }
+.stat-item.fail .val { color: var(--fail); }
+.stat-divider { width: 1px; height: 40px; background: var(--border); }
+
+.select {
+  padding: 8px 12px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 13px; cursor: pointer; outline: none;
+}
+
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.chart-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px;
+}
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-card h2 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.chart-card h2 .sub { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+
+.bar-label { font-size: 11px; fill: var(--text); }
+.axis line, .axis path { stroke: var(--border); }
+.axis text { fill: var(--muted); font-size: 11px; }
+
+.tooltip {
+  position: fixed; pointer-events: none; background: #0a0c14; border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; font-size: 13px; line-height: 1.6;
+  max-width: 600px; min-width: 360px; z-index: 100; opacity: 0; transition: opacity .15s;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.tooltip .feat { color: var(--muted); font-size: 12px; }
+.tooltip .dur { font-weight: 700; color: var(--accent); }
+.tooltip .status-pass { color: var(--pass); }
+.tooltip .status-fail { color: var(--fail); }
+.tooltip .steps-section { margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
+.tooltip .step-row { display: flex; gap: 8px; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.tooltip .step-row.fail { color: var(--fail); }
+.tooltip .step-dur { min-width: 40px; text-align: right; color: var(--accent); font-weight: 600; flex-shrink: 0; }
+
+#no-data-warn {
+  background: #2a1f0a; border: 1px solid #5a3a0a; border-radius: 8px;
+  padding: 12px 16px; margin-bottom: 20px; color: #fbbf24; font-size: 13px; display: none;
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="no-data-warn">
+    ⚠ All scenario durations are 0 — this may be a dry-run report. Timing charts will be empty.
+  </div>
+  <div class="summary-strip" id="summary-strip"></div>
+  <div class="charts-grid">
+    <div class="chart-card wide" id="timeline-card">
+      <h2>Execution timeline <span class="sub" id="timeline-sub"></span></h2>
+      <div id="timeline-chart"></div>
+    </div>
+    <div class="chart-card wide" id="problems-card" style="display:none">
+      <h2>Failed &amp; retried scenarios <span class="sub" id="problems-sub"></span></h2>
+      <div id="problems-chart"></div>
+    </div>
+    <div class="chart-card" id="feature-chart-card">
+      <div class="card-header">
+        <h2>Time by scenario <span class="sub">total seconds per scenario across all runs</span></h2>
+        <div class="status-btns">
+          <button class="status-btn active all"  data-val="">All</button>
+          <button class="status-btn fail"        data-val="failed">Failed</button>
+          <button class="status-btn pass"        data-val="passed">Passed</button>
+        </div>
+      </div>
+      <div id="feature-chart"></div>
+    </div>
+    <div class="chart-card" id="scenario-chart-card">
+      <div class="card-header">
+        <h2>Slowest scenarios <span class="sub" id="scenario-chart-sub"></span></h2>
+        <select class="select" id="scenario-top-n" style="padding:3px 8px;font-size:12px">
+          <option value="25" selected>Top 25</option>
+          <option value="100">Top 100</option>
+          <option value="0">All</option>
+        </select>
+      </div>
+      <div id="scenario-chart"></div>
+    </div>
+    <div class="chart-card wide" id="step-chart-card">
+      <h2>
+        Step duration breakdown
+        <span class="sub" id="step-chart-sub"></span>
+        <span style="margin-left:auto;display:inline-flex;gap:8px">
+          <select class="select" id="step-sort" style="padding:3px 8px;font-size:12px">
+            <option value="total">Sort by total time</option>
+            <option value="avg">Sort by avg time</option>
+          </select>
+          <select class="select" id="step-top-n" style="padding:3px 8px;font-size:12px">
+            <option value="25">Top 25</option>
+            <option value="50" selected>Top 50</option>
+            <option value="100">Top 100</option>
+          </select>
+        </span>
+      </h2>
+      <div id="step-chart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const COLOR = d3.scaleOrdinal(d3.schemeTableau10.concat(d3.schemePastel1));
+let allScenarios = [];
+let statusFilter = '';
+let stepSort = 'total';
+let scenarioTopN = 25;
+let stepTopN = 50;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const fmtDur = s => {
+    if (s >= 3600) return `${(s / 3600).toFixed(1)}h`;
+    if (s >= 60)   return `${(s / 60).toFixed(1)}m`;
+    if (s >= 10)   return `${s.toFixed(1)}s`;
+    if (s >= 1)    return `${s.toFixed(2)}s`;
+    return `${s.toFixed(3)}s`;
+};
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+
+const tooltip = d3.select('#tooltip');
+const showTooltip = (event, html) =>
+    tooltip.style('opacity', 1).html(html)
+        .style('left', `${event.clientX + 14}px`)
+        .style('top', `${event.clientY - 10}px`);
+const moveTooltip = event =>
+    tooltip.style('left', `${event.clientX + 14}px`).style('top', `${event.clientY - 10}px`);
+const updateTooltip = html => tooltip.html(html);
+const hideTooltip = () => tooltip.style('opacity', 0);
+
+// ── Data loading ─────────────────────────────────────────────────────────────
+
+const tryFetchNdjson = async () => {
+    try {
+        const r = await fetch('./report.ndjson');
+        if (!r.ok) return null;
+        const text = await r.text();
+        return text.trim().split('\n').map(l => JSON.parse(l));
+    } catch { return null; }
+};
+
+const parseNdjson = msgs => {
+    const pickles      = new Map();
+    const testCases    = new Map();
+    const caseStarted  = new Map();
+    const caseFinished = new Map();
+    const stepsByCase  = new Map();
+    const hooks        = new Map();
+    let runStart;
+
+    const toSecs = ts => ts.seconds + ts.nanos / 1e9;
+
+    for (const msg of msgs) {
+        if (msg.pickle)          pickles.set(msg.pickle.id, msg.pickle);
+        if (msg.testCase)        testCases.set(msg.testCase.id, msg.testCase);
+        if (msg.testRunStarted)  runStart = msg.testRunStarted.timestamp;
+        if (msg.testCaseStarted)  caseStarted.set(msg.testCaseStarted.id, msg.testCaseStarted);
+        if (msg.testCaseFinished) caseFinished.set(msg.testCaseFinished.testCaseStartedId, msg.testCaseFinished);
+        if (msg.hook) {
+            const h = msg.hook;
+            const src = h.sourceReference;
+            hooks.set(h.id, {
+                uri:  src?.uri?.replace(/.*\/ctst\//, '') || '',
+                line: src?.location?.line || 0,
+            });
+        }
+        if (msg.testStepStarted) {
+            const m = msg.testStepStarted;
+            if (!stepsByCase.has(m.testCaseStartedId)) stepsByCase.set(m.testCaseStartedId, []);
+            stepsByCase.get(m.testCaseStartedId).push({ stepId: m.testStepId, startRaw: toSecs(m.timestamp) });
+        }
+        if (msg.testStepFinished) {
+            const m = msg.testStepFinished;
+            const steps = stepsByCase.get(m.testCaseStartedId) || [];
+            const step = steps.findLast(s => s.stepId === m.testStepId && !s.status);
+            if (step) {
+                step.durS = (m.testStepResult.duration.seconds * 1e9 + m.testStepResult.duration.nanos) / 1e9;
+                step.status = m.testStepResult.status;
+            }
+        }
+    }
+
+    const origin = runStart ? toSecs(runStart) : 0;
+    const scenarios = [];
+
+    for (const [startedId, started] of caseStarted) {
+        const finished = caseFinished.get(startedId);
+        if (!finished) continue;
+        const tc     = testCases.get(started.testCaseId);
+        const pickle = pickles.get(tc?.pickleId);
+        if (!pickle) continue;
+
+        const startS = toSecs(started.timestamp) - origin;
+        const endS   = toSecs(finished.timestamp) - origin;
+
+        const rawSteps = stepsByCase.get(startedId) || [];
+        const tcSteps = tc?.testSteps || [];
+        const firstPickleIdx = tcSteps.findIndex(s => s.pickleStepId);
+        const steps = rawSteps
+            .filter(st => st.status)
+            .map(st => {
+                const tcStepIdx  = tcSteps.findIndex(s => s.id === st.stepId);
+                const tcStep     = tcSteps[tcStepIdx];
+                const pickleStep = pickle.steps?.find(ps => ps.id === tcStep?.pickleStepId);
+                let name;
+                if (pickleStep) {
+                    name = pickleStep.text;
+                } else if (tcStep?.hookId) {
+                    const hook = hooks.get(tcStep.hookId);
+                    const uri  = hook ? hook.uri.replace(/.*node_modules\//, 'nm/').replace(/.*\/ctst\//, '') : 'hook';
+                    const tag  = hook?.tagExpression ? ` (${hook.tagExpression})` : '';
+                    const kind = tcStepIdx <= firstPickleIdx ? 'Before' : 'After';
+                    name = `⚙ ${kind}: ${hook ? `${uri}:${hook.line}` : 'hook'}${tag}`;
+                } else {
+                    name = '⚙ hook';
+                }
+                return { name, durS: st.durS || 0, startS: (st.startRaw || 0) - origin, status: st.status, isHook: !pickleStep };
+            });
+
+        const durS = endS - startS;
+        scenarios.push({
+            name:    pickle.name,
+            feature: pickle.uri.replace('ctst/features/', '').replace('.feature', ''),
+            tags:    pickle.tags.map(t => t.name),
+            worker:  started.workerId,
+            attempt: started.attempt,
+            startS, endS,
+            durS,
+            status:  finished.willBeRetried ? 'retried'
+                     : steps.some(s => s.status === 'FAILED') ? 'failed' : 'passed',
+            steps,
+        });
+    }
+
+    return scenarios;
+};
+
+const filteredScenarios = () =>
+    allScenarios.filter(s => !statusFilter || s.status === statusFilter);
+
+// ── Summary strip ─────────────────────────────────────────────────────────────
+
+const renderSummary = scenarios => {
+    const total   = scenarios.filter(s => s.attempt === 0).length;
+    const passed  = scenarios.filter(s => s.status === 'passed').length;
+    const failed  = scenarios.filter(s => s.status === 'failed').length;
+    const retries = scenarios.filter(s => s.attempt > 0).length;
+    const totalS  = scenarios.reduce((s, sc) => s + sc.durS, 0);
+
+    document.getElementById('summary-strip').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-title">CTST Test Dashboard</div>
+            <div class="stat-divider"></div>
+            <div class="stat-item"><div class="val">${total.toLocaleString()}</div><div class="lbl">Scenarios</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item pass"><div class="val">${passed.toLocaleString()}</div><div class="lbl">Passed</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item fail"><div class="val">${failed.toLocaleString()}</div><div class="lbl">Failed</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item"><div class="val">${retries.toLocaleString()}</div><div class="lbl">Retries</div></div>
+            <div class="stat-divider"></div>
+            <div class="stat-item"><div class="val">${fmtDur(totalS)}</div><div class="lbl">Total time</div></div>
+        </div>
+    `;
+};
+
+// ── Feature chart ─────────────────────────────────────────────────────────────
+
+const renderFeatureChart = scenarios => {
+    const byFeature = d3.rollups(scenarios, v => d3.sum(v, s => s.durS), s => s.feature)
+        .sort((a, b) => b[1] - a[1]);
+
+    const container = document.getElementById('feature-chart');
+    container.innerHTML = '';
+    const W = container.clientWidth || 900;
+    const barH = 24, gap = 4, marginL = 220, marginR = 80, marginT = 4, marginB = 20;
+    const H = byFeature.length * (barH + gap) + marginT + marginB;
+
+    const x = d3.scaleLinear().domain([0, d3.max(byFeature, d => d[1])]).range([0, W - marginL - marginR]);
+    const y = d3.scaleBand().domain(byFeature.map(d => d[0])).range([0, H - marginT - marginB]).padding(gap / (barH + gap));
+
+    COLOR.domain(byFeature.map(d => d[0]));
+
+    const svg = d3.select(container).append('svg').attr('width', W).attr('height', H);
+    const g = svg.append('g').attr('transform', `translate(${marginL},${marginT})`);
+
+    g.append('g').attr('class', 'axis')
+        .attr('transform', `translate(0,${H - marginT - marginB})`)
+        .call(d3.axisBottom(x).ticks(5).tickFormat(s => s >= 3600 ? `${(s / 3600).toFixed(0)}h` : `${(s / 60).toFixed(0)}m`));
+
+    const bars = g.selectAll('.bar').data(byFeature).join('g').attr('class', 'bar');
+
+    bars.append('rect')
+        .attr('x', 0).attr('y', d => y(d[0]))
+        .attr('width', d => x(d[1])).attr('height', barH)
+        .attr('fill', d => COLOR(d[0])).attr('rx', 4)
+        .on('mouseover', (e, d) => showTooltip(e, `<div>${d[0]}</div><div class="dur">${fmtDur(d[1])}</div><div class="feat">${d[1].toFixed(1)}s</div>`))
+        .on('mousemove', moveTooltip).on('mouseout', hideTooltip);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', -8).attr('y', d => y(d[0]) + barH / 2 + 4)
+        .attr('text-anchor', 'end').attr('fill', 'var(--text)').style('font-size', '12px')
+        .text(d => d[0]);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', d => x(d[1]) + 6).attr('y', d => y(d[0]) + barH / 2 + 4)
+        .attr('fill', 'var(--muted)').style('font-size', '11px')
+        .text(d => fmtDur(d[1]));
+};
+
+// ── Scenario chart ────────────────────────────────────────────────────────────
+
+const renderScenarioChart = scenarios => {
+    let data = [...scenarios].sort((a, b) => b.durS - a.durS);
+    if (scenarioTopN > 0) data = data.slice(0, scenarioTopN);
+    document.getElementById('scenario-chart-sub').textContent = `${data.length} of ${scenarios.length}`;
+
+    const container = document.getElementById('scenario-chart');
+    container.innerHTML = '';
+    if (!data.length) {
+        container.innerHTML = '<p style="color:var(--muted);padding:20px">No scenarios match the current filters.</p>';
+        return;
+    }
+
+    const W = container.clientWidth || 900;
+    const barH = 20, gap = 3, marginL = 320, marginR = 90, marginT = 4, marginB = 20;
+    const H = data.length * (barH + gap) + marginT + marginB;
+    const barY = i => i * (barH + gap);
+
+    const x = d3.scaleLinear().domain([0, d3.max(data, d => d.durS)]).range([0, W - marginL - marginR]);
+    const svg = d3.select(container).append('svg').attr('width', W).attr('height', H);
+    const g = svg.append('g').attr('transform', `translate(${marginL},${marginT})`);
+
+    g.append('g').attr('class', 'axis')
+        .attr('transform', `translate(0,${H - marginT - marginB})`)
+        .call(d3.axisBottom(x).ticks(5).tickFormat(s => `${s.toFixed(0)}s`));
+
+    const bars = g.selectAll('.bar').data(data).join('g').attr('class', 'bar');
+
+    bars.append('rect')
+        .attr('x', 0).attr('y', (d, i) => barY(i))
+        .attr('width', d => Math.max(2, x(d.durS))).attr('height', barH)
+        .attr('fill', d => d.status === 'failed' ? 'var(--fail)' : COLOR(d.feature)).attr('rx', 3)
+        .on('mouseover', (e, d) => showTooltip(e,
+            `<div>${d.name}</div>
+             <div class="feat">${d.feature}</div>
+             <div class="dur">${fmtDur(d.durS)}</div>
+             <div class="${d.status === 'failed' ? 'status-fail' : 'status-pass'}">${d.status}</div>
+             <div class="feat" style="margin-top:6px">${d.tags.join(' ')}</div>`))
+        .on('mousemove', moveTooltip).on('mouseout', hideTooltip);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', -6).attr('y', (d, i) => barY(i) + barH / 2 + 4)
+        .attr('text-anchor', 'end').attr('fill', d => d.status === 'failed' ? 'var(--fail)' : 'var(--text)').style('font-size', '11px')
+        .text(d => d.name.length > 44 ? d.name.slice(0, 42) + '…' : d.name);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', d => Math.max(2, x(d.durS)) + 6).attr('y', (d, i) => barY(i) + barH / 2 + 4)
+        .attr('fill', 'var(--muted)').style('font-size', '11px')
+        .text(d => fmtDur(d.durS));
+};
+
+// ── Execution timeline ────────────────────────────────────────────────────────
+
+const drawTimeline = (containerId, subId, data, totalTime) => {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    if (!data.length) {
+        container.innerHTML = '<p style="color:var(--muted);padding:20px">No scenarios to display.</p>';
+        return;
+    }
+
+    const workers = [...new Set(data.map(s => s.worker))].sort();
+    const wIdx    = new Map(workers.map((w, i) => [w, i]));
+
+    document.getElementById(subId).textContent =
+        `${workers.length} workers · ${fmtDur(totalTime)} wall time · ${data.length} scenarios`;
+
+    const W = container.clientWidth || 1200;
+    const laneH = 28, laneGap = 6, marginL = 72, marginR = 20, marginT = 8, marginB = 36;
+    const lanesH = workers.length * (laneH + laneGap);
+    const innerW = W - marginL - marginR;
+
+    const x       = d3.scaleLinear().domain([0, totalTime]).range([0, innerW]);
+    const fmtAxis = s => s >= 3600 ? `${(s / 3600).toFixed(1)}h` : `${(s / 60).toFixed(0)}m`;
+    const laneY   = w => wIdx.get(w) * (laneH + laneGap);
+
+    const svg = d3.select(container).append('svg').attr('width', W).attr('height', lanesH + marginT + marginB)
+        .style('cursor', 'grab').style('user-select', 'none');
+
+    const clipId = `clip-${containerId}`;
+    svg.append('defs').append('clipPath').attr('id', clipId)
+        .append('rect').attr('width', innerW).attr('height', lanesH + 2);
+
+    const g  = svg.append('g').attr('transform', `translate(${marginL},${marginT})`);
+    const gc = g.append('g').attr('clip-path', `url(#${clipId})`);
+
+    const gAxis = g.append('g').attr('class', 'axis').attr('transform', `translate(0,${lanesH})`);
+    gAxis.call(d3.axisBottom(x).ticks(12).tickFormat(fmtAxis));
+
+    workers.forEach((wId, i) => {
+        const y = i * (laneH + laneGap);
+        gc.append('rect').attr('x', 0).attr('y', y).attr('width', innerW).attr('height', laneH)
+            .attr('fill', 'var(--card2)').attr('rx', 4).attr('pointer-events', 'none');
+        g.append('text').attr('x', -8).attr('y', y + laneH / 2 + 4)
+            .attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '11px')
+            .text(`W${wId}`);
+    });
+
+    const stepsHtmlFor = (steps, activeIdx = -1) => !steps?.length ? '' :
+        `<div class="steps-section">${steps.map((st, i) => {
+            const isActive    = i === activeIdx;
+            const hookStyle   = st.isHook ? 'color:#818cf8;font-style:italic;' : '';
+            const activeStyle = isActive ? 'font-weight:700;color:#fff;background:rgba(255,255,255,0.07);margin:0 -4px;padding:0 4px;border-radius:3px;' : '';
+            return `<div class="step-row${st.status === 'FAILED' ? ' fail' : ''}" style="${hookStyle}${activeStyle}">
+                <span class="step-dur">${fmtDur(st.durS)}</span>
+                <span>${st.name.length > 80 ? st.name.slice(0, 77) + '…' : st.name}</span>
+            </div>`;
+        }).join('')}</div>`;
+
+    const scenarioTooltipHtml = (d, activeIdx = -1) =>
+        `<div>${d.name}</div>
+         <div class="feat">${d.feature}</div>
+         <div class="dur">${fmtDur(d.durS)}</div>
+         <div class="feat">${fmtDur(d.startS)} → ${fmtDur(d.endS)}</div>
+         <div class="${d.status === 'failed' ? 'status-fail' : d.attempt > 0 ? '' : 'status-pass'}">${d.attempt > 0 ? `retry #${d.attempt}` : d.status}</div>
+         <div class="feat" style="margin-top:4px">${d.tags.join(' ')}</div>
+         ${stepsHtmlFor(d.steps, activeIdx)}`;
+
+    const barSel = gc.selectAll('.bar').data(data).join('rect')
+        .attr('class', 'bar')
+        .attr('y', d => laneY(d.worker) + 1)
+        .attr('height', laneH - 2)
+        .attr('fill', d => d.status === 'failed' ? 'var(--fail)' : d.attempt > 0 ? 'var(--skip)' : COLOR(d.feature))
+        .attr('rx', 2).attr('opacity', 0.85);
+
+    const hoverGroup = gc.append('g').attr('class', 'hover-overlay');
+    let currentXn = x;
+    let stepRects = null;
+
+    const showSteps = sc => {
+        hoverGroup.selectAll('*').remove();
+        const steps = (sc.steps || []).filter(st => st.startS !== undefined && st.durS > 0);
+        stepRects = hoverGroup.selectAll('.hs').data(steps).join('rect').attr('class', 'hs')
+            .attr('y', laneY(sc.worker) + 3).attr('height', laneH - 6).attr('rx', 1)
+            .attr('fill', st => st.status === 'FAILED' ? 'var(--fail)' : st.isHook ? '#6366f1' : COLOR(sc.feature))
+            .attr('opacity', st => st.status === 'PASSED' || st.isHook ? 0.9 : 1)
+            .attr('x', st => currentXn(st.startS))
+            .attr('width', st => Math.max(1, currentXn(st.startS + st.durS) - currentXn(st.startS)))
+            .attr('pointer-events', 'none');
+    };
+
+    barSel
+        .on('mouseover', function(e, d) {
+            d3.select(this).attr('opacity', 0.3);
+            showSteps(d);
+            showTooltip(e, scenarioTooltipHtml(d));
+        })
+        .on('mousemove', function(e, d) {
+            const [mx] = d3.pointer(e, gc.node());
+            const t = currentXn.invert(mx);
+            const steps = (d.steps || []).filter(st => st.startS !== undefined && st.durS > 0);
+            const activeIdx = steps.findIndex(st => t >= st.startS && t <= st.startS + st.durS);
+            if (stepRects) {
+                stepRects
+                    .attr('filter', (st, i) => i === activeIdx ? 'brightness(0.55)' : null)
+                    .attr('opacity', (st, i) => i === activeIdx ? 1 : (st.status === 'PASSED' || st.isHook ? 0.9 : 1));
+            }
+            updateTooltip(scenarioTooltipHtml(d, activeIdx));
+            moveTooltip(e);
+        })
+        .on('mouseout', function() {
+            d3.select(this).attr('opacity', 0.85);
+            hoverGroup.selectAll('*').remove();
+            hideTooltip();
+        });
+
+    const applyScale = xn => {
+        currentXn = xn;
+        gAxis.call(d3.axisBottom(xn).ticks(12).tickFormat(fmtAxis));
+        barSel.attr('x', d => xn(d.startS))
+              .attr('width', d => Math.max(1, xn(d.endS) - xn(d.startS) - 1));
+    };
+
+    applyScale(x);
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 60])
+        .extent([[0, 0], [innerW, lanesH]])
+        .translateExtent([[0, 0], [innerW, lanesH]])
+        .on('zoom', event => applyScale(event.transform.rescaleX(x)));
+
+    svg.call(zoom)
+        .on('dblclick.zoom', null)
+        .on('dblclick', () => svg.transition().duration(300).call(zoom.transform, d3.zoomIdentity));
+
+    d3.select(container).append('div')
+        .style('font-size', '11px').style('color', 'var(--muted)')
+        .style('text-align', 'right').style('margin-top', '3px')
+        .text('scroll to zoom · drag to pan · double-click to reset');
+};
+
+const scenarioKey = s => s.name + '\x00' + s.feature;
+
+const renderTimeline = scenarios => {
+    const activeNames = scenarios.length < allScenarios.length
+        ? new Set(scenarios.map(scenarioKey)) : null;
+    const data = activeNames
+        ? allScenarios.filter(s => activeNames.has(scenarioKey(s)))
+        : allScenarios;
+    drawTimeline('timeline-chart', 'timeline-sub', data, d3.max(allScenarios, s => s.endS));
+};
+
+const renderProblemsTimeline = scenarios => {
+    const card = document.getElementById('problems-card');
+    const activeNames = scenarios.length < allScenarios.length
+        ? new Set(scenarios.map(scenarioKey)) : null;
+    const problems = allScenarios.filter(s => s.status === 'failed' || s.attempt > 0);
+    const data = activeNames ? problems.filter(s => activeNames.has(scenarioKey(s))) : problems;
+
+    if (!data.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    drawTimeline('problems-chart', 'problems-sub', data, d3.max(allScenarios, s => s.endS));
+};
+
+// ── Step duration breakdown ───────────────────────────────────────────────────
+
+const renderStepChart = scenarios => {
+    const byStep = new Map();
+    for (const sc of scenarios) {
+        for (const st of sc.steps) {
+            if (!st.durS) continue;
+            const key = st.name;
+            const cur = byStep.get(key) || { label: key, total: 0, count: 0 };
+            cur.total += st.durS;
+            cur.count++;
+            byStep.set(key, cur);
+        }
+    }
+
+    const val  = d => stepSort === 'avg' ? d.total / d.count : d.total;
+    const data = [...byStep.values()]
+        .sort((a, b) => val(b) - val(a))
+        .slice(0, stepTopN);
+
+    document.getElementById('step-chart-sub').textContent =
+        `${data.length} of ${byStep.size} unique steps · ${stepSort === 'avg' ? 'by avg call time' : 'by total accumulated time'}`;
+
+    const container = document.getElementById('step-chart');
+    container.innerHTML = '';
+    if (!data.length) {
+        container.innerHTML = '<p style="color:var(--muted);padding:20px">No step data available.</p>';
+        return;
+    }
+
+    const W = container.clientWidth || 900;
+    const barH = 20, gap = 3, marginL = 360, marginR = 110, marginT = 4, marginB = 20;
+    const H = data.length * (barH + gap) + marginT + marginB;
+    const barY = i => i * (barH + gap);
+
+    const x = d3.scaleLinear().domain([0, d3.max(data, val)]).range([0, W - marginL - marginR]);
+    const svg = d3.select(container).append('svg').attr('width', W).attr('height', H);
+    const g = svg.append('g').attr('transform', `translate(${marginL},${marginT})`);
+
+    g.append('g').attr('class', 'axis')
+        .attr('transform', `translate(0,${H - marginT - marginB})`)
+        .call(d3.axisBottom(x).ticks(5).tickFormat(s => s >= 60 ? `${(s / 60).toFixed(0)}m` : `${s.toFixed(0)}s`));
+
+    const bars = g.selectAll('.bar').data(data).join('g').attr('class', 'bar');
+
+    bars.append('rect')
+        .attr('x', 0).attr('y', (d, i) => barY(i))
+        .attr('width', d => Math.max(2, x(val(d)))).attr('height', barH)
+        .attr('fill', 'var(--accent)').attr('opacity', 0.8).attr('rx', 3)
+        .on('mouseover', (e, d) => showTooltip(e,
+            `<div>${d.label}</div>
+             <div class="dur">${stepSort === 'avg' ? `${fmtDur(d.total / d.count)} avg` : `${fmtDur(d.total)} total`}</div>
+             <div class="feat">${d.count}× called · avg ${fmtDur(d.total / d.count)} · total ${fmtDur(d.total)}</div>`))
+        .on('mousemove', moveTooltip).on('mouseout', hideTooltip);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', -6).attr('y', (d, i) => barY(i) + barH / 2 + 4)
+        .attr('text-anchor', 'end').attr('fill', 'var(--text)').style('font-size', '11px')
+        .text(d => d.label.length > 50 ? d.label.slice(0, 48) + '…' : d.label);
+
+    bars.append('text').attr('class', 'bar-label')
+        .attr('x', d => Math.max(2, x(val(d))) + 6).attr('y', (d, i) => barY(i) + barH / 2 + 4)
+        .attr('fill', 'var(--muted)').style('font-size', '11px')
+        .text(d => stepSort === 'avg'
+            ? `${fmtDur(d.total / d.count)} avg (${d.count}×)`
+            : `${fmtDur(d.total)} (${d.count}×)`);
+};
+
+// ── Render all ────────────────────────────────────────────────────────────────
+
+const renderAll = () => {
+    const scenarios = filteredScenarios();
+    renderSummary(scenarios);
+    renderFeatureChart(scenarios);
+    renderScenarioChart(scenarios);
+    renderTimeline(scenarios);
+    renderProblemsTimeline(scenarios);
+    renderStepChart(scenarios);
+};
+
+const init = scenarios => {
+    allScenarios = scenarios;
+    if (!allScenarios.some(s => s.durS > 0))
+        document.getElementById('no-data-warn').style.display = 'block';
+
+    document.querySelectorAll('.status-btn').forEach(btn =>
+        btn.addEventListener('click', () => {
+            statusFilter = btn.dataset.val;
+            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderAll();
+        })
+    );
+    document.getElementById('scenario-top-n').addEventListener('change', e => { scenarioTopN = +e.target.value; renderScenarioChart(filteredScenarios()); });
+    document.getElementById('step-sort').addEventListener('change', e => { stepSort = e.target.value; renderStepChart(filteredScenarios()); });
+    document.getElementById('step-top-n').addEventListener('change', e => { stepTopN = +e.target.value; renderStepChart(filteredScenarios()); });
+
+    renderAll();
+};
+
+(async () => {
+    const ndjson = await tryFetchNdjson();
+    if (!ndjson) {
+        const warn = document.getElementById('no-data-warn');
+        warn.textContent = 'Could not load report.ndjson';
+        warn.style.display = 'block';
+        return;
+    }
+    init(parseNdjson(ndjson));
+})();
+</script>
+</body>
+</html>
