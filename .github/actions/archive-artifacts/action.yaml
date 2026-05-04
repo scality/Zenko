@@ -135,7 +135,10 @@ runs:
         # Archive test reports to artifacts
         set -exu
         mkdir -p /tmp/artifacts/data/${STAGE}/reports
-        cp -r ${{ inputs.junit-paths }} /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || echo "No reports found"
+        cp -r ${{ inputs.junit-paths }}                                  /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || echo "No reports found"
+        cp "$(dirname "${{ inputs.junit-paths }}")/report.html"          /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || true
+        cp "$(dirname "${{ inputs.junit-paths }}")/report.ndjson"        /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || true
+        cp "$(dirname "${{ inputs.junit-paths }}")/ctst-dashboard.html"  /tmp/artifacts/data/${STAGE}/reports/ 2>/dev/null || true
       env:
         STAGE: ${{ inputs.stage }}
       if: always()
@@ -244,3 +247,14 @@ runs:
         password: ${{ inputs.password }}
         source: /tmp/artifacts
       if: always()
+
+    - name: Add dashboard link to job summary
+      shell: bash
+      run: |
+        BASE="${{ steps.setup-artifacts.outputs.link }}/data/${{ inputs.stage }}/reports"
+        echo "Cucumber custom dashboard:       ${BASE}/ctst-dashboard.html"
+        echo "Cucumber official report: ${BASE}/report.html"
+        echo "### Test Reports" >> $GITHUB_STEP_SUMMARY
+        echo "- [Cucumber custom dashboard](${BASE}/ctst-dashboard.html)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Cucumber official report](${BASE}/report.html)" >> $GITHUB_STEP_SUMMARY
+      if: always() && inputs.junit-paths != format('{0}/_reports/*.xml', github.workspace)
