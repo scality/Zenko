@@ -16,6 +16,7 @@ import assert from 'assert';
 import constants from 'common/constants';
 import { getLocationConfigs } from './kubernetes';
 import { S3Client } from '@aws-sdk/client-s3';
+import { pollDLQBuffer } from './kafka';
 
 enum AuthorizationType {
     ALLOW = 'Allow',
@@ -473,6 +474,8 @@ async function putBucketReplication(
     }
 }
 
+// Polls for transition status and checks the DLQ buffer on every iteration for early failure.
+// Relies on bucket names being randomized so a DLQ entry from a previous run cannot match.
 async function verifyObjectLocation(this: Zenko, objectName: string,
     objectTransitionStatus: string, storageClass: string) {
     const objName =
@@ -484,24 +487,32 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
-    let conditionOk = false;
 
-    const startTime = Date.now();
+    const op = objectTransitionStatus === 'restored' ? 'restore' : 'archive';
+    const bucketName = this.getSaved<string>('bucketName');
+    const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
+    this.addToSaved('seenDLQMessages', seenDLQ);
+
     const timeoutMs = 5 * 60 * 1000;
-    while (!conditionOk) {
-        if (Date.now() - startTime > timeoutMs) {
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+        const dlqMsg = pollDLQBuffer(Zenko.dlqBuffer, op, objName, bucketName, seenDLQ);
+        if (dlqMsg) {
+            seenDLQ.add(dlqMsg.requestId);
+            this.logger.error('Found failure in dead letter queue', { dlqMsg });
             throw new Error(
-                `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
-                `waiting for object "${objName}" to reach status "${objectTransitionStatus}" ` +
-                `with storage class "${storageClass}"`
+                `Transition failed for object "${objName}" in bucket "${bucketName}":` +
+                ` found in dead letter queue (op: ${dlqMsg.op}, reason: ${dlqMsg.reason})`,
             );
         }
+
         const res = await S3.headObject(this.getCommandParameters());
         if (res.err?.includes('NotFound')) {
             await Utils.sleep(1000);
             continue;
         } else if (res.err) {
-            break;
+            throw new Error(`HeadObject error for "${objName}": ${res.err}`);
         }
         assert(res.stdout);
         const parsed = safeJsonParse<{
@@ -510,19 +521,23 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }>(res.stdout);
         assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
-        if (parsed.result?.StorageClass === expectedClass) {
-            conditionOk = true;
-        }
-        if (objectTransitionStatus == 'restored') {
-            const isRestored = !!parsed.result?.Restore &&
+        let conditionOk = parsed.result?.StorageClass === expectedClass;
+        if (objectTransitionStatus === 'restored') {
+            conditionOk = conditionOk && !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
-            conditionOk = conditionOk && isRestored;
-        } else if (objectTransitionStatus == 'cold') {
+        } else if (objectTransitionStatus === 'cold') {
             conditionOk = conditionOk && !parsed.result?.Restore;
         }
+        if (conditionOk) return;
+
         await Utils.sleep(1000);
     }
-    assert(conditionOk);
+
+    throw new Error(
+        `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
+        `waiting for object "${objName}" to reach "${objectTransitionStatus}" ` +
+        `with storage class "${storageClass}"`,
+    );
 }
 
 async function restoreObject(this: Zenko, objectName: string, days: number) {

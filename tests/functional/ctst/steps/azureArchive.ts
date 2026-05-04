@@ -8,6 +8,7 @@ import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
 import { waitForDataServicesToStabilize, waitForZenkoToStabilize } from './utils/kubernetes';
+import { waitForDLQMessage } from './utils/kafka';
 
 type manifestEntry = {
     'archive-id': string,
@@ -308,22 +309,29 @@ Then('blob for object {string} must be rehydrated',
         assert.strictEqual(sent, true, `Failed to send BlobCreatedEvent for ${tarName}, object ${objectName}`);
     });
 
-/**
- * This is used to intentionally fail rehydration
- * To do that, we verify that the blob is rehydrated in azure
- * But we don't send the event to the queue so that
- * zenko is not aware of the rehydration and mark it as failed
- */
-Then('blob for object {string} fails to rehydrate',
+Then('restoration of object {string} failed and ends up in DLQ',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
+        assert(tarName);
+        // Skipping sending BlobCreatedEvent to queue,
+        // which fails the restore and eventually ends up in DLQ
+
+        const objName = objectName || this.getSaved<string>('objectName');
+        const bucketName = this.getSaved<string>('bucketName');
 
         // wait for restore to fail and end up in dead letter queue
-        const restoreTimeoutSeconds = parseInt(this.parameters.SorbetdRestoreTimeout);
-        await Utils.sleep(restoreTimeoutSeconds * 1000 + 1000);
-        assert(tarName);
-        // restoreTimeout is set to 30s in the config
-        await Utils.sleep(30000);
+        const restoreTimeoutMs = parseInt(this.parameters.SorbetdRestoreTimeout) * 1000;
+        if (isNaN(restoreTimeoutMs)) {
+            throw new Error('SorbetdRestoreTimeout world parameter is missing or not a valid integer');
+        }
+        const timeoutMs = restoreTimeoutMs + 30_000 + 1_000;
+
+        const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
+        this.addToSaved('seenDLQMessages', seenDLQ);
+        const dlqMsg = await waitForDLQMessage(Zenko.dlqBuffer, 'restore', objName, bucketName, seenDLQ, timeoutMs);
+        this.logger.info('Found rehydration failure in DLQ', {
+            objectName: objName, reason: dlqMsg.reason,
+        });
     });
 
 Then('the storage class of object {string} must stay {string} for {int} seconds',

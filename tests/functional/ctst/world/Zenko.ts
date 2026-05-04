@@ -1,4 +1,5 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
+import { DLQMessage, dlqKey } from 'steps/utils/kafka';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { AccessKey } from '@aws-sdk/client-iam';
 import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
@@ -135,6 +136,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
     static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
+    // Keyed by dlqKey(op, bucketName, objectKey). Array per key handles
+    // Kafka at-least-once delivery and retries of the same object.
+    static readonly dlqBuffer = new Map<string, DLQMessage[]>();
+
+    static addToDLQBuffer(msg: DLQMessage): void {
+        const key = dlqKey(msg.op, msg.bucketName, msg.objectKey);
+        const list = Zenko.dlqBuffer.get(key) ?? [];
+        list.push(msg);
+        Zenko.dlqBuffer.set(key, list);
+    }
 
     /**
      * @constructor

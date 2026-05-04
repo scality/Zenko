@@ -1,6 +1,8 @@
 import {
     Before,
     After,
+    AfterAll,
+    BeforeAll,
     setParallelCanAssign,
     parallelCanAssignHelpers,
     ITestCaseHookParameter,
@@ -17,6 +19,7 @@ import {
     cleanupAccount,
 } from './utils';
 import { createKubeCustomObjectClient, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
+import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
 import 'cli-testing/hooks/KeycloakSetup';
 import 'cli-testing/hooks/Logger';
@@ -39,6 +42,18 @@ const noParallelRun = atMostOnePicklePerTag([
 ]);
 
 setParallelCanAssign(noParallelRun);
+
+BeforeAll(async function () {
+    const kafkaHosts = process.env['KAFKA_HOST_PORT'];
+    const dlqTopic = process.env['KAFKA_DEAD_LETTER_TOPIC'];
+    if (kafkaHosts && dlqTopic) {
+        await startDLQConsumer(kafkaHosts, dlqTopic, Zenko.addToDLQBuffer);
+    }
+});
+
+AfterAll(async function () {
+    await stopDLQConsumer();
+});
 
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();

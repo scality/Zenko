@@ -238,8 +238,7 @@ Feature: Azure Archive
     And object "retry-obj-2" should be "transitioning" and have the storage class "e2e-azure-archive"
     And manifest containing object "retry-obj-1" should "contain" object "retry-obj-2"
     When i restore object "retry-obj-1" for <restoreDays> days
-    Then blob for object "retry-obj-1" fails to rehydrate
-    And blob for object "retry-obj-2" fails to rehydrate
+    Then restoration of object "retry-obj-1" failed and ends up in DLQ
     Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
     When i run sorbetctl to retry failed restore for "e2e-azure-archive" location
     Then object "retry-obj-1" should be "restored" and have the storage class "e2e-azure-archive"
