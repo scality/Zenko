@@ -6,5 +6,7 @@ Feature: Kafka Cleaner
     @AfterAll
     @ColdStorage
     @Flaky
-    Scenario Outline: Verify that consumed messages gets deleted by kafkacleaner
+    @hehe
+    Scenario: Verify that consumed messages gets deleted by kafkacleaner
     Then kafka consumed messages should not take too much place on disk
+    And kafka cleaner has successfully cleaned topic messages
