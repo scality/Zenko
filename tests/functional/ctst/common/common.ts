@@ -311,50 +311,50 @@ Then('i {string} be able to add user metadata to object {string}',
 Then('kafka consumed messages should not take too much place on disk', { timeout: -1 },
     async function (this: Zenko) {
         const kfkcIntervalSeconds = parseGoDuration(this.parameters.KafkaCleanerInterval);
-        const checkInterval = kfkcIntervalSeconds * (1000 + 5000);
-
-        const timeoutID = setTimeout(() => {
-            assert.fail('Kafka cleaner did not clean the topics within the expected time');
-        }, checkInterval * 10); // Timeout after 10 Kafka cleaner intervals
+        const checkInterval = kfkcIntervalSeconds * 1000;
+        const deadline = Date.now() + checkInterval * 3;
 
         const kafkaAdmin = new Admin({
             clientId: 'ctst-kafka-cleaner-check',
             bootstrapBrokers: [this.parameters.KafkaHosts],
         });
-        
+
         try {
-            const ignoredTopics = ['dead-letter'];
+            const excludedTopics = ['dead-letter', 'backbeat-metrics'];
+            const prefix = `${this.parameters.InstanceID}.`;
             const allTopics = await kafkaAdmin.listTopics();
             const topics: string[] = allTopics
-                .filter(t => (t.includes(this.parameters.InstanceID) &&
-                    !ignoredTopics.some(e => t.includes(e))));
+                .filter(t => t.startsWith(prefix) &&
+                    !excludedTopics.some(excluded => t.includes(excluded)));
 
-            const previousOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+            const previousOffsets = new Map<string, { low: string, high: string }[]>();
+            for (const { topic, partitions } of await getTopicsOffsets(topics, kafkaAdmin)) {
+                previousOffsets.set(topic, partitions);
+            }
 
-            while (topics.length > 0) {
-                // Checking topics offsets before kafkacleaner passes to be sure kafkacleaner works
-                // This function can be improved by consuming messages and
-                // verify that the timestamp is not older than last kafkacleaner run
-                // Instead of waiting for a fixed amount of time,
-                // we could also check for metrics to see last kafkacleaner run
+            let remainingTopics = topics;
 
-                // 3 seconds added to be sure kafkacleaner had time to process
-                await Utils.sleep(checkInterval);
+            while (true) {
+                assert(Date.now() < deadline,
+                    'Kafka cleaner did not clean topics within the expected time. ' +
+                    `Remaining: ${remainingTopics.join(', ')}`);
 
-                const newOffsets = await getTopicsOffsets(topics, kafkaAdmin);
+                const newOffsets = await getTopicsOffsets(remainingTopics, kafkaAdmin);
+                const nextTopics: string[] = [];
 
-                for (let i = 0; i < topics.length; i++) {
-                    this.logger.debug('Checking topic', { topic: topics[i] });
+                for (let i = 0; i < remainingTopics.length; i++) {
+                    const topic = remainingTopics[i];
+                    const previousTopicOffsets = previousOffsets.get(topic)!;
+                    this.logger.debug('Checking topic', { topic });
                     let topicCleaned = false;
                     for (let j = 0; j < newOffsets[i].partitions.length; j++) {
                         const newOffsetPartition = newOffsets[i].partitions[j];
-                        const oldOffsetPartition = previousOffsets[i].partitions[j];
+                        const oldOffsetPartition = previousTopicOffsets[j];
 
                         if (!oldOffsetPartition) {
                             continue;
                         }
 
-                        // Ensure we're accessing the correct partition details
                         const lowOffsetIncreased = parseInt(newOffsetPartition.low) >
                             parseInt(oldOffsetPartition.low);
                         // We tolerate one message not being cleaned, as it can be due to the
@@ -362,32 +362,53 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                         const allMessagesCleaned = parseInt(newOffsetPartition.low) + 1 >=
                             parseInt(newOffsetPartition.high);
 
-                        // We consider one topic as cleaned if kafkacleaner affected the
-                        // offset (low) or all messages are cleaned.
                         if (lowOffsetIncreased || allMessagesCleaned) {
                             topicCleaned = true;
                         } else {
-                            // Log warning if the condition is not met for this partition
-                            this.logger.debug(`Partition ${j} of topic ${topics[i]} not cleaned as expected`, {
+                            this.logger.debug(`Partition ${j} of topic ${topic} not cleaned as expected`, {
                                 previousOffsets: oldOffsetPartition,
                                 newOffsets: newOffsetPartition,
                             });
                         }
                     }
-                    if (topicCleaned) {
-                        // All partitions of the topic are cleaned, remove from array
-                        topics.splice(i, 1);
+                    if (!topicCleaned) {
+                        nextTopics.push(topic);
                     }
                 }
-            }
 
-            // If a topic remains in this array, it means it has not been cleaned
-            assert(topics.length === 0, `Topics ${topics.join(', ')} still have not been cleaned`);
+                if (nextTopics.length === 0) {
+                    break;
+                }
+                remainingTopics = nextTopics;
+                await Utils.sleep(5000);
+            }
         } finally {
-            clearTimeout(timeoutID);
             await kafkaAdmin.close();
         }
     });
+
+Then('kafka cleaner has successfully deleted some topic messages', async function (this: Zenko) {
+    const prometheusQuery = encodeURIComponent(
+        'sum(kafka_cleaner_kafka_requests{type="DeleteRecords",status="success"})'
+    );
+    const metricsResponse = await fetch(
+        `${this.parameters.PrometheusEndpoint}/api/v1/query?query=${prometheusQuery}`
+    );
+    assert(metricsResponse.ok,
+        `Prometheus query failed with status ${metricsResponse.status}: ${metricsResponse.statusText}`);
+    const metricsData = await metricsResponse.json() as {
+        status: string;
+        data: { result: { value: [number, string] }[] };
+    };
+    assert.strictEqual(metricsData.status, 'success',
+        `Prometheus returned non-success status: ${metricsData.status}`);
+    const deleteRecordsCount = metricsData.data.result.length > 0
+        ? parseFloat(metricsData.data.result[0].value[1])
+        : 0;
+    this.logger.info('Kafka cleaner DeleteRecords count', { deleteRecordsCount });
+    assert(deleteRecordsCount > 0,
+        'Kafka cleaner has not successfully called DeleteRecords since it started');
+});
 
 Given('an object {string} that {string}', async function (this: Zenko, objectName: string, objectExists: string) {
     this.resetCommand();
