@@ -12,8 +12,6 @@ set -exu
 #   devcontainer setup.sh or as a separate CI workflow step).
 
 TAGS=${1:?'Error: TAGS argument is required (e.g., "@PreMerge", "@PRA")'}
-PARALLEL_RUNS=${PARALLEL_RUNS:-$(( ( $(nproc) + 1 ) / 2 ))}
-
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 source "$DIR/setup-e2e-env.sh"
@@ -27,7 +25,7 @@ yarn cucumber-js \
     --config ctst/cucumber.config.cjs \
     --tags "${TAGS}" \
     --world-parameters "${CTST_WORLD_PARAMETERS}" \
-    --parallel "${PARALLEL_RUNS}" \
+    --parallel 8 \
     --retry 3 \
     --retry-tag-filter @Flaky \
     --format pretty \
