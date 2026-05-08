@@ -311,18 +311,18 @@ Feature: Azure Archive
     Scenario Outline: Restore notifications are triggered
     Given a "<versioningConfiguration>" bucket
     And one notification destination
-    And i subscribe to "s3:ObjectRestore:*" notifications for destination 0
+    And i subscribe to "s3:ObjectRestore:*" notifications for destination "default"
     And a transition workflow to "e2e-azure-archive" location
     And <objectCount> objects "notif-obj" of size <objectSize> bytes
     Then object "notif-obj-1" should be "transitioned" and have the storage class "e2e-azure-archive"
     And object "notif-obj-2" should be "transitioned" and have the storage class "e2e-azure-archive"
     When i restore object "notif-obj-2" for <restoreDays> days
-    Then i should "receive" a notification for "s3:ObjectRestore:Post" event in destination 0
+    Then i should "receive" a notification for "s3:ObjectRestore:Post" event in destination "default"
     And blob for object "notif-obj-2" must be rehydrated
     Then object "notif-obj-2" should be "restored" and have the storage class "e2e-azure-archive"
-    Then i should "receive" a notification for "s3:ObjectRestore:Completed" event in destination 0
+    Then i should "receive" a notification for "s3:ObjectRestore:Completed" event in destination "default"
     When i wait for <restoreDays> days
-    Then i should "receive" a notification for "s3:ObjectRestore:Delete" event in destination 0
+    Then i should "receive" a notification for "s3:ObjectRestore:Delete" event in destination "default"
     
     Examples:
         | versioningConfiguration | objectCount | objectSize | restoreDays |

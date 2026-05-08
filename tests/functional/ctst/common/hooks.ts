@@ -155,6 +155,11 @@ After(async function (this: Zenko, results) {
         // Also my opinion is good idempotent tests should work without cleanups
         return;
     }
+    if (tags.includes('@BucketNotificationShared')) {
+        // Shared notification buckets are reused across scenarios,
+        // do not delete them.
+        return;
+    }
     await cleanS3Bucket(
         this,
         this.getSaved<string>('bucketName'),
