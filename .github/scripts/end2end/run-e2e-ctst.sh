@@ -25,7 +25,7 @@ yarn cucumber-js \
     --config ctst/cucumber.config.cjs \
     --tags "${TAGS}" \
     --world-parameters "${CTST_WORLD_PARAMETERS}" \
-    --parallel 8 \
+    --parallel 4 \
     --retry 3 \
     --retry-tag-filter @Flaky \
     --format pretty \
