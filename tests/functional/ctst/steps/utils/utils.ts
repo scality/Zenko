@@ -484,24 +484,16 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     if (versionId) {
         this.addCommandParameter({ versionId });
     }
-    let conditionOk = false;
-
     const startTime = Date.now();
     const timeoutMs = 5 * 60 * 1000;
-    while (!conditionOk) {
-        if (Date.now() - startTime > timeoutMs) {
-            throw new Error(
-                `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
-                `waiting for object "${objName}" to reach status "${objectTransitionStatus}" ` +
-                `with storage class "${storageClass}"`
-            );
-        }
+    while (Date.now() - startTime <= timeoutMs) {
         const res = await S3.headObject(this.getCommandParameters());
         if (res.err?.includes('NotFound')) {
             await Utils.sleep(1000);
             continue;
-        } else if (res.err) {
-            break;
+        }
+        if (res.err) {
+            throw new Error(`verifyObjectLocation: headObject failed for "${objName}": ${res.err}`);
         }
         assert(res.stdout);
         const parsed = safeJsonParse<{
@@ -510,19 +502,23 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }>(res.stdout);
         assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
-        if (parsed.result?.StorageClass === expectedClass) {
-            conditionOk = true;
-        }
+        let ok = parsed.result?.StorageClass === expectedClass;
         if (objectTransitionStatus == 'restored') {
-            const isRestored = !!parsed.result?.Restore &&
+            ok = ok && !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
-            conditionOk = conditionOk && isRestored;
         } else if (objectTransitionStatus == 'cold') {
-            conditionOk = conditionOk && !parsed.result?.Restore;
+            ok = ok && !parsed.result?.Restore;
+        }
+        if (ok) {
+            return;
         }
         await Utils.sleep(1000);
     }
-    assert(conditionOk);
+    throw new Error(
+        `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
+        `waiting for object "${objName}" to reach status "${objectTransitionStatus}" ` +
+        `with storage class "${storageClass}"`
+    );
 }
 
 async function restoreObject(this: Zenko, objectName: string, days: number) {

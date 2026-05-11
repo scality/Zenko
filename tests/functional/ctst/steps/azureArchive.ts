@@ -52,30 +52,26 @@ function getAzureCreds(
  * @returns {string} name of the tar blob
  */
 async function isObjectRehydrated(zenko: Zenko, objectName: string) {
-    let found = false;
-    const {
-        tarName,
-    } = await findObjectPackAndManifest(
+    const { tarName } = await findObjectPackAndManifest(
         zenko,
         zenko.getSaved<string>('bucketName'),
         objectName || zenko.getSaved<string>('objectName'),
     );
-    const start = new Date();
     assert(tarName);
-    while (!found) {
-        found = await AzureHelper.blobExists(
+    const start = Date.now();
+    //wait for 1 minute max
+    while (Date.now() - start <= 60000) {
+        const found = await AzureHelper.blobExists(
             zenko.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
             getAzureCreds(zenko),
         );
-        await Utils.sleep(1000);
-
-        //wait for 1 minute max
-        if (new Date().getTime() - start.getTime() > 60000) {
-            return undefined;
+        if (found) {
+            return tarName;
         }
+        await Utils.sleep(1000);
     }
-    return tarName;
+    return undefined;
 }
 
 /**

@@ -260,7 +260,6 @@ export async function waitForZenkoToStabilize(
     // So, this function will first wait till we detect a reconciliation
     // (deploymentInProgress = true), and then wait for the status to be available
     const startTime = Date.now();
-    let status = false;
     let deploymentFailure: ZenkoStatusValue = {
         lastTransitionTime: '',
         message: '',
@@ -287,7 +286,7 @@ export async function waitForZenkoToStabilize(
     world.logger.debug('Waiting for Zenko to stabilize');
     const zenkoClient = createKubeCustomObjectClient(world);
 
-    while (!status && Date.now() - startTime < timeout) {
+    while (Date.now() - startTime < timeout) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject({
             group: 'zenko.io',
             version: 'v1alpha2',
@@ -342,19 +341,16 @@ export async function waitForZenkoToStabilize(
             deploymentInProgress.status === 'False' &&
             available.status === 'True'
         ) {
-            status = true;
+            return;
         }
 
         await Utils.sleep(1000);
     }
 
-    if (!status) {
-        throw new Error('Zenko did not stabilize');
-    }
+    throw new Error('Zenko did not stabilize');
 }
 
 export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 * 60 * 1000, namespace = 'default') {
-    let allRunning = false;
     const startTime = Date.now();
     const annotationKey = 'operator.zenko.io/dependencies';
     const dataServices = ['connector-cloudserver-config', 'backbeat-config'];
@@ -379,8 +375,8 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
         deployments: deployments.map(deployment => deployment.metadata?.name),
     });
 
-    while (!allRunning && Date.now() - startTime < timeout) {
-        allRunning = true;
+    while (Date.now() - startTime < timeout) {
+        let allRunning = true;
 
         // get the deployments in the array, and check in loop if they are ready
         for (const deployment of deployments) {
@@ -414,14 +410,13 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
             }
         }
 
+        if (allRunning) {
+            return true;
+        }
         await Utils.sleep(1000);
     }
 
-    if (!allRunning) {
-        throw new Error('Data services did not stabilize');
-    }
-
-    return allRunning;
+    throw new Error('Data services did not stabilize');
 }
 
 export async function displayCRStatus(world: Zenko, namespace = 'default') {
