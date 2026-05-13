@@ -9,9 +9,9 @@ runs:
       uses: actions/cache@v5
       with:
         path: ~/deb_cache
-        key: ${{ runner.os }}-deb-${{ hashFiles('.github/actions/install-doc-dependencies/action.yaml') }}
+        key: ${{ runner.os }}-doc-deb-${{ hashFiles('docs/Dockerfile') }}
         restore-keys: |
-          ${{ runner.os }}-deb-
+          ${{ runner.os }}-doc-deb-
     - name: Install required dependencies
       shell: bash
       run: |
