@@ -1,0 +1,92 @@
+---
+name: cache-warmer
+
+# Populate GHA caches on the default branch so PR builds (which can only
+# read caches from their own ref or the default branch) can hit them.
+#
+# Dispatched from postmerge.yaml on every push to a development/* branch,
+# with --ref=<default branch> so GITHUB_REF is the default branch and all
+# cache writes land in the universally-readable default-branch cache pool.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'development/x.y branch whose state to warm'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+# Cancel intermediate runs in a Bert-E cascade: each development/x.y push
+# fires its own warmer, but only the latest per source_branch needs to run.
+concurrency:
+  group: cache-warmer-${{ inputs.source_branch }}
+  cancel-in-progress: true
+
+env:
+  # Mirror the versions used by end2end.yaml so the tool cache keys
+  # written by the warmer match what PR builds expect.
+  HELM_VERSION: "v3.19.0"
+  KIND_VERSION: "v0.30.0"
+  KUBECTL_VERSION: "1.32.0"
+  KUSTOMIZE_VERSION: "v5.7.1"
+  TILT_VERSION: "0.35.2"
+
+jobs:
+  warm-kafka:
+    uses: ./.github/workflows/build-kafka.yaml
+    secrets: inherit
+    with:
+      ref: ${{ inputs.source_branch }}
+
+  warm-mongodb:
+    uses: ./.github/workflows/build-mongodb.yaml
+    secrets: inherit
+    with:
+      ref: ${{ inputs.source_branch }}
+
+  warm-tools:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_branch }}
+      - name: Install end2end dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+
+  warm-yarn-workflows:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_branch }}
+      - name: Setup node and warm yarn cache for tests/workflows
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: yarn
+          cache-dependency-path: tests/workflows/yarn.lock
+      - name: Hydrate yarn cache
+        run: yarn --cwd tests/workflows install --frozen-lockfile
+
+  warm-yarn-functional:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_branch }}
+          persist-credentials: false
+      - name: Setup node and warm yarn cache for tests/functional
+        uses: ./.github/actions/setup-node-env
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          repositories: |
+            cli-testing
+            zenko-operator

@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
   deployments: write
+  actions: write
 
 jobs:
   create-deployments:
@@ -25,3 +26,15 @@ jobs:
           status: success
           log-url: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           description: "Integrated in zenko ${{ github.ref_name }}"
+
+  dispatch-cache-warmer:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Dispatch cache warmer on default branch
+        run: |
+          gh workflow run cache-warmer.yaml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.event.repository.default_branch }} \
+            -f source_branch=${{ github.ref_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

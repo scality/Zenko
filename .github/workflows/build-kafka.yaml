@@ -3,6 +3,12 @@ name: build-kafka
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        description: 'Git ref to check out. Defaults to the caller workflow ref.'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -14,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
