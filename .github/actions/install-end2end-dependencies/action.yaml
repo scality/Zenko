@@ -1,38 +1,59 @@
 name: "Setup End2End environment"
 description: "installation of dependencies"
 
+# Tool versions are pinned here so the action is the single source of truth.
+# Callers (end2end.yaml, cache-warmer.yaml, build-iso) don't set env vars,
+# which removes the drift risk that caused warmer/PR cache-key mismatches.
+
+inputs:
+  kind-version:
+    description: "Version of kind to install"
+    default: v0.30.0
+  helm-version:
+    description: "Version of helm to install"
+    default: v3.19.0
+  kubectl-version:
+    description: "Version of kubectl to install"
+    default: v1.32.0
+  kustomize-version:
+    description: "Version of kustomize to install"
+    default: v5.7.1
+  tilt-version:
+    description: "Version of tilt to install"
+    default: 0.35.2
+
 runs:
   using: composite
   steps:
     - name: Install kind
       uses: helm/kind-action@v1
       with:
-        version: ${{ env.KIND_VERSION }}
+        version: ${{ inputs.kind-version }}
         install_only: true
 
     - name: Install helm
       uses: azure/setup-helm@v4
       with:
-        version: ${{ env.HELM_VERSION }}
+        version: ${{ inputs.helm-version }}
 
     - name: Install kubectl
       uses: Azure/setup-kubectl@v5
       with:
-        version: 'v${{ env.KUBECTL_VERSION }}'
+        version: ${{ inputs.kubectl-version }}
 
     - name: Cache kustomize
       id: cache-kustomize
       uses: actions/cache@v5
       with:
         path: /usr/local/bin/kustomize
-        key: ${{ runner.os }}-kustomize-${{ env.KUSTOMIZE_VERSION }}
+        key: ${{ runner.os }}-kustomize-${{ inputs.kustomize-version }}
 
     - name: Install kustomize
       if: steps.cache-kustomize.outputs.cache-hit != 'true'
       shell: bash
       run: |
         set -exu
-        curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ env.KUSTOMIZE_VERSION }}/kustomize_${{ env.KUSTOMIZE_VERSION }}_linux_amd64.tar.gz" \
+        curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${{ inputs.kustomize-version }}/kustomize_${{ inputs.kustomize-version }}_linux_amd64.tar.gz" \
           | sudo tar -xz -C /usr/local/bin kustomize
 
     - name: Cache tilt
@@ -40,12 +61,12 @@ runs:
       uses: actions/cache@v5
       with:
         path: /usr/local/bin/tilt
-        key: ${{ runner.os }}-tilt-${{ env.TILT_VERSION }}
+        key: ${{ runner.os }}-tilt-${{ inputs.tilt-version }}
 
     - name: Install tilt
       if: steps.cache-tilt.outputs.cache-hit != 'true'
       shell: bash
       run: |
         set -exu
-        curl -fsSL "https://github.com/tilt-dev/tilt/releases/download/v${{ env.TILT_VERSION }}/tilt.${{ env.TILT_VERSION }}.linux.x86_64.tar.gz" \
+        curl -fsSL "https://github.com/tilt-dev/tilt/releases/download/v${{ inputs.tilt-version }}/tilt.${{ inputs.tilt-version }}.linux.x86_64.tar.gz" \
           | sudo tar -xz -C /usr/local/bin tilt

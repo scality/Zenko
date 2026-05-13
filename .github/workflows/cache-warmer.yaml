@@ -26,15 +26,6 @@ concurrency:
   group: cache-warmer-${{ inputs.source_branch }}
   cancel-in-progress: true
 
-env:
-  # Mirror the versions used by end2end.yaml so the tool cache keys
-  # written by the warmer match what PR builds expect.
-  HELM_VERSION: "v3.19.0"
-  KIND_VERSION: "v0.30.0"
-  KUBECTL_VERSION: "1.32.0"
-  KUSTOMIZE_VERSION: "v5.7.1"
-  TILT_VERSION: "0.35.2"
-
 jobs:
   warm-kafka:
     uses: ./.github/workflows/build-kafka.yaml
