@@ -45,6 +45,7 @@ Feature: Azure Archive
     @Flaky
     @AzureArchive
     @ColdStorage
+    @ColdStorageSequential
     Scenario Outline: Create, read, update and delete azure archive location
     Given an azure archive location "<locationName>"
     And a "<versioningConfiguration>" bucket

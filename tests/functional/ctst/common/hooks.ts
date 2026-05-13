@@ -36,7 +36,7 @@ export const replicationLockTags = [
 const noParallelRun = atMostOnePicklePerTag([
     '@AfterAll',
     '@PRA',
-    '@ColdStorage',
+    '@ColdStorageSequential',
     '@ServerSideEncryption',
     ...replicationLockTags
 ]);
