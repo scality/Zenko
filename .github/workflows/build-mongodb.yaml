@@ -41,7 +41,9 @@ jobs:
             MONGODB_VERSION=${{ env.MONGODB_SHARDED_TAG }}
           platforms: linux/amd64,linux/arm64
           tags: "${{ env.MONGODB_SHARDED_IMAGE }}:${{ env.MONGODB_SHARDED_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
-          cache-from: type=gha,scope=mongodb-sharded-${{ env.MONGODB_SHARDED_TAG }}
+          cache-from: |
+            type=registry,ref=${{ env.MONGODB_SHARDED_IMAGE }}:${{ env.MONGODB_SHARDED_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
+            type=gha,scope=mongodb-sharded-${{ env.MONGODB_SHARDED_TAG }}
           cache-to: type=gha,mode=max,scope=mongodb-sharded-${{ env.MONGODB_SHARDED_TAG }}
 
       - name: Build and push mongodb-exporter
@@ -51,7 +53,9 @@ jobs:
           context: ./solution-base/images/mongodb-exporter/debian-12
           platforms: linux/amd64,linux/arm64
           tags: "${{ env.MONGODB_SHARDED_EXPORTER_IMAGE }}:${{ env.MONGODB_SHARDED_EXPORTER_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
-          cache-from: type=gha,scope=mongodb-exporter-${{ env.MONGODB_SHARDED_EXPORTER_TAG }}
+          cache-from: |
+            type=registry,ref=${{ env.MONGODB_SHARDED_EXPORTER_IMAGE }}:${{ env.MONGODB_SHARDED_EXPORTER_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
+            type=gha,scope=mongodb-exporter-${{ env.MONGODB_SHARDED_EXPORTER_TAG }}
           cache-to: type=gha,mode=max,scope=mongodb-exporter-${{ env.MONGODB_SHARDED_EXPORTER_TAG }}
 
       - name: Build and push os-shell
@@ -61,5 +65,7 @@ jobs:
           context: ./solution-base/images/os-shell/debian-12
           platforms: linux/amd64,linux/arm64
           tags: "${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
-          cache-from: type=gha,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}
+          cache-from: |
+            type=registry,ref=${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
+            type=gha,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}
           cache-to: type=gha,mode=max,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}

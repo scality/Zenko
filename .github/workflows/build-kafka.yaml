@@ -42,7 +42,9 @@ jobs:
             scala_version=${{ env.scala_version }}
             kafka_version=${{ env.kafka_version }}
           tags: "${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}"
-          cache-from: type=gha,scope=kafka-${{ env.KAFKA_TAG }}
+          cache-from: |
+            type=registry,ref=${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
+            type=gha,scope=kafka-${{ env.KAFKA_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-${{ env.KAFKA_TAG }}
 
       - name: Build and push kafka-connect
@@ -57,5 +59,7 @@ jobs:
             KAFKA_TAG=${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
             MONGODB_CONNECTOR_TAG=${{ env.MONGODB_CONNECTOR_TAG }}
           tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}"
-          cache-from: type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
+          cache-from: |
+            type=registry,ref=${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}
+            type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
