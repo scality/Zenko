@@ -1,0 +1,67 @@
+---
+name: cache-cleanup
+
+# Delete GHA cache entries that have become unreachable. With the warmer
+# populating default-branch caches that PRs read from, no future run
+# needs the ref-scoped caches of a deleted branch or a closed PR.
+# Pruning immediately reclaims the 10 GB cap slot instead of waiting
+# for GHA's 7-day idle eviction.
+#
+# Two triggers, both needed:
+#   - delete: fires whenever a branch is deleted. This happens for each
+#     branch: the PR's, w/** integration branches, q/** merge queue
+#     branches...
+#   - pull_request: closed: the only purpose is to prune the
+#     refs/pull/<N>/merge ref, used by review.yaml (claude-code-review
+#     writes a ~33 MB bun cache there per PR). Not covered by delete
+#     since it's not a real branch.
+
+on:
+  pull_request:
+    types: [closed]
+  delete:
+
+permissions:
+  contents: read
+  actions: write  # required for gh cache delete
+
+jobs:
+  prune:
+    # On pull_request: skip fork PRs (their caches live in the fork's
+    # namespace and we have no write access there).
+    if: >-
+      (github.event_name == 'delete' && github.event.ref_type == 'branch') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      REF: >-
+        ${{ github.event_name == 'delete'
+            && format('refs/heads/{0}', github.event.ref)
+            || format('refs/pull/{0}/merge', github.event.pull_request.number) }}
+    steps:
+      - name: Prune caches for ${{ env.REF }}
+        run: |
+          set -eu
+          freed=0
+          deleted=0
+
+          while IFS=$'\t' read -r id key size; do
+            [ -z "${id}" ] && continue
+
+            if ! gh cache delete "${id}" --repo "${REPO}" >/dev/null 2>&1; then
+              echo "  failed to delete id=${id} key=${key}" >&2
+              continue
+            fi
+
+            echo "  deleted size=${size}B  key=${key}"
+            freed=$((freed + size))
+            deleted=$((deleted + 1))
+          done < <(
+            gh cache list --repo "${REPO}" --ref "${REF}" --limit 1000 \
+              --json id,key,sizeInBytes \
+              --jq '.[] | [.id, .key, .sizeInBytes] | @tsv')
+
+          echo
+          echo "Total: ${deleted} entries, $(numfmt --to=iec --suffix=B "${freed}") freed from ${REF}"
