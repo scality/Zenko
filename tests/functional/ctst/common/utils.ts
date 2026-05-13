@@ -242,83 +242,82 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
     try {
         Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
 
-        // List and detach policies for each user
-        const allUsers = await listAllEntities<User>(IAM.listUsers, 'Users');
-        for (const user of allUsers) {
-            const allUserPolicies = await listAttachedPolicies<AttachedPolicy>(
-                params => IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
-            );
-            for (const policy of allUserPolicies) {
-                const result = await IAM.detachUserPolicy({
-                    userName: user.UserName, policyArn: policy.PolicyArn });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }
-        }
+        const [allUsers, allGroups, allRoles] = await Promise.all([
+            listAllEntities<User>(IAM.listUsers, 'Users'),
+            listAllEntities<Group>(IAM.listGroups, 'Groups'),
+            listAllEntities<Role>(IAM.listRoles, 'Roles'),
+        ]);
 
-        // List and detach policies for each group
-        const allGroups = await listAllEntities<Group>(IAM.listGroups, 'Groups');
-        for (const group of allGroups) {
-            const allGroupPolicies = await listAttachedPolicies<AttachedPolicy>(
-                params => IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
-            );
-            for (const policy of allGroupPolicies) {
-                const result = await IAM.detachGroupPolicy({
-                    groupName: group.GroupName, policyArn: policy.PolicyArn });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }
-        }
+        // Detach attached policies from every user, group and role in parallel.
+        await Promise.all([
+            ...allUsers.map(async user => {
+                const policies = await listAttachedPolicies<AttachedPolicy>(
+                    params => IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
+                );
+                await Promise.all(policies.map(async policy => {
+                    const result = await IAM.detachUserPolicy({
+                        userName: user.UserName, policyArn: policy.PolicyArn });
+                    if (result.err) {
+                        throw new Error(result.err);
+                    }
+                }));
+            }),
+            ...allGroups.map(async group => {
+                const policies = await listAttachedPolicies<AttachedPolicy>(
+                    params => IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
+                );
+                await Promise.all(policies.map(async policy => {
+                    const result = await IAM.detachGroupPolicy({
+                        groupName: group.GroupName, policyArn: policy.PolicyArn });
+                    if (result.err) {
+                        throw new Error(result.err);
+                    }
+                }));
+            }),
+            ...allRoles.map(async role => {
+                const policies = await listAttachedPolicies<AttachedPolicy>(
+                    params => IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
+                );
+                await Promise.all(policies.map(async policy => {
+                    const result = await IAM.detachRolePolicy({
+                        roleName: role.RoleName, policyArn: policy.PolicyArn });
+                    if (result.err) {
+                        throw new Error(result.err);
+                    }
+                }));
+            }),
+        ]);
 
-        // List and detach policies for each role
-        const allRoles = await listAllEntities<Role>(IAM.listRoles, 'Roles');
-        for (const role of allRoles) {
-            const allRolePolicies = await listAttachedPolicies<AttachedPolicy>(
-                params => IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
-            );
-            for (const policy of allRolePolicies) {
-                const result = await IAM.detachRolePolicy({
-                    roleName: role.RoleName, policyArn: policy.PolicyArn });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }
-        }
-
-        // Delete all policies
+        // Delete all policies in parallel.
         const allPolicies = await listAllEntities<Policy>(IAM.listPolicies, 'Policies');
-        for (const policy of allPolicies) {
+        await Promise.all(allPolicies.map(async policy => {
             const result = await IAM.deletePolicy({ policyArn: policy.Arn });
             if (result.err) {
                 throw new Error(result.err);
             }
-        }
+        }));
 
-        // Delete all roles
-        for (const role of allRoles) {
-            const result = await IAM.deleteRole({ roleName: role.RoleName });
-            if (result.err) {
-                throw new Error(result.err);
-            }
-        }
-
-        // Delete all groups
-        for (const group of allGroups) {
-            const result = await IAM.deleteGroup({ groupName: group.GroupName });
-            if (result.err) {
-                throw new Error(result.err);
-            }
-        }
-
-        // Delete all users
-        for (const user of allUsers) {
-            const result = await IAM.deleteUser({ userName: user.UserName });
-            if (result.err) {
-                throw new Error(result.err);
-            }
-        }
+        // Delete all roles, groups and users in parallel (independent now that policies are gone).
+        await Promise.all([
+            ...allRoles.map(async role => {
+                const result = await IAM.deleteRole({ roleName: role.RoleName });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }),
+            ...allGroups.map(async group => {
+                const result = await IAM.deleteGroup({ groupName: group.GroupName });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }),
+            ...allUsers.map(async user => {
+                const result = await IAM.deleteUser({ userName: user.UserName });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }),
+        ]);
 
         // Finally, delete the account
         await world.deleteAccount(accountName);

@@ -117,7 +117,7 @@ runs:
         report_paths: /tmp/artifacts/data/${{ inputs.stage }}/junit-merged.xml
         job_summary: false
         check_retries: true
-        require_tests: true
+        require_tests: ${{ job.status == 'success' }}
         fail_on_failure: true
 
     - name: Upload results
@@ -155,13 +155,21 @@ runs:
         kubectl get zenkodrsink -A -o yaml > /tmp/artifacts/data/${STAGE}/kind-logs/all-zenkodrsinks.log || true
         kind export logs /tmp/artifacts/data/${STAGE}/kind-logs/kind-export || true
         cp -r /artifacts/data/fluentbit-logs /tmp/artifacts/data/${STAGE}/kind-logs/fluentbit-logs 2>/dev/null || true
+
+        echo "::group::Link container logs to fluentbit logs"
         for container_log in /tmp/artifacts/data/${STAGE}/kind-logs/kind-export/*/containers/*.log; do
           [ -f "$container_log" ] || continue
           fb_file="/tmp/artifacts/data/${STAGE}/kind-logs/fluentbit-logs/$(basename "$container_log")"
           [ -f "$fb_file" ] || continue
           ln -sf "../../../fluentbit-logs/$(basename "$container_log")" "$container_log"
         done
-        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs
+        echo "::endgroup::"
+
+        echo "::group::Archive logs volumes"
+        rc=0
+        tar zcvf /tmp/artifacts/${{ github.sha }}-${STAGE}-logs-volumes.tgz /tmp/artifacts/data/${STAGE}/kind-logs || rc=$?
+        echo "::endgroup::"
+        (exit $rc)
       env:
         STAGE: ${{ inputs.stage }}
       if: always()
@@ -216,15 +224,23 @@ runs:
         NAMESPACE="${NAMESPACE:-default}"
         DUMP_DIR="/tmp/mongodb.dump"
 
+        echo "::group::Dump MongoDB database"
+        rc=0
         kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- mongodump \
             --db ${ZENKO_MONGODB_DATABASE} -u ${MONGODB_ROOT_USERNAME} -p ${MONGODB_ROOT_PASSWORD} \
-            --authenticationDatabase admin --out ${DUMP_DIR}
+            --authenticationDatabase admin --out ${DUMP_DIR} || rc=$?
+        echo "::endgroup::"
+        (exit $rc)
 
+        echo "::group::Convert bson to json"
+        rc=0
         kubectl exec -n ${NAMESPACE} data-db-mongodb-sharded-mongos-0 -- bash -c \
             "for bson_file in ${DUMP_DIR}/${ZENKO_MONGODB_DATABASE}/*.bson; do \
                json_file=\"${DUMP_DIR}/\$(basename \${bson_file} .bson).json\"; \
                bsondump --outFile \${json_file} \${bson_file}; \
-             done"
+             done" || rc=$?
+        echo "::endgroup::"
+        (exit $rc)
 
         mkdir -p /tmp/artifacts/data/${STAGE}/mongodb-dump
         kubectl cp ${NAMESPACE}/data-db-mongodb-sharded-mongos-0:${DUMP_DIR} /tmp/artifacts/data/${STAGE}/mongodb-dump
@@ -235,7 +251,7 @@ runs:
       if: always()
       continue-on-error: true
 
-    - name: Upload artifacts                               # move into `archive-artifacts` action
+    - name: Upload artifacts
       uses: scality/action-artifacts@v4
       with:
         method: upload
