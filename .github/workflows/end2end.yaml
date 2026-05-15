@@ -103,8 +103,6 @@ env:
   NOTIF_SCRAM_DEST_PASSWORD: "admin-secret"
   SUBDOMAIN: "zenko.local"
   DR_SUBDOMAIN: "dr.zenko.local"
-  SKOPEO_PATH: "/tmp"
-  SKOPEO_VERSION: "v1.16.1"
   ZENKO_ENABLE_SOSAPI: false
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
@@ -273,19 +271,14 @@ jobs:
         uses: actions/checkout@v6
       - name: Install tooling
         uses: ./.github/actions/install-end2end-dependencies
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.0'
       - name: Install ISO build dependencies
         shell: bash
         run: |-
           sudo apt-get update
-          sudo apt-get install libgpgme-dev libassuan-dev libbtrfs-dev libdevmapper-dev pkg-config hardlink mkisofs isomd5sum
-          sudo git clone --depth 1 --branch ${{ env.SKOPEO_VERSION }} https://github.com/containers/skopeo ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo
-          cd ${{ env.SKOPEO_PATH }}/src/github.com/containers/skopeo && \
-            sudo PATH="$PATH" DISABLE_DOCS=1 make bin/skopeo && \
-            sudo PATH="$PATH" DISABLE_DOCS=1 make install
+          sudo apt-get install -y --no-install-recommends \
+            genisoimage \
+            isomd5sum \
+            skopeo
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
