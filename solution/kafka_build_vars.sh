@@ -21,5 +21,5 @@ KAFKA_CONNECT_TAG=$(yq eval '.kafka-connect.tag' deps.yaml)
 JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
 JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
 MONGODB_CONNECTOR_TAG=$(yq eval '.mongodb-connector.tag' deps.yaml)
-BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka)
+BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka HEAD:solution/kafka-connect | sha1sum | cut -d' ' -f1)
 EOF
