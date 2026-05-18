@@ -17,6 +17,13 @@ WORKDIR /tmp
 RUN curl -LO https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/${MONGODB_CONNECTOR_TAG}/mongo-kafka-connect-${MONGODB_CONNECTOR_TAG}-all.jar && \
     mv /tmp/mongo-kafka-connect-${MONGODB_CONNECTOR_TAG}-all.jar /tmp/mongo-kafka-connect.jar
 
+# Build Scality SMT plugin
+FROM maven:3.9-eclipse-temurin-17 AS smt-build
+ARG KAFKA_VERSION
+WORKDIR /build
+COPY smt/ ./
+RUN mvn -B -Dkafka.version=${KAFKA_VERSION} package
+
 # Use Kafka base image
 FROM ${KAFKA_IMAGE}:${KAFKA_TAG}
 
@@ -30,3 +37,7 @@ ENV KAFKA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus.jar=9020:/etc/jmx-exp
 
 # mongodb ingestor
 COPY --from=mongodb-connector /tmp/mongo-kafka-connect.jar /usr/local/share/kafka/plugins/
+
+# scality smt plugin
+COPY --from=smt-build /build/target/scality-kafka-connect-transforms-*.jar \
+     /usr/local/share/kafka/plugins/

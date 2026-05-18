@@ -66,6 +66,7 @@ jobs:
             KAFKA_IMAGE=${{ env.KAFKA_IMAGE }}
             KAFKA_TAG=${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
             MONGODB_CONNECTOR_TAG=${{ env.MONGODB_CONNECTOR_TAG }}
+            KAFKA_VERSION=${{ env.kafka_version }}
           tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}"
           cache-from: |
             type=registry,ref=${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}
