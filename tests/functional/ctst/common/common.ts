@@ -4,7 +4,7 @@ import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-t
 import Zenko from 'world/Zenko';
 import { parseGoDuration, safeJsonParse } from './utils';
 import assert from 'assert';
-import { Admin } from '@platformatic/kafka';
+import { Admin, Consumer, stringDeserializers } from '@platformatic/kafka';
 import {
     createBucketWithConfiguration,
     putMpuObject,
@@ -323,6 +323,139 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
             const excludedTopics = ['dead-letter', 'backbeat-metrics'];
             const prefix = `${this.parameters.InstanceID}.`;
             const allTopics = await kafkaAdmin.listTopics();
+            this.logger.info('AAAAA all topics', { allTopics });
+            const debugTopicCandidates = allTopics.filter(topic =>
+                topic.endsWith('.backbeat-metrics') || topic === 'backbeat-metrics');
+            const debugTopic = debugTopicCandidates.find(topic => topic.startsWith(prefix)) ||
+                debugTopicCandidates[0];
+            if (debugTopic) {
+                const debugTopicOffsets = await getTopicsOffsets([debugTopic], kafkaAdmin);
+                this.logger.info('Kafka debug topic offsets before consume', {
+                    debugTopic,
+                    offsets: debugTopicOffsets[0]?.partitions ?? [],
+                });
+
+                const debugGroupId = `ctst-kafka-debug-${Utils.randomString()}`;
+                const debugConsumer = new Consumer({
+                    clientId: debugGroupId,
+                    groupId: debugGroupId,
+                    bootstrapBrokers: [this.parameters.KafkaHosts],
+                    deserializers: stringDeserializers,
+                });
+
+                try {
+                    const debugStream = await debugConsumer.consume({
+                        topics: [debugTopic],
+                        mode: 'earliest',
+                        sessionTimeout: 10000,
+                        heartbeatInterval: 500,
+                    });
+
+                    const debugTimeoutMs = 15000;
+                    const maxDebugMessages = 20;
+                    let debugMessagesRead = 0;
+                    const debugStartTime = Date.now();
+                    this.logger.info('Kafka debug consumer started', {
+                        debugTopic,
+                        debugGroupId,
+                        debugTimeoutMs,
+                        maxDebugMessages,
+                    });
+                    const timeoutHandle = setTimeout(() => {
+                        debugStream.close().catch(() => {});
+                    }, debugTimeoutMs);
+
+                    try {
+                        for await (const msg of debugStream) {
+                            debugMessagesRead++;
+                            this.logger.info('Kafka debug message', {
+                                topic: msg.topic,
+                                partition: msg.partition,
+                                offset: msg.offset?.toString(),
+                                key: msg.key,
+                                value: msg.value,
+                            });
+
+                            if (debugMessagesRead >= maxDebugMessages) {
+                                break;
+                            }
+                        }
+                    } finally {
+                        clearTimeout(timeoutHandle);
+                        await debugStream.close().catch(() => {});
+                        this.logger.info('Kafka debug consumer finished', {
+                            debugTopic,
+                            debugGroupId,
+                            debugMessagesRead,
+                            durationMs: Date.now() - debugStartTime,
+                        });
+                        if (debugMessagesRead === 0) {
+                            this.logger.info('Kafka debug consumer saw no messages in window', {
+                                debugTopic,
+                                debugGroupId,
+                                debugTimeoutMs,
+                            });
+                        }
+                    }
+                } finally {
+                    await debugConsumer.close();
+                }
+            } else {
+                this.logger.info('Kafka debug topic not found', {
+                    expectedSuffix: 'backbeat-metrics',
+                });
+            }
+
+            const backbeatMetricsBaseUrl =
+                `http://${this.parameters.BackbeatApiHost}:${this.parameters.BackbeatApiPort}`;
+            const backbeatMetricsPaths = [
+                '/_/metrics/crr/all/all',
+                '/_/metrics/crr/all/backlog',
+                '/_/metrics/crr/all/completions',
+                '/_/metrics/crr/all/throughput',
+                '/_/metrics/crr/all/pending',
+                '/_/metrics/crr/all/failures',
+                '/_/metrics/ingestion/all/all',
+                '/_/metrics/ingestion/all/backlog',
+                '/_/metrics/ingestion/all/completions',
+                '/_/metrics/ingestion/all/throughput',
+                '/_/metrics/ingestion/all/pending',
+                '/_/metrics/ingestion/all/failures',
+                '/_/monitoring/metrics',
+            ];
+            let backbeatMetricsFetched = false;
+            for (const path of backbeatMetricsPaths) {
+                const backbeatMetricsUrl = `${backbeatMetricsBaseUrl}${path}`;
+                try {
+                    const backbeatMetricsResponse = await fetch(backbeatMetricsUrl);
+                    const backbeatMetricsBody = await backbeatMetricsResponse.text();
+                    this.logger.info('Backbeat metrics probe response', {
+                        backbeatMetricsUrl,
+                        path,
+                        status: backbeatMetricsResponse.status,
+                        ok: backbeatMetricsResponse.ok,
+                        bodyPreview: backbeatMetricsBody.slice(0, 4000),
+                    });
+
+                    if (backbeatMetricsResponse.ok) {
+                        backbeatMetricsFetched = true;
+                        break;
+                    }
+                } catch (error) {
+                    this.logger.info('Backbeat metrics probe request failed', {
+                        backbeatMetricsUrl,
+                        path,
+                        error: error instanceof Error ? error.message : String(error),
+                    });
+                }
+            }
+
+            if (!backbeatMetricsFetched) {
+                this.logger.info('Backbeat metrics probe did not find a successful endpoint', {
+                    backbeatMetricsPaths,
+                });
+            }
+
             const topics: string[] = allTopics
                 .filter(t => t.startsWith(prefix) &&
                     !excludedTopics.some(excluded => t.includes(excluded)));
