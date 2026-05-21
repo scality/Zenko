@@ -1273,6 +1273,20 @@
     camelize-ts "^3.0.0"
     url-template "^3.1.1"
 
+"@keycloak/keycloak-admin-client@^26.6.2":
+  version "26.6.2"
+  resolved "https://registry.yarnpkg.com/@keycloak/keycloak-admin-client/-/keycloak-admin-client-26.6.2.tgz#3c47278fe332945823efd0d18fe221bebb609c4b"
+  integrity sha512-CEqQ/fzJPkWOTM0LaUeH5KAKlCQGkqlydhpnxFM9Vx1rLyjr9AIqrENPNzt0owYDPIqrl6OYaFZJBAoH8woDpA==
+  dependencies:
+    "@microsoft/kiota-abstractions" "^1.0.0-preview.86"
+    "@microsoft/kiota-http-fetchlibrary" "^1.0.0-preview.80"
+    "@microsoft/kiota-serialization-form" "^1.0.0-preview.74"
+    "@microsoft/kiota-serialization-json" "^1.0.0-preview.86"
+    "@microsoft/kiota-serialization-multipart" "^1.0.0-preview.67"
+    "@microsoft/kiota-serialization-text" "^1.0.0-preview.79"
+    camelize-ts "^3.0.0"
+    url-template "^3.1.1"
+
 "@kubernetes/client-node@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@kubernetes/client-node/-/client-node-1.4.0.tgz#35b72d31f662befd9a2869e172b3153a3443e368"

@@ -13,6 +13,7 @@
     "@smithy/node-http-handler": "^4.0.0",
     "@azure/storage-blob": "^12.12.0",
     "@google-cloud/storage": "^7.12.1",
+    "@keycloak/keycloak-admin-client": "^26.6.2",
     "arsenal": "scality/Arsenal#8.1.38",
     "assert": "^2.1.0",
     "async": "2.1.2",

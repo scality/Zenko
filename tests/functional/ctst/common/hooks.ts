@@ -21,7 +21,6 @@ import {
 import { createKubeCustomObjectClient, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
-import 'cli-testing/hooks/KeycloakSetup';
 import 'cli-testing/hooks/Logger';
 
 // HTTPS should not cause any error for CTST
