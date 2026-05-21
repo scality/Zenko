@@ -356,6 +356,9 @@ jobs:
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
+      - name: Check that all scenarios have a version tag
+        working-directory: tests/functional
+        run: yarn ensure-version-tags
 
   end2end-pra:
     needs: [build-kafka, build-mongodb]
