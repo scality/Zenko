@@ -463,7 +463,17 @@ spec:
             storage: {{ $.Values.shardsvr.persistence.size | quote }}
         {{- with $.Values.shardsvr.persistence.selector }}
         selector:
-          {{- include "common.tplvalues.render" (dict "value" $.Values.shardsvr.persistence.selector "context" (merge $ (dict "Index" $i))) | nindent 10 }}
+          matchLabels:
+            {{- if gt $i 0 }}
+            app.kubernetes.io/name: {{ printf "mongodb-shard%d" $i }}
+            {{- else }}
+            app.kubernetes.io/name: mongodb
+            {{- end }}
+            {{- range $key, $value := $.Values.shardsvr.persistence.selector.matchLabels }}
+            {{- if ne $key "app.kubernetes.io/name" }}
+            {{ $key }}: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
         {{- end }}
         {{- include "common.storage.class" (dict "persistence" $.Values.shardsvr.persistence "global" $.Values.global) | nindent 8 }}
   {{- end }}
