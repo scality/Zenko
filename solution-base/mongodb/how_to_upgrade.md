@@ -2,49 +2,65 @@
 
 ## Overview
 
-Upgrading MongoDB sharded involves several steps to ensure a smooth transition
-to the new version. Below is a structured guide to follow for a successful
-upgrade (note that all along we will be taking as an example the upgrade from
-MongoDB 8.0.10 to 9.3.6):
+The `mongodb-sharded` Helm chart is vendored from the `bitnami/charts`
+GitHub repository via `git subtree`. Bitnami stopped publishing
+`mongodb-sharded` OCI chart artifacts in August 2025 (see
+[bitnami/charts#35164](https://github.com/bitnami/charts/issues/35164));
+the chart source on GitHub is still updated and tagged for every
+release, and is now the authoritative source for new versions.
+
+Our local modifications live as **ordinary git commits on top of the
+subtree merge**, not as separate `.patch` files. Future upgrades merge
+the new upstream via `git subtree merge --squash`, which produces real
+three-way merge conflicts where upstream has touched lines our local
+commits modified.
 
 ## Upgrade steps
 
-1. Update your local view of the helm charts: `helm repo update bitnami`.
-You may also reinstall it with
-`helm repo remove bitnami && helm repo add bitnami https://charts.bitnami.com/bitnami`.
+1. Browse available versions at <https://github.com/bitnami/charts/tags>
+   (filter for `mongodb-sharded/*`). To inspect values or templates for
+   a specific version, view the source at
+   `https://github.com/bitnami/charts/tree/mongodb-sharded%2F<VERSION>/bitnami/mongodb-sharded`
+   (the `%2F` is the URL-encoded `/` in the tag name).
 
-2. Check for all available versions of the chart using
-`helm search repo bitnami/mongodb-sharded --versions` to check the
-configuration values for a specified version:
-`helm show values --version 9.3.6 bitnami/mongodb-sharded`.
+2. Bump image tags in `solution-base/deps.yaml` if needed. The image
+   tags shipped with the chart can be found under `annotations.images`
+   in the upstream `Chart.yaml` at the same tag.
 
-3. Bump mongo version in `solution-base/deps.yaml` files. The current version
-can be found in
-`https://github.com/bitnami/charts/blob/main/bitnami/mongodb-sharded/Chart.yaml`.
+3. Bump `CHART_VERSION` in `solution-base/mongodb/Makefile` to the
+   target version.
 
-4. Bump mongodb-sharded chart version : `CHART_MONGO_SHARDED_VERSION` in the
-`solution-base/mongodb/Makefile` file (e.g. `CHART_MONGO_SHARDED_VERSION:="9.3.6"`).
-This version can be found from the output of the above `helm search` command.
+4. Run `make -C solution-base/mongodb vendor-sync`. This:
+   - Ensures the `bitnami-charts` remote is configured.
+   - Fetches upstream `main` and the new chart tag.
+   - Runs `git subtree split` to synthesize the chart's history (slow:
+     ~4 minutes on a warm clone, longer on a fresh fetch).
+   - Runs `git subtree merge --squash` to merge upstream into our
+     prefix.
+   - Re-resolves the `common` library dependency via
+     `helm dependency build`, then extracts the resulting tarball into
+     a directory under `charts/common/` so `solution-base/build.sh`'s
+     `helm template` finds it as a sub-chart.
 
-5. Upgrade charts to the version targetted: `make fetch-mongodb-sharded`, from
-the `solution-base/mongodb` directory.
+5. Resolve any merge conflicts that arise where upstream touched lines
+   our local commits modified. If new local tweaks are needed
+   (entrypoint changes, security-context adjustments, …), make them as
+   **explicit follow-up commits**, not by amending the subtree merge.
+   History should look like:
 
-6. Manually update the patches by applying the changes manually in the new
-upgraded charts:
-`git diff -- solution-base/mongodb/charts/mongodb-sharded/values.yaml > solution-base/mongodb/patches/secret-name.patch`
-(this operation needs to be done for every patch).
-**Note**: This step is only necessary if the patch does not apply
-automatically. Do it from the root of the repository.
+   ```
+   Merge upstream mongodb-sharded/X.Y.Z
+   mongodb: <local tweak 1>
+   mongodb: <local tweak 2>
+   Merge upstream mongodb-sharded/X.Y.Z+1
+   mongodb: <new tweak after upgrade>
+   ```
 
-7. Once the patches are updated, apply them to the charts with the command
-`make patch`.
+6. Sanity-check by running `solution-base/build.sh` (which calls
+   `helm template`) and reviewing the merge commit's diff for
+   unexpected upstream changes.
 
-8. After upgrading, you may need to apply additional changes that are not
-directly handled by the charts or patches. Please carefully review the new
-logic added by the new chart version, and ensure they remain compatible with
-our use case.
-
-9. Passing CI tests is not enough, you must also perform an upgrade check with
-the product(s) using this Zenko version, before merging the upgrade PR. Some
-changes may be required at upper-levels (e.g., update mongosh commands, or add
-new logic in the upgrade).
+7. Passing CI tests is not enough — perform an upgrade check against
+   the product(s) using this Zenko version (e.g. Artesca) before
+   merging the upgrade PR. Some upper-level changes may be required
+   (mongosh commands, upgrade flow tweaks).
