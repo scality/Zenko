@@ -29,6 +29,33 @@ Usage:
   {{- end }}
 {{- end -}}
 
+{{/*
+Init container definition to recover log dir.
+*/}}
+{{- define "mongodb-sharded.initContainer.prepareLogDir" }}
+- name: log-dir
+  image: {{ include "mongodb-sharded.image" $ }}
+  imagePullPolicy: {{ $.Values.image.pullPolicy | quote }}
+  command:
+    - /bin/bash
+  args:
+    - -ec
+    - |
+      ln -sf /dev/stdout "/opt/bitnami/mongodb/logs/mongodb.log"
+  {{- if and $.Values.volumePermissions $.Values.volumePermissions.containerSecurityContext $.Values.volumePermissions.containerSecurityContext.enabled }}
+  securityContext: {{- include "common.compatibility.renderSecurityContext" (dict "secContext" $.Values.volumePermissions.containerSecurityContext "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if and $.Values.volumePermissions $.Values.volumePermissions.resources }}
+  resources: {{- toYaml $.Values.volumePermissions.resources | nindent 4 }}
+  {{- else if and $.Values.volumePermissions $.Values.volumePermissions.resourcesPreset (ne $.Values.volumePermissions.resourcesPreset "none") }}
+  resources: {{- include "common.resources.preset" (dict "type" $.Values.volumePermissions.resourcesPreset) | nindent 4 }}
+  {{- end }}
+  volumeMounts:
+    - name: empty-dir
+      mountPath: /opt/bitnami/mongodb/logs
+      subPath: app-logs-dir
+{{- end -}}
+
 {{- define "mongodb-sharded.configServer.primaryHost" -}}
   {{- if .Values.configsvr.external.host -}}
   {{- .Values.configsvr.external.host }}
