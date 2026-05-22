@@ -1,1 +1,0 @@
-../../../../scripts/create-app-user.sh
