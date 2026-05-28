@@ -212,6 +212,7 @@ spec:
             exec:
               command:
                 - pgrep
+                - -x
                 - mongos
           {{- end }}
           {{- if .Values.mongos.customReadinessProbe }}
