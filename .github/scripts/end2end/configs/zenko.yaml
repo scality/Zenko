@@ -135,3 +135,7 @@ spec:
     - zenko-operator-image-pull
   veeamSosApi:
     enable: ${ZENKO_ENABLE_SOSAPI}
+  tracing:
+    enabled: true
+    samplingRatio: "0"
+    endpoint: "http://jaeger.default.svc.cluster.local:4318/v1/traces"

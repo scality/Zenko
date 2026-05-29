@@ -111,3 +111,4 @@ kubectl run kafka-topics \
 # Deploy PyKMIP server (infra only, does NOT patch the CR).
 # The CR is patched later, after file-backend SSE tests have run.
 bash "$(dirname "$0")/../mocks/setup-kmip.sh"
+

@@ -231,6 +231,15 @@ else
     fi
     export PROMETHEUS_SERVICE="${PROMETHEUS_SVC}.${NAMESPACE}.svc.cluster.local"
 
+    # Jaeger query API — port-forward for OTEL tracing tests
+    JAEGER_QUERY_PORT=16686
+    if ! ss -tlnp 2>/dev/null | grep -q ":${JAEGER_QUERY_PORT}" && \
+       ! lsof -i ":${JAEGER_QUERY_PORT}" &>/dev/null; then
+        kubectl port-forward "svc/jaeger" "${JAEGER_QUERY_PORT}:${JAEGER_QUERY_PORT}" &>/dev/null &
+        timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${JAEGER_QUERY_PORT}'; do sleep 0.2; done"
+    fi
+    export JAEGER_QUERY_ENDPOINT="http://localhost:${JAEGER_QUERY_PORT}"
+
     # --- 14. Zenko CR metadata ---
     export TIME_PROGRESSION_FACTOR=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath="{.metadata.annotations.zenko\.io/time-progression-factor}")
     export INSTANCE_ID=$(kubectl get zenko ${ZENKO_NAME} -o jsonpath='{.status.instanceID}')
@@ -334,7 +343,8 @@ else
       "DRAdminSecretKey":"${ADMIN_PRA_SECRET_ACCESS_KEY}",
       "UtilizationServiceHost":"${UTILIZATION_SERVICE_HOST}",
       "UtilizationServicePort":"${UTILIZATION_SERVICE_PORT}",
-      "KubeconfigPath":"${KUBECONFIG:-${HOME}/.kube/config}"
+      "KubeconfigPath":"${KUBECONFIG:-${HOME}/.kube/config}",
+      "JaegerQueryEndpoint":"${JAEGER_QUERY_ENDPOINT}"
     }
 EOF
     )"

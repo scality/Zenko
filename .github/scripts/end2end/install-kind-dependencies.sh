@@ -153,6 +153,9 @@ helm upgrade --install --version ${KEYCLOAK_VERSION} keycloak codecentric/keyclo
 
 kubectl rollout status sts/keycloak --timeout=10m
 
+# jaeger all-in-one (OTLP collector + query UI, memory-only)
+kubectl apply -f "$(dirname "$0")/configs/jaeger.yaml"
+kubectl rollout status deployment/jaeger --timeout=5m
 
 # TODO: use zenko-operator install-deps
 kubectl apply -f - <<EOF

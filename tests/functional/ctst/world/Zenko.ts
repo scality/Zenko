@@ -103,6 +103,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     SorbetdRestoreTimeout: string;
     UtilizationServiceHost: string;
     UtilizationServicePort: string;
+    JaegerQueryEndpoint: string;
     [key: string]: unknown;
 }
 
