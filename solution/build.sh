@@ -77,6 +77,11 @@ spec:
     image:
       name: zenko-operator
       tag: '$(zenko_operator_tag)'
+    metrics:
+      enabled: true
+      scheme: http
+      port: 8080
+      path: /metrics
 EOF
 }
 
