@@ -41,4 +41,14 @@ COPY log4j.properties ${KAFKA_HOME}/config/
 
 RUN chmod a+x ${KAFKA_HOME}/bin/*.sh
 
+RUN mv ${KAFKA_HOME}/bin/kafka-server-start.sh ${KAFKA_HOME}/bin/kafka-server-start-real.sh && \
+    { \
+      echo '#!/bin/bash'; \
+      echo '"$(dirname "$0")/kafka-server-start-real.sh" "$@"'; \
+      echo 'KAFKA_EXIT=$?'; \
+      echo 'printf "%d" "$KAFKA_EXIT" > /var/run/kafka-exit/code'; \
+      echo 'exit "$KAFKA_EXIT"'; \
+    } > ${KAFKA_HOME}/bin/kafka-server-start.sh && \
+    chmod +x ${KAFKA_HOME}/bin/kafka-server-start.sh
+
 CMD ["kafka-server-start.sh"]
