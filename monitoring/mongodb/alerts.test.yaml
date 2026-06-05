@@ -671,3 +671,30 @@ tests:
                 It does not have the expected number of SECONDARY members. Please ensure that all
                 instances are running properly.
               summary: MongoDB replica set out of sync
+
+  - name: MongoDbCreateIndexesFailed
+    interval: 1m
+    input_series:
+      - series: mongodb_ss_metrics_commands_createIndexes_failed{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0"}
+        values: 0 0 0 0 0 1 1 1 1 1 1 1
+      - series: mongodb_ss_metrics_commands_createIndexes_failed{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1"}
+        values: 0x11
+      - series: mongodb_ss_metrics_commands_createIndexes_failed{namespace="zenko", pod="data-db-mongodb-sharded-shard1-data-0"}
+        values: 0x11
+    alert_rule_test:
+      - alertname: MongoDbCreateIndexesFailed
+        eval_time: 4m
+        exp_alerts: []
+      - alertname: MongoDbCreateIndexesFailed
+        eval_time: 6m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              namespace: zenko
+              pod: data-db-mongodb-sharded-shard0-data-0
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-0` reported failed createIndexes commands in the last 5 minutes."
+              summary: MongoDB index creation failure
+      - alertname: MongoDbCreateIndexesFailed
+        eval_time: 16m
+        exp_alerts: []

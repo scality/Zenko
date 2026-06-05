@@ -270,6 +270,16 @@ groups:
       description: "MongoDB pod `{{ $labels.pod }}` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
       summary: MongoDB node in STARTUP2 state for too long
 
+  - alert: MongoDbCreateIndexesFailed
+    expr: |
+      increase(mongodb_ss_metrics_commands_createIndexes_failed{namespace="${namespace}", pod=~"${service}.*"}[5m]) > 0
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` reported failed createIndexes commands in the last 5 minutes."
+      summary: MongoDB index creation failure
+
   - alert: MongoDbRSNotSynced
     expr: |
       count by (rs_nm, statefulset) (
