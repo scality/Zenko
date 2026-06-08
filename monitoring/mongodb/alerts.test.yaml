@@ -698,3 +698,37 @@ tests:
       - alertname: MongoDbCreateIndexesFailed
         eval_time: 16m
         exp_alerts: []
+
+  - name: MongoDbCompactionNeeded
+    interval: 5m
+    input_series:
+      # Compaction-needed DB: 4 GB reclaimable on a 10 GB filesystem (40% > 30%)
+      - series: mongodb_dbstats_fsTotalSize{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", database="needs-compaction"}
+        values: 1e10x13
+      - series: mongodb_dbstats_totalFreeStorageSize{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", database="needs-compaction"}
+        values: 4e9x13
+      # Healthy DB on same pod: 1 GB reclaimable on the same 10 GB filesystem (10% < 30%)
+      - series: mongodb_dbstats_fsTotalSize{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", database="healthy-db"}
+        values: 1e10x13
+      - series: mongodb_dbstats_totalFreeStorageSize{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", database="healthy-db"}
+        values: 1e9x13
+    alert_rule_test:
+      # for: 1h not yet satisfied
+      - alertname: MongoDbCompactionNeeded
+        eval_time: 10m
+        exp_alerts: []
+      - alertname: MongoDbCompactionNeeded
+        eval_time: 55m
+        exp_alerts: []
+      # for: 1h satisfied; only the needs-compaction DB fires
+      - alertname: MongoDbCompactionNeeded
+        eval_time: 65m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              namespace: zenko
+              pod: data-db-mongodb-sharded-shard0-data-0
+              database: needs-compaction
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-0` database `needs-compaction` has accumulated reclaimable storage exceeding 0.3 of the filesystem capacity. Consider running compaction to recover disk space."
+              summary: MongoDB compaction needed
