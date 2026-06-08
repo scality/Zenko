@@ -14,7 +14,7 @@ by
 -  Entering a search in the |product| search tool.  See :ref:`Searching Metadata from
    |product|`.
 -  Using the ``search_bucket`` tool (found in the
-   `Scality/S3 <https://github.com/scality/S3>`__ GitHub repository) as
+   `Scality/cloudserver <https://github.com/scality/cloudserver>`__ GitHub repository) as
    described in :ref:`Using search_bucket`.
 -  Making an Auth V4-signed HTTP request to |product| as described in
    :ref:`HTTP Search Requests`.
