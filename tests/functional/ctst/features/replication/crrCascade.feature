@@ -9,7 +9,7 @@ Feature: CRR Cascade Replication
     @ReplicationTest
     @CRRCascade
     Scenario: Cascade replication nominal case : A -> B -> C
-        Given cascade replication accounts are registered
+        Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
         And a versioned bucket exists in location "crr-location-b"
         And a versioned bucket exists in location "crr-location-c"
@@ -26,7 +26,7 @@ Feature: CRR Cascade Replication
     @ReplicationTest
     @CRRCascade
     Scenario: Cascade replication with loop : A -> B -> C -> A
-        Given cascade replication accounts are registered
+        Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
         And a versioned bucket exists in location "crr-location-b"
         And a versioned bucket exists in location "crr-location-c"
@@ -45,7 +45,7 @@ Feature: CRR Cascade Replication
     @ReplicationTest
     @CRRCascade
     Scenario: Multiple writes across a loop converge to the last write
-        Given cascade replication accounts are registered
+        Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
         And a versioned bucket exists in location "crr-location-b"
         And a versioned bucket exists in location "crr-location-c"

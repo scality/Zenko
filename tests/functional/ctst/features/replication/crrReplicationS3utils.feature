@@ -20,7 +20,7 @@ Feature: Replication
         And a replication configuration to "awsbackendmismatch" location
         When the job to replicate existing objects with status "NEW" is executed
         Then the object replication should "succeed" within 300 seconds
-        And the replicated object should be the same as the source object
+        And the replicated object should match the source on every configured destination
 
     @2.12.0
     @PreMerge
@@ -35,4 +35,4 @@ Feature: Replication
         When the destination bucket on the location is created again
         And the job to replicate existing objects with status "FAILED" is executed
         Then the object replication should "succeed" within 300 seconds
-        And the replicated object should be the same as the source object
+        And the replicated object should match the source on every configured destination

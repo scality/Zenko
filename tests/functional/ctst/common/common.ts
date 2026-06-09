@@ -60,6 +60,7 @@ export async function cleanS3Bucket(
         world.deleteKeyFromCommand('key');
         world.deleteKeyFromCommand('versionId');
     }
+    await S3.deleteBucketReplication(world.getCommandParameters()).catch(() => {});
     await S3.deleteBucketLifecycle(world.getCommandParameters());
     await S3.deleteBucket(world.getCommandParameters());
 }
@@ -274,7 +275,7 @@ Given('a transition workflow to {string} location', async function (this: Zenko,
 
 Given('a replication configuration to {string} location',
     async function (this: Zenko, replicationLocation: string) {
-        this.addToSaved('replicationLocation', replicationLocation);
+        this.addToSaved('replicationLocations', [replicationLocation]);
         await putBucketReplication.call(this, this.getSaved<string>('bucketName'), replicationLocation);
     });
 

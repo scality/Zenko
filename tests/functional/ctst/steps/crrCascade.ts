@@ -11,46 +11,19 @@ import assert from 'assert';
 import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
-interface CRRAccountInfo {
+export interface CRRAccountInfo {
     AccessKeyId: string;
     SecretAccessKey: string;
     SessionToken?: string;
     AccountId: string;
 }
 
-Given('cascade replication accounts are registered', function (this: Zenko) {
-    const roleName = process.env.CRR_ROLE_NAME;
-    assert.ok(roleName, 'CRR_ROLE_NAME must be set');
-
-    const locationNames = [
-        process.env.CRR_LOCATION_A_NAME,
-        process.env.CRR_LOCATION_B_NAME,
-        process.env.CRR_LOCATION_C_NAME,
-    ];
-    assert.ok(locationNames.every(Boolean), 'CRR_LOCATION_A/B/C_NAME must be set');
-
-    const infoByLocation: Record<string, CRRAccountInfo> = {};
-    for (const [i, loc] of locationNames.entries()) {
-        const varName = `CRR_INFO_${['A', 'B', 'C'][i]}`;
-        const raw = process.env[varName];
-        assert.ok(raw, `${varName} must be set`);
-        const info = JSON.parse(raw) as CRRAccountInfo;
-        Identity.addIdentity(IdentityEnum.ACCOUNT, loc!, {
-            accessKeyId: info.AccessKeyId,
-            secretAccessKey: info.SecretAccessKey,
-            sessionToken: info.SessionToken,
-        });
-        infoByLocation[loc!] = info;
-    }
-
-    this.addToSaved('cascadeInfoByLocation', infoByLocation);
-    this.addToSaved('cascadeRoleName', roleName);
-    this.addToSaved('cascadeBuckets', {} as Record<string, string>);
-});
-
 Given('a versioned bucket exists in location {string}', async function (this: Zenko, location: string) {
     const bucket = `cascade-${Utils.randomString().toLowerCase()}`;
     Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+    // Persist the identity so the default After-hook cleanup targets the
+    // same account that owns the buckets created here (and by later steps).
+    this.addToSaved('accountName', location);
     const client = this.createS3Client();
     await client.send(new CreateBucketCommand({ Bucket: bucket }));
     await client.send(new PutBucketVersioningCommand({
