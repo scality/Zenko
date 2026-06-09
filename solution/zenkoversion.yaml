@@ -42,6 +42,9 @@ spec:
     dr:
       image: ${DR_DASHBOARD}
       tag: ${ZENKO_VERSION_NAME}
+    sorbet:
+      image: ${SORBET_DASHBOARD}
+      tag: ${SORBET_TAG}
   policies:
     backbeat:
       image: ${BACKBEAT_POLICY}
