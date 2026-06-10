@@ -2,11 +2,10 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const sharedBlobSvc = require('../../azureSDK');
 const ReplicationUtility = require('../../ReplicationUtility');
 
-const utils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const destContainer = process.env.AZURE_CRR_BUCKET_NAME;
 const destLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
 const srcBucket = `source-bucket-${Date.now()}`;
@@ -23,9 +22,12 @@ const keyutf8 = `${keyPrefix}/%EA%9D%8B崰㈌㒈保轖䳷䀰⺩ቆ楪秲ⴝ㿅�
 const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with Azure backend', function () {
+    let utils;
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { utils = new ReplicationUtility(config.ZenkoAccount.s3Client, sharedBlobSvc); });
 
     beforeEach(done => series([
         next => utils.createVersionedBucket(srcBucket, next),

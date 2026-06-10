@@ -1,10 +1,9 @@
 const uuid = require('uuid');
 const async = require('async');
 
-const { scalityS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const LifecycleUtlity = require('../../LifecycleUtility');
 
-const utils = new LifecycleUtlity(scalityS3Client);
 const getBucketName = prefix => `${prefix}${uuid.v4()}`;
 const getObjectKey = prefix => `${prefix}${uuid.v4()}`;
 const getObjectKeys = (prefix, count) => Array.from(Array(count)).map((_, n) => getObjectKey(`${prefix}${n}-`));
@@ -108,15 +107,19 @@ const longExpireMPURule = (prefix, tag, enabled) => ({
 });
 
 describe('Lifecycle Expiration', function () {
+    let utils;
     const notTargetObjectPrefix = 'not-exp-target/';
     const targetObjectPrefix = 'exp-target/';
-
-    utils.setSourceLocation('us-east-1');
 
     // GC consumer might take a long time to consume its entries.
     // If it is the case, timeout after 5 minutes and retry.
     this.retries(3);
     this.timeout(360000);
+
+    before(() => {
+        utils = new LifecycleUtlity(config.ZenkoAccount.s3Client);
+        utils.setSourceLocation('us-east-1');
+    });
 
     describe('behavior: should not delete objects', () => {
         const bucketName = getBucketName('exp-dis-');

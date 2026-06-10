@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const sharedBlobSvc = require('../../azureSDK');
 const gcpStorage = require('../../gcpStorage');
 const ReplicationUtility = require('../../ReplicationUtility');
 
-const utils = new ReplicationUtility(scalityS3Client, sharedBlobSvc, gcpStorage);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
 const awsDestBucket = process.env.AWS_CRR_BUCKET_NAME;
@@ -28,10 +28,13 @@ const REPLICATION_TIMEOUT = 300000;
 describe(
     'Replication with AWS, Azure, and GCP backends (one-to-many)',
     function () {
+        let utils;
         this.timeout(REPLICATION_TIMEOUT);
         this.retries(3);
         const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
         const storageClass = `${destAWSLocation},${destAzureLocation},${destGCPLocation}`;
+
+        before(() => { utils = new ReplicationUtility(config.ZenkoAccount.s3Client, sharedBlobSvc, gcpStorage); });
 
         beforeEach(done => series([
             next => utils.createVersionedBucket(srcBucket, next),

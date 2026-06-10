@@ -11,7 +11,6 @@ const {
 } = require('@aws-sdk/client-iam');
 const VaultClient = require('../../VaultClient');
 
-const clientAdmin = VaultClient.getAdminClient();
 const accountName = 'iam-api-test-account';
 const accountInfo = {
     email: `${accountName}@test.com`,
@@ -23,7 +22,10 @@ const userName = 'iam-api-test-user';
 const randomPath = '/random/path/';
 
 describe('IAM users: ', () => {
+    let clientAdmin;
     let iamAccountClient = null;
+
+    before(() => { clientAdmin = VaultClient.getAdminClient(); });
 
     beforeEach(done => async.series([
         next => clientAdmin.createAccount(accountName, accountInfo, next),
@@ -50,8 +52,11 @@ describe('IAM users: ', () => {
 });
 
 describe('IAM user - Access Keys: ', () => {
+    let clientAdmin;
     let iamAccountClient = null;
     let keyPair = null;
+
+    before(() => { clientAdmin = VaultClient.getAdminClient(); });
 
     beforeEach(done => async.series([
         next => clientAdmin.createAccount(accountName, accountInfo, next),

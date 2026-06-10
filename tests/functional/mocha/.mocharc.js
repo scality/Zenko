@@ -5,4 +5,5 @@ module.exports = {
     'exit': true,
     'reporter': 'mocha-multi-reporters',
     'reporter-options': 'configFile=mocha/mocha-reporter.json',
+    'require': ['ts-node/register', 'tsconfig-paths/register', './mocha/setup.ts'],
 };

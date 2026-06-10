@@ -17,8 +17,8 @@ const {
 } = require('@aws-sdk/client-iam');
 const { metadataSearchResponseCode, createPolicy, restoreObjectResponseCode } = require('./utils');
 
-const iam = require('../../s3SDK').scalityIAMClient;
-const s3 = require('../../s3SDK').scalityS3Client;
+const { config } = require('tests_common/configuration');
+let iam, s3;
 
 const testAPIs = [
     {
@@ -58,6 +58,8 @@ testAPIs.forEach(testAPI => {
         };
 
         before(async () => {
+            iam = config.ZenkoAccount.iamClient;
+            s3 = config.ZenkoAccount.s3Client;
             await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
             await s3.send(new PutObjectCommand({
                 Bucket: bucketName,

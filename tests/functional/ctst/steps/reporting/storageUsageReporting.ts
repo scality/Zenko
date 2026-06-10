@@ -1,6 +1,7 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
+import { config } from 'tests_common/configuration';
 import { IdentityEnum } from 'cli-testing';
 
 interface LocationUsage {
@@ -15,15 +16,14 @@ interface ReportingUsageResponse {
 }
 
 Given('an identity with the {string} keycloak persona', function (this: Zenko, persona: string) {
-    const username = (this.parameters as Record<string, string>)[persona] || persona;
-    this.addToSaved('keycloakPersona', username);
+    this.addToSaved('keycloakPersona', persona);
 });
 
 async function fetchStorageUsageReport(world: Zenko) {
     const persona = world.getSaved<string>('keycloakPersona');
     const result = await world.managementAPIRequest(
         'GET',
-        `/instance/${world.parameters.InstanceID}/reporting/usage`,
+        `/instance/${config.ZenkoCR.InstanceID}/reporting/usage`,
         {},
         {},
         persona,

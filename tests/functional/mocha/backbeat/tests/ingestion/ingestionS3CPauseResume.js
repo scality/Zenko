@@ -2,11 +2,11 @@ const assert = require('assert');
 const { series } = require('async');
 const { v4: uuid } = require('uuid');
 
-const { scalityS3Client, ringS3Client } = require('../../../s3SDK');
+const { ringS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const IngestionUtility = require('../../IngestionUtility');
 const BackbeatAPIUtility = require('../../BackbeatAPIUtility');
 
-const scalityUtils = new IngestionUtility(scalityS3Client, ringS3Client);
 const ringS3CUtils = new IngestionUtility(ringS3Client);
 const backbeatAPIUtils = new BackbeatAPIUtility();
 const ingestionSrcBucket = process.env.RING_S3C_INGESTION_SRC_BUCKET_NAME;
@@ -20,7 +20,10 @@ let OBJ_DATA;
 const INGESTION_TIMEOUT = 300000;
 
 describe('Ingestion pause resume', function () {
+    let scalityUtils;
     this.timeout(INGESTION_TIMEOUT);
+
+    before(() => { scalityUtils = new IngestionUtility(config.ZenkoAccount.s3Client, ringS3Client); });
 
     beforeEach(done => {
         INGESTION_DEST_BUCKET = `ingestion-${uuid()}`;

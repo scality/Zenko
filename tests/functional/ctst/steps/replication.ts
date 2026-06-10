@@ -3,6 +3,7 @@ import Zenko from '../world/Zenko';
 import { createAndRunPod, getZenkoVersion } from 'steps/utils/kubernetes';
 import assert from 'assert';
 import { IdentityEnum, Identity, Utils } from 'cli-testing';
+import { ZENKO_ACCOUNT_NAME } from 'tests_common/configuration';
 import { 
     GetObjectCommand,
     DeleteBucketCommand,
@@ -26,7 +27,7 @@ When('the job to replicate existing objects with status {string} is executed',
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
         const credentials = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT,
-            this.parameters.AccountName
+            ZENKO_ACCOUNT_NAME
         );
         const podManifest = {
             apiVersion: 'v1',

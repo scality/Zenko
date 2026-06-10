@@ -2,11 +2,11 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const ReplicationUtility = require('../../ReplicationUtility');
 const BackbeatAPIUtility = require('../../BackbeatAPIUtility');
 
-const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const backbeatAPIUtils = new BackbeatAPIUtility();
 const srcBucket = `source-bucket-${Date.now()}`;
@@ -30,8 +30,11 @@ const REPLICATION_TIMEOUT = 300000;
 // the tests checked before replication was complete.
 
 describe('Replication Pause-Resume with AWS backend', function () {
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client); });
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),

@@ -2,12 +2,12 @@ const assert = require('assert');
 const crypto = require('crypto');
 const { doWhilst, series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const sharedBlobSvc = require('../../azureSDK');
 const ReplicationUtility = require('../../ReplicationUtility');
 const { makeGETRequest, getResponseBody } = require('../../../utils/request');
 
-const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);
 
 const srcBucket = `source-bucket-${Date.now()}`;
@@ -116,10 +116,13 @@ describe('Backbeat replication metrics route validation', function dF() {
 });
 
 describe('Backbeat replication metrics data', function dF() {
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
     const storageClass = `${destAWSLocation},${destAzureLocation}`;
     const pathPrefix = '/_/backbeat/api/metrics/crr';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client, sharedBlobSvc); });
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),

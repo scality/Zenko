@@ -61,7 +61,6 @@ let iamClient = null;
 let stsClient = null;
 let s3Client = null;
 
-const clientAdmin = VaultClient.getAdminClient();
 const accountName = 'AccountTest';
 const accountInfo = {
     email: `${accountName}@test.com`,
@@ -247,10 +246,12 @@ const testAPIs = [
 ];
 
 testAPIs.forEach(testAPI => {
+    let clientAdmin;
     const bucket1 = `bucket1-${testAPI.API.toLowerCase()}`;
 
     describe(`iam policies - cloudserver - AssumeRoleWithWebIdentity - ${testAPI.API}`, () => {
         before(done => {
+            clientAdmin = VaultClient.getAdminClient();
             async.series([
                 // create an account, generateAccountAccessKey for it
                 // get iam client, sts client and s3 client of this account

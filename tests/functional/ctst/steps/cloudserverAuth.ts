@@ -1,6 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { Utils, S3, Constants } from 'cli-testing';
+import { ZENKO_ACCOUNT_NAME } from 'tests_common/configuration';
 import { strict as assert } from 'assert';
 
 interface DeleteObjectsResult {
@@ -36,7 +37,7 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
     this.useSavedIdentity();
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        ZENKO_ACCOUNT_NAME;
     const usedBucketName = `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });

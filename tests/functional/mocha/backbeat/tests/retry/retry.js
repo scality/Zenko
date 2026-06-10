@@ -4,11 +4,11 @@ const {
     series, parallel, times, timesSeries, doWhilst,
 } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const ReplicationUtility = require('../../ReplicationUtility');
 const { makeGETRequest, makeUpdateRequest, getResponseBody } = require('../../../utils/request');
 
-const scalityUtils = new ReplicationUtility(scalityS3Client);
 const awsUtils = new ReplicationUtility(awsS3Client);
 const srcBucket = `source-bucket-${Date.now()}`;
 const destFailBucket = process.env.AWS_S3_FAIL_BACKBEAT_BUCKET_NAME;
@@ -41,7 +41,7 @@ function checkMetrics(
     assert.strictEqual((pending.results.size - prevPending.size), 0);
 }
 
-function performRetries(keys, done) {
+function performRetries(scalityUtils, keys, done) {
     let postBody;
     return series([
         next => awsUtils.deleteVersionedBucket(destFailBucket, next),
@@ -126,8 +126,11 @@ function performRetries(keys, done) {
 }
 
 describe('Backbeat replication retry', function () {
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client); });
 
     beforeEach(done => series([
         next => scalityUtils.createVersionedBucket(srcBucket, next),
@@ -159,7 +162,7 @@ describe('Backbeat replication retry', function () {
             for (let i = 0; i < N; i++) {
                 keys.push(`${key}-${i}`);
             }
-            return performRetries(keys, done);
+            return performRetries(scalityUtils, keys, done);
         });
     });
 
@@ -183,7 +186,7 @@ describe('Backbeat replication retry', function () {
                     return next();
                 });
             }),
-            next => performRetries([key], next),
+            next => performRetries(scalityUtils, [key], next),
             next => {
                 let shouldContinue = false;
                 return doWhilst(

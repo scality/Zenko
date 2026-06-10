@@ -1,14 +1,13 @@
 const querystring = require('querystring');
 const http = require('http');
 const assert = require('assert');
+const { KEYCLOAK_TEST_PORT, KEYCLOAK_GRANT_TYPE } = require('tests_common/configuration');
 
 const USER_1_PASSWORD = process.env.KEYCLOAK_TEST_PASSWORD || '123';
 const HOST_1_URL = process.env.KEYCLOAK_TEST_HOST || 'http://keycloak.zenko.local';
-const HOST_1_PORT = parseInt(process.env.KEYCLOAK_TEST_PORT, 10) || 80;
 const REALM_NAME = process.env.KEYCLOAK_TEST_REALM_NAME || 'zenko';
 const KEYCLOAK_PATH = `/auth/realms/${REALM_NAME}/protocol/openid-connect/token`;
-const CLIENT_ID = process.env.KEYCLOAK_TEST_CLIENT_ID || 'zenko-ui';
-const GRANT_TYPE = process.env.KEYCLOAK_TEST_GRANT_TYPE || 'password';
+const CLIENT_ID = 'zenko-ui';
 
 
 /**
@@ -84,10 +83,10 @@ function getTokenForIdentity(identity, callback) {
         identity,
         USER_1_PASSWORD,
         HOST_1_URL,
-        HOST_1_PORT,
+        KEYCLOAK_TEST_PORT,
         KEYCLOAK_PATH,
         CLIENT_ID,
-        GRANT_TYPE,
+        KEYCLOAK_GRANT_TYPE,
         (err, token) => {
             assert(err === null);
             callback(err, token);

@@ -3,6 +3,10 @@ import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request } from '../common/utils';
 import { Given, Then, When } from '@cucumber/cucumber';
+import {
+    config, BACKBEAT_API_HOST, BACKBEAT_API_PORT,
+    AZURE_ARCHIVE_ACCESS_TIER, AZURE_ARCHIVE_MANIFEST_TIER,
+} from 'tests_common/configuration';
 import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
@@ -205,7 +209,7 @@ Then('manifest access tier should be valid for object {string}', async function 
         manifestName,
         getAzureCreds(this),
     );
-    assert.strictEqual(manifestProperties.accessTier, this.parameters.AzureArchiveManifestTier);
+    assert.strictEqual(manifestProperties.accessTier, AZURE_ARCHIVE_MANIFEST_TIER);
 });
 
 Then('tar access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
@@ -223,7 +227,7 @@ Then('tar access tier should be valid for object {string}', async function (this
         tarName,
         getAzureCreds(this),
     );
-    assert.strictEqual(packProperties.accessTier, this.parameters.AzureArchiveAccessTier);
+    assert.strictEqual(packProperties.accessTier, AZURE_ARCHIVE_ACCESS_TIER);
 });
 
 Then('manifest and tar containing object {string} should exist', async function (this: Zenko, objectName: string) {
@@ -316,7 +320,7 @@ Then('restoration of object {string} failed and ends up in DLQ',
         const bucketName = this.getSaved<string>('bucketName');
 
         // wait for restore to fail and end up in dead letter queue
-        const restoreTimeoutMs = parseInt(this.parameters.SorbetdRestoreTimeout) * 1000;
+        const restoreTimeoutMs = parseInt(config.ZenkoCR.SorbetdRestoreTimeout) * 1000;
         if (isNaN(restoreTimeoutMs)) {
             throw new Error('SorbetdRestoreTimeout world parameter is missing or not a valid integer');
         }
@@ -364,9 +368,9 @@ When('i run sorbetctl to retry failed restore for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
         const command = `./ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
-            --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
-            --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
-            --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
+            --kafka-dead-letter-topic=${config.KafkaTopics.DeadLetterQueue} \
+            --kafka-object-task-topic=${config.KafkaTopics.ObjectTasks} \
+            --kafka-gc-request-topic=${config.KafkaTopics.GcRequest} \
             --kafka-brokers ${this.parameters.KafkaHosts}`;
         try {
             this.logger.debug('Running command', { command, location });
@@ -380,11 +384,13 @@ When('i run sorbetctl to retry failed restore for {string} location',
         }
     });
 
-When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
-    const realTimeDay = days * 24 * 60 * 60 * 1000 /
-        (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
-    await Utils.sleep(realTimeDay);
-});
+When('i wait for {int} days', { timeout: 10 * 60 * 1000 },
+    async function (this: Zenko, days: number) {
+        const tpf = config.ZenkoCR.TimeProgressionFactor;
+        const realTimeDay = days * 24 * 60 * 60 * 1000 /
+            (tpf > 1 ? tpf : 1);
+        await Utils.sleep(realTimeDay);
+    });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
     const objName = objectName ||  this.getSaved<string>('objectName');
@@ -405,9 +411,10 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     const expiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
     const diff = (expiryDate - lastModified) / 1000 / 86400;
-    const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
+    const tpf = config.ZenkoCR.TimeProgressionFactor;
+    const realTimeDays = days / (tpf > 1 ? tpf : 1);
     assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,
-        `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`);
+        `Expected ${realTimeDays} but got ${diff} ; ${tpf}`);
 });
 
 Given('that lifecycle is {string} for the {string} location',
@@ -419,8 +426,8 @@ Given('that lifecycle is {string} for the {string} location',
             path = `/_/lifecycle/resume/${location}`;
         }
         const options = {
-            hostname: this.parameters.BackbeatApiHost,
-            port: this.parameters.BackbeatApiPort,
+            hostname: BACKBEAT_API_HOST,
+            port: BACKBEAT_API_PORT,
             method: 'POST',
             path,
         };
@@ -447,7 +454,8 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
                 },
             },
         };
-        const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
+        const result = await this.managementAPIRequest(
+            'POST', `/config/${config.ZenkoCR.InstanceID}/location`, {},
             locationConfig);
         assert.strictEqual(result.statusCode, 201);
         this.addToSaved('locationName', locationName);
@@ -457,7 +465,11 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
 
 When('i change azure archive location {string} container target', { timeout: 15 * 60 * 1000 },
     async function (this: Zenko, locationName: string) {
-        const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
+        const instanceID = config.ZenkoCR.InstanceID;
+        const result = await this.managementAPIRequest(
+            'GET',
+            `/config/overlay/view/${instanceID}`,
+        );
         if ('err' in result) {
             assert.ifError(result.err);
         } else {
@@ -469,7 +481,7 @@ When('i change azure archive location {string} container target', { timeout: 15 
             details.bucketName = this.parameters.AzureArchiveContainer2;
             auth.accountKey = this.parameters.AzureAccountKey;
             const putResult = await this.managementAPIRequest('PUT',
-                `/config/${this.parameters.InstanceID}/location/${locationName}`,
+                `/config/${config.ZenkoCR.InstanceID}/location/${locationName}`,
                 {},
                 locationConfig);
             if ('err' in putResult) {

@@ -1,7 +1,6 @@
 const async = require('async');
 const VaultClient = require('../../VaultClient');
 
-const clientAdmin = VaultClient.getAdminClient();
 const accountName = 'admin-api-test-account';
 const accountInfo = {
     email: `${accountName}@test.com`,
@@ -11,6 +10,9 @@ const accountInfo = {
 let iamClient = null;
 
 describe('Accounts: ', () => {
+    let clientAdmin;
+    before(() => { clientAdmin = VaultClient.getAdminClient(); });
+
     it('should be able create, generate credentials and delete an account', done => {
         async.series([
             next => clientAdmin.createAccount(accountName, accountInfo, next),

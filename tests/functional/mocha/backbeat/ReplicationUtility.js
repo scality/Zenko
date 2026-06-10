@@ -26,7 +26,8 @@ const {
     GetObjectTaggingCommand,
     DeleteObjectCommand,
 } = require('@aws-sdk/client-s3');
-const { scalityS3Client, awsS3Client } = require('../s3SDK');
+const { awsS3Client } = require('../s3SDK');
+const { config } = require('tests_common/configuration');
 
 const srcLocation = process.env.AWS_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
@@ -829,7 +830,7 @@ class ReplicationUtility {
             next => this._setS3Client(awsS3Client)
                 .getObject(destBucket, `${srcBucket}/${key}`, next),
         ], (err, data) => {
-            this._setS3Client(scalityS3Client);
+            this._setS3Client(config.ZenkoAccount.s3Client);
             if (err) {
                 return cb(err);
             }
@@ -1112,7 +1113,7 @@ class ReplicationUtility {
             next => this._setS3Client(awsS3Client)
                 .getObjectACL(destBucket, `${srcBucket}/${key}`, next),
         ], (err, data) => {
-            this._setS3Client(scalityS3Client);
+            this._setS3Client(config.ZenkoAccount.s3Client);
             if (err) {
                 return cb(err);
             }
@@ -1165,7 +1166,7 @@ class ReplicationUtility {
             next => this._setS3Client(awsS3Client)
                 .getObjectTagging(destBucket, `${srcBucket}/${key}`, AWSVersionId, next),
         ], (err, data) => {
-            this._setS3Client(scalityS3Client);
+            this._setS3Client(config.ZenkoAccount.s3Client);
             if (err) {
                 return cb(err);
             }

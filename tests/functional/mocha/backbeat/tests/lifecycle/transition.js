@@ -2,7 +2,8 @@ const assert = require('assert');
 const { v4: uuid } = require('uuid');
 const { series } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const LifecycleUtility = require('../../LifecycleUtility');
 
 function compareTransitionedData(sourceClient, destinationClient, versionId, cb) {
@@ -92,9 +93,7 @@ testsToRun.forEach(test => {
     describe(`Lifecycle transition from ${test.from} to ${test.to}`, function () {
         const srcBucket = `transition-${uuid()}`;
         const keyPrefix = uuid();
-        const cloudServer = new LifecycleUtility(scalityS3Client)
-            .setBucket(srcBucket)
-            .setKeyPrefix(keyPrefix);
+        let cloudServer;
         const cloud = new LifecycleUtility(awsS3Client).setKeyPrefix(keyPrefix);
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
@@ -108,6 +107,9 @@ testsToRun.forEach(test => {
         }
 
         before(() => {
+            cloudServer = new LifecycleUtility(config.ZenkoAccount.s3Client)
+                .setBucket(srcBucket)
+                .setKeyPrefix(keyPrefix);
             cloudServer.setSourceLocation(fromLoc.name);
             cloudServer.setDestinationLocation(toLoc.name);
             if (!toLoc.isCold) {

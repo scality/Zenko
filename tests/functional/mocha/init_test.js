@@ -10,13 +10,16 @@ const {
     PutObjectCommand,
 } = require('@aws-sdk/client-s3');
 
-const s3 = require('./s3SDK').scalityS3Client;
+const { config } = require('tests_common/configuration');
+let s3;
 
 const bucket = `get-bucket-${uuidV4()}`;
 const key = `object-key-${uuidV4()}`;
 const body = 'testbody';
 
 describe('Test Configuration', () => {
+    before(() => { s3 = config.ZenkoAccount.s3Client; });
+
     it('should create a bucket and upload an object', async () => {
         await s3.send(new CreateBucketCommand({
             Bucket: bucket,

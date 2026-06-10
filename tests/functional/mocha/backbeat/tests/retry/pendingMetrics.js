@@ -4,12 +4,12 @@ const {
     doWhilst, parallel, waterfall, series,
 } = require('async');
 
-const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
+const { awsS3Client } = require('../../../s3SDK');
+const { config } = require('tests_common/configuration');
 const sharedBlobSvc = require('../../azureSDK');
 const ReplicationUtility = require('../../ReplicationUtility');
 const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../../utils/request');
 
-const scalityUtils = new ReplicationUtility(scalityS3Client, sharedBlobSvc);
 const awsUtils = new ReplicationUtility(awsS3Client);
 
 const srcBucket = `source-bucket-${Date.now()}`;
@@ -59,8 +59,11 @@ function getPendingPath(location) {
 }
 
 describe('Backbeat API pending metrics', function () {
+    let scalityUtils;
     this.timeout(REPLICATION_TIMEOUT);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
+
+    before(() => { scalityUtils = new ReplicationUtility(config.ZenkoAccount.s3Client, sharedBlobSvc); });
 
     describe('Completed CRR', () => {
         const pendingPath = getPendingPath(destAWSLocation);
