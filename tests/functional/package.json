@@ -7,7 +7,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "@cucumber/cucumber": "^12.7.0",
+    "@cucumber/cucumber": "^13.0.0",
     "@kubernetes/client-node": "^1.4.0",
     "@platformatic/kafka": "^1.30.0",
     "@smithy/node-http-handler": "^4.0.0",
