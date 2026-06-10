@@ -178,6 +178,26 @@ runs:
       if: always()
       continue-on-error: true
 
+    - name: Generate dashboard events.json
+      shell: bash
+      run: |-
+        # Derive cluster-event lanes (pod restarts, operator reconcile bursts) for the
+        # CTST dashboard from the just-collected kind-logs. Soft-fails: a missing
+        # events.json just means the dashboard renders without the extra lanes.
+        REPORTS_DIR=/tmp/artifacts/data/${STAGE}/reports
+        KIND_LOGS_DIR=/tmp/artifacts/data/${STAGE}/kind-logs
+        if [ -f "$REPORTS_DIR/report.ndjson" ] && [ -d "$KIND_LOGS_DIR" ]; then
+          python3 .github/scripts/end2end/preprocess-events.py \
+            "$KIND_LOGS_DIR" \
+            "$REPORTS_DIR/report.ndjson" \
+            "$REPORTS_DIR/events.json" \
+            || echo "::warning::preprocess-events.py failed; dashboard will render without event lanes"
+        fi
+      env:
+        STAGE: ${{ inputs.stage }}
+      if: always()
+      continue-on-error: true
+
     - name: Dump kafka
       shell: bash
       run: |-

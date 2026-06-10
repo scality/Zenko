@@ -152,6 +152,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); font
 <script>
 const COLOR = d3.scaleOrdinal(d3.schemeTableau10.concat(d3.schemePastel1));
 let allScenarios = [];
+let clusterEvents = null;   // { lanes, events, bursts } loaded from events.json (optional)
 let statusFilter = '';
 let stepSort = 'total';
 let scenarioTopN = 25;
@@ -187,6 +188,14 @@ const tryFetchNdjson = async () => {
         if (!r.ok) return null;
         const text = await r.text();
         return text.trim().split('\n').map(l => JSON.parse(l));
+    } catch { return null; }
+};
+
+const tryFetchEvents = async () => {
+    try {
+        const r = await fetch('./events.json');
+        if (!r.ok) return null;
+        return await r.json();
     } catch { return null; }
 };
 
@@ -429,13 +438,23 @@ const drawTimeline = (containerId, subId, data, totalTime) => {
         `${workers.length} workers · ${fmtDur(totalTime)} wall time · ${data.length} scenarios`;
 
     const W = container.clientWidth || 1200;
-    const laneH = 28, laneGap = 6, marginL = 72, marginR = 20, marginT = 8, marginB = 36;
-    const lanesH = workers.length * (laneH + laneGap);
+    const laneH = 28, laneGap = 6, marginR = 20, marginT = 8, marginB = 36;
+    // Wider left gutter when we have event lanes (their labels like "Operator activity" need room).
+    const marginL = (clusterEvents?.lanes?.length || 0) ? 110 : 72;
     const innerW = W - marginL - marginR;
+
+    // Event lanes (operator reconciles, pod restarts) appear below the worker lanes
+    // when events.json is present. Each is slightly shorter than a worker lane.
+    const evLanes = clusterEvents?.lanes || [];
+    const evLaneH = 22;
+    const workersH = workers.length * (laneH + laneGap);
+    const evBlockH = evLanes.length ? (laneGap + evLanes.length * (evLaneH + laneGap)) : 0;
+    const lanesH = workersH + evBlockH;
 
     const x       = d3.scaleLinear().domain([0, totalTime]).range([0, innerW]);
     const fmtAxis = s => s >= 3600 ? `${(s / 3600).toFixed(1)}h` : `${(s / 60).toFixed(0)}m`;
     const laneY   = w => wIdx.get(w) * (laneH + laneGap);
+    const evLaneY = i => workersH + laneGap + i * (evLaneH + laneGap);
 
     const svg = d3.select(container).append('svg').attr('width', W).attr('height', lanesH + marginT + marginB)
         .style('cursor', 'grab').style('user-select', 'none');
@@ -457,6 +476,68 @@ const drawTimeline = (containerId, subId, data, totalTime) => {
         g.append('text').attr('x', -8).attr('y', y + laneH / 2 + 4)
             .attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '11px')
             .text(`W${wId}`);
+    });
+
+    // ── Event lanes (cluster events, optional) ─────────────────────────────
+    const evRenderers = [];   // each: (xn) => void — used by applyScale
+    evLanes.forEach((lane, i) => {
+        const y = evLaneY(i);
+        gc.append('rect').attr('x', 0).attr('y', y).attr('width', innerW).attr('height', evLaneH)
+            .attr('fill', 'var(--card2)').attr('rx', 4).attr('pointer-events', 'none');
+        g.append('text').attr('x', -8).attr('y', y + evLaneH / 2 + 4)
+            .attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '10px')
+            .text(lane.label);
+
+        if (lane.type === 'events') {
+            const items = (clusterEvents.events || []).filter(ev => ev.lane === lane.id && ev.tS >= 0 && ev.tS <= totalTime);
+            // Visible 2-pixel ticks for clarity in dense clusters.
+            const ticks = gc.selectAll(null).data(items).join('rect')
+                .attr('y', y + 2).attr('height', evLaneH - 4)
+                .attr('width', 2).attr('rx', 1)
+                .attr('fill', 'var(--skip)')
+                .attr('opacity', 0.85).attr('pointer-events', 'none');
+            // Wider transparent hit-zones so cursor doesn't have to be pixel-perfect.
+            const hits = gc.selectAll(null).data(items).join('rect')
+                .attr('y', y).attr('height', evLaneH)
+                .attr('width', 12).attr('rx', 2)
+                .attr('fill', 'transparent').attr('pointer-events', 'all')
+                .on('mouseover', function (e, d) {
+                    ticks.filter(t => t === d).attr('opacity', 1).attr('width', 4);
+                    showTooltip(e,
+                        `<div>${d.label}</div>
+                         <div class="feat">${fmtDur(d.tS)}</div>
+                         ${d.message ? `<div class="feat" style="margin-top:4px">${d.message}</div>` : ''}`);
+                })
+                .on('mousemove', moveTooltip)
+                .on('mouseout', function (e, d) {
+                    ticks.filter(t => t === d).attr('opacity', 0.85).attr('width', 2);
+                    hideTooltip();
+                });
+            evRenderers.push(xn => {
+                ticks.attr('x', d => xn(d.tS) - 1);
+                hits.attr('x', d => xn(d.tS) - 6);
+            });
+        } else if (lane.type === 'bursts') {
+            const bursts = clusterEvents.bursts?.[lane.id] || [];
+            const maxCount = d3.max(bursts, b => b.count) || 1;
+            // Opacity from 0.35 (sparse) to 0.95 (densest). Color = purple (operator).
+            const opacityScale = d3.scaleSqrt().domain([1, maxCount]).range([0.35, 0.95]);
+            const fmtList = arr => arr?.length ? arr.join(', ') : '—';
+            const bars = gc.selectAll(null).data(bursts).join('rect')
+                .attr('y', y + 2).attr('height', evLaneH - 4).attr('rx', 2)
+                .attr('fill', '#a78bfa')
+                .attr('opacity', d => opacityScale(d.count))
+                .on('mouseover', (e, d) => showTooltip(e,
+                    `<div>${lane.label}</div>
+                     <div class="feat">${fmtDur(d.tS)} → ${fmtDur(d.tS + d.durS)} (${fmtDur(d.durS)})</div>
+                     <div class="dur">${d.count} reconciles${d.errors ? ` · ${d.errors} errors` : ''}</div>
+                     <div class="feat" style="margin-top:4px"><b>waiting on:</b> ${fmtList(d.waitedFor)}</div>
+                     <div class="feat"><b>became ready:</b> ${fmtList(d.becameReady)}</div>`))
+                .on('mousemove', moveTooltip).on('mouseout', hideTooltip);
+            evRenderers.push(xn => bars
+                .attr('x', d => xn(d.tS))
+                .attr('width', d => Math.max(2, xn(d.tS + d.durS) - xn(d.tS))));
+        }
     });
 
     const stepsHtmlFor = (steps, activeIdx = -1) => !steps?.length ? '' :
@@ -532,6 +613,7 @@ const drawTimeline = (containerId, subId, data, totalTime) => {
         gAxis.call(d3.axisBottom(xn).ticks(12).tickFormat(fmtAxis));
         barSel.attr('x', d => xn(d.startS))
               .attr('width', d => Math.max(1, xn(d.endS) - xn(d.startS) - 1));
+        evRenderers.forEach(fn => fn(xn));
     };
 
     applyScale(x);
@@ -676,13 +758,14 @@ const init = scenarios => {
 };
 
 (async () => {
-    const ndjson = await tryFetchNdjson();
+    const [ndjson, events] = await Promise.all([tryFetchNdjson(), tryFetchEvents()]);
     if (!ndjson) {
         const warn = document.getElementById('no-data-warn');
         warn.textContent = 'Could not load report.ndjson';
         warn.style.display = 'block';
         return;
     }
+    clusterEvents = events;   // may be null; rendering treats absence as no extra lanes
     init(parseNdjson(ndjson));
 })();
 </script>
