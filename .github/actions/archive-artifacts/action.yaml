@@ -58,13 +58,13 @@ runs:
 
           mkdir -p "$dir"
           FILES=$(curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
-              "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/?format=txt" \
+              -L "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/?format=txt" \
             || true)
 
           while IFS= read -r filename; do
             [ -z "$filename" ] && continue
             curl -f -s -u "${{ inputs.user }}:${{ inputs.password }}" \
-                "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/${filename}" \
+                -L "${{ steps.setup-artifacts.outputs.link }}/data/${{ github.job }}.${attempt}/reports/${filename}" \
                 -o "${dir}/${filename}" \
               || echo "::warning::Failed to download ${{ github.job }}.${attempt} report: ${filename}"
           done <<< "$FILES"
