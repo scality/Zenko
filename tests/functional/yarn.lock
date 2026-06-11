@@ -781,9 +781,9 @@
     tslib "^2.8.1"
 
 "@azure/storage-blob@^12.12.0":
-  version "12.31.0"
-  resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.31.0.tgz#97b09be2bf6ab59739b862edd8124798362ce720"
-  integrity sha512-DBgNv10aCSxopt92DkTDD0o9xScXeBqPKGmR50FPZQaEcH4JLQ+GEOGEDv19V5BMkB7kxr+m4h6il/cCDPvmHg==
+  version "12.32.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.32.0.tgz#2950bbfed33e5dbf990c912924ce1d4cb1d4b8eb"
+  integrity sha512-80LzSNnFQye2LCCBFghAJS6jJQJ7N4bfgZ6qDMgVGRtugZ7TLDKQZ2hczMigmZH3jAcMRdma/IygsC5+0gT7Tw==
   dependencies:
     "@azure/abort-controller" "^2.1.2"
     "@azure/core-auth" "^1.9.0"
@@ -796,14 +796,29 @@
     "@azure/core-util" "^1.11.0"
     "@azure/core-xml" "^1.4.5"
     "@azure/logger" "^1.1.4"
-    "@azure/storage-common" "^12.3.0"
+    "@azure/storage-common" "^12.4.0"
     events "^3.0.0"
     tslib "^2.8.1"
 
-"@azure/storage-common@^12.0.0", "@azure/storage-common@^12.0.0-beta.2", "@azure/storage-common@^12.3.0":
+"@azure/storage-common@^12.0.0", "@azure/storage-common@^12.0.0-beta.2":
   version "12.3.0"
   resolved "https://registry.yarnpkg.com/@azure/storage-common/-/storage-common-12.3.0.tgz#5bf257383836e67a426c91d7e9678479afe802a9"
   integrity sha512-/OFHhy86aG5Pe8dP5tsp+BuJ25JOAl9yaMU3WZbkeoiFMHFtJ7tu5ili7qEdBXNW9G5lDB19trwyI6V49F/8iQ==
+  dependencies:
+    "@azure/abort-controller" "^2.1.2"
+    "@azure/core-auth" "^1.9.0"
+    "@azure/core-http-compat" "^2.2.0"
+    "@azure/core-rest-pipeline" "^1.19.1"
+    "@azure/core-tracing" "^1.2.0"
+    "@azure/core-util" "^1.11.0"
+    "@azure/logger" "^1.1.4"
+    events "^3.3.0"
+    tslib "^2.8.1"
+
+"@azure/storage-common@^12.4.0":
+  version "12.4.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-common/-/storage-common-12.4.0.tgz#901cd66dc87694cbf93af48fcb915cb0198df32e"
+  integrity sha512-kNhJKMxQb374KOVt63CZnGIpDcrKNzJeyANLJymxE9mCJSdRGzb+Iv9oSIiCj6tNMLypr530b9ObOiA/5OvwOg==
   dependencies:
     "@azure/abort-controller" "^2.1.2"
     "@azure/core-auth" "^1.9.0"
@@ -831,6 +846,24 @@
     "@azure/core-xml" "^1.4.3"
     "@azure/logger" "^1.1.4"
     "@azure/storage-common" "^12.0.0"
+    tslib "^2.8.1"
+
+"@azure/storage-queue@^12.30.0":
+  version "12.30.0"
+  resolved "https://registry.yarnpkg.com/@azure/storage-queue/-/storage-queue-12.30.0.tgz#e960cffaa5c1cfd72ba31ddd3a294bd3ffdca0e4"
+  integrity sha512-204lc/W0nnZy0/JXGXAVsQG9LmRWGVrh28uxkWd6lV5/G/vHlFZOLxiTS5DUdLcnZ+OHhsClRJnMWgHX2X0vdA==
+  dependencies:
+    "@azure/abort-controller" "^2.1.2"
+    "@azure/core-auth" "^1.9.0"
+    "@azure/core-client" "^1.9.3"
+    "@azure/core-http-compat" "^2.0.0"
+    "@azure/core-paging" "^1.6.2"
+    "@azure/core-rest-pipeline" "^1.19.1"
+    "@azure/core-tracing" "^1.2.0"
+    "@azure/core-util" "^1.11.0"
+    "@azure/core-xml" "^1.4.3"
+    "@azure/logger" "^1.1.4"
+    "@azure/storage-common" "^12.4.0"
     tslib "^2.8.1"
 
 "@babel/code-frame@^7.26.2":
@@ -2243,7 +2276,7 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.8.tgz#958b91c991b1867ced318bedea0e215ee050726e"
   integrity sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==
 
-"@types/js-yaml@^4.0.1":
+"@types/js-yaml@^4.0.1", "@types/js-yaml@^4.0.9":
   version "4.0.9"
   resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-4.0.9.tgz#cd82382c4f902fed9691a2ed79ec68c5898af4c2"
   integrity sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==
@@ -5090,6 +5123,13 @@ js-yaml@^4.1.0, js-yaml@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.1.1.tgz#854c292467705b699476e1a2decc0c8a3458806b"
   integrity sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==
+  dependencies:
+    argparse "^2.0.1"
+
+js-yaml@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.2.0.tgz#2bd9e85682dd91bd469afb809d816043b3d49524"
+  integrity sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==
   dependencies:
     argparse "^2.0.1"
 
