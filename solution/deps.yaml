@@ -1,6 +1,11 @@
 # Please keep the first level keys sorted
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
+analytics-bootstrap:
+  sourceRegistry: ghcr.io/scality/zenko
+  image: analytics-bootstrap
+  tag: 2.14.4
+  envsubst: ANALYTICS_BOOTSTRAP_TAG
 backbeat:
   sourceRegistry: ghcr.io/scality
   dashboard: backbeat/backbeat-dashboards

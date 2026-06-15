@@ -362,6 +362,19 @@ jobs:
           cache-from: type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
 
+      - name: Extract analytics bootstrap environment
+        run: |-
+          solution/analytics_bootstrap_build_vars.sh >> $GITHUB_ENV
+
+      - name: Build and push analytics bootstrap
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          context: ./solution/analytics-bootstrap
+          tags: "${{ env.ANALYTICS_BOOTSTRAP_IMAGE }}:${{ env.ANALYTICS_BOOTSTRAP_TAG }}-${{ env.ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH }}"
+          cache-from: type=gha,scope=analytics-bootstrap-${{ env.ANALYTICS_BOOTSTRAP_TAG }}
+          cache-to: type=gha,mode=max,scope=analytics-bootstrap-${{ env.ANALYTICS_BOOTSTRAP_TAG }}
+
   build-mongodb-images:
     runs-on: ubuntu-24.04
     steps:

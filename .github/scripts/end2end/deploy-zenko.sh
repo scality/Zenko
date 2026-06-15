@@ -83,6 +83,8 @@ function dependencies_versions_env()
 
     source <( "${REPOSITORY_DIR}/solution/kafka_build_vars.sh" )
     echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
+    source <( "${REPOSITORY_DIR}/solution/analytics_bootstrap_build_vars.sh" )
+    echo "ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH=${ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH}"
 }
 
 function dependencies_env()

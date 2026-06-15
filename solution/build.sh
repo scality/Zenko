@@ -83,9 +83,11 @@ EOF
 function flatten_source_images()
 {
     source <( ${REPOSITORY_DIR}/solution/kafka_build_vars.sh )
+    source <( ${REPOSITORY_DIR}/solution/analytics_bootstrap_build_vars.sh )
 
     yq eval '.* | select(.image) | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml |
-        sed '/ghcr.io\/scality\/zenko\/kafka/ s/$/-'"${BUILD_TREE_HASH}"'/'
+        sed '/ghcr.io\/scality\/zenko\/kafka/ s/$/-'"${BUILD_TREE_HASH}"'/' |
+        sed '/ghcr.io\/scality\/zenko\/analytics-bootstrap/ s/$/-'"${ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH}"'/'
 }
 
 function zenko_operator_tag()
@@ -107,6 +109,8 @@ function dependencies_versions_env()
 
     source <( "${REPOSITORY_DIR}/solution/kafka_build_vars.sh" )
     echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
+    source <( "${REPOSITORY_DIR}/solution/analytics_bootstrap_build_vars.sh" )
+    echo "ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH=${ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH}"
 }
 
 function copy_yamls()
