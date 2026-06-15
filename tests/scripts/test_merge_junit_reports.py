@@ -92,6 +92,131 @@ def test_merge_preserves_duplicate_testcases_for_flaky_detection(tmp_path, merge
     assert sum(1 for tc in flaky_cases if tc.find("failure") is not None) == 1
 
 
+def test_hook_failures_are_reattributed_to_owning_test(tmp_path, merge_module):
+    """Hook-failure entries are renamed to their owning test so a retried pass matches them."""
+    failed_attempt = tmp_path / "attempt1.xml"
+    passed_attempt = tmp_path / "attempt2.xml"
+    merged = tmp_path / "merged.xml"
+
+    # Attempt 1: both the beforeEach and afterEach for the test threw.
+    _write_xml(
+        failed_attempt,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="IAM user - Access Keys: " tests="2" failures="2" errors="0" skipped="0">
+            <testcase name='IAM user - Access Keys:  "before each" hook for "should create access keys"' classname='"before each" hook for "should create access keys"' time="0.03">
+              <failure message="EntityAlreadyExists">boom</failure>
+            </testcase>
+            <testcase name='IAM user - Access Keys:  "after each" hook for "should create access keys"' classname='"after each" hook for "should create access keys"' time="0.01">
+              <failure message="Cannot read properties of null">boom</failure>
+            </testcase>
+          </testsuite>
+        </testsuites>
+        """,
+    )
+
+    # Attempt 2 (retry): clean pass, no hook entries.
+    _write_xml(
+        passed_attempt,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="IAM user - Access Keys: " tests="1" failures="0" errors="0" skipped="0">
+            <testcase name="IAM user - Access Keys:  should create access keys" classname="should create access keys" time="0.02" />
+          </testsuite>
+        </testsuites>
+        """,
+    )
+
+    merge_module.merge_reports(str(merged), [str(failed_attempt), str(passed_attempt)])
+
+    suite = ET.parse(merged).getroot().find("testsuite")
+    testcases = suite.findall("testcase")
+
+    assert all("hook for" not in tc.get("name") for tc in testcases)
+    assert all("hook for" not in tc.get("classname") for tc in testcases)
+
+    owned = [
+        tc
+        for tc in testcases
+        if tc.get("name") == "IAM user - Access Keys:  should create access keys"
+        and tc.get("classname") == "should create access keys"
+    ]
+    assert len(owned) == 3
+    assert sum(1 for tc in owned if tc.find("failure") is not None) == 2
+
+
+def test_suite_level_hook_failure_reattributed_to_its_test(tmp_path, merge_module):
+    """A beforeAll/afterAll failure is named after the suite's first/last test, so it is rewritten too."""
+    failed_attempt = tmp_path / "attempt1.xml"
+    passed_attempt = tmp_path / "attempt2.xml"
+    merged = tmp_path / "merged.xml"
+
+    # Attempt 1: beforeAll threw, so the suite's tests never ran.
+    _write_xml(
+        failed_attempt,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="S: " tests="1" failures="1" errors="0" skipped="0">
+            <testcase name='S:  "before all" hook for "first test"' classname='"before all" hook for "first test"' time="0.01">
+              <failure message="setup failed">boom</failure>
+            </testcase>
+          </testsuite>
+        </testsuites>
+        """,
+    )
+
+    # Attempt 2 (retry): the suite runs, first test passes.
+    _write_xml(
+        passed_attempt,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="S: " tests="1" failures="0" errors="0" skipped="0">
+            <testcase name="S:  first test" classname="first test" time="0.02" />
+          </testsuite>
+        </testsuites>
+        """,
+    )
+
+    merge_module.merge_reports(str(merged), [str(failed_attempt), str(passed_attempt)])
+
+    testcases = ET.parse(merged).getroot().find("testsuite").findall("testcase")
+    assert all("hook for" not in tc.get("name") for tc in testcases)
+
+    owned = [tc for tc in testcases if tc.get("name") == "S:  first test"]
+    assert len(owned) == 2
+    assert sum(1 for tc in owned if tc.find("failure") is not None) == 1
+
+
+def test_bare_hook_without_owning_test_is_left_untouched(tmp_path, merge_module):
+    """A hook with no 'for "<test>"' suffix has no test to attach to and is unchanged."""
+    src = tmp_path / "src.xml"
+    merged = tmp_path / "merged.xml"
+
+    _write_xml(
+        src,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="S" tests="1" failures="1" errors="0" skipped="0">
+            <testcase name='S "before all" hook' classname='"before all" hook' time="0.01">
+              <failure message="setup failed">boom</failure>
+            </testcase>
+          </testsuite>
+        </testsuites>
+        """,
+    )
+
+    merge_module.merge_reports(str(merged), [str(src)])
+
+    tc = ET.parse(merged).getroot().find("testsuite").find("testcase")
+    assert tc.get("name") == 'S "before all" hook'
+    assert tc.get("classname") == '"before all" hook'
+
+
 def test_merge_keeps_distinct_suites_and_recomputes_totals(tmp_path, merge_module):
     first = tmp_path / "first.xml"
     second = tmp_path / "second.xml"
