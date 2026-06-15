@@ -126,17 +126,48 @@ env:
   MOCHA_FILE: ${{ github.workspace }}/_reports/test-results-[hash].xml
 
 jobs:
-  check-dashboard-versions:
+  check-dashboards:
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
+          # check_versions.sh counts dashboard revisions via `git rev-list`,
+          # so it needs the full history rather than a shallow clone.
           fetch-depth: 0
-      - name: install jq
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.14
+          cache: pip
+          cache-dependency-path: monitoring/requirements.txt
+      - name: Setup venv
         run: |
-          sudo apt-get update && sudo apt-get install -y \
-          jq
+          python -m venv .venv
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        working-directory: monitoring
+        run: pip install -r requirements.txt
+      - name: Generate dashboards
+        working-directory: monitoring
+        run: |
+          for dashboard in */*.dashboard.py; do (
+            echo "Generating dashboard for $dashboard"
+            cd "$(dirname $dashboard)"
+            rev=$(jq '.version' < dashboard.json)
+            tmpfile=$(mktemp)
+            ./$(basename $dashboard) -o $tmpfile
+            jq --arg rev "$rev" '.version = ($rev | tonumber)' < $tmpfile > dashboard.json
+          ) done
+      - name: Check all dashboard files are up-to-date
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error title=Dashboard files are out-of-date::Please run generate-dashboard and commit the changes"
+            git status
+            git diff
+            exit 1
+          fi
+
+          echo "All dashboard files are up-to-date."
       - name: Verify monitoring dashboard versions
         run: bash ./.github/scripts/check_versions.sh
 
@@ -243,7 +274,7 @@ jobs:
 
   build-iso:
     runs-on: ubuntu-24.04
-    needs: [build-kafka, check-dashboard-versions]
+    needs: [build-kafka, check-dashboards]
     steps:
       - name: Install dependencies
         shell: bash
@@ -722,7 +753,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs:
       - check-alerts
-      - check-dashboard-versions
+      - check-dashboards
       - check-scripts
       - check-workflows
       - build-doc

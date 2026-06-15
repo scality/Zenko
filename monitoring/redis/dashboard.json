@@ -29,6 +29,7 @@
   "description": "Prometheus dashboard for Redis servers",
   "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
   "hideControls": false,
   "id": null,
   "links": [],
@@ -39,6 +40,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -103,6 +105,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(up{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -119,6 +122,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": 0,
           "mappings": [],
@@ -175,6 +179,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "max(max_over_time(redis_uptime_in_seconds{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -197,6 +202,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -215,9 +222,15 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {}
+            "stacking": {},
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -243,7 +256,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -257,6 +271,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(rate(redis_commands_processed_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -279,6 +294,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -297,9 +314,15 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {}
+            "stacking": {},
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -327,7 +350,8 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -341,6 +365,7 @@
           "intervalFactor": 1,
           "legendFormat": "hits",
           "metric": "",
+          "query": "sum(irate(redis_keyspace_hits_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -355,6 +380,7 @@
           "intervalFactor": 1,
           "legendFormat": "misses",
           "metric": "",
+          "query": "sum(irate(redis_keyspace_misses_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -371,6 +397,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -435,6 +462,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(redis_db_keys{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -451,6 +479,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -507,6 +536,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(redis_connected_clients{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -529,6 +559,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -547,9 +579,15 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {}
+            "stacking": {},
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -575,7 +613,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -589,6 +628,7 @@
           "intervalFactor": 1,
           "legendFormat": "used",
           "metric": "",
+          "query": "sum(redis_memory_used_bytes{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -603,6 +643,7 @@
           "intervalFactor": 1,
           "legendFormat": "max",
           "metric": "",
+          "query": "sum(irate(redis_keyspace_misses_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -625,6 +666,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -643,9 +686,15 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {}
+            "stacking": {},
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -671,7 +720,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -685,6 +735,7 @@
           "intervalFactor": 1,
           "legendFormat": "input",
           "metric": "",
+          "query": "sum(rate(redis_net_input_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -699,6 +750,7 @@
           "intervalFactor": 1,
           "legendFormat": "output",
           "metric": "",
+          "query": "sum(rate(redis_net_output_bytes_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval]))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -721,6 +773,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 70,
@@ -741,9 +795,15 @@
             "spanNulls": false,
             "stacking": {
               "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -771,7 +831,8 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -785,6 +846,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{ db }}",
           "metric": "",
+          "query": "sum (redis_db_keys{namespace=\"${namespace}\", job=\"${job}\"}) by (db)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -807,6 +869,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 70,
@@ -827,9 +891,15 @@
             "spanNulls": false,
             "stacking": {
               "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -855,7 +925,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -869,6 +940,7 @@
           "intervalFactor": 1,
           "legendFormat": "not expiring",
           "metric": "",
+          "query": "sum (redis_db_keys{namespace=\"${namespace}\", job=\"${job}\"}) - sum (redis_db_keys_expiring{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -883,6 +955,7 @@
           "intervalFactor": 1,
           "legendFormat": "expiring",
           "metric": "",
+          "query": "sum (redis_db_keys_expiring{namespace=\"${namespace}\", job=\"${job}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -905,6 +978,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -923,9 +998,15 @@
             },
             "showPoints": "auto",
             "spanNulls": false,
-            "stacking": {}
+            "stacking": {},
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -951,7 +1032,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -965,6 +1047,7 @@
           "intervalFactor": 1,
           "legendFormat": "expired",
           "metric": "",
+          "query": "sum(rate(redis_expired_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])) by (addr)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -979,6 +1062,7 @@
           "intervalFactor": 1,
           "legendFormat": "evicted",
           "metric": "",
+          "query": "sum(rate(redis_evicted_keys_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])) by (addr)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1000,6 +1084,10 @@
           },
           "custom": {},
           "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": []
+          },
           "unit": "op/s"
         },
         "overrides": []
@@ -1048,6 +1136,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{ cmd }}",
           "metric": "",
+          "query": "topk(5, sum(irate(redis_commands_total{namespace=\"${namespace}\", job=\"${job}\"}[$__rate_interval])) by (cmd))",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1076,6 +1165,7 @@
   },
   "timepicker": {
     "hidden": false,
+    "nowDelay": null,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -1103,5 +1193,5 @@
   "timezone": "",
   "title": "Redis",
   "uid": null,
-  "version": 20
+  "version": 21
 }

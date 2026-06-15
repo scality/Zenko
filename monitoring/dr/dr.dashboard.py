@@ -1,3 +1,4 @@
+#!/usr/bin/env -S generate-dashboard -o dashboard.json
 from grafanalib.core import (
     ConstantInput,
     DataSourceInput,

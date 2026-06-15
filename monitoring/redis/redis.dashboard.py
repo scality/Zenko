@@ -1,3 +1,4 @@
+#!/usr/bin/env -S generate-dashboard -o dashboard.json
 from grafanalib.core import ConstantInput, DataSourceInput, Stat, Threshold, RTYPE_LAST
 from grafanalib import formatunits as UNITS
 from scalgrafanalib import layout, Dashboard, PieChart, Target, TimeSeries
