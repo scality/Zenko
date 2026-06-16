@@ -63,6 +63,7 @@ MONGODB_SHARDSERVER_RAM_LIMIT="MONGODB_SHARDSERVER_RAM_LIMIT"
 MONGODB_SHARDSERVER_EXTRA_FLAGS="MONGODB_SHARDSERVER_EXTRA_FLAGS"
 MONGODB_SHARDSERVER_RAM_REQUEST="MONGODB_SHARDSERVER_RAM_REQUEST"
 MONGODB_MONGOS_RAM_REQUEST="MONGODB_MONGOS_RAM_REQUEST"
+MONGODB_INDEX_BUILD_MIN_DISK_SPACE_MB=10000
 
 function flatten_source_images()
 {
@@ -127,10 +128,10 @@ function render_mongodb_sharded_yamls()
         --set 'shardsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
         --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/name=mongodb-sharded-config' \
         --set 'configsvr.persistence.selector.matchLabels.app\.kubernetes\.io/part-of=zenko' \
-        --set "configsvr.mongodbExtraFlags={--setParameter rollbackTimeLimitSecs=259200}" \
+        --set "configsvr.mongodbExtraFlags={--setParameter rollbackTimeLimitSecs=259200,--setParameter indexBuildMinAvailableDiskSpaceMB=${MONGODB_INDEX_BUILD_MIN_DISK_SPACE_MB}}" \
         --set mongos.resources.requests.memory=${MONGODB_MONGOS_RAM_REQUEST} \
         --set mongos.resources.limits.memory=${MONGODB_MONGOS_RAM_LIMIT} \
-        --set "shardsvr.dataNode.mongodbExtraFlags={${MONGODB_SHARDSERVER_EXTRA_FLAGS}}" \
+        --set "shardsvr.dataNode.mongodbExtraFlags={${MONGODB_SHARDSERVER_EXTRA_FLAGS},--setParameter indexBuildMinAvailableDiskSpaceMB=${MONGODB_INDEX_BUILD_MIN_DISK_SPACE_MB}}" \
         --set shardsvr.dataNode.resources.limits.memory=${MONGODB_SHARDSERVER_RAM_LIMIT} \
         --set shardsvr.dataNode.resources.requests.memory=${MONGODB_SHARDSERVER_RAM_REQUEST} \
         --set existingSecret=${MONGODB_NAME}-db-creds \
