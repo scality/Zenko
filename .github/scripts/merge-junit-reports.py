@@ -9,15 +9,39 @@ This ensures flaky test detection works properly in CI when tests are retried.
 
 import xml.etree.ElementTree as ET
 import os
+import re
 import sys
 from collections import defaultdict
 from copy import deepcopy
+
+# Mocha reports a failed hook as a synthetic testcase titled
+# '"<before|after> <each|all>" hook for "<test>"' and emits nothing for the
+# hook on a passing run. Capture "<test>" so the hook failure can be
+# re-attributed to the test it belongs to.
+HOOK_FOR_RE = re.compile(r'"(?:before|after) (?:each|all)" hook for "(.*)"')
 
 def get_suite_key(suite):
     """Generate a unique key for a testsuite based on name and package."""
     name = suite.get('name', '')
     package = suite.get('package', '')
     return f"{package}::{name}"
+
+def attribute_hook_failures(suite):
+    """Re-attribute mocha hook-failure testcases to their owning test.
+
+    The flaky-test detection in action-junit-report pairs a failure with a
+    later pass by (name, classname, file). A hook-failure entry can never have
+    a passing counterpart with the same key, so a single hook flake would fail
+    the build on every retry. mocha names a failed hook after the test it ran
+    for, so rewriting the entry to that test's name/classname lets a retried
+    pass cancel it out. A suite-level hook with no test to attach to keeps a
+    bare '"... hook"' title and is left as-is (does not happen in practice).
+    """
+    for tc in suite.findall('testcase'):
+        for attr in ('name', 'classname'):
+            value = tc.get(attr)
+            if value is not None:
+                tc.set(attr, HOOK_FOR_RE.sub(r'\1', value))
 
 def merge_testsuites(testsuites_list):
     """
@@ -101,6 +125,7 @@ def merge_reports(output_file, input_files):
     total_tests = total_failures = total_errors = total_skipped = 0
 
     for suite in merged_suites:
+        attribute_hook_failures(suite)
         root.append(suite)
         total_tests += int(suite.get('tests', 0))
         total_failures += int(suite.get('failures', 0))
