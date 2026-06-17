@@ -175,7 +175,6 @@ else
     if ! ss -tlnp 2>/dev/null | grep -q ":${KAFKA_PORT}" && \
        ! lsof -i ":${KAFKA_PORT}" &>/dev/null; then
         kubectl port-forward "svc/${KAFKA_SVC}" "${KAFKA_PORT}:${KAFKA_PORT}" &>/dev/null &
-        _KAFKA_PF_PID=$!
         timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${KAFKA_PORT}'; do sleep 0.2; done"
     fi
     export KAFKA_HOST_PORT="localhost:${KAFKA_PORT}"
@@ -212,7 +211,6 @@ else
         # Port-forward on the dedicated loopback so metadata redirects stay correct
         kubectl port-forward --address "${KAFKA_AUTH_LOOPBACK}" \
             "svc/${KAFKA_AUTH_HOST}" "${KAFKA_AUTH_PORT}:${KAFKA_AUTH_PORT}" &>/dev/null &
-        _KAFKA_AUTH_PF_PID=$!
         timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q '${KAFKA_AUTH_LOOPBACK}:${KAFKA_AUTH_PORT}'; do sleep 0.2; done"
     fi
     export KAFKA_AUTH_HOST_PORT="${KAFKA_AUTH_LOOPBACK}:${KAFKA_AUTH_PORT}"
@@ -229,7 +227,6 @@ else
     if ! ss -tlnp 2>/dev/null | grep -q ":${PROMETHEUS_PORT}" && \
        ! lsof -i ":${PROMETHEUS_PORT}" &>/dev/null; then
         kubectl port-forward "svc/${PROMETHEUS_SVC}" "${PROMETHEUS_PORT}:${PROMETHEUS_PORT}" &>/dev/null &
-        _PROM_PF_PID=$!
         timeout 10 bash -c "until ss -tlnp 2>/dev/null | grep -q ':${PROMETHEUS_PORT}'; do sleep 0.2; done"
     fi
     export PROMETHEUS_SERVICE="${PROMETHEUS_SVC}.${NAMESPACE}.svc.cluster.local"
