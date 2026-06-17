@@ -1,42 +1,31 @@
 import { exec } from 'child_process';
 import http from 'http';
 import { createHash } from 'crypto';
-import { Command, IAM, Identity, IdentityEnum } from 'cli-testing';
 import {
-    AttachedPolicy,
-    Group,
-    Policy,
-    Role,
-    User,
+    DeleteGroupCommand,
+    DeletePolicyCommand,
+    DeleteRoleCommand,
+    DeleteUserCommand,
+    DetachGroupPolicyCommand,
+    DetachRolePolicyCommand,
+    DetachUserPolicyCommand,
+    ListAttachedGroupPoliciesCommand,
+    ListAttachedRolePoliciesCommand,
+    ListAttachedUserPoliciesCommand,
+    ListGroupsCommand,
+    ListPoliciesCommand,
+    ListRolesCommand,
+    ListUsersCommand,
 } from '@aws-sdk/client-iam';
-import { AWSCliOptions } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import fs from 'fs';
 import lockFile from 'proper-lockfile';
 import { ITestCaseHookParameter } from '@cucumber/cucumber';
-import { AWSCredentials, Constants, Utils } from 'cli-testing';
+import { Constants, Utils } from 'cli-testing';
+import { AwsCredentials } from 'world/AwsClientManager';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
 
-/**
- * This helper will dynamically extract a property from a CLI result
- * @param {object} results - results from the command line
- * @param {string[]} propertyChain - the property chain to extract, like Policy, Arn
- * @return {string} - the expected property
- */
-export function extractPropertyFromResults<T>(results: Command, ...propertyChain: string[]): T | null {
-    if (results.stdout) {
-        const jsonResults = JSON.parse(results.stdout) as Record<string, unknown>;
-        let res: unknown = jsonResults;
-        if (jsonResults) {
-            while (propertyChain.length > 0) {
-                res = (res as Record<string, unknown>)[propertyChain.shift()!];
-            }
-        }
-        return res as T;
-    }
-    return null;
-}
 
 export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] } = {
     restoreObject: [{ restoreRequest: 'Days=1' }],
@@ -180,143 +169,93 @@ export function hashStringAndKeepFirst20Characters(input: string) {
     return createHash('sha256').update(input).digest('hex').slice(0, 20);
 }
 
-export async function listAllEntities<T extends User | Role | Group | Policy>(
-    listFn: (params: AWSCliOptions) => Promise<Command>,
-    responseKey: string,
-): Promise<T[]> {
-    let marker;
-    const allEntities: T[] = [];
-    let parsedResponse;
+async function paginateAll<TResp extends { IsTruncated?: boolean; Marker?: string }, TItem>(
+    fetch: (marker?: string) => Promise<TResp>,
+    extract: (resp: TResp) => TItem[] | undefined,
+): Promise<TItem[]> {
+    const all: TItem[] = [];
+    let marker: string | undefined;
     do {
-        const response = await listFn({ marker });
-        if (response.err) {
-            throw new Error(response.err);
-        }
-        parsedResponse = JSON.parse(response.stdout);
-        const entities = parsedResponse[responseKey] || [];
-        entities.forEach((entity: T) => {
-            if (entity.Path?.includes('/scality-internal/')) {
-                return;
-            }
-            allEntities.push(entity);
-        });
-        marker = parsedResponse.Marker;
-    } while (parsedResponse.IsTruncated);
-    return allEntities;
-};
-
-export async function listAttachedPolicies<T extends AttachedPolicy>(
-    listFn: (params: AWSCliOptions) => Promise<Command>,
-): Promise<T[]> {
-    let marker;
-    const allPolicies: T[] = [];
-    let parsedResponse;
-    do {
-        const response = await listFn({ marker });
-        if (response.err) {
-            throw new Error(response.err);
-        }
-        parsedResponse = JSON.parse(response.stdout);
-        const policies = parsedResponse.AttachedPolicies || [];
-        policies.forEach((policy: T) => {
-            if (policy.PolicyArn?.includes('/scality-internal/')) {
-                return;
-            }
-            allPolicies.push(policy);
-        });
-        marker = parsedResponse.Marker;
-    } while (parsedResponse.IsTruncated);
-    return allPolicies;
+        const resp = await fetch(marker);
+        all.push(...(extract(resp) ?? []));
+        marker = resp.IsTruncated ? resp.Marker : undefined;
+    } while (marker);
+    return all;
 }
 
 export async function cleanupAccount(world: Zenko, accountName: string) {
     try {
         await world.deleteAccount(accountName);
     } catch (err) {
-        world.logger?.debug('Account has attached resources',{
+        world.logger?.debug('Account has attached resources', {
             accountName,
             err,
         });
     }
 
     try {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
+        world.awsClients.useIdentity(accountName);
+        const iam = world.awsClients.iam;
+        const isInternal = (path?: string) => path?.includes('/scality-internal/');
 
         const [allUsers, allGroups, allRoles] = await Promise.all([
-            listAllEntities<User>(IAM.listUsers, 'Users'),
-            listAllEntities<Group>(IAM.listGroups, 'Groups'),
-            listAllEntities<Role>(IAM.listRoles, 'Roles'),
+            paginateAll(
+                marker => iam.send(new ListUsersCommand({ Marker: marker })),
+                r => r.Users,
+            ).then(users => users.filter(u => !isInternal(u.Path))),
+            paginateAll(
+                marker => iam.send(new ListGroupsCommand({ Marker: marker })),
+                r => r.Groups,
+            ).then(groups => groups.filter(g => !isInternal(g.Path))),
+            paginateAll(
+                marker => iam.send(new ListRolesCommand({ Marker: marker })),
+                r => r.Roles,
+            ).then(roles => roles.filter(r => !isInternal(r.Path))),
         ]);
 
         // Detach attached policies from every user, group and role in parallel.
         await Promise.all([
             ...allUsers.map(async user => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
-                );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachUserPolicy({
-                        userName: user.UserName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                const policies = await paginateAll(
+                    marker => iam.send(new ListAttachedUserPoliciesCommand({ UserName: user.UserName, Marker: marker })),
+                    r => r.AttachedPolicies,
+                ).then(ps => ps.filter(p => !isInternal(p.PolicyArn)));
+                await Promise.all(policies.map(p =>
+                    iam.send(new DetachUserPolicyCommand({ UserName: user.UserName, PolicyArn: p.PolicyArn })),
+                ));
             }),
             ...allGroups.map(async group => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
-                );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachGroupPolicy({
-                        groupName: group.GroupName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                const policies = await paginateAll(
+                    marker => iam.send(new ListAttachedGroupPoliciesCommand({ GroupName: group.GroupName, Marker: marker })),
+                    r => r.AttachedPolicies,
+                ).then(ps => ps.filter(p => !isInternal(p.PolicyArn)));
+                await Promise.all(policies.map(p =>
+                    iam.send(new DetachGroupPolicyCommand({ GroupName: group.GroupName, PolicyArn: p.PolicyArn })),
+                ));
             }),
             ...allRoles.map(async role => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
-                );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachRolePolicy({
-                        roleName: role.RoleName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                const policies = await paginateAll(
+                    marker => iam.send(new ListAttachedRolePoliciesCommand({ RoleName: role.RoleName, Marker: marker })),
+                    r => r.AttachedPolicies,
+                ).then(ps => ps.filter(p => !isInternal(p.PolicyArn)));
+                await Promise.all(policies.map(p =>
+                    iam.send(new DetachRolePolicyCommand({ RoleName: role.RoleName, PolicyArn: p.PolicyArn })),
+                ));
             }),
         ]);
 
-        // Delete all policies in parallel.
-        const allPolicies = await listAllEntities<Policy>(IAM.listPolicies, 'Policies');
-        await Promise.all(allPolicies.map(async policy => {
-            const result = await IAM.deletePolicy({ policyArn: policy.Arn });
-            if (result.err) {
-                throw new Error(result.err);
-            }
-        }));
+        // Delete all local policies in parallel.
+        const allPolicies = await paginateAll(
+            marker => iam.send(new ListPoliciesCommand({ Marker: marker, Scope: 'Local' })),
+            r => r.Policies,
+        ).then(ps => ps.filter(p => !isInternal(p.Arn)));
+        await Promise.all(allPolicies.map(p => iam.send(new DeletePolicyCommand({ PolicyArn: p.Arn }))));
 
         // Delete all roles, groups and users in parallel (independent now that policies are gone).
         await Promise.all([
-            ...allRoles.map(async role => {
-                const result = await IAM.deleteRole({ roleName: role.RoleName });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }),
-            ...allGroups.map(async group => {
-                const result = await IAM.deleteGroup({ groupName: group.GroupName });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }),
-            ...allUsers.map(async user => {
-                const result = await IAM.deleteUser({ userName: user.UserName });
-                if (result.err) {
-                    throw new Error(result.err);
-                }
-            }),
+            ...allRoles.map(role => iam.send(new DeleteRoleCommand({ RoleName: role.RoleName }))),
+            ...allGroups.map(group => iam.send(new DeleteGroupCommand({ GroupName: group.GroupName }))),
+            ...allUsers.map(user => iam.send(new DeleteUserCommand({ UserName: user.UserName }))),
         ]);
 
         // Finally, delete the account
@@ -352,7 +291,7 @@ export async function prepareMetricsScenarios(
     const filePath = `/tmp/${featureName}`;
     let initiated = false;
     let releaseLock: (() => Promise<void>) | false = false;
-    const output: Record<string, AWSCredentials> = {};
+    const output: Record<string, AwsCredentials> = {};
     
     const {
         versioning = '',
@@ -397,7 +336,7 @@ export async function prepareMetricsScenarios(
             for (let i = 0; i < objectCount; i++) {
                 await putObject(world, undefined, undefined, objectSize);
             }
-            output[scenarioId] = Identity.getCurrentCredentials()!;
+            output[scenarioId] = world.awsClients.getCredentials();
         }
 
         await createJobAndWaitForCompletion(world, jobName, jobNamespace);
@@ -431,6 +370,7 @@ export async function prepareMetricsScenarios(
     world.addToSaved('metricsEnvironmentSetup', true);
     
     if (configuration[key]) {
-        Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key], undefined, true, true);
+        Zenko.storedCredentials.set(key, configuration[key]);
+        world.awsClients.registerIdentity(key, configuration[key], true);
     }
 }

@@ -8,7 +8,7 @@ import {
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { CacheHelper, Identity, WorkCoordination } from 'cli-testing';
+import { CacheHelper, WorkCoordination } from 'cli-testing';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { prepareMetricsScenarios } from './utils';
@@ -55,11 +55,16 @@ AfterAll(async function () {
 
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
-    Identity.resetIdentity();
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);
     await Zenko.init(this.parameters);
+    // Sync all cached credentials into this scenario's world instance.
+    // Zenko.init() caches the main account; cross-scenario accounts (e.g. metrics setup)
+    // are picked up here so every scenario starts with a full credential set.
+    for (const [name, creds] of Zenko.storedCredentials) {
+        this.awsClients.registerIdentity(name, creds, name === this.parameters.AccountName);
+    }
 });
 
 Before({ tags: '@PRA' }, function () {
