@@ -1,8 +1,61 @@
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';
+import { SignatureV4 } from '@smithy/signature-v4';
+import { Sha256 } from '@aws-crypto/sha256-js';
+import axios from 'axios';
 import Zenko, { EntityType } from '../../world/Zenko';
-import { Scality, Command, Utils } from 'cli-testing';
+import { Utils } from 'cli-testing';
 import { prepareMetricsScenarios } from '../../common/utils';
 import assert from 'assert';
+
+async function scalitySignedRequest(
+    world: Zenko,
+    service: 's3' | 'iam',
+    method: 'GET' | 'PUT' | 'DELETE' | 'POST',
+    path: string,
+    query?: Record<string, string>,
+    body?: Record<string, unknown>,
+): Promise<unknown> {
+    const creds = world.awsClients.getCredentials();
+    const protocol = world.parameters.ssl === false ? 'http' : 'https';
+    const subdomain = world.parameters.subdomain || 'zenko.local';
+    const port = String(world.parameters.port || '80');
+    const hostPart = service === 's3' ? `s3.${subdomain}` : `iam.${subdomain}`;
+    const fullHost = `${hostPart}:${port}`;
+
+    const signer = new SignatureV4({
+        region: 'us-east-1',
+        service,
+        sha256: Sha256,
+        credentials: {
+            accessKeyId: creds.accessKeyId,
+            secretAccessKey: creds.secretAccessKey,
+            ...(creds.sessionToken ? { sessionToken: creds.sessionToken } : {}),
+        },
+    });
+
+    const headers: Record<string, string> = {
+        'x-amz-date': new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''),
+        Host: fullHost,
+    };
+
+    const signed = await signer.sign({
+        protocol: `${protocol}:`,
+        method,
+        path,
+        query: query ?? {},
+        hostname: hostPart,
+        headers,
+    });
+    Object.assign(headers, signed.headers);
+
+    let url = `${protocol}://${fullHost}${path}`;
+    if (query && Object.keys(query).length > 0) {
+        url += '?' + Object.entries(query).map(([k, v]) => `${k}=${v}`).join('&');
+    }
+
+    const result = await axios({ method, url, headers, data: body });
+    return result.data;
+}
 
 export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration: ITestCaseHookParameter) {
     /**
@@ -15,9 +68,9 @@ export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration:
      */
     const isBucketNonVersioned = scenarioConfiguration.gherkinDocument.feature?.tags?.find(
         tag => tag.name === 'NonVersioned') === undefined;
-    
+
     const versioning = isBucketNonVersioned ? '' : 'with';
-    
+
     await prepareMetricsScenarios(world, scenarioConfiguration, {
         versioning,
         jobNamespace: 'quotas-setup',
@@ -28,87 +81,52 @@ export async function teardownQuotaScenarios(world: Zenko) {
     // Remove any quota at the end of the scenario, in case
     // the account gets reused, placed after the global After
     // hook to make sure it is executed first.
-    await world.createAccount();
     await world.setupEntity(EntityType.STORAGE_MANAGER);
-    world.addCommandParameter({
-        bucket: world.getSaved<string>('bucketName'),
-    });
-    const resultBucket = await Scality.deleteBucketQuota(
-        world.parameters,
-        world.getCommandParameters());
-    world.logger?.debug('DeleteBucketQuota result', {
-        resultBucket,
-        parameters: world.getCommandParameters(),
-    });
-    const resultAccount = await Scality.deleteAccountQuota(world.parameters);
+    const bucketName = world.getSaved<string>('bucketName');
 
-    world.logger?.debug('DeleteAccountQuota result', {
-        resultAccount,
-        parameters: world.getCommandParameters(),
-    });
-    if (resultBucket.err || resultAccount.err) {
-        throw new Error('Unable to delete quotas');
-    }
+    try {
+        await scalitySignedRequest(world, 's3', 'DELETE', `/${bucketName}/`, { quota: 'true' });
+    } catch { /* quota may already be absent */ }
+
+    try {
+        await scalitySignedRequest(world, 'iam', 'POST', '/', undefined, { Action: 'DeleteAccountQuota' });
+    } catch { /* quota may already be absent */ }
 }
 
 Given('a bucket quota set to {int} B', async function (this: Zenko, quota: number) {
     if (quota === 0) {
         return;
     }
-    this.addCommandParameter({
-        quota: String(quota),
-    });
-    this.addCommandParameter({
-        bucket: this.getSaved<string>('bucketName'),
-    });
-    // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
+    const bucketName = this.getSaved<string>('bucketName');
 
-    this.logger.debug('UpdateBucketQuota result', {
-        result,
-    });
-
-    // Ensure the quota is set
-    const resultGet: Command = await Scality.getBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
-    this.logger.debug('GetBucketQuota result', {
-        resultGet,
-    });
-
-    assert(resultGet.stdout.includes(`${quota}`));
-
-    if (result.err) {
-        throw new Error(result.err);
+    try {
+        await scalitySignedRequest(this, 's3', 'PUT', `/${bucketName}/`,
+            { quota: 'true' }, { quota: String(quota) });
+    } catch (err) {
+        throw new Error(`Failed to set bucket quota: ${(err as Error).message}`);
     }
+
+    const resultGet = await scalitySignedRequest(this, 's3', 'GET', `/${bucketName}/`,
+        { quota: 'true' }) as { quota: string };
+    assert(
+        JSON.stringify(resultGet).includes(String(quota)),
+        `Bucket quota not applied. Expected ${quota}, got: ${JSON.stringify(resultGet)}`,
+    );
 });
 
 Given('an account quota set to {int} B', async function (this: Zenko, quota: number) {
     if (quota === 0) {
         return;
     }
-    this.addCommandParameter({
-        quotaMax: String(quota),
-    });
-    // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateAccountQuota(
-        this.parameters,
-        this.getCommandParameters());
 
-    this.logger.debug('UpdateAccountQuota result', {
-        result,
-    });
-
-    // Ensure the quota is set
-    assert(JSON.parse(result.stdout).quota === String(quota));
-
-    if (result.err) {
-        throw new Error(result.err);
-    }
+    const result = await scalitySignedRequest(this, 'iam', 'POST', '/', undefined,
+        { Action: 'UpdateAccountQuota', quotaMax: String(quota) }) as { quota: string };
+    assert(
+        JSON.stringify(result).includes(String(quota)),
+        `Account quota not applied. Expected ${quota}, got: ${JSON.stringify(result)}`,
+    );
 });
 
 When('I wait {int} seconds', async (seconds: number) => {

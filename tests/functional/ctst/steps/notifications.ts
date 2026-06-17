@@ -1,10 +1,20 @@
 import { Then, Given, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, Utils, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { Utils, NotificationDestination } from 'cli-testing';
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
 import { waitForBucketInConnectorPipeline } from './utils/kafka';
+import {
+    CopyObjectCommand,
+    DeleteObjectCommand,
+    PutObjectTaggingCommand,
+    DeleteObjectTaggingCommand,
+    PutObjectAclCommand,
+    GetBucketNotificationConfigurationCommand,
+    PutBucketNotificationConfigurationCommand,
+    type QueueConfiguration as S3QueueConfiguration,
+} from '@aws-sdk/client-s3';
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
@@ -41,67 +51,54 @@ interface QueueConfiguration {
 
 async function copyObject(world: Zenko, sourceObject: string) {
     await putObject(world, sourceObject);
-    world.resetCommand();
+    const bucket = world.getSaved<string>('bucketName');
     let objName = `notif-s3:objectcreated:copy-target-${Utils.randomString()}`.toLocaleLowerCase();
     if (world.getSaved<string>('filterType')) {
-        objName = world.getSaved<string>('filterType') === 'prefix' ?
-            `${world.getSaved<string>('objectNamePrefix') }${objName}` :
-            `${objName}${ world.getSaved<string>('objectNameSufix') }`;
+        objName = world.getSaved<string>('filterType') === 'prefix'
+            ? `${world.getSaved<string>('objectNamePrefix')}${objName}`
+            : `${objName}${world.getSaved<string>('objectNameSufix')}`;
     }
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: objName });
-    world.addCommandParameter({
-        copySource:
-            `${world.getSaved<string>('bucketName')}/${sourceObject}`,
-    });
     world.addToSaved('objectName', objName);
-    await S3.copyObject(world.getCommandParameters());
+    await world.awsClients.s3.send(new CopyObjectCommand({
+        Bucket: bucket,
+        Key: objName,
+        CopySource: `${bucket}/${sourceObject}`,
+    }));
 }
 
 async function deleteObject(world: Zenko, objName: string, putDeleteMarker = false) {
     await putObject(world, objName);
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: objName });
-    if (world.getSaved<string>('bucketVersioning') !== 'Non versioned' && !putDeleteMarker) {
-        const putResult = world.getResult();
-        const versionId =
-            (JSON.parse(putResult.stdout) as AWSVersionObject).VersionId;
-        world.addCommandParameter({ versionId });
-    }
-    await S3.deleteObject(world.getCommandParameters());
+    const bucket = world.getSaved<string>('bucketName');
+    const versionId = (!putDeleteMarker && world.getSaved<string>('bucketVersioning') !== 'Non versioned')
+        ? world.getLatestObjectVersion(objName) || undefined
+        : undefined;
+    await world.awsClients.s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: objName, VersionId: versionId }));
 }
 
 async function putTag(world: Zenko, objName: string) {
     await putObject(world, objName);
-    world.resetCommand();
-    const tags = JSON.stringify({
-        TagSet: [{
-            Key: 'key',
-            Value: 'value',
-        }],
-    });
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: objName });
-    world.addCommandParameter({ tagging: `'${tags}'` });
-    await S3.putObjectTagging(world.getCommandParameters());
+    await world.awsClients.s3.send(new PutObjectTaggingCommand({
+        Bucket: world.getSaved<string>('bucketName'),
+        Key: objName,
+        Tagging: { TagSet: [{ Key: 'key', Value: 'value' }] },
+    }));
 }
 
 async function deleteTag(world: Zenko, objName: string) {
     await putTag(world, objName);
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: objName });
-    await S3.deleteObjectTagging(world.getCommandParameters());
+    await world.awsClients.s3.send(new DeleteObjectTaggingCommand({
+        Bucket: world.getSaved<string>('bucketName'),
+        Key: objName,
+    }));
 }
 
 async function putAcl(world: Zenko, objName: string) {
     await putObject(world, objName);
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({ key: objName });
-    world.addCommandParameter({ acl: 'public-read' });
-    await S3.putObjectAcl(world.getCommandParameters());
+    await world.awsClients.s3.send(new PutObjectAclCommand({
+        Bucket: world.getSaved<string>('bucketName'),
+        Key: objName,
+        ACL: 'public-read',
+    }));
 }
 
 function setNotificationDestination(world: Zenko, destination: string, topic: string, hosts: string) {
@@ -162,110 +159,101 @@ When('i subscribe to {string} notifications for destination {int}',
         notificationsPerDestination[`${destination}`] =
             notificationType !== 'all' ? [notificationType] : allNotificationTypes;
         this.addToSaved('notificationsPerDestination', notificationsPerDestination);
-        const destinationConfig = {
-            QueueConfigurations: [
-                {
-                    QueueArn: 'arn:scality:bucketnotif:::' +
-                        `${(this.getSaved<Array<NotificationDestination>>('notificationDestinations')[destination])
-                            .destinationName}`,
-                    Events: notificationsPerDestination[`${destination}`],
-                },
-            ],
+        const bucket = this.getSaved<string>('bucketName');
+        const newEntry: S3QueueConfiguration = {
+            QueueArn: 'arn:scality:bucketnotif:::' +
+                `${(this.getSaved<Array<NotificationDestination>>('notificationDestinations')[destination])
+                    .destinationName}`,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            Events: notificationsPerDestination[`${destination}`] as any,
         };
-        (this).resetCommand();
-        // Getting and adapting previous notification configuration
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
+        // Get existing notification config (may be empty)
+        let existingQueues: S3QueueConfiguration[] = [];
         try {
-            const notificationConfig = JSON.parse(result.stdout) as NotificationConfig;
-            notificationConfig.QueueConfigurations.push(destinationConfig.QueueConfigurations[0]);
-            this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfig)}'` });
+            const existing = await this.awsClients.s3.send(
+                new GetBucketNotificationConfigurationCommand({ Bucket: bucket }),
+            );
+            existingQueues = existing.QueueConfigurations || [];
         } catch (error) {
-            this.logger.debug('Error parsing notification configuration', { error });
-            // Put new config if old doesn't exist
-            this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
+            this.logger.debug('Error getting notification configuration', { error });
         }
-        await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
+        existingQueues.push(newEntry);
+        await this.awsClients.s3.send(new PutBucketNotificationConfigurationCommand({
+            Bucket: bucket,
+            NotificationConfiguration: { QueueConfigurations: existingQueues },
+        }));
+        await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, bucket);
     });
 
 When('i subscribe to {string} notifications for destination {int} with {string} filter',
     async function (this: Zenko, notificationType: string, destination: number, filterType: string) {
         const notificationsPerDestination : Record<string, string[]> = {};
-
         notificationsPerDestination[`${destination}`] =
             notificationType !== 'all' ? [notificationType] : allNotificationTypes;
         this.addToSaved('objectNamePrefix', filterType === 'prefix' ? 'pfx-' : '');
         this.addToSaved('objectNameSufix', filterType === 'suffix' ? '-sfx' : '');
         this.addToSaved('notificationsPerDestination', notificationsPerDestination);
-        let filter = filterType.toLocaleLowerCase();
-        filter = filter[0].toUpperCase() + filter.slice(1);
-        const destinationConfig = {
-            QueueConfigurations: [
-                {
-                    QueueArn: 'arn:scality:bucketnotif:::' +
-                        `${(this.getSaved<NotificationDestination[]>('notificationDestinations')[destination])
-                            .destinationName}`,
-                    Events: notificationsPerDestination[`${destination}`],
-                    Filter: {
-                        Key: {
-                            FilterRules: [
-                                {
-                                    Name: filter,
-                                    Value: filterType === 'prefix' ? 'pfx-' : '-sfx',
-                                },
-                            ],
-                        },
-                    },
+        const filterName = filterType.charAt(0).toUpperCase() + filterType.slice(1).toLocaleLowerCase();
+        const bucket = this.getSaved<string>('bucketName');
+        const newEntry: S3QueueConfiguration = {
+            QueueArn: 'arn:scality:bucketnotif:::' +
+                `${(this.getSaved<NotificationDestination[]>('notificationDestinations')[destination])
+                    .destinationName}`,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            Events: notificationsPerDestination[`${destination}`] as any,
+            Filter: {
+                Key: {
+                    FilterRules: [{
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        Name: filterName as any,
+                        Value: filterType === 'prefix' ? 'pfx-' : '-sfx',
+                    }],
                 },
-            ],
+            },
         };
-        this.resetCommand();
-        // Getting and adapting previous notification configuration
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
+        let existingQueues: S3QueueConfiguration[] = [];
         try {
-            const notificationConfig = JSON.parse(result.stdout) as NotificationConfig;
-            // Update old config and update
-            notificationConfig.QueueConfigurations.push(destinationConfig.QueueConfigurations[0]);
-            this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfig)}'` });
+            const existing = await this.awsClients.s3.send(
+                new GetBucketNotificationConfigurationCommand({ Bucket: bucket }),
+            );
+            existingQueues = existing.QueueConfigurations || [];
         } catch (error) {
-            this.logger.debug('Error putting notification configuration', { error });
-            // Put new config it old doesn't exist
-            this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
+            this.logger.debug('Error getting notification configuration', { error });
         }
-        await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-        await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
+        existingQueues.push(newEntry);
+        await this.awsClients.s3.send(new PutBucketNotificationConfigurationCommand({
+            Bucket: bucket,
+            NotificationConfiguration: { QueueConfigurations: existingQueues },
+        }));
+        await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, bucket);
     });
 
 When('i unsubscribe from {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
-        assert.strictEqual(this.checkResults([result]), true);
-        const notificationConfiguration = JSON.parse(result.stdout) as NotificationConfig;
-        let QueueConfigIdx = -1;
-        const destinationConfiguration = notificationConfiguration
-            .QueueConfigurations
-            .find((conf: QueueConfiguration, idx: number) => {
-                const configDestinationName = conf.QueueArn.split(':')[5];
-                if (configDestinationName ===
-                    (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination])
-                        .destinationName) {
-                    QueueConfigIdx = idx;
-                    return true;
-                }
-                return false;
-            }) as QueueConfiguration;
+        const bucket = this.getSaved<string>('bucketName');
+        const existing = await this.awsClients.s3.send(new GetBucketNotificationConfigurationCommand({ Bucket: bucket }));
+        const queues = existing.QueueConfigurations || [];
+        let queueIdx = -1;
+        const destinationConf = queues.find((conf, idx) => {
+            const configDestinationName = (conf.QueueArn ?? '').split(':')[5];
+            if (configDestinationName ===
+                (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName) {
+                queueIdx = idx;
+                return true;
+            }
+            return false;
+        });
+        assert(destinationConf, `No notification config found for destination ${destination}`);
         const excludedNotifications = notificationType !== 'all' ? [notificationType] : allNotificationTypes;
-        const configuredNotifEvents =
-            destinationConfiguration.Events.filter((event: string) => !excludedNotifications.includes(event));
-        notificationConfiguration.QueueConfigurations[QueueConfigIdx].Events = configuredNotifEvents;
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfiguration)}'` });
-        await S3.putBucketNotificationConfiguration(this.getCommandParameters());
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        queues[queueIdx].Events = (queues[queueIdx].Events as any[]).filter(
+            (event: string) => !excludedNotifications.includes(event),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as any;
+        await this.awsClients.s3.send(new PutBucketNotificationConfigurationCommand({
+            Bucket: bucket,
+            NotificationConfiguration: { QueueConfigurations: queues },
+        }));
         // waiting for oplog populator to take the putNotificationConfiguration into account
         await Utils.sleep(10000);
     });
@@ -310,18 +298,16 @@ When('a {string} event is triggered {string} {string}',
 
 Then('notifications should be enabled for {string} event in destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
-        assert.strictEqual(this.checkResults([result]), true);
-        const notificationConfiguration = JSON.parse(result.stdout) as NotificationConfig;
-        const destinationConfiguration = notificationConfiguration
-            .QueueConfigurations.find((conf: QueueConfiguration) => {
-                const configDestinationName = conf.QueueArn.split(':')[5];
-                return configDestinationName ===
-                    (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName;
-            }) as QueueConfiguration;
-        assert(destinationConfiguration.Events.includes(notificationType));
+        const bucket = this.getSaved<string>('bucketName');
+        const result = await this.awsClients.s3.send(new GetBucketNotificationConfigurationCommand({ Bucket: bucket }));
+        const destinationConf = (result.QueueConfigurations || []).find(conf => {
+            const configDestinationName = (conf.QueueArn ?? '').split(':')[5];
+            return configDestinationName ===
+                (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName;
+        });
+        assert(destinationConf, `No notification config found for destination ${destination}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        assert((destinationConf.Events as any[]).includes(notificationType));
     });
 
 Then('i should {string} a notification for {string} event in destination {int}',

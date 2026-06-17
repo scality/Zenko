@@ -1,21 +1,28 @@
-import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
+import {
+    DeleteObjectCommand,
+    ListObjectVersionsCommand,
+    DeleteBucketCommand,
+    DeleteBucketLifecycleCommand,
+    CreateBucketCommand,
+    PutBucketVersioningCommand,
+    CopyObjectCommand,
+    PutObjectTaggingCommand,
+    GetObjectTaggingCommand,
+    HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
+import { CacheHelper, Constants, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { parseGoDuration, safeJsonParse } from './utils';
+import { parseGoDuration } from './utils';
 import assert from 'assert';
 import { Admin } from '@platformatic/kafka';
 import {
     createBucketWithConfiguration,
     putMpuObject,
-    copyObject,
     putObject,
     runActionAgainstBucket,
     getObjectNameWithBackendFlakiness,
     verifyObjectLocation,
-    restoreObject,
-    addTransitionWorkflow,
-    putBucketReplication,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 import constants from './constants';
@@ -39,34 +46,32 @@ export async function cleanS3Bucket(
         // Do not try to clean a bucket with compliance retention
         return;
     }
-    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
-        world.parameters.AccountName);
-    world.resetCommand();
-    world.addCommandParameter({ bucket: bucketName });
+    const accountName = world.getSaved<string>('accountName') || world.parameters.AccountName;
+    world.awsClients.useIdentity(accountName);
     const createdObjects = world.getCreatedObjects();
     if (createdObjects !== undefined) {
-        const results = await S3.listObjectVersions(world.getCommandParameters());
-        const res = safeJsonParse<ListObjectVersionsOutput>(results.stdout);
-        if (!res.ok) {
-            throw results;
-        }
-        const versions = res.result!.Versions || [];
-        const deleteMarkers = res.result!.DeleteMarkers || [];
-        await Promise.all(versions.concat(deleteMarkers).map(obj => {
-            world.addCommandParameter({ key: obj.Key });
-            world.addCommandParameter({ versionId: obj.VersionId });
-            return S3.deleteObject(world.getCommandParameters());
-        }));
-        world.deleteKeyFromCommand('key');
-        world.deleteKeyFromCommand('versionId');
+        const listResult = await world.awsClients.s3.send(new ListObjectVersionsCommand({ Bucket: bucketName }));
+        const versions = listResult.Versions || [];
+        const deleteMarkers = listResult.DeleteMarkers || [];
+        await Promise.all([...versions, ...deleteMarkers].map(obj =>
+            world.awsClients.s3.send(new DeleteObjectCommand({
+                Bucket: bucketName,
+                Key: obj.Key!,
+                VersionId: obj.VersionId,
+                BypassGovernanceRetention: true,
+            })),
+        ));
     }
-    await S3.deleteBucketLifecycle(world.getCommandParameters());
-    await S3.deleteBucket(world.getCommandParameters());
+    try {
+        await world.awsClients.s3.send(new DeleteBucketLifecycleCommand({ Bucket: bucketName }));
+    } catch { /* ignore */ }
+    try {
+        await world.awsClients.s3.send(new DeleteBucketCommand({ Bucket: bucketName }));
+    } catch { /* ignore */ }
 }
 
 async function addMultipleObjects(this: Zenko, numberObjects: number,
     objectName: string, sizeBytes: number, userMD?: string, parts?: number) {
-    let lastResult = null;
     for (let i = 1; i <= numberObjects; i++) {
         this.resetCommand();
         const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`) ||
@@ -75,25 +80,48 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             this.addToSaved('objectSize', sizeBytes);
         }
         if (userMD) {
-            this.addToSaved('userMetadata', userMD);
+            const metadataRecord: Record<string, string> = {};
+            userMD.split(',').forEach(pair => {
+                const eqIdx = pair.indexOf('=');
+                if (eqIdx !== -1) {
+                    let key = pair.slice(0, eqIdx).trim();
+                    if (key.startsWith('x-amz-meta-')) key = key.slice('x-amz-meta-'.length);
+                    metadataRecord[key] = pair.slice(eqIdx + 1).trim();
+                }
+            });
+            this.addToSaved('userMetadata', metadataRecord);
         }
-        lastResult = parts === undefined
-            ? await putObject(this, objectNameFinal)
-            : await putMpuObject(this, parts, objectNameFinal);
+        if (parts === undefined) {
+            await putObject(this, objectNameFinal);
+        } else {
+            await putMpuObject(this, parts, objectNameFinal);
+        }
     }
-    return lastResult;
 }
 
 async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
     const objName = objectName || this.getSaved<string>('objectName');
     const bucketName = this.getSaved<string>('bucketName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: bucketName });
-    this.addCommandParameter({ key: objName });
-    this.addCommandParameter({ copySource: `${bucketName}/${objName}` });
-    this.addCommandParameter({ metadata: userMD });
-    this.addCommandParameter({ metadataDirective: 'REPLACE' });
-    return await S3.copyObject(this.getCommandParameters());
+    const eqIdx = userMD.indexOf('=');
+    const metadata: Record<string, string> = {};
+    if (eqIdx !== -1) {
+        const rawKey = userMD.slice(0, eqIdx);
+        const key = rawKey.startsWith('x-amz-meta-') ? rawKey.slice('x-amz-meta-'.length) : rawKey;
+        metadata[key] = userMD.slice(eqIdx + 1);
+    }
+    try {
+        await this.awsClients.s3.send(new CopyObjectCommand({
+            Bucket: bucketName,
+            Key: objName,
+            CopySource: `${bucketName}/${objName}`,
+            Metadata: metadata,
+            MetadataDirective: 'REPLACE',
+        }));
+        return { err: null };
+    } catch (err) {
+        const error = err as { name?: string; message?: string };
+        return { err: error.name || error.message || 'UnknownError' };
+    }
 }
 
 async function getTopicsOffsets(topics: string[], kafkaAdmin: Admin) {
@@ -129,15 +157,15 @@ Given('{int} additional accounts', async function (this: Zenko, count: number) {
 });
 
 async function createBucket(world: Zenko, versioning: string, bucketName: string) {
-    world.resetCommand();
     world.addToSaved('bucketName', bucketName);
-    world.addCommandParameter({ bucket: bucketName });
-    await S3.createBucket(world.getCommandParameters());
+    await world.awsClients.s3.send(new CreateBucketCommand({ Bucket: bucketName }));
     world.addToSaved('bucketVersioning', versioning);
     if (versioning !== 'Non versioned') {
-        const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
-        world.addCommandParameter({ versioningConfiguration: `Status=${versioningConfiguration}` });
-        await S3.putBucketVersioning(world.getCommandParameters());
+        const status = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
+        await world.awsClients.s3.send(new PutBucketVersioningCommand({
+            Bucket: bucketName,
+            VersioningConfiguration: { Status: status },
+        }));
     }
 }
 
@@ -167,58 +195,37 @@ Given('an existing bucket {string} {string} versioning, {string} ObjectLock {str
 
 Given('{int} objects {string} of size {int} bytes',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
-        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
-        assert.ifError(result?.stderr || result?.err);
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
     });
 
 Given('{int} mpu objects {string} of size {int} bytes',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number) {
-        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined, 1);
-        assert.ifError(result?.stderr || result?.err);
-    });
-
-Given('{string} is copied to {string}',
-    async function (this: Zenko, sourceObject: string, destinationObject: string) {
-        const result = await copyObject(this, sourceObject, destinationObject);
-        assert.ifError(result?.stderr || result?.err);
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined, 1);
     });
 
 Given('{int} objects {string} of size {int} bytes on {string} site',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, site: string) {
-        this.resetCommand();
-
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
-        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
-        assert.ifError(result?.stderr || result?.err);
+        const identityName = site === 'DR'
+            ? `${Zenko.sites['source'].accountName}-replicated`
+            : Zenko.sites['source'].accountName;
+        this.awsClients.useIdentity(identityName);
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
     });
 
 Given('{int} objects {string} of size {int} bytes with user metadata {string}',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, userMD: string) {
-        const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
-        assert.ifError(result?.stderr || result?.err);
+        await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, userMD);
     });
 
 Given('a tag on object {string} with key {string} and value {string}',
     async function (this: Zenko, objectName: string, tagKey: string, tagValue: string) {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objectName });
         const versionId = this.getLatestObjectVersion(objectName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
-        const tags = JSON.stringify({
-            TagSet: [{
-                Key: tagKey,
-                Value: tagValue,
-            }],
-        });
-        this.addCommandParameter({ tagging: `'${tags}'` });
-        await S3.putObjectTagging(this.getCommandParameters());
+        await this.awsClients.s3.send(new PutObjectTaggingCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectName,
+            VersionId: versionId || undefined,
+            Tagging: { TagSet: [{ Key: tagKey, Value: tagValue }] },
+        }));
     });
 
 Given('SSL is {string} for S3 API calls', function (this: Zenko, ssl: string) {
@@ -235,52 +242,27 @@ Given('SSL is {string} for S3 API calls', function (this: Zenko, ssl: string) {
 
 Then('object {string} should have the tag {string} with value {string}',
     async function (this: Zenko, objectName: string, tagKey: string, tagValue: string) {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objectName });
         const versionId = this.getLatestObjectVersion(objectName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
-        await S3.getObjectTagging(this.getCommandParameters()).then(res => {
-            const parsed = safeJsonParse<{ TagSet: [{ Key: string, Value: string }] | undefined }>(res.stdout);
-            assert(parsed.result!.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
-        });
+        const res = await this.awsClients.s3.send(new GetObjectTaggingCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectName,
+            VersionId: versionId || undefined,
+        }));
+        assert(res.TagSet?.some(tag => tag.Key === tagKey && tag.Value === tagValue));
     });
 
 Then('object {string} should have the user metadata with key {string} and value {string}',
     async function (this: Zenko, objectName: string, userMDKey: string, userMDValue: string) {
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objectName });
         const versionId = this.getLatestObjectVersion(objectName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
-        const res = await S3.headObject(this.getCommandParameters());
-        assert.ifError(res.stderr);
-        assert(res.stdout);
-        const parsed = safeJsonParse<{ Metadata: { [key: string]: string } | undefined }>(res.stdout);
-        assert(parsed.ok);
-        assert(parsed.result!.Metadata);
-        assert(parsed.result!.Metadata[userMDKey]);
-        assert(parsed.result!.Metadata[userMDKey] === userMDValue);
+        const res = await this.awsClients.s3.send(new HeadObjectCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectName,
+            VersionId: versionId || undefined,
+        }));
+        assert(res.Metadata, 'Expected metadata to be present');
+        const shortKey = userMDKey.startsWith('x-amz-meta-') ? userMDKey.slice('x-amz-meta-'.length) : userMDKey;
+        assert.strictEqual(res.Metadata[shortKey], userMDValue);
     });
-
-// add a transition workflow to a bucket
-Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    await addTransitionWorkflow.call(this, location);
-});
-
-Given('a replication configuration to {string} location',
-    async function (this: Zenko, replicationLocation: string) {
-        this.addToSaved('replicationLocation', replicationLocation);
-        await putBucketReplication.call(this, this.getSaved<string>('bucketName'), replicationLocation);
-    });
-
-When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
-    await restoreObject.call(this, objectName, days);
-});
 
 // wait for object to transition to a location or get restored from it
 Then('object {string} should be {string} and have the storage class {string}',
@@ -288,14 +270,12 @@ Then('object {string} should be {string} and have the storage class {string}',
 
 When('i delete object {string}', async function (this: Zenko, objectName: string) {
     const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
     const versionId = this.getLatestObjectVersion(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    await S3.deleteObject(this.getCommandParameters());
+    await this.awsClients.s3.send(new DeleteObjectCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objName,
+        VersionId: versionId || undefined,
+    }));
 });
 
 Then('i {string} be able to add user metadata to object {string}',
@@ -304,7 +284,7 @@ Then('i {string} be able to add user metadata to object {string}',
         if (expectedResult === 'should not') {
             assert(res.err?.includes('InvalidObjectState'));
         } else {
-            assert.ifError(res.err);
+            assert.strictEqual(res.err, null);
         }
     });
 
@@ -435,9 +415,14 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
                 this.addToSaved('copyObject', `objectrepeatcopy-${Utils.randomString()}`);
             }
             await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
-            if (this.getResult().err && this.getResult().retryable?.throttling !== true) {
-                this.logger.debug('Error during repeated action', { error: this.getResult().err });
-                break;
+            const repeatOutcome = this.getS3Outcome();
+            if (!repeatOutcome.ok) {
+                const isThrottling = repeatOutcome.error.name.includes('Throttling') ||
+                    repeatOutcome.error.name.includes('SlowDown');
+                if (!isThrottling) {
+                    this.logger.debug('Error during repeated action', { error: repeatOutcome.error.name });
+                    break;
+                }
             }
             await Utils.sleep(delay);
         }
@@ -445,19 +430,21 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
 
 Then('the API should {string} with {string}', function (this: Zenko, result: string, expected: string) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
+    const outcome = this.getS3Outcome();
     switch (result) {
     case 'succeed':
         if (action.expectedResultOnAllowTest) {
-            assert.strictEqual(
-                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
-                    this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
-                    this.getResult().err === null, true);
+            assert.ok(
+                outcome.ok || (!outcome.ok && outcome.error.name.includes(action.expectedResultOnAllowTest)),
+                `Expected success or "${action.expectedResultOnAllowTest}" but got: ${outcome.ok ? 'success' : outcome.error.name}`,
+            );
         } else {
-            assert.strictEqual(!!this.getResult().err, false);
+            assert.ok(outcome.ok, `Expected success but got: ${!outcome.ok ? outcome.error.message : ''}`);
         }
         break;
     case 'fail':
-        assert.strictEqual(this.getResult().err?.includes(expected), true);
+        assert.ok(!outcome.ok && outcome.error.name.includes(expected),
+            `Expected error "${expected}" but got: ${outcome.ok ? 'success' : outcome.error.name}`);
         break;
     default:
         throw new Error('The API should have a correct expected result defined');
@@ -472,7 +459,8 @@ Then('the http response code is {int}', function (this: Zenko, expectedStatus: n
 
 Then('the operation finished without error', function (this: Zenko) {
     this.useSavedIdentity();
-    assert.strictEqual(!!this.getResult().err, false);
+    const outcome = this.getS3Outcome();
+    assert.ok(outcome.ok, `Expected success but got: ${!outcome.ok ? outcome.error.message : ''}`);
 });
 
 Given('an upload size of {int} B for the object {string}', async function (
@@ -490,7 +478,5 @@ When('I PUT an object with size {int}', async function (this: Zenko, size: numbe
     if (size > 0) {
         this.addToSaved('objectSize', size);
     }
-    const result = await addMultipleObjects.call(
-        this, 1, `object-${Utils.randomString()}`, size);
-    this.setResult(result!);
+    await addMultipleObjects.call(this, 1, `object-${Utils.randomString()}`, size);
 });

@@ -2,7 +2,7 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
 import { createAndRunPod, getZenkoVersion } from 'steps/utils/kubernetes';
 import assert from 'assert';
-import { IdentityEnum, Identity, Utils } from 'cli-testing';
+import { Utils } from 'cli-testing';
 import { 
     GetObjectCommand,
     DeleteBucketCommand,
@@ -10,7 +10,6 @@ import {
     PutBucketVersioningCommand
 } from '@aws-sdk/client-s3';
 import { getObject, headObject, getReplicationLocationConfig } from 'steps/utils/utils';
-import { safeJsonParse } from 'common/utils';
 import { replicationLockTags } from 'common/hooks';
 
 When('the job to replicate existing objects with status {string} is executed',
@@ -24,10 +23,7 @@ When('the job to replicate existing objects with status {string} is executed',
         const { locationType } = await getReplicationLocationConfig(this, replicationLocation);
         const zenkoVersion = await getZenkoVersion(this);
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
-        const credentials = Identity.getCredentialsForIdentity(
-            IdentityEnum.ACCOUNT,
-            this.parameters.AccountName
-        );
+        const credentials = this.awsClients.getCredentials(this.parameters.AccountName);
         const podManifest = {
             apiVersion: 'v1',
             kind: 'Pod',
@@ -50,7 +46,7 @@ When('the job to replicate existing objects with status {string} is executed',
                         env: [
                             { name: 'ACCESS_KEY', value: credentials?.accessKeyId },
                             { name: 'SECRET_KEY', value: credentials?.secretAccessKey },
-                            { name: 'ENDPOINT', value: `http://s3.${credentials?.subDomain}` },
+                            { name: 'ENDPOINT', value: `http://s3.${this.parameters.subdomain}` },
                             { name: 'STORAGE_TYPE', value: locationType },
                             { name: 'TARGET_REPLICATION_STATUS', value: sourceObjectStatus },
                             { name: 'SITE_NAME', value: replicationLocation },
@@ -76,18 +72,7 @@ Then('the object replication should {string} within {int} seconds', { timeout: 6
             await new Promise(resolve => setTimeout(resolve, 3000));
 
             const response = await headObject(this, objectName, bucketSource);
-            assert(response.stdout);
-            assert.strictEqual(response.statusCode, 200, `failed to headobject, ${response.statusCode}`);
-            const parsed = safeJsonParse<{
-                ReplicationStatus?: string;
-                LastModified?: string;
-                ETag?: string;
-                ContentLength?: number;
-                VersionId?: string;
-                Metadata?: Record<string, string>;
-            }>(response.stdout || '{}');
-            assert(parsed.ok);
-            const replicationStatus = parsed.result?.ReplicationStatus;
+            const replicationStatus = response.ReplicationStatus as string | undefined;
             
             switch (replicationStatus) {
             case 'PENDING':
@@ -139,34 +124,18 @@ Then(
         });
         const replicaObj = await awsS3Client.send(command);
         const sourceResponse = await getObject(this, objectName, bucketSource);
-        assert.strictEqual(sourceResponse.statusCode, 200, `failed to getObject, ${sourceResponse.statusCode}`);
-        const sourceObj = safeJsonParse<{
-            ReplicationStatus?: string;
-            LastModified?: string;
-            ETag?: string;
-            ContentLength?: number;
-            VersionId?: string;
-            Metadata?: Record<string, string>;
-        }>(sourceResponse.stdout || '{}');
-        assert(sourceObj.ok);
 
-        assert.strictEqual(sourceObj.result?.ReplicationStatus, 'COMPLETED');
+        assert.strictEqual(sourceResponse.ReplicationStatus, 'COMPLETED');
+        assert.strictEqual(sourceResponse.ContentLength, replicaObj.ContentLength);
         assert.strictEqual(
-            sourceObj.result?.ContentLength,
-            replicaObj.ContentLength
-        );
-        assert.strictEqual(
-            sourceObj.result?.Metadata?.[`${replicationLocation}-version-id`],
+            sourceResponse.Metadata?.[`${replicationLocation}-version-id`],
             replicaObj.VersionId
         );
         assert.strictEqual(
-            sourceObj.result?.Metadata?.[`${replicationLocation}-replication-status`],
+            sourceResponse.Metadata?.[`${replicationLocation}-replication-status`],
             'COMPLETED'
         );
-        assert.strictEqual(
-            sourceObj.result?.VersionId,
-            replicaObj.Metadata?.['scal-version-id']
-        );
+        assert.strictEqual(sourceResponse.VersionId, replicaObj.Metadata?.['scal-version-id']);
         assert.strictEqual(
             replicaObj.Metadata?.['scal-replication-status'],
             'REPLICA'

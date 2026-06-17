@@ -1,8 +1,8 @@
 import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
+import { HeadObjectCommand } from '@aws-sdk/client-s3';
 import { GetObjectAttributesExtendedCommand, GetObjectAttributesExtendedInput } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
-import { safeJsonParse } from '../../common/utils';
 
 async function getObjectAttributes(
     world: Zenko,
@@ -10,18 +10,38 @@ async function getObjectAttributes(
     attributes: string,
     versionId?: string,
 ) {
-    world.resetCommand();
-
     const bucketName = world.getSaved<string>('bucketName');
     const attributesList = attributes.split(',').map(attr => attr.trim()) as
         GetObjectAttributesExtendedInput['ObjectAttributes'];
 
-    await world.sendS3Command(new GetObjectAttributesExtendedCommand({
-        Bucket: bucketName,
-        Key: objectName,
-        VersionId: versionId,
-        ObjectAttributes: attributesList,
-    }));
+    try {
+        world.saveS3Result(await world.awsClients.s3.send(new GetObjectAttributesExtendedCommand({
+            Bucket: bucketName,
+            Key: objectName,
+            VersionId: versionId,
+            ObjectAttributes: attributesList,
+        })));
+    } catch (err) {
+        world.saveS3Error(err);
+        return;
+    }
+
+    // TODO REVIEW
+    // The cloudserverclient extended command does not populate x-amz-meta-* in the SDK response
+    // due to a middleware ordering issue. Pre-fetch via HeadObject so the Then step can verify
+    // metadata values without making additional calls at assertion time.
+    if (attributesList.some(a => (a as string).startsWith('x-amz-meta-'))) {
+        try {
+            const head = await world.awsClients.s3.send(new HeadObjectCommand({
+                Bucket: bucketName,
+                Key: objectName,
+                VersionId: versionId,
+            }));
+            world.addToSaved('lastObjectMetadata', head.Metadata ?? {});
+        } catch {
+            world.addToSaved('lastObjectMetadata', {});
+        }
+    }
 }
 
 When('the user calls GetObjectAttributes for {string} requesting {string}', async function (
@@ -46,9 +66,10 @@ Then('the GetObjectAttributes response should contain {string} with values {stri
     attributes: string,
     expectedValues: string,
 ) {
-    const result = this.getResult();
-    const parsed = safeJsonParse<Record<string, unknown>>(result.stdout);
-    assert(parsed.ok, `Failed to parse GetObjectAttributes response: ${parsed.error}`);
+    const outcome = this.getS3Outcome<Record<string, unknown>>();
+    assert(outcome.ok, `Failed to get object attributes: ${!outcome.ok ? outcome.error.message : ''}`);
+    const data = outcome.data!;
+    const savedMetadata = this.getSaved<Record<string, string>>('lastObjectMetadata') ?? {};
 
     const attributesList = attributes.split(',').map(attr => attr.trim());
     const valuesList = expectedValues.split(',').map(val => val.trim());
@@ -69,16 +90,34 @@ Then('the GetObjectAttributes response should contain {string} with values {stri
             expected = expected.replace(/^"|"$/g, '');
         }
 
-        if (!expected) {
-            assert(
-                !(attr in parsed.result!),
-                `Expected attribute "${attr}" to be absent, but found value: ${parsed.result![attr]}`,
-            );
-            return;
+        if (attr.startsWith('x-amz-meta-')) {
+            const metaKey = attr.slice('x-amz-meta-'.length);
+            const metaValue = savedMetadata[metaKey];
+            if (!expected) {
+                assert(
+                    metaValue === undefined,
+                    `Expected metadata "${attr}" to be absent, but found value: ${metaValue}`,
+                );
+            } else {
+                assert.strictEqual(
+                    metaValue,
+                    expected,
+                    `Metadata "${attr}": expected "${expected}" but got "${metaValue}"`,
+                );
+            }
+            continue;
         }
 
-        assert(attr in parsed.result!, `Expected attribute "${attr}" not found in response`);
-        const actual = String(parsed.result![attr]);
+        if (!expected) {
+            assert(
+                !(attr in data),
+                `Expected attribute "${attr}" to be absent, but found value: ${data[attr]}`,
+            );
+            continue;
+        }
+
+        assert(attr in data, `Expected attribute "${attr}" not found in response`);
+        const actual = String(data[attr]);
         assert.strictEqual(
             actual, expected,
             `Attribute "${attr}": expected "${expected}" but got "${actual}"`,

@@ -1,10 +1,11 @@
 import {Given, Then} from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
-import {S3} from 'cli-testing';
-import {ListObjectsV2Output, ListObjectVersionsOutput, PutObjectOutput} from '@aws-sdk/client-s3';
-import {safeJsonParse} from 'common/utils';
+import {
+    PutObjectCommand,
+    ListObjectsV2Command,
+    ListObjectVersionsCommand,
+} from '@aws-sdk/client-s3';
 import assert from 'assert';
-import {uploadSetup, uploadTeardown} from './utils/utils';
 
 Given('{int} threads each uploading {int} versions of object {string} of size {int} bytes', async function (
     this: Zenko,
@@ -18,27 +19,22 @@ Given('{int} threads each uploading {int} versions of object {string} of size {i
     this.addToSaved('objectName', objectName);
     this.addToSaved('objectSize', sizeBytes);
 
-    await uploadSetup(this, 'PutObject', bucketName);
-    const tempFileName = this.getSaved<string>('tempFileName');
-
     await Promise.all(Array.from({ length: numberOfThread }, async () => {
         for (let i = 0; i < numberOfVerionPerThread; i++) {
-            const result = await S3.putObject({
-                bucket: bucketName,
-                key: objectName,
-                body: tempFileName,
-            });
-            const res = safeJsonParse<PutObjectOutput>(result.stdout);
-
-            if (!res.ok) {
+            try {
+                await this.awsClients.s3.send(new PutObjectCommand({
+                    Bucket: bucketName,
+                    Key: objectName,
+                    Body: Buffer.from(bucketName),
+                }));
+            } catch (err) {
                 processedCounter--;
-                this.logger.debug(`Failed to put object ${objectName} in bucket ${bucketName}: ${res.error}`);
+                this.logger.debug(`Failed to put object ${objectName} in bucket ${bucketName}: ${(err as Error).message}`);
             }
         }
     }));
 
     this.addToSaved('objectCreatedCounter', processedCounter);
-    await uploadTeardown(this, 'PutObject');
 });
 
 Then('{int} versions of objects {string} should exist', async function (
@@ -55,33 +51,29 @@ Then('{int} versions of objects {string} should exist', async function (
     }
 
     const bucketName = this.getSaved<string>('bucketName');
-    const results = await S3.listObjectsV2({
-        bucket: bucketName,
-        maxItems: '1000',
-        prefix: objectName,
-    });
-    const res = safeJsonParse<ListObjectsV2Output>(results.stdout);
-    assert.ok(res.ok, `Failed to list objects in bucket ${bucketName}: ${res.error}`);
+    const listResult = await this.awsClients.s3.send(new ListObjectsV2Command({
+        Bucket: bucketName,
+        MaxKeys: 1000,
+        Prefix: objectName,
+    }));
     assert.equal(
-        res.result?.Contents?.length,
+        listResult.Contents?.length,
         1,
-        `Expected 1 object with prefix ${objectName} in bucket ${bucketName}, found ${res.result?.Contents?.length}`
+        `Expected 1 object with prefix ${objectName} in bucket ${bucketName}, found ${listResult.Contents?.length}`
     );
 
-    const object = res.result!.Contents![0];
+    const object = listResult.Contents![0];
     assert.ok(object.Key, `Object in bucket ${bucketName} has no Key: ${JSON.stringify(object)}`);
 
-    const versions = await S3.listObjectVersions({
-        bucket: bucketName,
-        prefix: object.Key,
-        maxItems: '1000',
-    });
-    const versionsRes = safeJsonParse<ListObjectVersionsOutput>(versions.stdout);
-    assert.ok(versionsRes.ok, `Failed to list versions in bucket ${bucketName}: ${versionsRes.error}`);
-    assert.ok(versionsRes.result?.Versions, `No versions found in bucket ${bucketName} for object ${object.Key}`);
+    const versionsResult = await this.awsClients.s3.send(new ListObjectVersionsCommand({
+        Bucket: bucketName,
+        Prefix: object.Key,
+        MaxKeys: 1000,
+    }));
+    assert.ok(versionsResult.Versions, `No versions found in bucket ${bucketName} for object ${object.Key}`);
     assert.equal(
-        versionsRes.result.Versions.length,
+        versionsResult.Versions.length,
         objectCreatedCounter,
-        `Expected ${objectCreatedCounter} versions for object, found ${versionsRes.result.Versions.length}`
+        `Expected ${objectCreatedCounter} versions for object, found ${versionsResult.Versions.length}`
     );
 });

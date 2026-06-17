@@ -19,8 +19,22 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, Identity, S3, Utils } from 'cli-testing';
-import { extractPropertyFromResults } from 'common/utils';
+import { Utils } from 'cli-testing';
+import {
+    PutBucketPolicyCommand,
+    CreateMultipartUploadCommand,
+    PutObjectLegalHoldCommand,
+    PutObjectRetentionCommand,
+    ObjectLockRetentionMode,
+    ObjectLockLegalHoldStatus,
+} from '@aws-sdk/client-s3';
+import {
+    AttachRolePolicyCommand,
+    AttachUserPolicyCommand,
+    CreatePolicyCommand,
+    DetachRolePolicyCommand,
+    DetachUserPolicyCommand,
+} from '@aws-sdk/client-iam';
 
 Given('an action {string}', function (this: Zenko, apiName: string) {
     // dynamically know the config based on the action
@@ -79,7 +93,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -137,11 +151,11 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
             Resource: resources,
         });
     }
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${Utils.randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const createdPolicy = await this.awsClients.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${Utils.randomString()}`,
+    }));
+    const policyArn = createdPolicy.Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -150,24 +164,22 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.awsClients.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     }
     if (identityType === EntityType.IAM_USER) {
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.awsClients.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });
 
 Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -200,11 +212,10 @@ Given('a policy granting full access to the objects and read access to the bucke
     basePolicy.Statement[1].Principal.AWS = [principal];
     basePolicy.Statement[1].Resource = [resources.object];
 
-    const result = await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(basePolicy),
-    });
-    assert.ifError(result.stderr || result.err);
+    await this.awsClients.s3.send(new PutBucketPolicyCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Policy: JSON.stringify(basePolicy),
+    }));
     this.useSavedIdentity();
 });
 
@@ -246,7 +257,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -319,11 +330,10 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     if (conditionForPolicy) {
         basePolicy.Statement[0].Condition = conditionForPolicy;
     }
-    const result = await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(basePolicy),
-    });
-    assert.ifError(result.stderr || result.err);
+    await this.awsClients.s3.send(new PutBucketPolicyCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Policy: JSON.stringify(basePolicy),
+    }));
     this.useSavedIdentity();
 });
 
@@ -334,7 +344,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     }
     // Create an IAM policy with full S3 permission on any bucket
     // and attach it to the current identity
-    Identity.resetIdentity();
+    this.resetIdentity();
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -345,11 +355,11 @@ Given('an environment setup for the API', async function (this: Zenko) {
             },
         ],
     };
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${Utils.randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const createdPolicy = await this.awsClients.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${Utils.randomString()}`,
+    }));
+    const policyArn = createdPolicy.Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -359,17 +369,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.awsClients.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.awsClients.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
@@ -379,12 +387,11 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'AbortMultipartUpload':
     case 'UploadPart':
         const objectKey = `multipartUpload-${Utils.randomString()}`;
-        const initiateMPUResult = await S3.createMultipartUpload({
-            bucket: this.getSaved<string>('bucketName'),
-            key: objectKey,
-        });
-        assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
+        const initiateMPUResult = await this.awsClients.s3.send(new CreateMultipartUploadCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectKey,
+        }));
+        this.addToSaved('uploadId', initiateMPUResult.UploadId);
         this.addToSaved('objectName', objectKey);
         break;
     case 'UploadPartCopy':
@@ -394,30 +401,27 @@ Given('an environment setup for the API', async function (this: Zenko) {
         this.addToSaved('objectName', copyObjectKey);
         // create an object for the MPU as copyObject
         const objectKeyCopy = `multipartUpload-${Utils.randomString()}`;
-        const initiateMPUResultCopy = await S3.createMultipartUpload({
-            bucket: this.getSaved<string>('bucketName'),
-            key: objectKeyCopy,
-        });
-        assert.ifError(initiateMPUResultCopy.stderr || initiateMPUResultCopy.err);
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResultCopy, 'UploadId'));
+        const initiateMPUResultCopy = await this.awsClients.s3.send(new CreateMultipartUploadCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectKeyCopy,
+        }));
+        this.addToSaved('uploadId', initiateMPUResultCopy.UploadId);
         this.addToSaved('copyObject', objectKeyCopy);
         break;
     case 'GetObjectLegalHold':
-        const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            legalHold: 'Status=ON',
-        });
-        assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
+        await this.awsClients.s3.send(new PutObjectLegalHoldCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: this.getSaved<string>('objectName'),
+            LegalHold: { Status: ObjectLockLegalHoldStatus.ON },
+        }));
         break;
     case 'GetObjectRetention':
-        const objectRetentionResult = await S3.putObjectRetention({
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
-            bypassGovernanceRetention: 'true',
-        });
-        assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
+        await this.awsClients.s3.send(new PutObjectRetentionCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: this.getSaved<string>('objectName'),
+            Retention: { Mode: ObjectLockRetentionMode.GOVERNANCE, RetainUntilDate: new Date('2080-01-01T00:00:00Z') },
+            BypassGovernanceRetention: true,
+        }));
         break;
     case 'PutObjectRetention':
         this.addCommandParameter({ bypassGovernanceRetention: 'true' });
@@ -432,17 +436,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.detachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.awsClients.iam.send(new DetachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const detachResult = await IAM.detachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(detachResult.stderr || detachResult.err);
+        await this.awsClients.iam.send(new DetachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });
@@ -465,11 +467,7 @@ When('the user tries to perform the current S3 action on the bucket', async func
 
 Then('the authorization result is correct', function (this: Zenko) {
     const action = this.getSaved<ActionPermissionsType>('currentAction');
-    // based on the saved authzConfiguration, check if the result is as expected
-    // We only consider Allow or Deny here.
     const authzConfiguration = this.getSaved<AuthorizationConfiguration>('authzConfiguration');
-    // allowed in the following case: both allows, one allow + one is implicit
-    // others are denied
     const authI = authzConfiguration?.Identity;
     const authR = authzConfiguration?.Resource;
     let isAllowed = (() => {
@@ -486,33 +484,38 @@ Then('the authorization result is correct', function (this: Zenko) {
             return false;
         }
     })();
-    // Special cases: for CreateBucket and DeleteBucket, BP
-    // does not apply.
+    // Special cases: for CreateBucket and DeleteBucket, BP does not apply.
     if (action.action === 'CreateBucket') {
-        // In this case, we only consider the Identity part.
         isAllowed = authI === AuthorizationType.ALLOW;
     }
+    const outcome = this.getS3Outcome();
     if (!isAllowed) {
-        // special case: DeleteObjects always returns code 200
-        // if the API is allowed but additional checks are denied.
         if (action.subAuthorizationChecks) {
-            assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
-                this.getResult().err?.includes('AccessDenied'), true);
-        } else if (action.action === 'HeadObject' || action.action === 'HeadBucket') {
-            assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
-                this.getResult().err?.includes('403')||
-                this.getResult().statusCode === 403, true);
+            // DeleteObjects returns 200 but embeds per-object AccessDenied errors in the response body
+            assert.ok(
+                (!outcome.ok && outcome.error.name.includes('AccessDenied')) ||
+                (outcome.ok && JSON.stringify(outcome.data).includes('AccessDenied')),
+                `Expected AccessDenied but got: ${outcome.ok ? 'success' : outcome.error.name}`,
+            );
         } else {
-            assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
+            assert.ok(
+                !outcome.ok && (
+                    outcome.error.name.includes('AccessDenied') ||
+                    outcome.error.name.includes('403') ||
+                    (outcome.error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode === 403
+                ),
+                `Expected AccessDenied/403 but got: ${outcome.ok ? 'success' : outcome.error.name}`,
+            );
         }
     } else {
         if (action.expectedResultOnAllowTest) {
-            assert.strictEqual(
-                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
-                this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
-                this.getResult().err === null, true);
+            assert.ok(
+                outcome.ok ||
+                (!outcome.ok && outcome.error.name.includes(action.expectedResultOnAllowTest)),
+                `Expected success or "${action.expectedResultOnAllowTest}" but got: ${outcome.ok ? 'success' : outcome.error.name}`,
+            );
         } else {
-            assert.strictEqual(this.getResult().err === null || this.getResult().err === undefined, true);
+            assert.ok(outcome.ok, `Expected success but got: ${!outcome.ok ? outcome.error.message : ''}`);
         }
     }
 });

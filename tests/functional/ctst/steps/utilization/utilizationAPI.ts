@@ -1,8 +1,6 @@
 import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
-import { Command } from 'cli-testing';
-import { Identity } from 'cli-testing';
 import ScubaClient, { ScubaMetrics } from 'scubaclient';
 import { prepareMetricsScenarios } from '../../common/utils';
 
@@ -18,11 +16,7 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
     async function (this: Zenko, metricType: string) {
         const accountName = this.getSaved<string>('accountName');
         
-        const userCredentials = Identity.getCurrentCredentials();
-
-        if (!userCredentials) {
-            throw new Error('User credentials not found');
-        }
+        const userCredentials = this.awsClients.getCredentials();
 
         this.addToSaved('metricType', metricType);
 
@@ -60,37 +54,21 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
         }
 
         try {
-            const response = await client.getLatestMetrics(metricType, metricName);
-            const command: Command = {
-                err: '',
-                stdout: JSON.stringify(response),
-                stderr: '',
-            };
-            this.setResult(command);
-        } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-            this.logger.debug('Error retrieving utilization metrics', {
-                err: err.message,
-            });
-            this.setResult({
-                err: err.message,
-                stdout: '',
-                stderr: err.message,
-            });
+            this.saveS3Result(await client.getLatestMetrics(metricType, metricName));
+        } catch (err: unknown) {
+            this.logger.debug('Error retrieving utilization metrics', { err: (err as Error).message });
+            this.saveS3Error(err);
         }
     });
 
 Then('the latest utilization metrics are retrieved',
     function (this: Zenko) {
-        const result = this.getResult();
-        assert.strictEqual(result.err, '', `Expected no error but got: ${result.err}`);
+        const outcome = this.getS3Outcome<ScubaMetrics>();
+        assert.ok(outcome.ok, `Expected no error but got: ${!outcome.ok ? outcome.error.message : ''}`);
 
-        this.logger.debug('Utilization metrics', {
-            stdout: result.stdout,
-            stderr: result.stderr,
-            err: result.err,
-        });
+        this.logger.debug('Utilization metrics', { data: outcome.ok ? outcome.data : null });
 
-        const response = JSON.parse(result.stdout) as ScubaMetrics;
+        const response = outcome.data!;
         assert.ok(response.objectsTotal >= 0, 'Bucket metrics should contain objectCount');
         assert.ok(response.bytesTotal >= 0, 'Bucket metrics should contain bytesTotal');
         assert.ok(response.metricsClass === this.getSaved<string>('metricType'), 'Metric type should match');

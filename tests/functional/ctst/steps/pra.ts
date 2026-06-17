@@ -167,8 +167,7 @@ async function waitForPhase(
 
 const installTimeout = 360000;
 Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this: Zenko) {
-    Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-    const credentials = Identity.getCurrentCredentials();
+    const credentials = this.awsClients.getCredentials(Zenko.sites['source'].accountName);
     await createSecret(this, 'drctl-s3-creds', {
         accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
         secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
@@ -253,11 +252,9 @@ Then('object {string} should {string} be {string} and have the storage class {st
         storageClass: string,
         site: string) {
         this.resetCommand();
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        this.useIdentity(site === 'DR'
+            ? `${Zenko.sites['source'].accountName}-replicated`
+            : Zenko.sites['source'].accountName);
         try {
             await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
             if (isVerb === 'not') {
@@ -273,11 +270,9 @@ Then('object {string} should {string} be {string} and have the storage class {st
 
 When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
     async function (this: Zenko, site: string) {
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        this.useIdentity(site === 'DR'
+            ? `${Zenko.sites['source'].accountName}-replicated`
+            : Zenko.sites['source'].accountName);
         this.resetCommand();
         this.addToSaved('accountName', Zenko.sites['source'].accountName);
 
@@ -422,16 +417,14 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
         accountName: targetAccount,
     });
 
-    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
+    Zenko.storedCredentials.set(`${targetAccount}-replicated`, credentials);
 });
 
 When('i restore object {string} for {int} days on {string} site',
     async function (this: Zenko, objectName: string, days: number, site: string) {
         this.resetCommand();
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        this.useIdentity(site === 'DR'
+            ? `${Zenko.sites['source'].accountName}-replicated`
+            : Zenko.sites['source'].accountName);
         await restoreObject.call(this, objectName, days);
     });
