@@ -36,6 +36,7 @@
   "description": "",
   "editable": true,
   "gnetId": null,
+  "graphTooltip": 0,
   "hideControls": false,
   "id": null,
   "links": [],
@@ -47,6 +48,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -121,6 +123,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(up{job=\"${job}\", namespace=\"${namespace}\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -138,6 +141,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -202,6 +206,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) - sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", status=\"running\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -218,6 +223,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -276,6 +282,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_total_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -292,6 +299,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -350,6 +358,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -366,6 +375,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -432,6 +442,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -448,6 +459,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -514,6 +526,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -530,6 +543,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -596,6 +610,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -612,6 +627,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": null,
           "mappings": [],
@@ -678,6 +694,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -746,6 +763,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{status}}",
           "metric": "",
+          "query": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by(status)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -814,6 +832,7 @@
           "intervalFactor": 1,
           "legendFormat": "running",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -828,6 +847,7 @@
           "intervalFactor": 1,
           "legendFormat": "failed",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -842,6 +862,7 @@
           "intervalFactor": 1,
           "legendFormat": "paused",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -856,6 +877,7 @@
           "intervalFactor": 1,
           "legendFormat": "unassigned",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -870,6 +892,7 @@
           "intervalFactor": 1,
           "legendFormat": "destroyed",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -892,6 +915,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -915,7 +940,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -989,7 +1017,8 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1003,6 +1032,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{status}}",
           "metric": "",
+          "query": "sum(kafka_connect_connector_status{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", status!=\"\"}) by (status)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1025,6 +1055,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 10,
@@ -1048,7 +1080,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1076,7 +1111,8 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1090,6 +1126,7 @@
           "intervalFactor": 1,
           "legendFormat": "running",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1104,6 +1141,7 @@
           "intervalFactor": 1,
           "legendFormat": "failed",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1118,6 +1156,7 @@
           "intervalFactor": 1,
           "legendFormat": "paused",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1132,6 +1171,7 @@
           "intervalFactor": 1,
           "legendFormat": "destroyed",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1146,6 +1186,7 @@
           "intervalFactor": 1,
           "legendFormat": "unassigned",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"})",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1220,7 +1261,8 @@
                 "yaxis": "left"
               }
             ]
-          }
+          },
+          "unit": ""
         },
         "overrides": [
           {
@@ -1406,9 +1448,9 @@
       "mappings": [],
       "maxDataPoints": 100,
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
-      "span": 6,
       "targets": [
         {
           "datasource": null,
@@ -1420,6 +1462,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "count(kafka_connect_app_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", start_time_ms!=\"\"}) by (instance, start_time_ms)",
           "refId": "B",
           "step": 10,
           "target": ""
@@ -1434,6 +1477,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "count(kafka_connect_app_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", version!=\"\"}) by (instance, version)",
           "refId": "A",
           "step": 10,
           "target": ""
@@ -1448,6 +1492,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "C",
           "step": 10,
           "target": ""
@@ -1462,6 +1507,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_startup_success_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "D",
           "step": 10,
           "target": ""
@@ -1476,6 +1522,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_startup_failure_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "E",
           "step": 10,
           "target": ""
@@ -1490,6 +1537,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "I",
           "step": 10,
           "target": ""
@@ -1504,6 +1552,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_task_startup_success_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "J",
           "step": 10,
           "target": ""
@@ -1518,6 +1567,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_task_startup_failure_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) by (instance)",
           "refId": "K",
           "step": 10,
           "target": ""
@@ -1545,6 +1595,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1568,7 +1620,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1594,7 +1649,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1608,6 +1664,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_network_io_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1631,6 +1688,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1654,7 +1713,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1680,7 +1742,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1694,6 +1757,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_incoming_byte_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1717,6 +1781,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1740,7 +1806,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1766,7 +1835,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1780,6 +1850,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_outgoing_byte_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1803,6 +1874,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1826,7 +1899,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1852,7 +1928,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1866,6 +1943,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_connection_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1889,6 +1967,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1912,7 +1992,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -1938,7 +2021,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1952,6 +2036,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_failed_authentication_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -1975,6 +2060,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -1998,7 +2085,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -2024,7 +2114,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -2038,6 +2129,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_successful_authentication_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -2061,6 +2153,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -2084,7 +2178,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -2110,7 +2207,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -2124,6 +2222,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_request_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -2147,6 +2246,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -2170,7 +2271,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -2196,7 +2300,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -2210,6 +2315,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_response_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -2233,6 +2339,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -2256,7 +2364,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -2282,7 +2393,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -2296,6 +2408,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_io_ratio{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -2370,7 +2483,8 @@
                 "yaxis": "left"
               }
             ]
-          }
+          },
+          "unit": ""
         },
         "overrides": [
           {
@@ -2744,9 +2858,9 @@
       "mappings": [],
       "maxDataPoints": 100,
       "options": {
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
-      "span": 6,
       "targets": [
         {
           "datasource": null,
@@ -2758,6 +2872,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "label_replace(label_replace(label_replace(count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", status!=\"\"}) by(instance, status), \"status\", \"1\", \"status\", \"running\"), \"status\", \"2\", \"status\", \"paused\"), \"status\", \"3\", \"status\", \"stopped\")",
           "refId": "I",
           "step": 10,
           "target": ""
@@ -2772,6 +2887,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_type!=\"\"}) by(instance, connector_type)",
           "refId": "A",
           "step": 10,
           "target": ""
@@ -2786,6 +2902,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_version!=\"\"}) by(instance, connector_version)",
           "refId": "C",
           "step": 10,
           "target": ""
@@ -2800,6 +2917,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "count(kafka_connect_connector_info{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", connector_class!=\"\"}) by(instance, connector_class)",
           "refId": "D",
           "step": 10,
           "target": ""
@@ -2814,6 +2932,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_total_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "E",
           "step": 10,
           "target": ""
@@ -2828,6 +2947,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_running_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "F",
           "step": 10,
           "target": ""
@@ -2842,6 +2962,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_failed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "G",
           "step": 10,
           "target": ""
@@ -2856,6 +2977,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_paused_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "H",
           "step": 10,
           "target": ""
@@ -2870,6 +2992,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_destroyed_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "B",
           "step": 10,
           "target": ""
@@ -2884,6 +3007,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "sum(kafka_connect_worker_connector_unassigned_task_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}) by(instance)",
           "refId": "J",
           "step": 10,
           "target": ""
@@ -2939,6 +3063,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 20,
@@ -2962,7 +3088,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -2992,7 +3121,8 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3006,6 +3136,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "kafka_connect_worker_rebalance_rebalance_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3023,6 +3154,7 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
+          "color": null,
           "custom": {},
           "decimals": 0,
           "mappings": [
@@ -3091,6 +3223,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "kafka_connect_worker_rebalance_time_since_last_rebalance_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3143,6 +3276,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3166,7 +3301,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3192,7 +3330,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3206,6 +3345,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_connector_task_batch_size_avg{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3229,6 +3369,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3252,7 +3394,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3278,7 +3423,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3292,6 +3438,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_connector_task_batch_size_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3304,7 +3451,7 @@
     },
     {
       "datasource": "${DS_PROMETHEUS}",
-      "description": "Average percentage of the task\u2019s offset commit attempts that succeeded",
+      "description": "Average percentage of the task’s offset commit attempts that succeeded",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -3315,6 +3462,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3338,7 +3487,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3364,7 +3516,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3378,6 +3531,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_connector_task_offset_commit_success_percentage{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3401,6 +3555,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3424,7 +3580,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3450,7 +3609,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3464,6 +3624,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_connector_task_offset_commit_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3487,6 +3648,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3510,7 +3673,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3536,7 +3702,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3550,6 +3717,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_connector_task_running_ratio{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3602,6 +3770,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3625,7 +3795,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3651,7 +3824,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3665,6 +3839,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_total_record_failures{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3688,6 +3863,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3711,7 +3888,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3737,7 +3917,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3751,6 +3932,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_total_record_errors{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3774,6 +3956,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3797,7 +3981,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3823,7 +4010,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3837,6 +4025,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_total_records_skipped{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3860,6 +4049,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3883,7 +4074,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3909,7 +4103,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -3923,6 +4118,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_total_errors_logged{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -3946,6 +4142,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3969,7 +4167,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -3995,7 +4196,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4009,6 +4211,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_total_retries{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4032,6 +4235,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4055,7 +4260,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4081,7 +4289,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4095,6 +4304,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_deadletterqueue_produce_requests{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4118,6 +4328,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4141,7 +4353,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4167,7 +4382,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4181,6 +4397,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_task_error_deadletterqueue_produce_failures{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4233,6 +4450,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4256,7 +4475,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4282,7 +4504,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4296,6 +4519,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_poll_batch_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4319,6 +4543,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4342,7 +4568,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4368,7 +4597,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4382,6 +4612,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_poll_batch_max_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4405,6 +4636,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4428,7 +4661,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4454,7 +4690,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4468,6 +4705,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_source_record_poll_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4491,6 +4729,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4514,7 +4754,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4540,7 +4783,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4554,6 +4798,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_source_record_write_rate{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4577,6 +4822,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4600,7 +4847,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4626,7 +4876,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4640,6 +4891,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_source_record_active_count_avg{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4663,6 +4915,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4686,7 +4940,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4712,7 +4969,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4726,6 +4984,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_source_task_source_record_active_count_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4778,6 +5037,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4801,7 +5062,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4827,7 +5091,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4841,6 +5106,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_sink_task_partition_count{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4864,6 +5130,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4887,7 +5155,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4913,7 +5184,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -4927,6 +5199,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_sink_task_put_batch_avg_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -4950,6 +5223,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4973,7 +5248,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -4999,7 +5277,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -5013,6 +5292,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{connector}}-{{task}}",
           "metric": "",
+          "query": "kafka_connect_sink_task_put_batch_max_time_ms{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", connector=~\"$connector\", task!=\"\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5064,6 +5344,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 30,
@@ -5087,7 +5369,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -5116,7 +5401,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -5130,6 +5416,7 @@
           "intervalFactor": 1,
           "legendFormat": "",
           "metric": "",
+          "query": "rate(process_cpu_seconds_total{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5152,6 +5439,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 15,
@@ -5175,7 +5464,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -5204,7 +5496,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -5218,6 +5511,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "sum(jvm_memory_bytes_used{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5232,6 +5526,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "jvm_memory_bytes_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5254,6 +5549,8 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMax": null,
+            "axisSoftMin": null,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 30,
@@ -5277,7 +5574,10 @@
               "mode": "off"
             }
           },
+          "decimals": null,
           "mappings": [],
+          "max": null,
+          "min": null,
           "thresholds": {
             "mode": "absolute",
             "steps": []
@@ -5306,7 +5606,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -5320,6 +5621,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
+          "query": "sum(rate(jvm_gc_collection_seconds_sum{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}[$__rate_interval])) without(gc)",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5403,6 +5705,7 @@
   },
   "timepicker": {
     "hidden": false,
+    "nowDelay": null,
     "refresh_intervals": [
       "5s",
       "10s",
@@ -5430,5 +5733,5 @@
   "timezone": "",
   "title": "Kafka Connect",
   "uid": null,
-  "version": 1
+  "version": 2
 }
