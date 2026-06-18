@@ -27,6 +27,9 @@ x-inputs:
   - name: replicationLagOplogSizeThreshold
     type: config
     value: 0.5
+  - name: reclaimableStorageWarningThreshold
+    type: config
+    value: 0.3
 
 groups:
 - name: MongoDb
@@ -279,6 +282,17 @@ groups:
     annotations:
       description: "MongoDB pod `{{ $labels.pod }}` reported failed createIndexes commands in the last 5 minutes."
       summary: MongoDB index creation failure
+
+  - alert: MongoDbCompactionNeeded
+    expr: |
+      mongodb_dbstats_totalFreeStorageSize{namespace="${namespace}",pod=~"${service}.*"}
+        > ${reclaimableStorageWarningThreshold} * mongodb_dbstats_fsTotalSize{namespace="${namespace}",pod=~"${service}.*"}
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      description: "MongoDB pod `{{ $labels.pod }}` database `{{ $labels.database }}` has accumulated reclaimable storage exceeding ${reclaimableStorageWarningThreshold} of the filesystem capacity. Consider running compaction to recover disk space."
+      summary: MongoDB compaction needed
 
   - alert: MongoDbRSNotSynced
     expr: |
