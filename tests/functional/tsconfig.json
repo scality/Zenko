@@ -29,7 +29,8 @@
         "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
     },
     "include": [
-        "ctst/**/*"
+        "ctst/**/*",
+        "testResourcesSetup/**/*"
     ],
     "exclude": [
         "node_modules"

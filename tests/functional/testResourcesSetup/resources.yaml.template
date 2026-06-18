@@ -12,7 +12,7 @@ locations:
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
   - name: "${AWS_BACKEND_DESTINATION_FAIL_LOCATION}"
     locationType: "location-aws-s3-v1"
@@ -21,7 +21,7 @@ locations:
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
-      bucketMatch: yes
+      bucketMatch: true
       repoId: []
   - name: "${AWS_BACKEND_SOURCE_LOCATION}"
     locationType: "location-aws-s3-v1"
@@ -30,7 +30,7 @@ locations:
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
-      bucketMatch: yes
+      bucketMatch: true
       repoId: []
   - name: "${AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION}"
     # This location is used for a specific test that temporarily removes its bucket
@@ -41,7 +41,7 @@ locations:
       endpoint: "${AWS_ENDPOINT}"
       accessKey: "${AWS_ACCESS_KEY}"
       secretKey: "${AWS_SECRET_KEY}"
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
   - name: ${AZURE_BACKEND_DESTINATION_LOCATION}
     locationType: location-azure-v1
@@ -50,7 +50,7 @@ locations:
       endpoint: ${AZURE_BACKEND_ENDPOINT}
       accessKey: ${AZURE_ACCOUNT_NAME}
       secretKey: ${AZURE_SECRET_KEY}
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
   - name: "${RING_S3C_BACKEND_SOURCE_LOCATION}"
     locationType: "location-scality-ring-s3-v1"
@@ -59,7 +59,7 @@ locations:
       endpoint: "${RING_S3C_ENDPOINT}"
       accessKey: "${RING_S3C_ACCESS_KEY}"
       secretKey: "${RING_S3C_SECRET_KEY}"
-      bucketMatch: yes
+      bucketMatch: true
       repoId: []
   - name: "${RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION}"
     locationType: "location-scality-ring-s3-v1"
@@ -68,7 +68,7 @@ locations:
       endpoint: "${RING_S3C_ENDPOINT}"
       accessKey: "${RING_S3C_ACCESS_KEY}"
       secretKey: "${RING_S3C_SECRET_KEY}"
-      bucketMatch: yes
+      bucketMatch: true
       repoId: []
   - name: "${GCP_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-gcp-v1"
@@ -77,7 +77,7 @@ locations:
       mpuBucketName: "${GCP_CRR_MPU_BUCKET_NAME}"
       accessKey: "${GCP_ACCESS_KEY}"
       secretKey: "${GCP_SECRET_KEY}"
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
   - name: "${COLD_BACKEND_DESTINATION_LOCATION}"
     locationType: "location-dmf-v1"
@@ -122,7 +122,7 @@ locations:
       stsEndpoint: "http://sts.${SUBDOMAIN}:80"
       accessKey: ""
       secretKey: ""
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
   - name: "${CRR_DESTINATION_LOCATION_NAME}"
     locationType: "location-scality-crr-v1"
@@ -131,9 +131,5 @@ locations:
       stsEndpoint: "http://sts.${SUBDOMAIN}:80"
       accessKey: ""
       secretKey: ""
-      bucketMatch: no
+      bucketMatch: false
       repoId: []
-workflows:
-  replication: []
-  lifecycle: []
-  ingestion: []
