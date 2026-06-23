@@ -112,6 +112,7 @@
     "containerEnv": {
         "ZENKO_MONGODB_DATABASE": "zenko-database"
     },
+    "onCreateCommand": "sudo corepack disable",
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": ".devcontainer/setup.sh"
 }
