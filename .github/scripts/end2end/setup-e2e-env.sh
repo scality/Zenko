@@ -55,6 +55,9 @@ export ZENKO_SESSION_TOKEN=$(kubectl get secret ${ZENKO_NAME}-account-zenko -o j
 # CRR account credentials
 _src_secret="${ZENKO_NAME}-account-${CRR_SOURCE_ACCOUNT_NAME:-crr-source-account}"
 _dst_secret="${ZENKO_NAME}-account-${CRR_DESTINATION_ACCOUNT_NAME:-crr-destination-account}"
+_crr_a_secret="${ZENKO_NAME}-account-${CRR_ACCOUNT_A_NAME:-crr-account-a}"
+_crr_b_secret="${ZENKO_NAME}-account-${CRR_ACCOUNT_B_NAME:-crr-account-b}"
+_crr_c_secret="${ZENKO_NAME}-account-${CRR_ACCOUNT_C_NAME:-crr-account-c}"
 
 SOURCE_ACCESS_KEY=$(kubectl get secret "${_src_secret}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
 SOURCE_SECRET_KEY=$(kubectl get secret "${_src_secret}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
@@ -67,6 +70,24 @@ DESTINATION_SECRET_KEY=$(kubectl get secret "${_dst_secret}" -o jsonpath='{.data
 DESTINATION_SESSION_TOKEN=$(kubectl get secret "${_dst_secret}" -o jsonpath='{.data.SessionToken}' | base64 -d)
 DESTINATION_ACCOUNT_ID=$(kubectl get secret "${_dst_secret}" -o jsonpath='{.data.AccountId}' | base64 -d)
 export CRR_DESTINATION_INFO="{\"AccessKeyId\":\"${DESTINATION_ACCESS_KEY}\",\"SecretAccessKey\":\"${DESTINATION_SECRET_KEY}\",\"SessionToken\":\"${DESTINATION_SESSION_TOKEN}\",\"AccountId\":\"${DESTINATION_ACCOUNT_ID}\"}"
+
+CRR_A_ACCESS_KEY=$(kubectl get secret "${_crr_a_secret}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
+CRR_A_SECRET_KEY=$(kubectl get secret "${_crr_a_secret}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
+CRR_A_SESSION_TOKEN=$(kubectl get secret "${_crr_a_secret}" -o jsonpath='{.data.SessionToken}' | base64 -d)
+CRR_A_ACCOUNT_ID=$(kubectl get secret "${_crr_a_secret}" -o jsonpath='{.data.AccountId}' | base64 -d)
+export CRR_INFO_A="{\"AccessKeyId\":\"${CRR_A_ACCESS_KEY}\",\"SecretAccessKey\":\"${CRR_A_SECRET_KEY}\",\"SessionToken\":\"${CRR_A_SESSION_TOKEN}\",\"AccountId\":\"${CRR_A_ACCOUNT_ID}\"}"
+
+CRR_B_ACCESS_KEY=$(kubectl get secret "${_crr_b_secret}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
+CRR_B_SECRET_KEY=$(kubectl get secret "${_crr_b_secret}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
+CRR_B_SESSION_TOKEN=$(kubectl get secret "${_crr_b_secret}" -o jsonpath='{.data.SessionToken}' | base64 -d)
+CRR_B_ACCOUNT_ID=$(kubectl get secret "${_crr_b_secret}" -o jsonpath='{.data.AccountId}' | base64 -d)
+export CRR_INFO_B="{\"AccessKeyId\":\"${CRR_B_ACCESS_KEY}\",\"SecretAccessKey\":\"${CRR_B_SECRET_KEY}\",\"SessionToken\":\"${CRR_B_SESSION_TOKEN}\",\"AccountId\":\"${CRR_B_ACCOUNT_ID}\"}"
+
+CRR_C_ACCESS_KEY=$(kubectl get secret "${_crr_c_secret}" -o jsonpath='{.data.AccessKeyId}' | base64 -d)
+CRR_C_SECRET_KEY=$(kubectl get secret "${_crr_c_secret}" -o jsonpath='{.data.SecretAccessKey}' | base64 -d)
+CRR_C_SESSION_TOKEN=$(kubectl get secret "${_crr_c_secret}" -o jsonpath='{.data.SessionToken}' | base64 -d)
+CRR_C_ACCOUNT_ID=$(kubectl get secret "${_crr_c_secret}" -o jsonpath='{.data.AccountId}' | base64 -d)
+export CRR_INFO_C="{\"AccessKeyId\":\"${CRR_C_ACCESS_KEY}\",\"SecretAccessKey\":\"${CRR_C_SECRET_KEY}\",\"SessionToken\":\"${CRR_C_SESSION_TOKEN}\",\"AccountId\":\"${CRR_C_ACCOUNT_ID}\"}"
 
 # --- 6. Keycloak test user ---
 export KEYCLOAK_TEST_USER="${OIDC_USERNAME}-norights"
@@ -103,6 +124,8 @@ export RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION
 export RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME
 export RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
 export CRR_SOURCE_LOCATION_NAME CRR_DESTINATION_LOCATION_NAME CRR_ROLE_NAME
+export CRR_LOCATION_A_NAME CRR_LOCATION_B_NAME CRR_LOCATION_C_NAME
+export CRR_INFO_A CRR_INFO_B CRR_INFO_C
 export MOCHA_FILE=${MOCHA_FILE:-_reports/test-results-[hash].xml}
 
 # Ensure test results dir exists for Mocha JUnit reporter
@@ -399,8 +422,14 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "RING_S3C_ENDPOINT=$RING_S3C_ENDPOINT" >> "$GITHUB_ENV"
     echo "CRR_SOURCE_LOCATION_NAME=$CRR_SOURCE_LOCATION_NAME" >> "$GITHUB_ENV"
     echo "CRR_DESTINATION_LOCATION_NAME=$CRR_DESTINATION_LOCATION_NAME" >> "$GITHUB_ENV"
+    echo "CRR_LOCATION_A_NAME=$CRR_LOCATION_A_NAME" >> "$GITHUB_ENV"
+    echo "CRR_LOCATION_B_NAME=$CRR_LOCATION_B_NAME" >> "$GITHUB_ENV"
+    echo "CRR_LOCATION_C_NAME=$CRR_LOCATION_C_NAME" >> "$GITHUB_ENV"
     echo "CRR_ROLE_NAME=$CRR_ROLE_NAME" >> "$GITHUB_ENV"
     # JSON vars need the heredoc delimiter syntax (values contain '=')
     printf 'CRR_SOURCE_INFO<<EOF\n%s\nEOF\n' "$CRR_SOURCE_INFO" >> "$GITHUB_ENV"
     printf 'CRR_DESTINATION_INFO<<EOF\n%s\nEOF\n' "$CRR_DESTINATION_INFO" >> "$GITHUB_ENV"
+    printf 'CRR_INFO_A<<EOF\n%s\nEOF\n' "$CRR_INFO_A" >> "$GITHUB_ENV"
+    printf 'CRR_INFO_B<<EOF\n%s\nEOF\n' "$CRR_INFO_B" >> "$GITHUB_ENV"
+    printf 'CRR_INFO_C<<EOF\n%s\nEOF\n' "$CRR_INFO_C" >> "$GITHUB_ENV"
 fi

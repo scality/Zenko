@@ -966,6 +966,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             credentials: {
                 accessKeyId: credentials.accessKeyId,
                 secretAccessKey: credentials.secretAccessKey,
+                sessionToken: credentials.sessionToken,
             },
             forcePathStyle: true,
         });

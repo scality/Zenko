@@ -67,6 +67,12 @@ export interface Env {
     CRR_SOURCE_ACCOUNT_NAME?: string;
     CRR_DESTINATION_ACCOUNT_NAME?: string;
     CRR_DESTINATION_LOCATION_NAME?: string;
+    CRR_ACCOUNT_A_NAME?: string;
+    CRR_ACCOUNT_B_NAME?: string;
+    CRR_ACCOUNT_C_NAME?: string;
+    CRR_LOCATION_A_NAME?: string;
+    CRR_LOCATION_B_NAME?: string;
+    CRR_LOCATION_C_NAME?: string;
     // Cloud provider credentials — optional since a provider may not be configured
     AWS_ACCESS_KEY?: string;
     AWS_SECRET_KEY?: string;
@@ -111,6 +117,12 @@ export function loadEnv(): Env {
         CRR_SOURCE_ACCOUNT_NAME: process.env.CRR_SOURCE_ACCOUNT_NAME,
         CRR_DESTINATION_ACCOUNT_NAME: process.env.CRR_DESTINATION_ACCOUNT_NAME,
         CRR_DESTINATION_LOCATION_NAME: process.env.CRR_DESTINATION_LOCATION_NAME,
+        CRR_ACCOUNT_A_NAME: process.env.CRR_ACCOUNT_A_NAME,
+        CRR_ACCOUNT_B_NAME: process.env.CRR_ACCOUNT_B_NAME,
+        CRR_ACCOUNT_C_NAME: process.env.CRR_ACCOUNT_C_NAME,
+        CRR_LOCATION_A_NAME: process.env.CRR_LOCATION_A_NAME,
+        CRR_LOCATION_B_NAME: process.env.CRR_LOCATION_B_NAME,
+        CRR_LOCATION_C_NAME: process.env.CRR_LOCATION_C_NAME,
         AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
         AWS_SECRET_KEY: process.env.AWS_SECRET_KEY,
         AWS_ENDPOINT: process.env.AWS_ENDPOINT,

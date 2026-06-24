@@ -2,6 +2,9 @@ accounts:
   - "zenko"
   - "${CRR_SOURCE_ACCOUNT_NAME}"
   - "${CRR_DESTINATION_ACCOUNT_NAME}"
+  - "${CRR_ACCOUNT_A_NAME}"
+  - "${CRR_ACCOUNT_B_NAME}"
+  - "${CRR_ACCOUNT_C_NAME}"
 endpoints: []
 locations:
   - name: "${AWS_BACKEND_DESTINATION_LOCATION}"
@@ -125,6 +128,33 @@ locations:
       bucketMatch: false
       repoId: []
   - name: "${CRR_DESTINATION_LOCATION_NAME}"
+    locationType: "location-scality-crr-v1"
+    details:
+      endpoint: "http://s3.${SUBDOMAIN}:80"
+      stsEndpoint: "http://sts.${SUBDOMAIN}:80"
+      accessKey: ""
+      secretKey: ""
+      bucketMatch: false
+      repoId: []
+  - name: "${CRR_LOCATION_A_NAME}"
+    locationType: "location-scality-crr-v1"
+    details:
+      endpoint: "http://s3.${SUBDOMAIN}:80"
+      stsEndpoint: "http://sts.${SUBDOMAIN}:80"
+      accessKey: ""
+      secretKey: ""
+      bucketMatch: false
+      repoId: []
+  - name: "${CRR_LOCATION_B_NAME}"
+    locationType: "location-scality-crr-v1"
+    details:
+      endpoint: "http://s3.${SUBDOMAIN}:80"
+      stsEndpoint: "http://sts.${SUBDOMAIN}:80"
+      accessKey: ""
+      secretKey: ""
+      bucketMatch: false
+      repoId: []
+  - name: "${CRR_LOCATION_C_NAME}"
     locationType: "location-scality-crr-v1"
     details:
       endpoint: "http://s3.${SUBDOMAIN}:80"

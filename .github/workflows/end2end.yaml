@@ -77,6 +77,12 @@ env:
   CRR_DESTINATION_LOCATION_NAME: crr-destination-location
   CRR_SOURCE_ACCOUNT_NAME: crr-source-account
   CRR_DESTINATION_ACCOUNT_NAME: crr-destination-account
+  CRR_LOCATION_A_NAME: crr-location-a
+  CRR_LOCATION_B_NAME: crr-location-b
+  CRR_LOCATION_C_NAME: crr-location-c
+  CRR_ACCOUNT_A_NAME: crr-account-a
+  CRR_ACCOUNT_B_NAME: crr-account-b
+  CRR_ACCOUNT_C_NAME: crr-account-c
   CRR_ROLE_NAME: crr-role
   # Enable this for Ring tests
   ENABLE_RING_TESTS: "false"

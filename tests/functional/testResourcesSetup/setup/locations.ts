@@ -97,9 +97,20 @@ export async function createLocations(
                     'CRR_DESTINATION_LOCATION_NAME are required when DEPLOY_CRR_LOCATIONS=true',
                 );
             }
-            const accountName = location.name === env.CRR_DESTINATION_LOCATION_NAME
-                ? env.CRR_DESTINATION_ACCOUNT_NAME
-                : env.CRR_SOURCE_ACCOUNT_NAME;
+            const locationAccountMap: Record<string, string | undefined> = {
+                [env.CRR_DESTINATION_LOCATION_NAME ?? '']: env.CRR_DESTINATION_ACCOUNT_NAME,
+                [env.CRR_LOCATION_A_NAME ?? '']: env.CRR_ACCOUNT_A_NAME,
+                [env.CRR_LOCATION_B_NAME ?? '']: env.CRR_ACCOUNT_B_NAME,
+                [env.CRR_LOCATION_C_NAME ?? '']: env.CRR_ACCOUNT_C_NAME,
+            };
+            const accountName = locationAccountMap[location.name] ?? env.CRR_SOURCE_ACCOUNT_NAME;
+            if (!accountName || !accountsCreds[accountName]) {
+                throw new Error(
+                    `No credentials found for CRR location "${location.name}" ` +
+                    `(resolved account: "${accountName ?? 'undefined'}"). ` +
+                    'Ensure the corresponding CRR_*_ACCOUNT_NAME env var and k8s secret are set.',
+                );
+            }
             const userCreds = await setupCRRIamResources(accountsCreds[accountName], env);
             location.details.accessKey = userCreds.accessKey;
             location.details.secretKey = userCreds.secretKey;
