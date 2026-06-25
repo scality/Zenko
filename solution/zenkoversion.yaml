@@ -64,6 +64,12 @@ spec:
       bootstrap:
         image: ${ANALYTICS_BOOTSTRAP_IMAGE}
         tag: ${ANALYTICS_BOOTSTRAP_TAG}-${ANALYTICS_BOOTSTRAP_BUILD_TREE_HASH}
+      clickHouse:
+        image: ${CLICKHOUSE_IMAGE}
+        tag: ${CLICKHOUSE_TAG}
+      fluentBit:
+        image: ${FLUENT_BIT_IMAGE}
+        tag: ${FLUENT_BIT_TAG}
     cloudserver:
       image: ${CLOUDSERVER_IMAGE}
       tag: ${CLOUDSERVER_TAG}

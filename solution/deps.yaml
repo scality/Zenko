@@ -17,6 +17,11 @@ busybox:
   image: busybox
   tag: 1.37.0
   envsubst: BUSYBOX_TAG
+clickhouse:
+  sourceRegistry: docker.io
+  image: clickhouse/clickhouse-server
+  tag: 25.3
+  envsubst: CLICKHOUSE_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
@@ -29,6 +34,11 @@ drctl:
   tag: v1.0.6
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
+fluent-bit:
+  sourceRegistry: docker.io
+  image: fluent/fluent-bit
+  tag: 3.2.10
+  envsubst: FLUENT_BIT_TAG
 fubectl:
   tag: 6abf81a4d275d49351127458d4dd8f6468f0366a
   envsubst: FUBECTL_VERSION
