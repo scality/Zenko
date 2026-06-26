@@ -133,6 +133,27 @@ beforeEach(async () => {
                             body: [],
                         },
                     },
+                    // action-artifacts@4.3.0+ probes these endpoints before each upload to detect
+                    // presigned/multipart upload capability. Reply 404 = capability unavailable,
+                    // which makes the action fall back to the basic upload path.
+                    presignUpload: {
+                        path: "/presign-upload/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: [],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
+                    presignUploadPart: {
+                        path: "/presign-upload-part/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: ["partNumber", "uploadId"],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
                 },
             },
         },
@@ -173,6 +194,8 @@ function commonMockApi(...extraMocks: any[]) {
         mockapi.mock.artifacts.root.uploadKindLogs().reply({ status: 200, data: {}, repeat: 10 }),
         mockapi.mock.artifacts.root.uploadMergedReport().reply({ status: 200, data: {}, repeat: 10 }),
         mockapi.mock.artifacts.root.uploadLogsArchive().reply({ status: 200, data: {}, repeat: 10 }),
+        mockapi.mock.artifacts.root.presignUpload().reply({ status: 404, data: {}, repeat: 10 }),
+        mockapi.mock.artifacts.root.presignUploadPart().reply({ status: 404, data: {}, repeat: 10 }),
         ...extraMocks,
     ];
 }
