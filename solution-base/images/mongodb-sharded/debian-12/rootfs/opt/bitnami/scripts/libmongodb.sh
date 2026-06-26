@@ -1667,3 +1667,46 @@ mongodb_execute_print_output() {
 mongodb_execute() {
     debug_execute mongodb_execute_print_output "$@"
 }
+
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+# shellcheck disable=SC2148
+
+########################
+# Execute an arbitrary query/queries against the running MongoDB service
+# Stdin:
+#   Query/queries to execute
+# Arguments:
+#   $1 - User to run queries
+#   $2 - Password
+#   $3 - Database where to run the queries
+#   $4 - Host (default to result of get_mongo_hostname function)
+#   $5 - Port (default $MONGODB_PORT_NUMBER)
+#   $6 - Extra arguments (default $MONGODB_SHELL_EXTRA_FLAGS)
+# Returns:
+#   None
+########################
+mongodb_execute() {
+    local -r user="${1:-}"
+    local -r password="${2:-}"
+    local -r database="${3:-}"
+    local -r host="${4:-$(get_mongo_hostname)}"
+    local -r port="${5:-$MONGODB_PORT_NUMBER}"
+    local -r extra_args="${6:-$MONGODB_SHELL_EXTRA_FLAGS}"
+    local final_user="$user"
+    # If password is empty it means no auth, do not specify user
+    [[ -z "$password" ]] && final_user=""
+
+    local -a args=("--host" "$host" "--port" "$port")
+    [[ -n "$final_user" ]] && args+=("-u" "$final_user")
+    [[ -n "$password" ]] && args+=("-p" "$password")
+    if [[ -n "$extra_args" ]]; then
+        local extra_args_array=()
+        read -r -a extra_args_array <<<"$extra_args"
+        [[ "${#extra_args_array[@]}" -gt 0 ]] && args+=("${extra_args_array[@]}")
+    fi
+    [[ -n "$database" ]] && args+=("$database")
+
+    "$MONGODB_BIN_DIR/mongosh" "${args[@]}"
+}
