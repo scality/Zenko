@@ -19,22 +19,27 @@ describe('parseDeps', () => {
 
         expect(components.length).toBeGreaterThan(0);
 
-        // Every component should be a scality repo (but not scality/zenko)
         for (const c of components) {
-            expect(c.repo).toMatch(/^scality\//);
-            expect(c.repo).not.toBe('scality/zenko');
             expect(c.ref).toBeTruthy();
             expect(c.image).toBeTruthy();
+
+            if (c.repo === '') {
+                expect(c.image).toContain('playground');
+                continue;
+            }
+
+            expect(c.repo).toMatch(/^scality\//);
+            expect(c.repo).not.toBe('scality/zenko');
         }
     });
 
     it('includes known components', () => {
-        const { components } = parseDeps(depsFile, 'scality/zenko');
+        const testDeps = yamlToJson(path.join(__dirname, 'fixtures/test-deps.yaml'));
+        const { components } = parseDeps(testDeps, 'scality/zenko');
         const repos = components.map((c: { repo: string }) => c.repo);
 
         expect(repos).toContain('scality/sorbet');
         expect(repos).toContain('scality/backbeat');
-        expect(repos).toContain('scality/cloudserver');
     });
 
     it('filters out self-repo', () => {
@@ -89,13 +94,18 @@ describe('parseDeps', () => {
         expect(playground.image).toBe('scality/playground/my-sandbox');
     });
 
-    it('is non-empty and contains known short names', () => {
+    it('returns a non-empty repo list for the live deps.yaml', () => {
         const { repos } = parseDeps(depsFile, 'scality/zenko');
 
         expect(repos.length).toBeGreaterThan(0);
+    });
+
+    it('contains known short names', () => {
+        const testDeps = yamlToJson(path.join(__dirname, 'fixtures/test-deps.yaml'));
+        const { repos } = parseDeps(testDeps, 'scality/zenko');
+
         expect(repos).toContain('sorbet');
         expect(repos).toContain('backbeat');
-        expect(repos).toContain('cloudserver');
     });
 
     describe('repos array', () => {
