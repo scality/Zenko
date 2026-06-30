@@ -597,6 +597,7 @@ jobs:
         working-directory: ./.github/scripts/end2end
       - name: Run CTST end to end tests
         run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
+        timeout-minutes: 190
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
