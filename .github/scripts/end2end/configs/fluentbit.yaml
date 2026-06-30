@@ -13,6 +13,7 @@ data:
         Tag          <basename>
         Tag_Regex    /var/log/containers/(?<basename>[^/]+)$
         Path         /var/log/containers/*.log
+        Refresh_Interval 1
         DB           /var/lib/fluent-bit/flb_kube.db
         Mem_Buf_Limit 16MB
         Skip_Long_Lines On
