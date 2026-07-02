@@ -28,9 +28,6 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Fetch tags
-        run: git fetch --tags
-
       - name: Compute version
         id: version
         shell: bash

@@ -366,16 +366,15 @@ test.each([
                 .reply({ status: 201, data: {} }),
         ],
         mockSteps: {
-            'verify-release': [{
-                name: 'Fetch tags',
-                mockWith: 'echo "tags fetched"',
-            }, ...(racingTag ? [{
-                after: 'Compute version',
-                mockWith: {
-                    name: 'Concurrent release creates the tag',
-                    run: 'git tag ' + racingTag,
-                },
-            }] : [])],
+            ...(racingTag ? {
+                'verify-release': [{
+                    after: 'Compute version',
+                    mockWith: {
+                        name: 'Concurrent release creates the tag',
+                        run: 'git tag ' + racingTag,
+                    },
+                }],
+            } : {}),
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
                 uses: 'softprops/action-gh-release@v3',
