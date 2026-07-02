@@ -15,7 +15,7 @@ Feature: CRR Cascade Replication
         And a versioned bucket exists in location "crr-location-c"
         And replication is configured from location "crr-location-b" to "crr-location-c"
         And replication is configured from location "crr-location-a" to "crr-location-b"
-        When an object "cascade-obj" is put in location "crr-location-a"
+        When an object "cascade-obj" of 0 bytes is put in location "crr-location-a"
         Then the object should replicate to location "crr-location-b" within 300 seconds
         And the object should replicate to location "crr-location-c" within 300 seconds
         When I wait 15 seconds
@@ -25,7 +25,7 @@ Feature: CRR Cascade Replication
     @PreMerge
     @ReplicationTest
     @CRRCascade
-    Scenario: Cascade replication with loop : A -> B -> C -> A
+    Scenario Outline: Cascade replication with loop : A -> B -> C -> A (<description>)
         Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
         And a versioned bucket exists in location "crr-location-b"
@@ -33,9 +33,35 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-a" to "crr-location-b"
         And replication is configured from location "crr-location-b" to "crr-location-c"
         And replication is configured from location "crr-location-c" to "crr-location-a"
-        When an object "cascade-loop-obj" is put in location "crr-location-a"
+        When an object "<objectName>" of <bodySize> bytes is put in location "crr-location-a"
         Then the object should replicate to location "crr-location-b" within 300 seconds
         And the object should replicate to location "crr-location-c" within 300 seconds
+        And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
+        When I wait 15 seconds
+        Then the cascade replication states should be settled
+
+        Examples:
+            | description      | objectName                | bodySize |
+            | empty object     | cascade-loop-obj          | 0        |
+            | non-empty object | cascade-loop-nonempty-obj | 42       |
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
+    @CRRCascade
+    Scenario: Cascade tag update replicates through a loop without bouncing back : A -> B -> C -> A
+        Given CRR replication accounts are registered
+        And a versioned bucket exists in location "crr-location-a"
+        And a versioned bucket exists in location "crr-location-b"
+        And a versioned bucket exists in location "crr-location-c"
+        And replication is configured from location "crr-location-a" to "crr-location-b"
+        And replication is configured from location "crr-location-b" to "crr-location-c"
+        And replication is configured from location "crr-location-c" to "crr-location-a"
+        When an object "cascade-tag-loop-obj" of 42 bytes is put in location "crr-location-a"
+        Then the object should replicate to location "crr-location-b" within 300 seconds
+        And the object should replicate to location "crr-location-c" within 300 seconds
+        When tags are put on the object "cascade-tag-loop-obj" in location "crr-location-a"
+        Then the object at location "crr-location-c" should have the expected tags within 300 seconds
         And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
         When I wait 15 seconds
         Then the cascade replication states should be settled

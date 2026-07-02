@@ -1,10 +1,12 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import {
     CreateBucketCommand,
+    GetObjectTaggingCommand,
     HeadObjectCommand,
     PutBucketReplicationCommand,
     PutBucketVersioningCommand,
     PutObjectCommand,
+    PutObjectTaggingCommand,
     StorageClass,
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
@@ -67,26 +69,69 @@ async function putCascadeObject(
     client: ReturnType<Zenko['createS3Client']>,
     bucket: string,
     key: string,
+    bodySize = 0,
 ): Promise<string> {
     const marker = Utils.randomString().toLowerCase();
     await client.send(new PutObjectCommand({
         Bucket: bucket,
         Key: key,
-        Body: new Uint8Array(0),
+        Body: bodySize > 0 ? Buffer.alloc(bodySize) : new Uint8Array(0),
         Metadata: { marker },
     }));
     return marker;
 }
 
-When('an object {string} is put in location {string}',
-    async function (this: Zenko, objectName: string, location: string) {
+When('an object {string} of {int} bytes is put in location {string}',
+    async function (this: Zenko, objectName: string, bodySize: number, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const marker = await putCascadeObject(this.createS3Client(), cascadeBuckets[location], objectName);
+        const marker = await putCascadeObject(this.createS3Client(), cascadeBuckets[location], objectName, bodySize);
         this.addToSaved('cascadeObjectName', objectName);
         this.addToSaved('cascadeSourceLocation', location);
         this.addToSaved('cascadeLastMarker', marker);
+        this.addToSaved('cascadeExpectedContentLength', bodySize);
     });
+
+When('tags are put on the object {string} in location {string}',
+    async function (this: Zenko, objectName: string, location: string) {
+        const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
+        const tagValue = Utils.randomString().toLowerCase();
+        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        await this.createS3Client().send(new PutObjectTaggingCommand({
+            Bucket: cascadeBuckets[location],
+            Key: objectName,
+            Tagging: { TagSet: [{ Key: 'cascade-test-tag', Value: tagValue }] },
+        }));
+        this.addToSaved('cascadeTagValue', tagValue);
+    });
+
+Then(
+    'the object at location {string} should have the expected tags within {int} seconds',
+    { timeout: 300_000 },
+    async function (this: Zenko, location: string, timeoutSeconds: number) {
+        const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
+        const objectName = this.getSaved<string>('cascadeObjectName');
+        const tagValue = this.getSaved<string>('cascadeTagValue');
+        const deadline = Date.now() + timeoutSeconds * 1000;
+        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        const client = this.createS3Client();
+        while (Date.now() < deadline) {
+            const res = await client.send(
+                new GetObjectTaggingCommand({ Bucket: bucket, Key: objectName }),
+            );
+            const found = res.TagSet?.some(
+                tag => tag.Key === 'cascade-test-tag' && tag.Value === tagValue,
+            );
+            if (found) {
+                return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        assert.fail(
+            `Timeout: tag 'cascade-test-tag=${tagValue}' not found at '${location}' after ${timeoutSeconds}s`,
+        );
+    },
+);
 
 Then(
     'the object should replicate to location {string} within {int} seconds',
@@ -97,6 +142,7 @@ Then(
         const deadline = Date.now() + timeoutSeconds * 1000;
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         const client = this.createS3Client();
+        const expectedContentLength = this.getSaved<number>('cascadeExpectedContentLength');
         while (Date.now() < deadline) {
             try {
                 const res = await client.send(
@@ -109,6 +155,10 @@ Then(
                 assert.strictEqual(
                     res.ReplicationStatus, 'REPLICA',
                     `Expected ReplicationStatus to be REPLICA at '${location}', got '${res.ReplicationStatus}'`,
+                );
+                assert.strictEqual(
+                    res.ContentLength, expectedContentLength,
+                    `Expected ContentLength ${expectedContentLength} at '${location}', got ${res.ContentLength}`,
                 );
                 return;
             } catch (err: unknown) {
