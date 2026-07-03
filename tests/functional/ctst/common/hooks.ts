@@ -53,6 +53,19 @@ AfterAll(async function () {
     await stopDLQConsumer();
 });
 
+// Fail any scenario that starts past the global time budget, so the run stops
+// (and writes its reports) before the step timeout hard-kills it.
+const ctstMaxRuntimeMs = 180 * 60 * 1000;
+const ctstStartMs = Date.now();
+Before((scenario: ITestCaseHookParameter) => {
+    if (Date.now() > ctstStartMs + ctstMaxRuntimeMs) {
+        throw new Error(
+            `CTST global time budget (${ctstMaxRuntimeMs / 60000} min) exceeded; failing scenario `
+            + `"${scenario.pickle.name}" (started too late to run within the budget)`,
+        );
+    }
+});
+
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
     Identity.resetIdentity();
