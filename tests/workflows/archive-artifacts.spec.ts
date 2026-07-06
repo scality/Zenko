@@ -122,6 +122,28 @@ beforeEach(async () => {
                             body: [],
                         },
                     },
+                    // action-artifacts@v4 (>=4.3.0) probes these two endpoints before
+                    // uploading to detect presigned/multipart S3 upload support. A 404
+                    // means "unsupported", so the action falls back to the direct
+                    // PUT /upload/... path mocked above.
+                    presignUpload: {
+                        path: "/presign-upload/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: [],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
+                    presignUploadPart: {
+                        path: "/presign-upload-part/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: [],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
                     // action-artifacts@v4 GETs /version/2/{name}/{file} before uploading
                     // when run_attempt != 1; response body must end with 'PASSED\n'.
                     versionFile: {
@@ -173,6 +195,9 @@ function commonMockApi(...extraMocks: any[]) {
         mockapi.mock.artifacts.root.uploadKindLogs().reply({ status: 200, data: {}, repeat: 10 }),
         mockapi.mock.artifacts.root.uploadMergedReport().reply({ status: 200, data: {}, repeat: 10 }),
         mockapi.mock.artifacts.root.uploadLogsArchive().reply({ status: 200, data: {}, repeat: 10 }),
+        // Presign/multipart capability probes (action-artifacts >=4.3.0): 404 => direct upload
+        mockapi.mock.artifacts.root.presignUpload().reply({ status: 404, data: {}, repeat: 10 }),
+        mockapi.mock.artifacts.root.presignUploadPart().reply({ status: 404, data: {}, repeat: 10 }),
         ...extraMocks,
     ];
 }
