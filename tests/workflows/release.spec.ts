@@ -430,6 +430,14 @@ test.each([
 
     postSteps.pop(); // last pushed entry is the matched step's own status, not a post-step
 
+    // Dump the whole result list on failure so CI failures can be debugged from the log.
+    if (!result[lastResult].name.startsWith('Main ' + stepName)) {
+        console.error(
+            'expected Main ' + stepName + ', got ' + result[lastResult].name + '\nresult:\n'
+            + JSON.stringify(result.map(r => ({ name: r.name, status: r.status })), null, 2),
+        );
+    }
+
     expect(result[lastResult].name.startsWith('Main ' + stepName)).toBe(true);
     expect(result[lastResult + 1].status).toStrictEqual(status.value());
     postSteps.forEach(s => expect(s).toStrictEqual(Pass.value()));
