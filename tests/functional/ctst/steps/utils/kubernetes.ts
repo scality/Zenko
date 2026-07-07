@@ -102,6 +102,84 @@ export async function createJobAndWaitForCompletion(
 
     const lockFilePath = path.join('/tmp', `${jobName}.lock`);
 
+    let expectedJobName: string | undefined;
+    let heartbeat: ReturnType<typeof setInterval> | undefined;
+    let dumpedPodLogs = false;
+    let watchStart = Date.now();
+
+    // Best-effort: log the job's status plus its pods' status, and the pod logs
+    // when a container has failed or restarted, so the reason a cronjob run failed
+    // or hung is visible in the test step log itself rather than only in artifacts.
+    const logJobDiagnostics = async (reason: string, forceLogs = false): Promise<void> => {
+        if (!expectedJobName) {
+            return;
+        }
+        try {
+            const current = await batchClient.readNamespacedJob({
+                name: expectedJobName,
+                namespace: 'default',
+            });
+            world.logger.info('cronjob status', {
+                jobName,
+                reason,
+                instance: expectedJobName,
+                elapsedSec: Math.round((Date.now() - watchStart) / 1000),
+                active: current.status?.active,
+                succeeded: current.status?.succeeded,
+                failed: current.status?.failed,
+                conditions: current.status?.conditions,
+            });
+        } catch (e) {
+            world.logger.warn('Failed to read cronjob status', { jobName, e });
+        }
+        try {
+            const coreClient = createKubeCoreClient(world);
+            const pods = await coreClient.listNamespacedPod({
+                namespace: 'default',
+                labelSelector: `batch.kubernetes.io/job-name=${expectedJobName}`,
+            });
+            for (const pod of pods.items || []) {
+                const podName = pod.metadata?.name;
+                const containerStatuses = pod.status?.containerStatuses || [];
+                const restarted = containerStatuses.some(s => (s.restartCount || 0) > 0);
+                const crashed = restarted
+                    || containerStatuses.some(s => s.state?.terminated || s.lastState?.terminated);
+                world.logger.warn('cronjob pod status', {
+                    jobName,
+                    reason,
+                    podName,
+                    phase: pod.status?.phase,
+                    containerStatuses: containerStatuses.map(s => ({
+                        name: s.name,
+                        ready: s.ready,
+                        restartCount: s.restartCount,
+                        state: s.state,
+                        lastState: s.lastState,
+                    })),
+                });
+                if ((forceLogs || (crashed && !dumpedPodLogs)) && podName) {
+                    dumpedPodLogs = true;
+                    for (const previous of (restarted ? [true, false] : [false])) {
+                        try {
+                            const log = await coreClient.readNamespacedPodLog({
+                                name: podName,
+                                namespace: 'default',
+                                previous,
+                                tailLines: 200,
+                            });
+                            world.logger.warn('cronjob pod logs', { podName, previous, log });
+                        } catch (logErr) {
+                            world.logger.warn('Failed to read cronjob pod logs', { podName, previous, logErr });
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            world.logger.warn('Failed to collect cronjob pod diagnostics', { jobName, err });
+        }
+    };
+
+    const lockStart = Date.now();
     let lockAquired = false;
     let tries = 600;
     while (!lockAquired && tries > 0) {
@@ -117,13 +195,28 @@ export async function createJobAndWaitForCompletion(
         }
         tries--;
         if (!lockAquired) {
+            if (tries % 15 === 0) {
+                world.logger.info('Waiting to acquire lock (another worker is running this cronjob)', {
+                    jobName,
+                    waitedSec: Math.round((Date.now() - lockStart) / 1000),
+                });
+            }
             await Utils.sleep(1000);
         }
     }
 
-    try {
-        world.logger.debug(`Acquired lock for job: ${jobName}`);
+    if (!lockAquired) {
+        throw new Error(
+            `Failed to acquire lock for job ${jobName} after `
+            + `${Math.round((Date.now() - lockStart) / 1000)}s; another worker may be stuck running it`,
+        );
+    }
+    world.logger.info('Acquired lock for job', {
+        jobName,
+        waitedSec: Math.round((Date.now() - lockStart) / 1000),
+    });
 
+    try {
         // Read the cron job and prepare the job spec
         const cronJob = await batchClient.readNamespacedCronJob({ name: jobName, namespace: 'default' });
         const cronJobSpec = cronJob.spec?.jobTemplate.spec;
@@ -146,10 +239,18 @@ export async function createJobAndWaitForCompletion(
         const response = await batchClient.createNamespacedJob({ namespace: 'default', body: job });
         world.logger.debug('Job created', { job: response.metadata });
 
-        const expectedJobName = response.metadata?.name;
+        expectedJobName = response.metadata?.name;
 
+        watchStart = Date.now();
         // Watch for job completion
         await new Promise<void>((resolve, reject) => {
+            // Heartbeat: surface the job's real status + pod state periodically so a
+            // silent stall is visible in the step log instead of dead air until the
+            // hook timeout fires.
+            heartbeat = setInterval(() => {
+                void logJobDiagnostics('heartbeat');
+            }, 30000);
+
             void watchClient.watch(
                 '/apis/batch/v1/namespaces/default/jobs',
                 {},
@@ -159,9 +260,15 @@ export async function createJobAndWaitForCompletion(
                         (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)
                     ) {
                         if (watchObj.object?.status?.succeeded) {
+                            if (heartbeat) {
+                                clearInterval(heartbeat);
+                            }
                             world.logger.debug('Job succeeded', { job: job.metadata });
                             resolve();
                         } else if (watchObj.object?.status?.failed) {
+                            if (heartbeat) {
+                                clearInterval(heartbeat);
+                            }
                             world.logger.debug('Job failed', {
                                 job: job.metadata,
                                 object: watchObj.object,
@@ -178,8 +285,12 @@ export async function createJobAndWaitForCompletion(
             jobName,
             err,
         });
+        await logJobDiagnostics('job failed', true);
         throw err;
     } finally {
+        if (heartbeat) {
+            clearInterval(heartbeat);
+        }
         fs.unlinkSync(lockFilePath);
     }
 }
