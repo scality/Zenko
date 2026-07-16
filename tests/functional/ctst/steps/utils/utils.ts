@@ -378,35 +378,52 @@ async function emptyVersionedBucket(world: Zenko) {
     }));
 }
 
-async function addTransitionWorkflow(this: Zenko, location: string, enabled = true) {
+async function putBucketLifecycleConfigurationWithRetry(world: Zenko, rules: Record<string, unknown>[]) {
+    world.resetCommand();
+    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
+    world.addCommandParameter({
+        lifecycleConfiguration: JSON.stringify({ Rules: rules }),
+    });
+    const commandParameters = world.getCommandParameters();
     let conditionOk = false;
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    const enabledStr = enabled ? 'Enabled' : 'Disabled';
-    const lifecycleConfiguration = JSON.stringify({
-        Rules: [
-            {
-                Status: enabledStr,
-                Prefix: '',
-                Transitions: [
-                    {
-                        Days: 0,
-                        StorageClass: location,
-                    },
-                ],
-            },
-        ],
-    });
-    this.addCommandParameter({
-        lifecycleConfiguration,
-    });
-    const commandParameters = this.getCommandParameters();
     while (!conditionOk) {
         const res = await S3.putBucketLifecycleConfiguration(commandParameters);
         conditionOk = res.err === null;
-        // Wait for the transition to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(5000); 
+        // Wait for the configuration to be accepted because the deployment of the location's pods can take some time
+        await Utils.sleep(5000);
     }
+}
+
+async function addTransitionWorkflow(this: Zenko, location: string, enabled = true) {
+    const enabledStr = enabled ? 'Enabled' : 'Disabled';
+    await putBucketLifecycleConfigurationWithRetry(this, [
+        {
+            Status: enabledStr,
+            Prefix: '',
+            Transitions: [
+                {
+                    Days: 0,
+                    StorageClass: location,
+                },
+            ],
+        },
+    ]);
+}
+
+async function addExpirationWorkflow(this: Zenko, days: number, includeNoncurrentVersions = false) {
+    const rule: Record<string, unknown> = {
+        Status: 'Enabled',
+        Prefix: '',
+        Expiration: {
+            Days: days,
+        },
+    };
+    if (includeNoncurrentVersions) {
+        rule.NoncurrentVersionExpiration = {
+            NoncurrentDays: days,
+        };
+    }
+    await putBucketLifecycleConfigurationWithRetry(this, [rule]);
 }
 
 async function getReplicationLocationConfig(world: Zenko, location: string): Promise<{
@@ -601,6 +618,7 @@ export {
     getObjectNameWithBackendFlakiness,
     restoreObject,
     addTransitionWorkflow,
+    addExpirationWorkflow,
     getReplicationLocationConfig,
     putBucketReplication,
 };
