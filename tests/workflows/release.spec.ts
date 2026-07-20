@@ -247,9 +247,11 @@ test.each([
                 .listReleases({ owner: 'scality', repo: 'Zenko' } as any)
                 // First call from release notes generation, to get the previous release
                 .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
-                // Second call from release notes generation, to get the previous release
-                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
-                // Third call made by action-gh-release@v3's canonicalizeCreatedRelease
+                // Next three calls from action-gh-release@v3's findTagFromReleases, which lists
+                // releases after getReleaseByTag returns 404 (retrying maxRetries=3 times);
+                // none may contain the target tag, or v3 updates instead of creating.
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }], repeat: 3 })
+                // Last call made by action-gh-release@v3's canonicalizeCreatedRelease
                 // (recentReleasesByTag scans allReleases to reconcile duplicate drafts).
                 .reply({
                     status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
