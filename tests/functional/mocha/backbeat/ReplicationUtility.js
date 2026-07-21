@@ -878,13 +878,18 @@ class ReplicationUtility {
         return async.series([
             next => this.waitUntilReplicated(srcBucket, key, undefined, next),
             next => this.getObject(srcBucket, key, next),
+            // Wait for the destination as well: with the new CRR cascade feature, the destination
+            // may briefly show PENDING while a cascade next-hop is in progress as 
+            // active-active is a bidirectional a<->b setup.
+            // So we poll destination until it settles before asserting REPLICA on destination.
+            next => destClient.waitUntilReplicated(destBucket, key, undefined, next),
             next => destClient.getObject(destBucket, key, next),
         ], (err, data) => {
             if (err) {
                 return cb(err);
             }
             const srcData = data[1];
-            const destData = data[2];
+            const destData = data[3];
             assert.strictEqual(srcData.ReplicationStatus, 'COMPLETED');
             assert.strictEqual(destData.ReplicationStatus, 'REPLICA');
             assert.strictEqual(
