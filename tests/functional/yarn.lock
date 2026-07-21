@@ -5535,9 +5535,9 @@ property-expr@^2.0.5:
   integrity sha512-SVtmxhRE/CGkn3eZY1T6pC8Nln6Fr/lu1mKSgRud0eC73whjGfoAogbn78LkD8aFL0zz3bAFerKSnOl7NlErBA==
 
 protobufjs@^8.0.0:
-  version "8.6.4"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-8.6.4.tgz#61c1589f095d096cf89e77d1e6dfa5ca1c0d70bf"
-  integrity sha512-/+XMv9JalknuncEJSwsyEVlwcxVLKx2iaoSUXFZA86MJkdqyOdfrlB1sB7S6aKyUk9tl20YY+SgQe5J2sJHTcg==
+  version "8.7.1"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-8.7.1.tgz#5650e11f3d4b61c71e5bc0447230a6794a34d713"
+  integrity sha512-agdGHrXNTv0IrYscJPDou/PlEJk1c/hBZ9o/B5NH2i/nSPtPqacNxzgwf1CebXxFMjMrZH5sqv9uQuw96aGt/A==
   dependencies:
     long "^5.3.2"
 
