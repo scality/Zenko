@@ -64,6 +64,7 @@ function makeUpdateRequest(path, cb, userCredentials, body, mode = 'POST') {
         ...defaultOptions,
         method: mode || 'POST',
         path,
+        body,
     };
     options = aws4.sign(options, userCredentials || credentials);
 
