@@ -138,6 +138,9 @@ spec:
         limitCPU: 3
       cruiseControl:
         limitMemory: 3Gi
+    zookeeperResources:
+      requestMemory: 1Gi
+      limitMemory: 1Gi
   featureFlags:
     lifecycleOptimization: true
     manageKafkaTopics: true
