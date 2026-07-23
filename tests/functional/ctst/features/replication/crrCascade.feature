@@ -80,3 +80,18 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-a" to "crr-location-b"
         When the object "cascade-convergence-obj" is concurrently written 10 times to every cascade location
         Then all cascade locations should converge to the same metadata marker within 300 seconds
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
+    @CRRCascade
+    Scenario: Bidirectional cascade replication : A <-> B
+        Given CRR replication accounts are registered
+        And a versioned bucket exists in location "crr-location-a"
+        And a versioned bucket exists in location "crr-location-b"
+        And replication is configured from location "crr-location-a" to "crr-location-b"
+        And replication is configured from location "crr-location-b" to "crr-location-a"
+        When an object "bidirectional-obj" of 42 bytes is put in location "crr-location-a"
+        Then the object should replicate to location "crr-location-b" within 300 seconds
+        When I wait 15 seconds
+        Then the cascade replication states should be settled
