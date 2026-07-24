@@ -482,27 +482,7 @@
     events "^3.0.0"
     tslib "^2.8.1"
 
-"@azure/storage-blob@^12.12.0":
-  version "12.32.0"
-  resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.32.0.tgz#2950bbfed33e5dbf990c912924ce1d4cb1d4b8eb"
-  integrity sha512-80LzSNnFQye2LCCBFghAJS6jJQJ7N4bfgZ6qDMgVGRtugZ7TLDKQZ2hczMigmZH3jAcMRdma/IygsC5+0gT7Tw==
-  dependencies:
-    "@azure/abort-controller" "^2.1.2"
-    "@azure/core-auth" "^1.9.0"
-    "@azure/core-client" "^1.9.3"
-    "@azure/core-http-compat" "^2.2.0"
-    "@azure/core-lro" "^2.2.0"
-    "@azure/core-paging" "^1.6.2"
-    "@azure/core-rest-pipeline" "^1.19.1"
-    "@azure/core-tracing" "^1.2.0"
-    "@azure/core-util" "^1.11.0"
-    "@azure/core-xml" "^1.4.5"
-    "@azure/logger" "^1.1.4"
-    "@azure/storage-common" "^12.4.0"
-    events "^3.0.0"
-    tslib "^2.8.1"
-
-"@azure/storage-common@^12.0.0", "@azure/storage-common@^12.0.0-beta.2", "@azure/storage-common@^12.4.0":
+"@azure/storage-common@^12.0.0", "@azure/storage-common@^12.0.0-beta.2":
   version "12.4.0"
   resolved "https://registry.yarnpkg.com/@azure/storage-common/-/storage-common-12.4.0.tgz#901cd66dc87694cbf93af48fcb915cb0198df32e"
   integrity sha512-kNhJKMxQb374KOVt63CZnGIpDcrKNzJeyANLJymxE9mCJSdRGzb+Iv9oSIiCj6tNMLypr530b9ObOiA/5OvwOg==
@@ -533,24 +513,6 @@
     "@azure/core-xml" "^1.4.3"
     "@azure/logger" "^1.1.4"
     "@azure/storage-common" "^12.0.0"
-    tslib "^2.8.1"
-
-"@azure/storage-queue@^12.30.0":
-  version "12.30.0"
-  resolved "https://registry.yarnpkg.com/@azure/storage-queue/-/storage-queue-12.30.0.tgz#e960cffaa5c1cfd72ba31ddd3a294bd3ffdca0e4"
-  integrity sha512-204lc/W0nnZy0/JXGXAVsQG9LmRWGVrh28uxkWd6lV5/G/vHlFZOLxiTS5DUdLcnZ+OHhsClRJnMWgHX2X0vdA==
-  dependencies:
-    "@azure/abort-controller" "^2.1.2"
-    "@azure/core-auth" "^1.9.0"
-    "@azure/core-client" "^1.9.3"
-    "@azure/core-http-compat" "^2.0.0"
-    "@azure/core-paging" "^1.6.2"
-    "@azure/core-rest-pipeline" "^1.19.1"
-    "@azure/core-tracing" "^1.2.0"
-    "@azure/core-util" "^1.11.0"
-    "@azure/core-xml" "^1.4.3"
-    "@azure/logger" "^1.1.4"
-    "@azure/storage-common" "^12.4.0"
     tslib "^2.8.1"
 
 "@babel/code-frame@^7.26.2":
