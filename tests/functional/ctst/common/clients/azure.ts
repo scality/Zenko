@@ -12,17 +12,9 @@ import {
 
 import Werelogs from 'werelogs';
 
-const AZURE_STORAGE_BLOB_URL = process.env.AZURE_BLOB_URL || 'http://127.0.0.1:10000/devstoreaccount1';
-const AZURE_STORAGE_QUEUE_URL = process.env.AZURE_QUEUE_URL || 'http://127.0.0.1:10001/devstoreaccount1';
-
 type AzureCreds = {
     accountName: string;
     accountKey: string;
-};
-
-const azuriteDefaultCreds = {
-    accountName: 'devstoreaccount1',
-    accountKey: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
 };
 
 /**
@@ -33,25 +25,23 @@ export default class AzureHelper {
 
     /**
      * Initialize Azure blob service client
-     * Uses default azurite credentials if none specified
      * @param {AzureCreds} creds azure credentials
      * @returns {BlobServiceClient} azure blob service client
      */
-    static getBlobClient(creds: AzureCreds = azuriteDefaultCreds): BlobServiceClient {
+    static getBlobClient(creds: AzureCreds): BlobServiceClient {
         return new BlobServiceClient(
-            AZURE_STORAGE_BLOB_URL,
+            process.env.AZURE_BACKEND_ENDPOINT!,
             new StorageSharedKeyCredential(creds.accountName, creds.accountKey),
         );
     }
 
     /**
      * List all blobs in a container
-     * Uses default azurite credentials if none specified
      * @param {string} container target container
      * @param {AzureCreds} creds azure credentials
      * @returns {Promise<BlobItem[]>} list of blobs with their metadata
      */
-    static async listBlobs(container: string, creds: AzureCreds = azuriteDefaultCreds): Promise<BlobItem[]> {
+    static async listBlobs(container: string, creds: AzureCreds): Promise<BlobItem[]> {
         const client = this.getBlobClient(creds);
 
         const blobList: BlobItem[] = [];
@@ -69,7 +59,6 @@ export default class AzureHelper {
 
     /**
      * Gets blob metadata
-     * Uses default azurite credentials if none specified
      * @param {string} container target container
      * @param {string} blob target blob
      * @param {AzureCreds} creds azure credentials
@@ -78,7 +67,7 @@ export default class AzureHelper {
     static async getBlobProperties(
         container: string,
         blob: string,
-        creds: AzureCreds = azuriteDefaultCreds,
+        creds: AzureCreds,
     ): Promise<BlobGetPropertiesResponse> {
         const blobClient = this.getBlobClient(creds).getContainerClient(container).getBlockBlobClient(blob);
 
@@ -87,7 +76,6 @@ export default class AzureHelper {
 
     /**
      * Checks if a blob exists
-     * Uses default azurite credentials if none specified
      * @param {string} container target container
      * @param {string} blob target blob
      * @param {AzureCreds} creds azure credentials
@@ -96,7 +84,7 @@ export default class AzureHelper {
     static async blobExists(
         container: string,
         blob: string,
-        creds: AzureCreds = azuriteDefaultCreds,
+        creds: AzureCreds,
     ): Promise<boolean> {
         const blobClient = this.getBlobClient(creds).getContainerClient(container).getBlockBlobClient(blob);
 
@@ -105,7 +93,6 @@ export default class AzureHelper {
 
     /**
      * Deletes a blob
-     * Uses default azurite credentials if none specified
      * @param {string} container target container
      * @param {string} blob target blob
      * @param {AzureCreds} creds azure credentials
@@ -114,7 +101,7 @@ export default class AzureHelper {
     static async deleteBlob(
         container: string,
         blob: string,
-        creds: AzureCreds = azuriteDefaultCreds,
+        creds: AzureCreds,
     ): Promise<boolean> {
         const res = await this.getBlobClient(creds)
             .getContainerClient(container)
@@ -126,7 +113,6 @@ export default class AzureHelper {
 
     /**
      * Downloads a blob into a buffer
-     * Uses default azurite credentials if none specified
      * @param {string} container target container
      * @param {string} blob target blob
      * @param {AzureCreds} creds azure credentials
@@ -135,20 +121,19 @@ export default class AzureHelper {
     static async downloadBlob(
         container: string,
         blob: string,
-        creds: AzureCreds = azuriteDefaultCreds,
+        creds: AzureCreds,
     ): Promise<Buffer> {
         return this.getBlobClient(creds).getContainerClient(container).getBlockBlobClient(blob).downloadToBuffer();
     }
 
     /**
      * Initialize Azure queue service client
-     * Uses default azurite credentials if none specified
      * @param {AzureCreds} creds azure credentials
      * @returns {QueueServiceClient} azure queue service client
      */
-    static getQueueClient(creds: AzureCreds = azuriteDefaultCreds): QueueServiceClient {
+    static getQueueClient(creds: AzureCreds): QueueServiceClient {
         return new QueueServiceClient(
-            AZURE_STORAGE_QUEUE_URL,
+            process.env.AZURE_BACKEND_QUEUE_ENDPOINT!,
             new StorageQueueSharedKeyCredential(creds.accountName, creds.accountKey),
         );
     }
@@ -158,7 +143,6 @@ export default class AzureHelper {
      * Schema of message can be found in:
      * https://learn.microsoft.com/en-us/azure/event-grid/event-schema-blob-storage?tabs=event-grid-event-schema
      * #microsoftstorageblobcreated-event
-     * Uses default azurite credentials if none specified
      * @param {string} queue target storage queue
      * @param {string} container target container
      * @param {string} blob target blob
@@ -169,7 +153,7 @@ export default class AzureHelper {
         queue: string,
         container: string,
         blob: string,
-        creds: AzureCreds = azuriteDefaultCreds,
+        creds: AzureCreds,
     ): Promise<boolean> {
         const message = {
             topic: '/subscriptions/0/resourceGroups/Storage/providers/Microsoft.Storage/storageAccounts/accont',
