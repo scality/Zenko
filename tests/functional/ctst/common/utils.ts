@@ -12,9 +12,9 @@ import {
 import { AWSCliOptions } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import fs from 'fs';
-import lockFile from 'proper-lockfile';
+import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { ITestCaseHookParameter } from '@cucumber/cucumber';
-import { AWSCredentials, Constants, Utils } from 'cli-testing';
+import { AWSCredentials, Utils } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
 
@@ -349,11 +349,8 @@ export async function prepareMetricsScenarios(
 ): Promise<void> {
     const { gherkinDocument, pickle } = scenarioConfiguration;
     const featureName = gherkinDocument.feature?.name?.replace(/ /g, '-').toLowerCase() || 'metrics';
-    const filePath = `/tmp/${featureName}`;
-    let initiated = false;
-    let releaseLock: (() => Promise<void>) | false = false;
-    const output: Record<string, AWSCredentials> = {};
-    
+    const dataFile = `/tmp/${featureName}`;
+
     const {
         versioning = '',
         jobName = 'end2end-ops-count-items',
@@ -362,66 +359,39 @@ export async function prepareMetricsScenarios(
         objectCount = 1,
     } = options;
 
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify({
-            ready: false,
-        }));
-    } else {
-        initiated = true;
-    }
+    await runOnceAcrossWorkers(
+        { lockName: featureName, logger: world.logger },
+        async () => {
+            const output: Record<string, AWSCredentials> = {};
+            const scenarioIds = new Set<string>();
 
-    if (!initiated) {
-        try {
-            releaseLock = await lockFile.lock(filePath, { stale: Constants.DEFAULT_TIMEOUT / 2 });
-        } catch (err) {
-            world.logger.error('Unable to acquire lock', { err });
-            releaseLock = false;
-        }
-    }
-
-    if (releaseLock) {
-        const scenarioIds = new Set<string>();
-        
-        for (const scenario of gherkinDocument.feature?.children || []) {
-            for (const example of scenario.scenario?.examples || []) {
-                for (const values of example.tableBody || []) {
-                    const scenarioWithExampleID = hashStringAndKeepFirst20Characters(`${values.id}`);
-                    scenarioIds.add(scenarioWithExampleID);
+            for (const scenario of gherkinDocument.feature?.children || []) {
+                for (const example of scenario.scenario?.examples || []) {
+                    for (const values of example.tableBody || []) {
+                        const scenarioWithExampleID = hashStringAndKeepFirst20Characters(`${values.id}`);
+                        scenarioIds.add(scenarioWithExampleID);
+                    }
                 }
             }
-        }
-        
-        for (const scenarioId of scenarioIds) {
-            await world.createAccount(scenarioId, true);
-            await createBucketWithConfiguration(world, scenarioId, versioning);
-            for (let i = 0; i < objectCount; i++) {
-                await putObject(world, undefined, undefined, objectSize);
+
+            for (const scenarioId of scenarioIds) {
+                await world.createAccount(scenarioId, true);
+                await createBucketWithConfiguration(world, scenarioId, versioning);
+                for (let i = 0; i < objectCount; i++) {
+                    await putObject(world, undefined, undefined, objectSize);
+                }
+                output[scenarioId] = Identity.getCurrentCredentials()!;
             }
-            output[scenarioId] = Identity.getCurrentCredentials()!;
-        }
 
-        await createJobAndWaitForCompletion(world, jobName, jobNamespace);
-        
-        await Utils.sleep(2000);
-        fs.writeFileSync(filePath, JSON.stringify({
-            ready: true,
-            ...output,
-        }));
+            await createJobAndWaitForCompletion(world, jobName, jobNamespace);
+            await Utils.sleep(2000);
+            fs.writeFileSync(dataFile, JSON.stringify(output));
+        },
+    );
 
-        await releaseLock();
-    } else {
-        while (!fs.existsSync(filePath)) {
-            await Utils.sleep(100);
-        }
-
-        let configuration: { ready: boolean } = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { ready: boolean };
-        while (!configuration.ready) {
-            await Utils.sleep(100);
-            configuration = JSON.parse(fs.readFileSync(filePath, 'utf8')) as { ready: boolean };
-        }
-    }
-
-    const configuration: typeof output = JSON.parse(fs.readFileSync(filePath, 'utf8')) as typeof output;
+    const configuration = JSON.parse(
+        fs.readFileSync(dataFile, 'utf8'),
+    ) as Record<string, AWSCredentials>;
     const key = hashStringAndKeepFirst20Characters(`${pickle.astNodeIds[1]}`);
     world.logger.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
     

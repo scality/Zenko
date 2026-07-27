@@ -5,8 +5,7 @@ import { AccessKey } from '@aws-sdk/client-iam';
 import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
 import { Credentials } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
-import fs from 'fs';
-import lockFile from 'proper-lockfile';
+import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
@@ -664,39 +663,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
-                const filePath = `/tmp/account-init-${accountName}.json`;
-                if (!fs.existsSync(filePath)) {
-                    fs.writeFileSync(filePath, JSON.stringify({
-                        ready: false,
-                    }));
-                }
-                let account = null;
-                let releaseLock: (() => Promise<void>) | null = null;
-                try {
-                    releaseLock = await lockFile.lock(filePath, {
-                        stale: Constants.DEFAULT_TIMEOUT / 2,
-                        retries: {
-                            retries: 5,
-                            factor: 3,
-                            minTimeout: 1000,
-                            maxTimeout: 5000,
-                        }
-                    });
-
-                    try {
+                await runOnceAcrossWorkers(
+                    { lockName: `account-init-${accountName}`, logger: CacheHelper.logger },
+                    async () => {
                         await SuperAdmin.createAccount({ accountName });
-                        /* eslint-disable */
-                    } catch (err: any) {
-                        if (!err.EntityAlreadyExists && err.code !== 'EntityAlreadyExists') {
-                            throw err;
-                        }
-                    }
-                } finally {
-                    if (releaseLock) {
-                        await releaseLock();
-                    }
-                }
-                /* eslint-enable */
+                    },
+                );
+                let account = null;
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
                 account = await SuperAdmin.getAccount({ accountName });
