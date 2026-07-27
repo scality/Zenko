@@ -19,7 +19,7 @@
     "@google-cloud/storage": "^7.12.1",
     "@keycloak/keycloak-admin-client": "^26.6.2",
     "@kubernetes/client-node": "^1.4.0",
-    "@platformatic/kafka": "^1.30.0",
+    "@platformatic/kafka": "^2.8.0",
     "@scality/cloudserverclient": "1.0.7",
     "@smithy/node-http-handler": "^4.0.0",
     "@types/js-yaml": "^4.0.9",

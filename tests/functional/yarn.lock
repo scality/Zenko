@@ -1144,14 +1144,15 @@
   resolved "https://registry.yarnpkg.com/@platformatic/dynamic-buffer/-/dynamic-buffer-0.3.1.tgz#feedcf6bc7722c2c13c86b5d17464bf7245bf511"
   integrity sha512-xQD5JSkQc4D15suOk7FezGDmh6Vb5e4phDoFZ/ASpa3Ft+3fOVwFOENmHtC1561zm/xHnKwI91NbMF8inpbk0Q==
 
-"@platformatic/kafka@^1.30.0":
-  version "1.34.0"
-  resolved "https://registry.yarnpkg.com/@platformatic/kafka/-/kafka-1.34.0.tgz#dc3659f698606cbeafa4c783f8b93524459a91e7"
-  integrity sha512-oXZttYqCtGywAbrH3+tVFWWwXlN3LtFNl3G75QLPQwc3hl0WWCCUuJvkJfgkTtmYgYh5E1Gm0SHrCFfMan0YZA==
+"@platformatic/kafka@^2.8.0":
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/@platformatic/kafka/-/kafka-2.8.0.tgz#35fe40b129c8a27a1d97a5d657f966285898a183"
+  integrity sha512-TChH6PX0cmTfsXbY94Smcbtji8sQGpdClR77z+SaqR1GEvhnF56zwxzRheUfJ2v7Md0GAUC4PUFLSg6cfICyPw==
   dependencies:
     "@platformatic/dynamic-buffer" "^0.3.1"
     "@platformatic/wasm-utils" "^0.2.1"
     ajv "^8.17.1"
+    ajv-draft-04 "^1.0.0"
     avsc "^5.7.9"
     debug "^4.4.3"
     fastq "^1.19.1"
@@ -1733,6 +1734,11 @@ aggregate-error@^3.0.0:
   dependencies:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
+
+ajv-draft-04@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ajv-draft-04/-/ajv-draft-04-1.0.0.tgz#3b64761b268ba0b9e668f0b41ba53fce0ad77fc8"
+  integrity sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==
 
 ajv@6.12.2:
   version "6.12.2"
