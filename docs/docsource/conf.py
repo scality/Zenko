@@ -105,13 +105,13 @@ master_doc = 'index'
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
 
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'src']
 
 if tags.has('html') or READTHEDOCS:
    master_doc = 'index'
@@ -207,6 +207,7 @@ html_last_updated_fmt = '%B %d, %Y'
 
 html_context = {
     'project_identifier': project_identifier,
+    'style': 'css/theme.css',
 }
 
 # Custom sidebar templates must be a dictionary that maps document names
@@ -321,10 +322,10 @@ elif tags.has('reference'):
 # Override the default formatter with our custom one.
 
 PygmentsBridge.latex_formatter = scaldoc.latex.Formatter
- 
+
 def setup(app):
-     app.add_stylesheet('custom.css')
-     app.add_stylesheet('screenshot.css')
+     app.add_css_file('custom.css')
+     app.add_css_file('screenshot.css')
 # REBRAND: Change the middle term of the next tuple to "XDM" or "Zenko".
 # This swaps XDM/Zenko images.
      app.add_config_value('product', 'Zenko', 'env')
