@@ -8,7 +8,8 @@ import {
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { CacheHelper, Identity, WorkCoordination } from 'cli-testing';
+import { CacheHelper, Identity } from 'cli-testing';
+import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
 import { prepareMetricsScenarios } from './utils';
@@ -107,7 +108,7 @@ Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
     // Patch the Zenko CR with KMIP configuration before running any KMIP-related tests
     async function (this: Zenko) {
         const lockName = `kmip-cr-patch-${process.ppid}`;
-        await WorkCoordination.runOnceAcrossWorkers(
+        await runOnceAcrossWorkers(
             { lockName, logger: this.logger },
             async () => {
                 const namespace = 'default';
