@@ -23,7 +23,7 @@
     "@scality/cloudserverclient": "1.0.7",
     "@smithy/node-http-handler": "^4.0.0",
     "@types/node": "^24.3.0",
-    "arsenal": "scality/Arsenal#8.1.38",
+    "arsenal": "git+https://github.com/scality/arsenal#8.5.12",
     "assert": "^2.1.0",
     "async": "2.1.2",
     "aws4": "^1.11.0",
