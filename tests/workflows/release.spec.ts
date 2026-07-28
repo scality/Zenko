@@ -209,20 +209,10 @@ test.each([
                 .listReleases()
                 // First call from release notes generation, to get the previous release
                 .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] })
-                // Second call made by action-gh-release@v2.5.2+ (after release creation) to handle
-                // race condition when release is created by multiple jobs in parallel...
-                .reply({
-                    status: 200, data: [{ tag_name: '2.3.6', id: 122 }, {
-                        id: 123,
-                        draft: true,
-                        name: `Release ${tag}`,
-                        prerelease: tag === '2.3.7-rc.1',
-                        tag_name: tag,
-                        target_commitish: await getCommitHash(),
-                        upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
-                        html_url: 'http://github.com/repos/scality/Zenko/releases/456',
-                    }],
-                }),
+                // Second call made by action-gh-release@v2.5.0's findTagFromReleases, which scans
+                // all releases before creating one: it must not contain the target tag, or the
+                // action takes the update-existing-release path instead of creating the release.
+                .reply({ status: 200, data: [{ tag_name: '2.3.6', id: 122 }] }),
             moctokit.rest.repos
                 .generateReleaseNotes({
                     owner: 'scality',
@@ -309,19 +299,25 @@ test.each([
         }
     });
 
-    var lastResult = result[result.length - 1];
-    var postSteps = [];
+    // act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
+    // act-js's OutputParser splits into a named "Run" entry followed by an unnamed status entry.
+    // So the real status of result[i] lives on result[i + 1]; unnamed entries have status set.
+    var lastResult = result.length - 2;
+    var postSteps: number[] = [];
 
     // action-artifacts keep executing Post step, need to skip it...
     for (let i = result.length - 1; i >= 0; i--) {
-        if (result[i].name.startsWith('Main ')) {
-            lastResult = result[i];
+        if (!result[i].name) {
+            postSteps.push(result[i].status);
+        } else if (result[i].name.startsWith('Main ')) {
+            lastResult = i;
             break;
         }
-        postSteps.push(result[i]);
     }
 
-    expect(lastResult.name).toStrictEqual('Main ' + stepName);
-    expect(lastResult.status).toStrictEqual(status.value());
-    postSteps.forEach(r => expect(r.status).toStrictEqual(Pass.value()));
+    postSteps.pop(); // last pushed entry is the matched step's own status, not a post-step
+
+    expect(result[lastResult].name.startsWith('Main ' + stepName)).toBe(true);
+    expect(result[lastResult + 1].status).toStrictEqual(status.value());
+    postSteps.forEach(s => expect(s).toStrictEqual(Pass.value()));
 })
