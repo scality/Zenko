@@ -1,5 +1,5 @@
 import fs from 'fs';
-import yaml from 'js-yaml';
+import { load } from 'js-yaml';
 
 export interface EndpointConfig {
     hostname: string;
@@ -97,7 +97,7 @@ export interface Env {
 
 export function loadConfig(configFile: string): E2EConfig {
     const content = fs.readFileSync(configFile, 'utf8');
-    return yaml.load(content) as E2EConfig;
+    return load(content) as E2EConfig;
 }
 
 export function loadEnv(): Env {
