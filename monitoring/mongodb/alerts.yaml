@@ -229,9 +229,21 @@ groups:
       description: 'MongoDb has low disk space'
       summary: 'MongoDb has low disk space'
   
+  # mongodb_rs_members_state has one series per (reporting pod, member): every
+  # pod's exporter reports the state of every replica-set member, so a single
+  # recovering member matches once per reporting pod. Aggregate by member_idx
+  # to fire exactly once per recovering member — this also keeps the alert
+  # firing when the recovering member's own exporter cannot be scraped, since
+  # its peers still report it. The pod label is rebuilt from the first DNS
+  # segment of member_idx (the member's pod name).
   - alert: MongoDbPodRecovering
     expr: |
-      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 3
+      label_replace(
+        min by (namespace, rs_nm, member_idx) (
+          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
+        ),
+        "pod", "$1", "member_idx", "([^.:]+)[.:].*"
+      ) == 3
     for: 1h
     labels:
       severity: warning
@@ -241,7 +253,12 @@ groups:
 
   - alert: MongoDbPodRecovering
     expr: |
-      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 3
+      label_replace(
+        min by (namespace, rs_nm, member_idx) (
+          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
+        ),
+        "pod", "$1", "member_idx", "([^.:]+)[.:].*"
+      ) == 3
     for: 1d
     labels:
       severity: critical

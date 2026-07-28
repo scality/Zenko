@@ -369,31 +369,108 @@ tests:
               summary: MongoDb has low disk space
     
 
+  # mongodb_rs_members_state has one series per (reporting pod, member):
+  # every pod's exporter reports the state of every replica-set member. Here
+  # member data-1 is RECOVERING (3) while data-0 is PRIMARY (1) and data-2 is
+  # SECONDARY (2); all three pods report it, and exactly one alert per
+  # severity must fire, naming the recovering member (ZENKO-5332).
   - name: MongoDbPodRecovering
     interval: 1m
     input_series:
-      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-mongos-0", rs_state="3"}
+      # Reported by data-0 (itself PRIMARY, rs_state=1).
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="PRIMARY", rs_state="1"}
+        values: 1x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="RECOVERING", rs_state="1"}
         values: 3x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="SECONDARY", rs_state="1"}
+        values: 2x1440
+      # Reported by data-1 (itself RECOVERING, rs_state=3).
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="PRIMARY", rs_state="3"}
+        values: 1x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="RECOVERING", rs_state="3"}
+        values: 3x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="SECONDARY", rs_state="3"}
+        values: 2x1440
+      # Reported by data-2 (itself SECONDARY, rs_state=2).
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="PRIMARY", rs_state="2"}
+        values: 1x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="RECOVERING", rs_state="2"}
+        values: 3x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="SECONDARY", rs_state="2"}
+        values: 2x1440
 
     alert_rule_test:
+      # Before the 1h "for" elapses, nothing fires.
+      - { alertname: MongoDbPodRecovering, eval_time: 30m, exp_alerts: [] }
+
+      # After 1h, exactly one warning, naming the recovering member.
+      - alertname: MongoDbPodRecovering
+        eval_time: 2h
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-0
+              member_idx: data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017
+              pod: data-db-mongodb-sharded-shard0-data-1
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-1` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+              summary: MongoDB is recovering
+
+      # After 1d, exactly one critical (plus the warning still firing).
       - alertname: MongoDbPodRecovering
         eval_time: 1d
         exp_alerts:
           - exp_labels:
               namespace: zenko
               severity: critical
-              pod: data-db-mongodb-sharded-mongos-0
-              rs_state: 3
+              rs_nm: data-db-mongodb-sharded-shard-0
+              member_idx: data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017
+              pod: data-db-mongodb-sharded-shard0-data-1
             exp_annotations:
-              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-1` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
               summary: MongoDB is recovering
           - exp_labels:
               namespace: zenko
-              pod: data-db-mongodb-sharded-mongos-0
-              rs_state: 3
               severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-0
+              member_idx: data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017
+              pod: data-db-mongodb-sharded-shard0-data-1
             exp_annotations:
-              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-1` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+              summary: MongoDB is recovering
+
+  # Same scenario, but the recovering member's own exporter is not scrapeable
+  # (its pod reports nothing): the peers' view must still fire exactly one
+  # alert per severity.
+  - name: MongoDbPodRecoveringUnscrapeableMember
+    interval: 1m
+    input_series:
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="PRIMARY", rs_state="1"}
+        values: 1x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="RECOVERING", rs_state="1"}
+        values: 3x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="SECONDARY", rs_state="1"}
+        values: 2x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-0.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="PRIMARY", rs_state="2"}
+        values: 1x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="RECOVERING", rs_state="2"}
+        values: 3x1440
+      - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-2", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="data-db-mongodb-sharded-shard0-data-2.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017", member_state="SECONDARY", rs_state="2"}
+        values: 2x1440
+
+    alert_rule_test:
+      - alertname: MongoDbPodRecovering
+        eval_time: 2h
+        exp_alerts:
+          - exp_labels:
+              namespace: zenko
+              severity: warning
+              rs_nm: data-db-mongodb-sharded-shard-0
+              member_idx: data-db-mongodb-sharded-shard0-data-1.data-db-mongodb-sharded-headless.zenko.svc.cluster.local:27017
+              pod: data-db-mongodb-sharded-shard0-data-1
+            exp_annotations:
+              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-1` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
               summary: MongoDB is recovering
 
   - name: MongoDbInvalidState
