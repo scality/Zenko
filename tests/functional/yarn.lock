@@ -6944,9 +6944,9 @@ webidl-conversions@^7.0.0:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-7.0.0.tgz#256b4e1882be7debbf01d05f0aa2039778ea080a"
   integrity sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==
 
-"werelogs@github:scality/werelogs", werelogs@scality/werelogs#8.2.4:
+"werelogs@git+https://github.com/scality/werelogs#8.2.4":
   version "8.2.4"
-  resolved "https://codeload.github.com/scality/werelogs/tar.gz/a7bbb5917a08b035d3763b24b070d517483d6982"
+  resolved "git+https://github.com/scality/werelogs#a7bbb5917a08b035d3763b24b070d517483d6982"
   dependencies:
     fast-safe-stringify "^2.1.1"
     safe-json-stringify "^1.2.0"
@@ -6968,6 +6968,13 @@ werelogs@scality/werelogs#8.2.0:
 werelogs@scality/werelogs#8.2.3:
   version "8.2.3"
   resolved "https://codeload.github.com/scality/werelogs/tar.gz/99afdc0d355fe76263051564bb448a7ea83d5860"
+  dependencies:
+    fast-safe-stringify "^2.1.1"
+    safe-json-stringify "^1.2.0"
+
+werelogs@scality/werelogs#8.2.4:
+  version "8.2.4"
+  resolved "https://codeload.github.com/scality/werelogs/tar.gz/a7bbb5917a08b035d3763b24b070d517483d6982"
   dependencies:
     fast-safe-stringify "^2.1.1"
     safe-json-stringify "^1.2.0"
