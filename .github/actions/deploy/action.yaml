@@ -28,6 +28,18 @@ runs:
       shell: bash
       run: bash create-pull-image-secret.sh
       working-directory: ./.github/scripts/end2end
+    - name: Start solution image pre-pull
+      shell: bash
+      run: |
+        log=/tmp/prepull-images.log
+        marker=/tmp/prepull-images.done
+        {
+            echo "PREPULL_LOG=${log}"
+            echo "PREPULL_MARKER=${marker}"
+        } >> "$GITHUB_ENV"
+        PREPULL_MARKER=${marker} nohup bash prepull-images.sh > "${log}" 2>&1 &
+        echo "pre-pull running in the background (pid $!)"
+      working-directory: ./.github/scripts/end2end
     - name: Cache Helm repositories and charts
       uses: actions/cache@v5
       with:
@@ -56,6 +68,15 @@ runs:
       run: ./.github/scripts/end2end/deploy-zkop.sh
       env:
         OPERATOR_IMAGE_TAG: ${{ inputs.zkop_tag }}
+    - name: Wait for solution image pre-pull
+      shell: bash
+      run: |
+        for _ in $(seq 1 60); do
+            [ -f "${PREPULL_MARKER}" ] && break
+            sleep 5
+        done
+        [ -f "${PREPULL_MARKER}" ] || echo "::warning::pre-pull still running, deploying anyway"
+        cat "${PREPULL_LOG}" || true
     - name: Deploy Zenko Instance
       shell: bash
       run: bash deploy-zenko.sh end2end default
