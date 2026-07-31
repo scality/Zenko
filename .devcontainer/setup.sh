@@ -38,6 +38,10 @@ for i in $(seq 0 $array_length); do
         # We don't want to run `run-e2e-test.sh` because it is used for linting here, user will run it manually if needed after deployment
         [[ "$run_command" == *"run-e2e-test.sh"* ]] && exit 0
         [[ "$run_command" == *"deploy-metadata.sh"* && "${ENABLE_RING_TESTS}" == "false" ]] && exit 0
+        # Pre-pulling the solution images guards the deploy timeout on CI
+        # runners, which always start with an empty image cache: locally the
+        # kubelet pulls what is missing, as before
+        [[ "$run_command" == *"prepull-images"* ]] && exit 0
 
         # Inject env 'generated' from previous steps
         source "$GITHUB_ENV"
