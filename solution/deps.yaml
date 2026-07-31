@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.5.0-preview.7
+  tag: 9.5.0-preview.8
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -113,7 +113,7 @@ sorbet:
   policy: sorbet/sorbet-policies
   dashboard: sorbet/sorbet-dashboards
   image: sorbet
-  tag: v1.2.6
+  tag: v1.2.7
   envsubst: SORBET_TAG
 stern: # tail any pod logs with pattern matchin
   tag: 1.33.0
