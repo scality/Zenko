@@ -10,6 +10,7 @@ on:
     branches-ignore:
       - 'development/**'
       - 'q/*'
+      - 'flaky-hunt/**'
 
 env:
   # kind-env
