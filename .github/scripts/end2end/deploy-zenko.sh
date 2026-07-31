@@ -144,7 +144,7 @@ env $(dependencies_env) envsubst < ${ZENKOVERSION_PATH} | \
     kubectl -n ${NAMESPACE} apply -f -
 env $(dependencies_env) envsubst < ${ZENKO_CR_PATH} | kubectl -n ${NAMESPACE} apply -f -
 
-retries=120
+retries=240
 while ! kubectl wait --for condition=Available --timeout 5s --namespace ${NAMESPACE} zenko/${ZENKO_NAME} && [ $retries -gt 0 ]; do
     retries=$(($retries - 1))
     # Debug log to ease understanding of failures in the CI
