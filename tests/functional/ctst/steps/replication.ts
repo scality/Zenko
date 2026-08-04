@@ -207,12 +207,19 @@ async function assertReplicaMatchesSource(world: Zenko, location: string): Promi
     const sourceObj = safeJsonParse<SourceObjectReplicationMeta>(sourceResponse.stdout || '{}');
     assert(sourceObj.ok);
     assert.strictEqual(sourceObj.result?.ContentLength, replicaObj.ContentLength);
+    // the CLI and the SDK disagree on whether the ETag keeps its quotes
+    const sourceETag = sourceObj.result?.ETag?.replace(/^"|"$/g, '');
+    const replicaETag = replicaObj.ETag?.replace(/^"|"$/g, '');
+    assert.ok(sourceETag, 'source object has no ETag');
+    assert.strictEqual(sourceETag, replicaETag);
     // CRR loopback only writes the per-destination status; cloud backends
     // also stamp version-id / scal-version-id.
     if (!crrCtx) {
-        assert.strictEqual(
+        // replication is at-least-once, so the stamped version id may name an
+        // earlier replica than the one currently at the destination
+        assert.ok(
             sourceObj.result?.Metadata?.[`${location}-version-id`],
-            replicaObj.VersionId,
+            `source metadata has no ${location}-version-id stamp`,
         );
         assert.strictEqual(
             sourceObj.result?.VersionId,
