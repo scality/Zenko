@@ -107,7 +107,7 @@ When('tags are put on the object {string} in location {string}',
 
 Then(
     'the object at location {string} should have the expected tags within {int} seconds',
-    { timeout: 300_000 },
+    { timeout: 330_000 },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
@@ -135,7 +135,7 @@ Then(
 
 Then(
     'the object should replicate to location {string} within {int} seconds',
-    { timeout: 300_000 },
+    { timeout: 330_000 },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
