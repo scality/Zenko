@@ -18,8 +18,7 @@ Feature: CRR Cascade Replication
         When an object "cascade-obj" of 0 bytes is put in location "crr-location-a"
         Then the object should replicate to location "crr-location-b" within 300 seconds
         And the object should replicate to location "crr-location-c" within 300 seconds
-        When I wait 15 seconds
-        Then the cascade replication states should be settled
+        Then the cascade replication states should be settled within 120 seconds
 
     @2.16.0
     @PreMerge
@@ -37,8 +36,7 @@ Feature: CRR Cascade Replication
         Then the object should replicate to location "crr-location-b" within 300 seconds
         And the object should replicate to location "crr-location-c" within 300 seconds
         And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
-        When I wait 15 seconds
-        Then the cascade replication states should be settled
+        Then the cascade replication states should be settled within 120 seconds
 
         Examples:
             | description      | objectName                | bodySize |
@@ -63,8 +61,7 @@ Feature: CRR Cascade Replication
         When tags are put on the object "cascade-tag-loop-obj" in location "crr-location-a"
         Then the object at location "crr-location-c" should have the expected tags within 300 seconds
         And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
-        When I wait 15 seconds
-        Then the cascade replication states should be settled
+        Then the cascade replication states should be settled within 120 seconds
 
     @2.16.0
     @PreMerge
@@ -93,5 +90,4 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-b" to "crr-location-a"
         When an object "bidirectional-obj" of 42 bytes is put in location "crr-location-a"
         Then the object should replicate to location "crr-location-b" within 300 seconds
-        When I wait 15 seconds
-        Then the cascade replication states should be settled
+        Then the cascade replication states should be settled within 120 seconds

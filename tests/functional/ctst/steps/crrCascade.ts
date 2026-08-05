@@ -199,35 +199,45 @@ Then(
 );
 
 Then(
-    'the cascade replication states should be settled',
-    { timeout: 30_000 },
-    async function (this: Zenko) {
+    'the cascade replication states should be settled within {int} seconds',
+    { timeout: 150_000 },
+    async function (this: Zenko, timeoutSeconds: number) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const objectName = this.getSaved<string>('cascadeObjectName');
         const sourceLocation = this.getSaved<string>('cascadeSourceLocation');
+        const deadline = Date.now() + timeoutSeconds * 1000;
+        let unsettled = 'no location was checked';
 
-        for (const [location, bucket] of Object.entries(cascadeBuckets)) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-            const res = await this.createS3Client().send(
-                new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
-            );
+        while (Date.now() < deadline) {
+            unsettled = '';
+            for (const [location, bucket] of Object.entries(cascadeBuckets)) {
+                Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+                const res = await this.createS3Client().send(
+                    new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
+                );
 
-            const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
-            assert.strictEqual(
-                res.ReplicationStatus,
-                expectedStatus,
-                `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`,
-            );
+                const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
+                if (res.ReplicationStatus !== expectedStatus) {
+                    unsettled = `Expected ReplicationStatus '${expectedStatus}' at '${location}', `
+                        + `got '${res.ReplicationStatus}'`;
+                    break;
+                }
 
-            const pendingBackends = Object.entries(res.Metadata ?? {})
-                .filter(([key, value]) => key.endsWith('-replication-status') && value === 'PENDING');
-            assert.strictEqual(
-                pendingBackends.length, 0,
-                `Location '${location}' still has PENDING backends after settling: ${
-                    pendingBackends.map(([k, v]) => `${k}=${v}`).join(', ')
-                }`,
-            );
+                const pendingBackends = Object.entries(res.Metadata ?? {})
+                    .filter(([key, value]) => key.endsWith('-replication-status') && value === 'PENDING');
+                if (pendingBackends.length > 0) {
+                    unsettled = `Location '${location}' still has PENDING backends: ${
+                        pendingBackends.map(([k, v]) => `${k}=${v}`).join(', ')
+                    }`;
+                    break;
+                }
+            }
+            if (!unsettled) {
+                return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000));
         }
+        assert.fail(`Timeout: cascade states did not settle after ${timeoutSeconds}s. ${unsettled}`);
     },
 );
 
