@@ -382,6 +382,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false # otherwise, the token is not passed to the next steps
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
@@ -450,6 +452,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false # otherwise, the token is not passed to the next steps
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
@@ -516,6 +520,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false # otherwise, the token is not passed to the next steps
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
@@ -570,6 +576,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false # otherwise, the token is not passed to the next steps
       - name: Install dependencies
         uses: ./.github/actions/install-end2end-dependencies
       - name: Wait for Docker daemon to be ready
