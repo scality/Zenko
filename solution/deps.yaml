@@ -2,11 +2,11 @@
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/delthas
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.5.0-preview.8
+  tag: 9.5.1-h00abc8eb6cf01d1c71487797f2e352c0c52e1da2
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -78,9 +78,9 @@ mongodb-connector:
   tag: 1.13.0
   envsubst: MONGODB_CONNECTOR_TAG
 pensieve-api:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/delthas
   image: pensieve-api
-  tag: 1.11.0-preview.1
+  tag: 1.11.1-h15de7eddf3a20194bd743ec20646358856074aed
   envsubst: PENSIEVE_API_TAG
 rclone:
   sourceRegistry: rclone
@@ -103,10 +103,10 @@ s3utils:
   tag: 1.19.1
   envsubst: S3UTILS_TAG
 scuba:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/delthas
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.1.0-preview.9
+  tag: 1.1.26-h38ecd67ddd91bedd648cf9b3f88d7216a2166f5c
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
@@ -131,7 +131,7 @@ zenko-operator:
   sourceRegistry: ghcr.io/scality
   dashboard: zenko-operator/zenko-operator-dashboards
   image: zenko-operator
-  tag: v1.8.14
+  tag: c05e662bff3ca6e34ea321a8a20c4bbfc1b0beeb
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
   sourceRegistry: ghcr.io/adobe/zookeeper-operator
