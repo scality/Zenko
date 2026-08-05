@@ -443,7 +443,9 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
     this.addToSaved('seenDLQMessages', seenDLQ);
 
-    const timeoutMs = 5 * 60 * 1000;
+    // must stay below the 130s cucumber step timeout in common.ts, otherwise
+    // the framework kills the step first and this diagnostic never prints
+    const timeoutMs = 2 * 60 * 1000;
     const deadline = Date.now() + timeoutMs;
 
     while (Date.now() < deadline) {
