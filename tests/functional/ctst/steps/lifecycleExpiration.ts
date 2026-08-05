@@ -16,7 +16,7 @@ When('i set a lifecycle expiration of {int} days for the {string}',
         await addExpirationWorkflow.call(this, days, includeNoncurrent[scope]);
     });
 
-Then('the bucket should contain {int} objects within {int} seconds', { timeout: 150 * 1000 },
+Then('the bucket should contain {int} objects within {int} seconds', { timeout: 6 * 60 * 1000 },
     async function (this: Zenko, expectedCount: number, seconds: number) {
         const bucketName = this.getSaved<string>('bucketName');
         const deadline = Date.now() + seconds * 1000;

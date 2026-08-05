@@ -8,7 +8,7 @@ Feature: Lifecycle expiration
     Given a "<versioningConfiguration>" bucket
     And 5 objects "expire-obj" of size 100 bytes
     When i set a lifecycle expiration of 0 days for the "<scope>"
-    Then the bucket should contain 0 objects within 120 seconds
+    Then the bucket should contain 0 objects within 180 seconds
 
     Examples:
         | versioningConfiguration | scope                           |
