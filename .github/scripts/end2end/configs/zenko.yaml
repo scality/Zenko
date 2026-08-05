@@ -87,6 +87,9 @@ spec:
       replicas: 1
       ingress:
         hostname: ${ZENKO_SUR_INGRESS}
+  s3utils:
+    metrics:
+      scrapeInterval: "5s"
   management:
     provider: InCluster
     oidc:
