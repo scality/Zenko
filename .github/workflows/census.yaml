@@ -1,0 +1,185 @@
+---
+name: ctst-flakiness-census
+
+concurrency:
+  group: "zenko-census-${{ github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'flaky-hunt/**'
+
+env:
+  # kind-env
+  CI_PASS_ON_TEST_FAILURE: 'true'
+  WORKER_COUNT: '2'
+  OPERATOR_REPO: git@github.com:scality/zenko-operator.git
+  OPERATOR_IMAGE: ""
+  KIND_NODE_IMAGE: "kindest/node:v1.33.4@sha256:25a6018e48dfcaee478f4a59af81157a437f15e6e140bf103f85a2e7cd0cbbf2"
+  VOLUME_ROOT: /artifacts
+  OIDC_REALM: "zenko"
+  OIDC_CLIENT_ID: "zenko-ui"
+  OIDC_USERNAME: 'storage_manager'
+  OIDC_PASSWORD: '123'
+  OIDC_FIRST_NAME: 'hello'
+  OIDC_LAST_NAME: 'world'
+  HTTP_PROXY: ""
+  HTTPS_PROXY: ""
+  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
+  BACKBEAT_LCC_CRON_RULE: ""
+  # e2e-env
+  VAULT_TEST_IMAGE_NAME: ""
+  VAULT_TEST_IMAGE_TAG: ""
+  # http-env
+  OIDC_ENDPOINT: 'http://keycloak.zenko.local'
+  OIDC_HOST: 'keycloak.zenko.local'
+  ENABLE_KEYCLOAK_HTTPS: 'false'
+  KEYCLOAK_VERSION: '18.4.4'
+  PROMETHEUS_NAME: "prometheus"
+  # mock-env
+  AZURE_ACCOUNT_NAME: devstoreaccount1
+  AZURE_BACKEND_ENDPOINT: https://devstoreaccount1.blob.azure-mock.zenko.local
+  AZURE_BACKEND_QUEUE_ENDPOINT: https://devstoreaccount1.queue.azure-mock.zenko.local
+  AZURE_SECRET_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+  AWS_ENDPOINT: https://aws-mock.zenko.local
+  AWS_ACCESS_KEY: accessKey1
+  AWS_SECRET_KEY: verySecretKey1
+  VERIFY_CERTIFICATES: "false"
+  # secrets-env
+  AWS_BACKEND_SOURCE_LOCATION: awsbackend
+  AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
+  AWS_BACKEND_DESTINATION_FAIL_LOCATION: awsbackendfail
+  AWS_BACKEND_DESTINATION_REPLICATION_FAIL_CTST_LOCATION: awsbackendreplicationctstfail
+  GCP_BACKEND_DESTINATION_LOCATION: gcpbackendmismatch
+  AZURE_BACKEND_DESTINATION_LOCATION: azurebackendmismatch
+  COLD_BACKEND_DESTINATION_LOCATION: e2e-cold
+  AZURE_ARCHIVE_BACKEND_DESTINATION_LOCATION: e2e-azure-archive
+  MIRIA_BACKEND_DESTINATION_LOCATION: e2e-miria-archive
+  LOCATION_QUOTA_BACKEND: quotabackend
+  AWS_BUCKET_NAME: ci-zenko-aws-target-bucket
+  AWS_CRR_BUCKET_NAME: ci-zenko-aws-crr-target-bucket
+  AWS_FAIL_BUCKET_NAME: ci-zenko-aws-fail-target-bucket
+  AWS_REPLICATION_FAIL_CTST_BUCKET_NAME: ci-zenko-aws-replication-fail-ctst-bucket
+  AZURE_CRR_BUCKET_NAME: ci-zenko-azure-crr-target-bucket
+  AZURE_ARCHIVE_BUCKET_NAME: ci-zenko-azure-archive-target-bucket
+  AZURE_ARCHIVE_BUCKET_NAME_2: ci-zenko-azure-archive-target-bucket-2
+  AZURE_ARCHIVE_QUEUE_NAME: ci-zenko-azure-archive-target-queue
+  GCP_CRR_BUCKET_NAME: ci-zenko-gcp-crr-target-bucket
+  GCP_CRR_MPU_BUCKET_NAME: ci-zenko-gcp-crr-mpu-bucket
+  GCP_ACCESS_KEY: ${{ secrets.AWS_GCP_BACKEND_ACCESS_KEY }}
+  GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
+  GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
+  GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
+  DEPLOY_CRR_LOCATIONS: "true"
+  CRR_SOURCE_LOCATION_NAME: crr-source-location
+  CRR_DESTINATION_LOCATION_NAME: crr-destination-location
+  CRR_SOURCE_ACCOUNT_NAME: crr-source-account
+  CRR_DESTINATION_ACCOUNT_NAME: crr-destination-account
+  CRR_LOCATION_A_NAME: crr-location-a
+  CRR_LOCATION_B_NAME: crr-location-b
+  CRR_LOCATION_C_NAME: crr-location-c
+  CRR_ACCOUNT_A_NAME: crr-account-a
+  CRR_ACCOUNT_B_NAME: crr-account-b
+  CRR_ACCOUNT_C_NAME: crr-account-c
+  CRR_ROLE_NAME: crr-role
+  # Enable this for Ring tests
+  ENABLE_RING_TESTS: "false"
+  RING_S3C_ACCESS_KEY: accessKey1
+  RING_S3C_SECRET_KEY: verySecretKey1
+  RING_S3C_ENDPOINT: http://s3c.local:8000
+  RING_S3C_BACKEND_SOURCE_LOCATION: rings3cbackendingestion
+  RING_S3C_INGESTION_SRC_BUCKET_NAME: ingestion-test-src-bucket
+  RING_S3C_BACKEND_SOURCE_NON_VERSIONED_LOCATION: rings3cbackendingestionnonversioned
+  RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket
+  RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
+  # CTST end2end tests
+  NOTIF_DEST_NAME: "destination1"
+  NOTIF_DEST_TOPIC: "destination-topic-1"
+  NOTIF_ALT_DEST_NAME: "destination2"
+  NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
+  NOTIF_PLAIN_DEST_NAME: "destination3"
+  NOTIF_AUTH_DEST_TOPIC: "destination-topic-3"
+  NOTIF_AUTH_DEST_USERNAME: "admin"
+  NOTIF_AUTH_DEST_PASSWORD: "admin-secret"
+  NOTIF_SCRAM_DEST_NAME: "destination4"
+  NOTIF_SCRAM_DEST_TOPIC: "destination-topic-4"
+  NOTIF_SCRAM_DEST_USERNAME: "admin"
+  NOTIF_SCRAM_DEST_PASSWORD: "admin-secret"
+  SUBDOMAIN: "zenko.local"
+  DR_SUBDOMAIN: "dr.zenko.local"
+  ZENKO_ENABLE_SOSAPI: false
+  EXPIRE_ONE_DAY_EARLIER: true
+  TRANSITION_ONE_DAY_EARLIER: true
+  TIME_PROGRESSION_FACTOR: 1
+  # DEBUG WAIT
+  TMATE_SERVER_HOST: ${{ secrets.TMATE_SERVER_HOST }}
+  TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
+  TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
+  TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
+  # Mocha reporter configuration
+  MOCHA_FILE: ${{ github.workspace }}/_reports/test-results-[hash].xml
+jobs:
+  build-kafka:
+    uses: ./.github/workflows/build-kafka.yaml
+    secrets: inherit
+
+  build-mongodb:
+    uses: ./.github/workflows/build-mongodb.yaml
+    secrets: inherit
+
+  ctst-end2end-sharded:
+    needs: [build-kafka, build-mongodb]
+    runs-on:
+      - ubuntu-24.04-8core
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install dependencies
+        uses: ./.github/actions/install-end2end-dependencies
+      - name: Wait for Docker daemon to be ready
+        uses: ./.github/actions/wait-docker-ready
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v5
+      - name: Login to Registry
+        uses: docker/login-action@v4
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+      - name: Setup Node environment
+        id: setup-access
+        uses: ./.github/actions/setup-node-env
+        with:
+          app-id: ${{ vars.ACTIONS_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
+          repositories: |
+            cli-testing
+            zenko-operator
+      - name: Deploy Zenko
+        uses: ./.github/actions/deploy
+        env:
+          GIT_ACCESS_TOKEN: ${{ steps.setup-access.outputs.token }}
+          ZENKO_ENABLE_SOSAPI: true
+          TIME_PROGRESSION_FACTOR: 86400
+          TRANSITION_ONE_DAY_EARLIER: false
+          EXPIRE_ONE_DAY_EARLIER: false
+      - name: Configure E2E CTST test environment
+        run: bash configure-e2e-ctst.sh
+        working-directory: ./.github/scripts/end2end
+      - name: Run CTST end to end tests
+        run: bash .github/scripts/end2end/run-e2e-ctst.sh "@PreMerge and not @PRA"
+        timeout-minutes: 190
+      - name: Debug wait
+        uses: ./.github/actions/debug-wait
+        timeout-minutes: 60
+        if: failure() && runner.debug == '1'
+      - name: Archive and publish artifacts
+        uses: ./.github/actions/archive-artifacts
+        with:
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/functional/ctst/reports/*.xml
+        if: always()
