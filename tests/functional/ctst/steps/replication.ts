@@ -214,12 +214,20 @@ async function assertReplicaMatchesSource(world: Zenko, location: string): Promi
     // CRR loopback only writes the per-destination status; cloud backends
     // also stamp version-id / scal-version-id.
     if (!crrCtx) {
-        // replication is at-least-once, so the stamped version id may name an
-        // earlier replica than the one currently at the destination
-        assert.ok(
-            sourceObj.result?.Metadata?.[`${location}-version-id`],
-            `source metadata has no ${location}-version-id stamp`,
-        );
+        const stampedVersionId = sourceObj.result?.Metadata?.[`${location}-version-id`];
+        assert.ok(stampedVersionId, `source metadata has no ${location}-version-id stamp`);
+        // replication is at-least-once, so the stamp can name an earlier replica
+        // than the one now current at the destination: warn instead of failing,
+        // since the product does not guarantee the two are equal
+        if (stampedVersionId !== replicaObj.VersionId) {
+            world.logger.warn('replicated object version id does not match the source stamp', {
+                location,
+                stampedVersionId,
+                destinationVersionId: replicaObj.VersionId,
+                hint: 'the object was likely replicated more than once, for instance by two '
+                    + 'oplog populators both allocating a connector for the bucket after a restart',
+            });
+        }
         assert.strictEqual(
             sourceObj.result?.VersionId,
             replicaObj.Metadata?.['scal-version-id'],
