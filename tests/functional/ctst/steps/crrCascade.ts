@@ -214,34 +214,63 @@ Then(
     },
 );
 
+// undefined when every location is in its expected state
+async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined> {
+    const cascadeBuckets = world.getSaved<Record<string, string>>('cascadeBuckets');
+    const objectName = world.getSaved<string>('cascadeObjectName');
+    const sourceLocation = world.getSaved<string>('cascadeSourceLocation');
+
+    for (const [location, bucket] of Object.entries(cascadeBuckets)) {
+        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        const res = await world.createS3Client().send(
+            new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
+        );
+
+        const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
+        if (res.ReplicationStatus !== expectedStatus) {
+            return `Expected ReplicationStatus '${expectedStatus}' at '${location}', `
+                + `got '${res.ReplicationStatus}'`;
+        }
+
+        const pendingBackends = Object.entries(res.Metadata ?? {})
+            .filter(([key, value]) => key.endsWith('-replication-status') && value === 'PENDING');
+        if (pendingBackends.length > 0) {
+            return `Location '${location}' still has PENDING backends: ${
+                pendingBackends.map(([k, v]) => `${k}=${v}`).join(', ')
+            }`;
+        }
+    }
+    return undefined;
+}
+
 Then(
-    'the cascade replication states should be settled',
-    { timeout: 30_000 },
-    async function (this: Zenko) {
-        const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
-        const objectName = this.getSaved<string>('cascadeObjectName');
-        const sourceLocation = this.getSaved<string>('cascadeSourceLocation');
+    'the cascade replication states should settle within {int} seconds',
+    { timeout: 180_000 },
+    async function (this: Zenko, settleSeconds: number) {
+        const deadline = Date.now() + settleSeconds * 1000;
+        let unsettled: string | undefined;
+        while (Date.now() < deadline) {
+            unsettled = await cascadeUnsettledReason(this);
+            if (unsettled === undefined) {
+                return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+        assert.fail(`cascade states did not settle within ${settleSeconds}s. ${unsettled}`);
+    },
+);
 
-        for (const [location, bucket] of Object.entries(cascadeBuckets)) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-            const res = await this.createS3Client().send(
-                new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
-            );
-
-            const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
+Then(
+    'the cascade replication states should stay settled for {int} seconds',
+    { timeout: 60_000 },
+    async function (this: Zenko, holdSeconds: number) {
+        const deadline = Date.now() + holdSeconds * 1000;
+        while (Date.now() < deadline) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const changed = await cascadeUnsettledReason(this);
             assert.strictEqual(
-                res.ReplicationStatus,
-                expectedStatus,
-                `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`,
-            );
-
-            const pendingBackends = Object.entries(res.Metadata ?? {})
-                .filter(([key, value]) => key.endsWith('-replication-status') && value === 'PENDING');
-            assert.strictEqual(
-                pendingBackends.length, 0,
-                `Location '${location}' still has PENDING backends after settling: ${
-                    pendingBackends.map(([k, v]) => `${k}=${v}`).join(', ')
-                }`,
+                changed, undefined,
+                `cascade states were not settled during the ${holdSeconds}s observation window. ${changed}`,
             );
         }
     },
