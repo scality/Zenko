@@ -183,16 +183,24 @@ Then(
         const deadline = Date.now() + waitSeconds * 1000;
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         const client = this.createS3Client();
+        // only a PENDING seen after the source settled means the cascade looped
+        let settledAs: string | undefined;
         while (Date.now() < deadline) {
             const result = await client.send(
                 new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
             );
-            assert.notStrictEqual(
-                result.ReplicationStatus,
-                'PENDING',
-                `Object at '${location}' was found with ReplicationStatus=PENDING, ` +
-                'indicating the cascade loop wrote back to the source.',
-            );
+            if (settledAs === undefined) {
+                if (result.ReplicationStatus !== 'PENDING') {
+                    settledAs = result.ReplicationStatus ?? 'unset';
+                }
+            } else {
+                assert.notStrictEqual(
+                    result.ReplicationStatus,
+                    'PENDING',
+                    `Object at '${location}' returned to ReplicationStatus=PENDING after ` +
+                    `settling to '${settledAs}', indicating the cascade wrote back to the source.`,
+                );
+            }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
     },
