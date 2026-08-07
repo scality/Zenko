@@ -184,6 +184,7 @@ Feature: Quota Management for APIs
         And a transition workflow to "e2e-cold" location
         And an upload size of <uploadSize> B for the object ""
         Then object "" should be "transitioned" and have the storage class "e2e-cold"
+        When the "count-items" cronjobs completes without error
         Given a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
         And a <userType> type
@@ -218,6 +219,7 @@ Feature: Quota Management for APIs
         And a transition workflow to "e2e-cold" location
         And an upload size of <uploadSize> B for the object "obj-1"
         Then object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
+        When the "count-items" cronjobs completes without error
         Given a bucket quota set to <bucketQuota> B
         And an account quota set to <accountQuota> B
         And a <userType> type
