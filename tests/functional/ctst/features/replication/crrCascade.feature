@@ -16,8 +16,8 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-b" to "crr-location-c"
         And replication is configured from location "crr-location-a" to "crr-location-b"
         When an object "cascade-obj" of 0 bytes is put in location "crr-location-a"
-        Then the object should replicate to location "crr-location-b" within 300 seconds
-        And the object should replicate to location "crr-location-c" within 300 seconds
+        Then the object should replicate to location "crr-location-b" within 280 seconds
+        And the object should replicate to location "crr-location-c" within 280 seconds
         When I wait 15 seconds
         Then the cascade replication states should be settled
 
@@ -34,8 +34,8 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-b" to "crr-location-c"
         And replication is configured from location "crr-location-c" to "crr-location-a"
         When an object "<objectName>" of <bodySize> bytes is put in location "crr-location-a"
-        Then the object should replicate to location "crr-location-b" within 300 seconds
-        And the object should replicate to location "crr-location-c" within 300 seconds
+        Then the object should replicate to location "crr-location-b" within 280 seconds
+        And the object should replicate to location "crr-location-c" within 280 seconds
         And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
         When I wait 15 seconds
         Then the cascade replication states should be settled
@@ -58,10 +58,10 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-b" to "crr-location-c"
         And replication is configured from location "crr-location-c" to "crr-location-a"
         When an object "cascade-tag-loop-obj" of 42 bytes is put in location "crr-location-a"
-        Then the object should replicate to location "crr-location-b" within 300 seconds
-        And the object should replicate to location "crr-location-c" within 300 seconds
+        Then the object should replicate to location "crr-location-b" within 280 seconds
+        And the object should replicate to location "crr-location-c" within 280 seconds
         When tags are put on the object "cascade-tag-loop-obj" in location "crr-location-a"
-        Then the object at location "crr-location-c" should have the expected tags within 300 seconds
+        Then the object at location "crr-location-c" should have the expected tags within 280 seconds
         And the object at location "crr-location-a" should never have replication status PENDING within 30 seconds
         When I wait 15 seconds
         Then the cascade replication states should be settled
@@ -92,6 +92,6 @@ Feature: CRR Cascade Replication
         And replication is configured from location "crr-location-a" to "crr-location-b"
         And replication is configured from location "crr-location-b" to "crr-location-a"
         When an object "bidirectional-obj" of 42 bytes is put in location "crr-location-a"
-        Then the object should replicate to location "crr-location-b" within 300 seconds
+        Then the object should replicate to location "crr-location-b" within 280 seconds
         When I wait 15 seconds
         Then the cascade replication states should be settled

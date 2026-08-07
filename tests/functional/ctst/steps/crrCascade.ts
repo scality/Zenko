@@ -13,6 +13,8 @@ import assert from 'assert';
 import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
+const STEP_TIMEOUT_MS = 300_000;
+
 export interface CRRAccountInfo {
     AccessKeyId: string;
     SecretAccessKey: string;
@@ -107,8 +109,12 @@ When('tags are put on the object {string} in location {string}',
 
 Then(
     'the object at location {string} should have the expected tags within {int} seconds',
-    { timeout: 300_000 },
+    { timeout: STEP_TIMEOUT_MS },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
+        assert.ok(
+            timeoutSeconds * 1000 < STEP_TIMEOUT_MS,
+            `budget of ${timeoutSeconds}s exceeds the step timeout of ${STEP_TIMEOUT_MS / 1000}s`,
+        );
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
         const tagValue = this.getSaved<string>('cascadeTagValue');
@@ -135,8 +141,12 @@ Then(
 
 Then(
     'the object should replicate to location {string} within {int} seconds',
-    { timeout: 300_000 },
+    { timeout: STEP_TIMEOUT_MS },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
+        assert.ok(
+            timeoutSeconds * 1000 < STEP_TIMEOUT_MS,
+            `budget of ${timeoutSeconds}s exceeds the step timeout of ${STEP_TIMEOUT_MS / 1000}s`,
+        );
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
         const deadline = Date.now() + timeoutSeconds * 1000;
