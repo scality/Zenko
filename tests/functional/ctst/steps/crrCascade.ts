@@ -153,11 +153,13 @@ Then(
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         const client = this.createS3Client();
         const expectedContentLength = this.getSaved<number>('cascadeExpectedContentLength');
+        let lastStatus = 'unknown';
         while (Date.now() < deadline) {
             try {
                 const res = await client.send(
                     new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
                 );
+                lastStatus = res.ReplicationStatus ?? 'unset';
                 if (res.ReplicationStatus === 'PENDING') {
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     continue;
@@ -176,10 +178,14 @@ Then(
                 if (status !== 404) {
                     throw err;
                 }
+                lastStatus = 'not found';
                 await new Promise(resolve => setTimeout(resolve, 3000));
             }
         }
-        assert.fail(`Timeout: object '${objectName}' not found in bucket '${bucket}' after ${timeoutSeconds}s`);
+        assert.fail(
+            `Timeout: object '${objectName}' in bucket '${bucket}' did not replicate after `
+            + `${timeoutSeconds}s, last observed ReplicationStatus: ${lastStatus}`,
+        );
     },
 );
 
