@@ -174,7 +174,7 @@ Then(
 );
 
 Then(
-    'the object at location {string} should never have replication status PENDING within {int} seconds',
+    'the object at location {string} should not return to replication status PENDING within {int} seconds',
     { timeout: 120_000 },
     async function (this: Zenko, location: string, waitSeconds: number) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
@@ -203,6 +203,11 @@ Then(
             }
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
+        assert.ok(
+            settledAs,
+            `Object at '${location}' never left ReplicationStatus=PENDING within ${waitSeconds}s, `
+            + 'so its outbound replication status was never written back',
+        );
     },
 );
 
