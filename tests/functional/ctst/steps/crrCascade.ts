@@ -14,6 +14,8 @@ import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
 const STEP_TIMEOUT_MS = 300_000;
+const POLL_MS = 3_000;
+const STABILITY_INTERVAL_MS = 1_000;
 
 export interface CRRAccountInfo {
     AccessKeyId: string;
@@ -131,7 +133,7 @@ Then(
             if (found) {
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await Utils.sleep(POLL_MS);
         }
         assert.fail(
             `Timeout: tag 'cascade-test-tag=${tagValue}' not found at '${location}' after ${timeoutSeconds}s`,
@@ -161,7 +163,7 @@ Then(
                 );
                 lastStatus = res.ReplicationStatus ?? 'unset';
                 if (res.ReplicationStatus === 'PENDING') {
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    await Utils.sleep(POLL_MS);
                     continue;
                 }
                 assert.strictEqual(
@@ -179,7 +181,7 @@ Then(
                     throw err;
                 }
                 lastStatus = 'not found';
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await Utils.sleep(POLL_MS);
             }
         }
         assert.fail(
@@ -209,7 +211,7 @@ Then(
                 `Object at '${location}' was found with ReplicationStatus=PENDING, ` +
                 'indicating the cascade loop wrote back to the source.',
             );
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await Utils.sleep(STABILITY_INTERVAL_MS);
         }
     },
 );
@@ -254,7 +256,7 @@ Then(
             if (unsettled === undefined) {
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await Utils.sleep(POLL_MS);
         }
         assert.fail(`cascade states did not settle within ${settleSeconds}s. ${unsettled}`);
     },
@@ -266,7 +268,7 @@ Then(
     async function (this: Zenko, holdSeconds: number) {
         const deadline = Date.now() + holdSeconds * 1000;
         while (Date.now() < deadline) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await Utils.sleep(STABILITY_INTERVAL_MS);
             const changed = await cascadeUnsettledReason(this);
             assert.strictEqual(
                 changed, undefined,
@@ -342,7 +344,7 @@ Then(
                 );
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await Utils.sleep(POLL_MS);
         }
 
         assert.fail(`Cascade locations did not converge to the same marker within ${timeoutSeconds}s`);
