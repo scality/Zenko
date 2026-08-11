@@ -11,7 +11,7 @@ import assert from 'assert';
 import Zenko from '../world/Zenko';
 import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
-import { safeJsonParse } from 'common/utils';
+import { assertBudgetFitsStepTimeout, safeJsonParse } from 'common/utils';
 import { replicationLockTags } from 'common/hooks';
 import { CRRAccountInfo } from './crrCascade';
 
@@ -237,6 +237,7 @@ type RuleRow = {
     deleteMarkerReplication?: string;
 };
 
+const REPLICATION_OUTCOME_STEP_TIMEOUT_MS = 600_000;
 const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
 
 function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): object {
@@ -466,8 +467,9 @@ Then('the replication configuration request should be rejected with {string}',
     });
 
 Then('the object replication should {string} within {int} seconds',
-    { timeout: 600_000 },
+    { timeout: REPLICATION_OUTCOME_STEP_TIMEOUT_MS },
     async function (this: Zenko, expectedOutcome: 'succeed' | 'fail' | 'never happen', timeoutSec: number) {
+        assertBudgetFitsStepTimeout(timeoutSec, REPLICATION_OUTCOME_STEP_TIMEOUT_MS);
         const objectName = this.getSaved<string>('objectName');
         const srcBucket = this.getSaved<string>('bucketName');
         const locations = this.getSaved<string[]>('replicationLocations') || [];

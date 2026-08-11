@@ -15,6 +15,10 @@ import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
 const REPLICATE_STEP_TIMEOUT_MS = 300_000;
+const LOOP_GUARD_STEP_TIMEOUT_MS = 120_000;
+const SETTLE_STEP_TIMEOUT_MS = 180_000;
+const HOLD_STEP_TIMEOUT_MS = 60_000;
+const CONVERGE_STEP_TIMEOUT_MS = 600_000;
 const POLL_MS = 3_000;
 const STABILITY_INTERVAL_MS = 1_000;
 
@@ -188,8 +192,9 @@ Then(
 
 Then(
     'the object at location {string} should never have replication status PENDING within {int} seconds',
-    { timeout: 120_000 },
+    { timeout: LOOP_GUARD_STEP_TIMEOUT_MS },
     async function (this: Zenko, location: string, waitSeconds: number) {
+        assertBudgetFitsStepTimeout(waitSeconds, LOOP_GUARD_STEP_TIMEOUT_MS);
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const objectName = this.getSaved<string>('cascadeObjectName');
         const bucket = cascadeBuckets[location];
@@ -242,8 +247,9 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
 
 Then(
     'the cascade replication states should settle within {int} seconds',
-    { timeout: 180_000 },
+    { timeout: SETTLE_STEP_TIMEOUT_MS },
     async function (this: Zenko, settleSeconds: number) {
+        assertBudgetFitsStepTimeout(settleSeconds, SETTLE_STEP_TIMEOUT_MS);
         const deadline = Date.now() + settleSeconds * 1000;
         let unsettled: string | undefined;
         while (Date.now() < deadline) {
@@ -259,8 +265,9 @@ Then(
 
 Then(
     'the cascade replication states should stay settled for {int} seconds',
-    { timeout: 60_000 },
+    { timeout: HOLD_STEP_TIMEOUT_MS },
     async function (this: Zenko, holdSeconds: number) {
+        assertBudgetFitsStepTimeout(holdSeconds, HOLD_STEP_TIMEOUT_MS);
         const deadline = Date.now() + holdSeconds * 1000;
         while (Date.now() < deadline) {
             await Utils.sleep(STABILITY_INTERVAL_MS);
@@ -300,8 +307,9 @@ When('the object {string} is concurrently written {int} times to every cascade l
 
 Then(
     'all cascade locations should converge to the same metadata marker within {int} seconds',
-    { timeout: 600_000 },
+    { timeout: CONVERGE_STEP_TIMEOUT_MS },
     async function (this: Zenko, timeoutSeconds: number) {
+        assertBudgetFitsStepTimeout(timeoutSeconds, CONVERGE_STEP_TIMEOUT_MS);
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const objectName = this.getSaved<string>('cascadeObjectName');
         const writtenMarkers = new Set(this.getSaved<string[]>('cascadeWrittenMarkers') ?? []);
