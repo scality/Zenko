@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { exec } from 'child_process';
 import http from 'http';
 import { createHash } from 'crypto';
@@ -17,6 +18,14 @@ import { ITestCaseHookParameter } from '@cucumber/cucumber';
 import { AWSCredentials, Utils } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
+
+export function assertBudgetFitsStepTimeout(budgetSeconds: number, stepTimeoutMs: number): void {
+    assert.ok(
+        budgetSeconds * 1000 < stepTimeoutMs,
+        `budget of ${budgetSeconds}s does not fit the step timeout of ${stepTimeoutMs / 1000}s: `
+        + 'raise the step timeout, or the step will be killed before it can report',
+    );
+}
 
 /**
  * This helper will dynamically extract a property from a CLI result

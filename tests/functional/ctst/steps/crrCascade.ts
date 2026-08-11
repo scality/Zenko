@@ -10,10 +10,11 @@ import {
     StorageClass,
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
+import { assertBudgetFitsStepTimeout } from 'common/utils';
 import { Identity, IdentityEnum, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
-const STEP_TIMEOUT_MS = 300_000;
+const REPLICATE_STEP_TIMEOUT_MS = 300_000;
 const POLL_MS = 3_000;
 const STABILITY_INTERVAL_MS = 1_000;
 
@@ -111,12 +112,9 @@ When('tags are put on the object {string} in location {string}',
 
 Then(
     'the object at location {string} should have the expected tags within {int} seconds',
-    { timeout: STEP_TIMEOUT_MS },
+    { timeout: REPLICATE_STEP_TIMEOUT_MS },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
-        assert.ok(
-            timeoutSeconds * 1000 < STEP_TIMEOUT_MS,
-            `budget of ${timeoutSeconds}s exceeds the step timeout of ${STEP_TIMEOUT_MS / 1000}s`,
-        );
+        assertBudgetFitsStepTimeout(timeoutSeconds, REPLICATE_STEP_TIMEOUT_MS);
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
         const tagValue = this.getSaved<string>('cascadeTagValue');
@@ -143,12 +141,9 @@ Then(
 
 Then(
     'the object should replicate to location {string} within {int} seconds',
-    { timeout: STEP_TIMEOUT_MS },
+    { timeout: REPLICATE_STEP_TIMEOUT_MS },
     async function (this: Zenko, location: string, timeoutSeconds: number) {
-        assert.ok(
-            timeoutSeconds * 1000 < STEP_TIMEOUT_MS,
-            `budget of ${timeoutSeconds}s exceeds the step timeout of ${STEP_TIMEOUT_MS / 1000}s`,
-        );
+        assertBudgetFitsStepTimeout(timeoutSeconds, REPLICATE_STEP_TIMEOUT_MS);
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
         const deadline = Date.now() + timeoutSeconds * 1000;
