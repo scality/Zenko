@@ -223,6 +223,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          # version.sh (called from conf.py) resolves the version from the
+          # development/hotfix branches and the tags, so a shallow clone with
+          # only the current ref is not enough.
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -274,67 +280,9 @@ jobs:
           source: ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
 
   build-iso:
-    runs-on: ubuntu-24.04
     needs: [build-kafka, build-mongodb, check-dashboards]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Install tooling
-        uses: ./.github/actions/install-end2end-dependencies
-      - name: Install ISO build dependencies
-        shell: bash
-        run: |-
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            genisoimage \
-            isomd5sum \
-            skopeo
-      - name: Login to Registry
-        uses: docker/login-action@v4
-        with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
-          registry: ghcr.io
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: "${{ secrets.DOCKERHUB_LOGIN }}"
-          password: "${{ secrets.DOCKERHUB_PASSWORD }}"
-      - name: Get token to access ZKOP
-        uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          app-id: ${{ vars.ACTIONS_APP_ID }}
-          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: |
-            zenko-operator
-      - name: Configure GIT
-        run: git config --global url."https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/".insteadOf "https://github.com/"
-        env:
-          GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-      - name: Build ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
-        working-directory: ./solution
-      - name: Build base ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
-        working-directory: ./solution-base
-      - name: Upload ISO
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution/_build"
-      - name: Upload base ISO
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution-base/_build"
+    uses: ./.github/workflows/build-iso.yaml
+    secrets: inherit
 
   build-kafka:
     uses: ./.github/workflows/build-kafka.yaml

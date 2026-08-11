@@ -6,9 +6,7 @@ SCRIPT_FULL_PATH=$(readlink -f "$0")
 DIR=$(dirname "$0")
 REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/../../..
 SOLUTION_BASE_DIR=$REPOSITORY_DIR/solution-base
-VERSION_FILE="${REPOSITORY_DIR}/VERSION"
-
-source "${VERSION_FILE}"
+source "${REPOSITORY_DIR}/version.sh" || VERSION_FULL=dev
 
 ZK_OPERATOR_VERSION=0.2.15
 CERT_MANAGER_VERSION=v1.13.3
@@ -218,7 +216,7 @@ patch_mongodb_selector() {
 
 build_solution_base_manifests() {
     echo 'build solution-base manifests'
-    MANIFEST_ONLY=true $SOLUTION_BASE_DIR/build.sh
+    MANIFEST_ONLY=true VERSION_FULL="$VERSION_FULL" $SOLUTION_BASE_DIR/build.sh
     sed -i 's/SOLUTION_ENV/default/g' $DIR/_build/root/deploy/*
     sed -i 's/MONGODB_STORAGE_CLASS/standard/g' $DIR/_build/root/deploy/*
 

@@ -19,26 +19,6 @@ async function getCommitHash(repo: string = 'zenko') {
     return stdout.trim();
 }
 
-function withGitTag(tag: string, repo: string = 'zenko') {
-    const f = async () => {
-        await exec('git -C ' + github.repo.getPath(repo) + ' tag --no-sign -m test ' + tag);
-    };
-    f.toString = () => " and tag " + tag + " exists";
-    return f;
-}
-
-function withArtifact(artifactsName: string) {
-    const f = () => act.setInput("artifacts-name", artifactsName);
-    f.toString = () => " and artifact " + artifactsName;
-    return f;
-}
-
-function withoutArtifact() {
-    const f = () => act.deleteInput("artifacts-name");
-    f.toString = () => " and no artifact";
-    return f;
-}
-
 async function currentBranch(repo: string = 'zenko') {
     const { stdout } = await exec('git -C ' + github.repo.getPath(repo) + ' rev-parse --symbolic-full-name HEAD');
     return stdout.trim();
@@ -53,22 +33,21 @@ function withBranch(branchName: string, repo: string = 'zenko') {
     return f;
 }
 
-function withVersionFile(versionFile: string, repo: string = 'zenko') {
-    const f = async () => {
-        const targetVersionFile = github.repo.getPath(repo) + '/VERSION';
+// Simulate two releases racing on the same branch: both compute the same version, and
+// the other one creates the tag while this run is still validating. Injected as an extra
+// step, right after this run computed its version. Lightweight tag on purpose: it needs
+// no committer identity nor signing key.
+let racingTag: string | undefined;
 
-        // Commit the new VERSION file
-        await exec('cp ' + path.resolve(__dirname, 'fixtures', versionFile) + ' ' + targetVersionFile);
-        await exec('git -C ' + github.repo.getPath(repo) + ' commit --no-sign -m "bump version" -- ' + targetVersionFile);
-
-        // Update artifact name to match the new version
-        act.setInput("artifacts-name", "github:scality:Zenko:staging-"+(await getCommitHash()).slice(0, 10)+".build-iso-and-end2end-test.3454");
-    };
-    f.toString = () => " and VERSION file is " + versionFile;
+function withRacingTag(tag: string) {
+    const f = () => { racingTag = tag; };
+    f.toString = () => " and tag " + tag + " is created concurrently";
     return f;
 }
 
 beforeEach(async () => {
+    racingTag = undefined;
+
     github = new MockGithub({
         repo: {
             zenko: {
@@ -77,10 +56,20 @@ beforeEach(async () => {
                     {
                         src: path.resolve(__dirname, "../..", ".github"),
                         dest: ".github",
+                        // Exclude the real build-iso.yaml so the stub below replaces it.
+                        // MockGithub.copyFiles runs in parallel, so without this filter
+                        // the directory copy can race against and overwrite the stub.
+                        filter: ["workflows/build-iso.yaml"],
                     },
                     {
-                        src: path.resolve(__dirname, "fixtures/VERSION-2.3.7-rc.1"),
-                        dest: "VERSION",
+                        // Stub the reusable build-iso workflow so tests don't actually build the ISO.
+                        // act-js's mockSteps can't reach into reusable workflows (uses:).
+                        src: path.resolve(__dirname, "resources/build-iso-stub.yaml"),
+                        dest: ".github/workflows/build-iso.yaml",
+                    },
+                    {
+                        src: path.resolve(__dirname, "../..", "version.sh"),
+                        dest: "version.sh",
                     },
                     {
                         src: path.resolve(__dirname, "fixtures/test-deps-base.yaml"),
@@ -92,11 +81,24 @@ beforeEach(async () => {
     });
     await github.setup();
 
+    // Seed tags so version.sh can compute predictable next versions:
+    //   on development/2.3 with 2.3.6 tag, --release -> 2.3.7
+    await exec('git -C ' + github.repo.getPath('zenko') + ' tag --no-sign -m test 2.3.6');
+
     mockapi = new Mockapi({
         artifacts: {
             baseUrl: "https://artifacts.scality.net",
             endpoints: {
                 root: {
+                    upload: {
+                        path: '/upload/{name}/{artifactsPath}',
+                        method: "put",
+                        parameters: {
+                            query: [],
+                            path: ['name', 'artifactsPath'],
+                            body: [],
+                        },
+                    },
                     promote: {
                         path: "/copy/{from}/{to}",
                         method: "get",
@@ -115,6 +117,28 @@ beforeEach(async () => {
                             body: [],
                         },
                     },
+                    // action-artifacts@v4 (>=4.3.0) probes these two endpoints before
+                    // uploading to detect presigned/multipart S3 upload support. A 404
+                    // means "unsupported", so the action falls back to the direct
+                    // PUT /upload/... path mocked above.
+                    presignUpload: {
+                        path: "/presign-upload/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: [],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
+                    presignUploadPart: {
+                        path: "/presign-upload-part/{name}/{file}",
+                        method: "get",
+                        parameters: {
+                            query: [],
+                            path: ["name", "file"],
+                            body: [],
+                        },
+                    },
                 },
             },
         },
@@ -124,7 +148,6 @@ beforeEach(async () => {
 
     act = new Act(github.repo.getPath("zenko"));
     act.setWorkflowFile('.github/workflows/release.yaml');
-    act.setInput("artifacts-name", "github:scality:Zenko:staging-"+(await getCommitHash()).slice(0, 10)+".build-iso-and-end2end-test.3454");
 
     // Add additional supported platform, as it is not yet automatically setup by act-js
     act.setPlatforms('ubuntu-24.04', 'ghcr.io/catthehacker/ubuntu:act-24.04')
@@ -156,28 +179,34 @@ afterEach(async () => {
 const Pass = { toString: () => "pass", value: () => 0 };
 const Fail = { toString: () => "fail", value: () => 1 };
 
+// Each test case: (step expected to be last, expected status, release type, branch+tag setup)
+// The computed version is determined by the seeded tags + release type:
+//   development/2.3 + 2.3.6 tag:
+//     --release -> 2.3.7
+//     --preview -> 2.3.7-preview.1
+//     --rc      -> 2.3.7-rc.1
+//   hotfix/2.3.6:
+//     --release -> 2.3.6-1
+//     --rc      -> 2.3.6-1-rc.1
 test.each([
-    ['Check if tag matches the branch name', Fail, '2.4.1', ''],
-    ['Check if tag matches the branch name', Fail, '2.3.7.1', ''],
-    ['Check if tag matches the branch name', Fail, '2.3.7-1', ''],
-    ['Check if tag matches VERSION file', Fail, '2.3.7', ''],
-    ['Check if tag matches VERSION file', Fail, '2.3.8', ''],
-    ['Check if tag matches VERSION file', Fail, '2.3.7-1', withBranch("hotfix/2.3.7")],
-    ['Check if tag has not already been created', Fail, '2.3.7-rc.1', withGitTag('2.3.7-rc.1')],
-    ['Check if tag has not already been created', Fail, '2.3.7-1', withBranch("hotfix/2.3.7"), withVersionFile("VERSION-2.3.7-1"), withGitTag('2.3.7-1')],
-    ['Promote artifacts', Fail, '2.3.7-rc.1', withArtifact('github:scality:Zenko:staging-ac5768a8c6.build-iso-and-end2end-test.3454')],
-    ['Promote artifacts', Pass, '2.3.7-rc.1', ''],
-    ['Promote artifacts', Pass, '2.3.7', withVersionFile("VERSION-2.3.7")],
-    ['Promote artifacts', Pass, '2.3.7-rc.1', withoutArtifact()],
-    ['Promote artifacts', Pass, '2.3.7-1', withBranch("hotfix/2.3.7"), withVersionFile("VERSION-2.3.7-1")],
-])("%s should %s when version is %s%s", async (stepName, status, tag, ...configs) => {
+    ['Promote artifacts', Pass, 'release', '2.3.7', ''],
+    ['Promote artifacts', Pass, 'rc', '2.3.7-rc.1', ''],
+    ['Promote artifacts', Pass, 'preview', '2.3.7-preview.1', ''],
+    ['Promote artifacts', Pass, 'release', '2.3.6-1', withBranch('hotfix/2.3.6')],
+    ['Promote artifacts', Pass, 'rc', '2.3.6-1-rc.1', withBranch('hotfix/2.3.6')],
+    ['Compute version', Fail, 'release', '', withBranch('improvement/ZENKO-1234')],
+    ['Check if tag matches the branch name', Fail, 'release', '2.3.7', withBranch('q/2.3')],
+    ['Check if tag has not already been created', Fail, 'release', '2.3.7', withRacingTag('2.3.7')],
+])("%s should %s when making %s %s%s", async (stepName, status, type, tag, ...configs) => {
 
     for(var c of configs.filter(c => !!c)) {
         assert(typeof c === 'function');
         await c();
     }
 
-    act.setInput("tag", tag);
+    act.setInput("type", type as string);
+
+    const prerelease = type !== 'release';
 
     // Post-step: create-github-app-token revokes token via DELETE /installation/token,
     // which cannot be matched by moctokit.rest.apps.revokeInstallationAccessToken()
@@ -185,39 +214,33 @@ test.each([
 
     const result = await act.runEvent("workflow_dispatch", {
         logFile: process.env.ACT_LOG
-            ? "act-release-" + expect.getState().currentTestName!.replace(/[ /]/g, '_') + ".log"
+            ? "act-release-" + expect.getState().currentTestName!.replace(/[^\w.-]/g, '_') + ".log"
             : undefined,
         verbose: process.env.ACT_VERBOSE ? true : false,
         mockApi: [
-            // Mock artifact promotion: copy, retrieve workflow run and set index
+            // Mock artifact upload (stub build-iso PUTs a placeholder file)
+            mockapi.mock.artifacts.root
+                .upload()
+                .reply({ status: 200, data: "OK" }),
+
+            // Mock artifact promotion: copy + set index
             mockapi.mock.artifacts.root
                 .promote()
                 .reply({ status: 200, data: "BUILD COPIED" }),
+            // Presign/multipart capability probes (action-artifacts >=4.3.0): 404 => direct upload
+            mockapi.mock.artifacts.root.presignUpload().reply({ status: 404, data: {}, repeat: 10 }),
+            mockapi.mock.artifacts.root.presignUploadPart().reply({ status: 404, data: {}, repeat: 10 }),
+
+            // Each action-artifacts invocation runs a post-step (setDefaultIndex)
+            // that calls setIndex twice (metadata + actionsMetadata), and each
+            // setIndex calls getWorkflowRun. With 2 invocations (upload + promote)
+            // that's 4 calls to each.
             moctokit.rest.actions
                 .getWorkflowRun()
-                .reply({ status: 200, data: { created_at: "2021-01-01T00:00:00Z" }, repeat: 2 }),
+                .reply({ status: 200, data: { created_at: "2021-01-01T00:00:00Z" }, repeat: 4 }),
             mockapi.mock.artifacts.root
                 .setIndex()
-                .reply({ status: 200, data: "PASSED\n", repeat: 2 }),
-
-            // Mock automatic artifact discovery
-            moctokit.rest.actions
-                .listWorkflowRuns()
-                .reply({
-                    status: 200,
-                    data: {
-                        total_count: 1,
-                        workflow_runs: [{
-                            id: 1234,
-                            conclusion: "success",
-                            head_branch: "development/2.3",
-                            head_sha: await getCommitHash(),
-                            name: "build-iso-and-end2end-test",
-                            run_number: 3454,
-                            status: "completed",
-                        }],
-                    }
-                }),
+                .reply({ status: 200, data: "PASSED\n", repeat: 4 }),
 
             // Mock release lookup by tag used by action-gh-release@v3.
             // IMPORTANT: register these BEFORE listReleases — moctokit translates the
@@ -234,7 +257,7 @@ test.each([
                         draft: true,
                         assets: [],
                         name: `Release ${tag}`,
-                        prerelease: tag === '2.3.7-rc.1',
+                        prerelease,
                         tag_name: tag,
                         target_commitish: await getCommitHash(),
                         upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
@@ -259,7 +282,7 @@ test.each([
                         draft: true,
                         assets: [],
                         name: `Release ${tag}`,
-                        prerelease: tag === '2.3.7-rc.1',
+                        prerelease,
                         tag_name: tag,
                         target_commitish: await getCommitHash(),
                         upload_url: 'http://uploads.github.com/repos/scality/Zenko/releases/456/assets{?name,label}',
@@ -284,8 +307,8 @@ test.each([
                     generate_release_notes: false,
                     name: `Release ${tag}`,
                     body: 'something changed',
-                    prerelease: tag === '2.3.7-rc.1',
-                    draft: tag !== '2.3.7-rc.1',  // v3 only set drafts for non-prereleases
+                    prerelease,
+                    draft: !prerelease,  // v3 only sets drafts for non-prereleases
                 })
                 .reply({ status: 201, data: {
                     id: 123,
@@ -345,32 +368,30 @@ test.each([
         mockSteps: {
             'verify-release': [{
                 name: 'Fetch tags',
-                mockWith: 'echo "tags fetched"'
-            }, {
-                // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'actions/github-script@v7',
+                mockWith: 'echo "tags fetched"',
+            }, ...(racingTag ? [{
+                after: 'Compute version',
                 mockWith: {
-                    with: {
-                        'github-token': "my-token",
-                    }
-                }
-            }],
+                    name: 'Concurrent release creates the tag',
+                    run: 'git tag ' + racingTag,
+                },
+            }] : [])],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
                 uses: 'softprops/action-gh-release@v3',
                 mockWith: {
                     with: {
                         token: "my-token",
-                    }
-                }
+                    },
+                },
             }, {
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
                 uses: 'actions/github-script@v7',
                 mockWith: {
                     with: {
                         'github-token': "my-token",
-                    }
-                }
+                    },
+                },
             }],
             'create-deployments': [{
                 name: 'Create release deployments',
@@ -378,7 +399,7 @@ test.each([
                     with: {
                         'github-token': "my-token",
                     },
-                }
+                },
             }],
             'promote': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
@@ -386,10 +407,10 @@ test.each([
                 mockWith: {
                     with: {
                         token: "my-token",
-                    }
-                }
+                    },
+                },
             }],
-        }
+        },
     });
 
     // act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
