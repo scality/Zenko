@@ -272,7 +272,7 @@ tests:
         exp_alerts:
           - exp_annotations:
               description:  |
-                Kafka consumer lag has been more more than 300 seconds
+                Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 
                 Current time lag is 8m 20s.
@@ -289,7 +289,7 @@ tests:
         exp_alerts:
           - exp_annotations:
               description:  |
-                Kafka consumer lag has been more more than 300 seconds
+                Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 
                 Current time lag is 1m 0s.
@@ -303,7 +303,7 @@ tests:
               kafkaCluster: ${cluster}
           - exp_annotations:
               description:  |
-                Kafka consumer lag has been more more than 300 seconds
+                Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 
                 Current time lag is 8m 20s.
