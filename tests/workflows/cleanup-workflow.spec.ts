@@ -72,7 +72,7 @@ beforeEach(async () => {
     const depsUpdate = path.resolve(__dirname, "fixtures/test-deps.yaml");
     await exec(`git -C ${repoPath} checkout ${BRANCH}`);
     await exec(`cp ${depsUpdate} ${repoPath}/solution/deps.yaml`);
-    await exec(`git -C ${repoPath} commit -am "bump deps"`);
+    await exec(`git -C ${repoPath} commit --no-sign -am "bump deps"`);
 
     moctokit = new Moctokit("http://api.github.com");
 
