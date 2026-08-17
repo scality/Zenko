@@ -26,11 +26,13 @@ kubectl wait --for condition=DeploymentInProgress=true --timeout 10m zenko/${ZEN
 kubectl wait --for condition=DeploymentFailure=false --timeout 10m zenko/${ZENKO_NAME}
 kubectl wait --for condition=DeploymentInProgress=false --timeout 10m zenko/${ZENKO_NAME}
 
-# Get kafka image name and tag
-KAFKA_REGISTRY_NAME=$(yq eval ".kafka.sourceRegistry" ../../../solution/deps.yaml)
-KAFKA_IMAGE_NAME=$(yq eval ".kafka.image" ../../../solution/deps.yaml)
-KAFKA_IMAGE_TAG=$(yq eval ".kafka.tag" ../../../solution/deps.yaml)
-KAFKA_IMAGE=$KAFKA_REGISTRY_NAME/$KAFKA_IMAGE_NAME:$KAFKA_IMAGE_TAG
+# Use the tree-hash tagged kafka image built by the build-kafka job:
+# the plain deps.yaml tag on ghcr still carries the old JVM.
+kafka_image() {
+    source <( "$(dirname $0)"/../../../solution/kafka_build_vars.sh )
+    echo "$KAFKA_IMAGE:$KAFKA_TAG-$BUILD_TREE_HASH"
+}
+KAFKA_IMAGE=$(kafka_image)
 
 # Cold location topic
 AZURE_ARCHIVE_STATUS_TOPIC="${UUID}.cold-status-e2e-azure-archive"
