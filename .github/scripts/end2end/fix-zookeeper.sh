@@ -63,6 +63,10 @@ done
 
 # Patch the StatefulSet with JVM flags to disable container support
 # as ubuntu runners now are incompatible with zookeeper.
+# Also raise the exec probe timeouts: operators without the ZKOP-529 fix
+# leave probe timeoutSeconds at 0, which Kubernetes floors to 1s; with
+# ExecProbeTimeout enforced the readiness script gets killed before the
+# observer-to-participant promotion completes and the pod never turns Ready.
 kubectl -n "${NAMESPACE}" patch statefulset "${ZK_STS_NAME}" --type='strategic' \
   -p '{
     "spec": {
@@ -76,7 +80,13 @@ kubectl -n "${NAMESPACE}" patch statefulset "${ZK_STS_NAME}" --type='strategic' 
                   "name": "JVMFLAGS",
                   "value": "-Xmx512m -Xms512m -XX:-UseContainerSupport -XX:ActiveProcessorCount=1 -Djava.awt.headless=true -Dzookeeper.log.dir=/data/logs -Dzookeeper.root.logger=INFO,CONSOLE -Dlog4j.configuration=file:/data/conf/log4j.properties"
                 }
-              ]
+              ],
+              "readinessProbe": {
+                "timeoutSeconds": 10
+              },
+              "livenessProbe": {
+                "timeoutSeconds": 10
+              }
             }
           ]
         }
