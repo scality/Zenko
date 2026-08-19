@@ -6,6 +6,7 @@
 
 import os
 import pathlib
+import subprocess
 import sys
 
 from sphinx.highlighting import PygmentsBridge
@@ -34,20 +35,31 @@ project_identifier = 'Zenko'
 author = 'Scality Technical Publications'
 copyright = '2021, Scality, Inc'
 
-# Load VERSION info
-VERSION_FILE = (doc_dir / "../../VERSION").resolve()
+# Load VERSION info by running version.sh and parsing its output
+VERSION_SCRIPT = (doc_dir / "../../version.sh").resolve()
 
 VERSION_INFO = {
     "VERSION": "",
     "VERSION_HOTFIX": "",
     "VERSION_PRERELEASE": "",
 }
-with VERSION_FILE.open("r", encoding="utf-8") as fp:
-    for line in fp:
-        name, _, value = line.strip().partition("=")
-        var = name.strip()
-        if var in VERSION_INFO:
-            VERSION_INFO[var] = value.strip('"')
+result = subprocess.run(
+    ["bash", str(VERSION_SCRIPT)],
+    # version.sh queries git relative to the working directory, so run it from
+    # the repository root instead of wherever sphinx happens to be invoked from
+    cwd=VERSION_SCRIPT.parent,
+    capture_output=True, text=True,
+)
+if result.returncode:
+    raise RuntimeError(
+        "version.sh failed with exit {}:\nstdout:\n{}\nstderr:\n{}".format(
+            result.returncode, result.stdout, result.stderr,
+        )
+    )
+for line in result.stdout.splitlines():
+    name, _, value = line.strip().partition("=")
+    if name in VERSION_INFO:
+        VERSION_INFO[name] = value.strip("'")
 
 
 version = "{VERSION}{VERSION_HOTFIX}".format(**VERSION_INFO)
