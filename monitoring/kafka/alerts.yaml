@@ -127,7 +127,7 @@ groups:
     annotations:
       summary: 'Kafka: consumer lag is too high for {{ $labels.group }}'
       description: |
-        Kafka consumer lag has been more more than ${maxConsumerLagSecondsWarningThreshold} seconds
+        Kafka consumer lag has been more than ${maxConsumerLagSecondsWarningThreshold} seconds
         or more than ${maxConsumerLagMessagesWarningThreshold} messages for 5 minutes.
 
         Current time lag is {{ with printf "kafka_consumergroup_group_max_lag_seconds{namespace=\"${namespace}\",cluster_name=\"${cluster}\",group=\"%s\"}"
