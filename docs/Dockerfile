@@ -33,4 +33,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 RUN curl -f -Lo /usr/share/plantuml/plantuml.jar \
     https://github.com/plantuml/plantuml/releases/download/v1.2025.10/plantuml-1.2025.10.jar
 
+# version.sh (called from conf.py) shells out to git; the workspace is mounted
+# from the host and owned by another user, so mark it safe to avoid git's
+# "dubious ownership" check. The path is the mount point used by the build-doc
+# job, as safe.directory=* wildcards need git >= 2.35.3 and ubuntu:22.04 ships
+# 2.34.
+RUN git config --system --add safe.directory /work
+
 WORKDIR /home/zenko/docs
