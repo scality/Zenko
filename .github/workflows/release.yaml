@@ -1,23 +1,26 @@
 ---
 name: release
-run-name: Release ${{ inputs.tag }}
+run-name: Release (${{ inputs.type }}) on ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: Tag
+      type:
+        description: 'Release type'
         required: true
-      artifacts-name:
-        description: Artifacts name to promote (optional - will be auto-detected if not provided)
-        required: false
+        type: choice
+        options:
+          - release
+          - preview
+          - rc
 
 jobs:
   verify-release:
     name: Verify if tag is valid
     runs-on: ubuntu-24.04
     outputs:
-      artifacts-name: ${{ steps.get-artifacts-name.outputs.artifacts-name }}
+      tag: ${{ steps.version.outputs.tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -25,65 +28,54 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Fetch tags
-        run: git fetch --tags
+      - name: Compute version
+        id: version
+        shell: bash
+        run: |
+          source ./version.sh --${{ inputs.type }}
+          echo "tag=$VERSION_FULL" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${VERSION_PRERELEASE:+true}" >> "$GITHUB_OUTPUT"
 
       - name: Check if tag matches the branch name
         shell: bash
         run: |
-          if [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+$ ]]; then
+          if [[ "${{ steps.version.outputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[0-9]+(-.*)?$ ]]; then
             # Hotfix release: extract base version from tag (e.g., 2.13.5 from 2.13.5.1)
-            [[ "refs/heads/hotfix/${{ github.event.inputs.tag }}" == "${{ github.ref }}-"* ]]
-          elif [[ "${{ github.event.inputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
+            # which must match branch name
+            [[ "refs/heads/hotfix/${{ steps.version.outputs.tag }}" == "${{ github.ref }}-"* ]]
+          elif [[ "${{ steps.version.outputs.tag }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-.*)?$ ]]; then
             # Regular release: tag must match branch name
-            [[ "refs/heads/development/${{ github.event.inputs.tag }}" == "${{ github.ref }}."* ]]
+            [[ "refs/heads/development/${{ steps.version.outputs.tag }}" == "${{ github.ref }}."* ]]
           else
             echo "Error: Tag must be in format X.Y.Z(-<prerelease>) or X.Y.Z-N (hotfix)"
             exit 1
           fi
 
-      - name: Check if tag matches VERSION file
-        shell: bash
-        run: |
-          source VERSION
-
-          # Direct match (handles regular releases and hotfix with VERSION_FULL=X.Y.Z.N)
-          [[ "${{ github.event.inputs.tag }}" == "$VERSION_FULL" ]]
-
       - name: Check if tag has not already been created
         shell: bash
         run: |
-          ! git show-ref --tags ${{ github.event.inputs.tag }} --quiet
+          ! git show-ref --tags ${{ steps.version.outputs.tag }} --quiet
 
-      - name: Auto-derive artifacts name if not provided
-        uses: actions/github-script@v7
-        id: get-artifacts-name
-        with:
-          script: |
-            const { getBuildArtifact } = require('./.github/scripts/get-build-artifact');
-            const artifactsName = process.env.ARTIFACTS_NAME
-                || await getBuildArtifact(github, context, core);
-            core.setOutput('artifacts-name', artifactsName);
-        env:
-          ARTIFACTS_NAME: ${{ github.event.inputs.artifacts-name }}
+  build-iso:
+    needs: verify-release
+    uses: ./.github/workflows/build-iso.yaml
+    with:
+      build-type: ${{ inputs.type }}
+    secrets: inherit
 
   release:
     name: Release
     runs-on: ubuntu-24.04
     needs:
       - verify-release
+      - build-iso
+    env:
+      TAG: ${{ needs.verify-release.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Check if version is a pre-release
-        shell: bash
-        run: |
-          source VERSION
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "VERSION_PRERELEASE=${VERSION_PRERELEASE}" >> $GITHUB_ENV
 
       - name: Generate release notes
         uses: actions/github-script@v7
@@ -96,7 +88,7 @@ jobs:
             });
 
             // Convert semver-compliant hotfix tags (e.g., 2.13.5-1) to 4-digits format for comparison
-            let tag = context.payload.inputs.tag;
+            let tag = process.env.TAG;
             const hotfixMatch = tag.match(/^(\d+\.\d+\.\d+)-(\d+)$/);
             if (hotfixMatch) {
               tag = `${hotfixMatch[1]}.${hotfixMatch[2]}`;
@@ -104,7 +96,7 @@ jobs:
 
             // Get the previous release tag
             const { getPreviousTag } = require('./.github/scripts/get-previous-tag');
-            const previous_tag = getPreviousTag(context.payload.inputs.tag, releases);
+            const previous_tag = getPreviousTag(process.env.TAG, releases);
             if (!previous_tag) {
               core.warning("No previous version found");
               return;
@@ -114,7 +106,7 @@ jobs:
             const { data: releaseNotes } = await github.rest.repos.generateReleaseNotes({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: context.payload.inputs.tag,
+              tag_name: process.env.TAG,
               target_commitish: context.sha,
               previous_tag_name: previous_tag,
             });
@@ -125,16 +117,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Release ${{ github.event.inputs.tag }}
-          tag_name: ${{ github.event.inputs.tag }}
+          name: Release ${{ env.TAG }}
+          tag_name: ${{ env.TAG }}
           generate_release_notes: false
           body: ${{ env.RELEASE_NOTES }}
           target_commitish: ${{ github.sha }}
-          prerelease: ${{ env.VERSION_PRERELEASE != '' }}
+          prerelease: ${{ needs.verify-release.outputs.prerelease == 'true' }}
 
   create-deployments:
     runs-on: ubuntu-24.04
-    needs: release
+    needs:
+      - verify-release
+      - release
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -143,16 +137,17 @@ jobs:
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          environment: "zenko/${{ github.event.inputs.tag }}"
+          environment: "zenko/${{ needs.verify-release.outputs.tag }}"
           status: success
           production: 'true'
-          log-url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.event.inputs.tag }}
-          description: "Released in zenko ${{ github.event.inputs.tag }}"
+          log-url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ needs.verify-release.outputs.tag }}
+          description: "Released in zenko ${{ needs.verify-release.outputs.tag }}"
 
   promote:
     runs-on: ubuntu-24.04
     needs:
       - verify-release
+      - build-iso
       - create-deployments
       - release
     steps:
@@ -164,8 +159,8 @@ jobs:
       uses: scality/action-artifacts@v4
       with:
         method: promote
-        name: ${{ needs.verify-release.outputs.artifacts-name }}
-        tag: ${{ github.event.inputs.tag }}
+        name: ${{ needs.build-iso.outputs.artifacts-name }}
+        tag: ${{ needs.verify-release.outputs.tag }}
         url: https://artifacts.scality.net
         user: ${{ secrets.ARTIFACTS_USER }}
         password: ${{ secrets.ARTIFACTS_PASSWORD }}

@@ -24,7 +24,7 @@ async function createDev(name: string) {
 
 async function commitOn(branch: string, message: string) {
     await git(`checkout ${branch}`);
-    await git(`commit --allow-empty -m "${message}"`);
+    await git(`commit --no-sign --allow-empty -m "${message}"`);
 
     // Waterfall to every newer dev branch in the chain
     const idx = devChain.indexOf(branch);
@@ -43,7 +43,7 @@ async function commitOn(branch: string, message: string) {
 
 async function branchFrom(name: string, base: string, message: string) {
     await git(`checkout -b ${name} ${base}`);
-    await git(`commit --allow-empty -m "${message}"`);
+    await git(`commit --no-sign --allow-empty -m "${message}"`);
 }
 
 async function runScript(): Promise<string> {

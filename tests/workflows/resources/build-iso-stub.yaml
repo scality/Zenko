@@ -1,0 +1,38 @@
+---
+# Stub for the build-iso reusable workflow used by release.spec.ts.
+# Mirrors the public interface (workflow_call inputs/outputs) of
+# .github/workflows/build-iso.yaml so callers in release.yaml resolve correctly,
+# but skips the actual ISO build steps. Just uploads a placeholder file via
+# action-artifacts so the promote step has something to consume.
+name: build-iso
+
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        type: string
+        default: ''
+    outputs:
+      artifacts-name:
+        value: ${{ jobs.build.outputs.artifacts-name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    outputs:
+      artifacts-name: ${{ steps.upload.outputs.name }}
+    steps:
+      - name: Stub build
+        run: mkdir -p _build && echo "stub" > _build/iso
+      - name: Upload ISO
+        id: upload
+        uses: scality/action-artifacts@v4
+        with:
+          method: upload
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}
+          source: "_build"
+          # Explicit token so the post-step (setDefaultIndex) can construct an
+          # octokit client — in act, github.token isn't reliably populated.
+          token: my-token

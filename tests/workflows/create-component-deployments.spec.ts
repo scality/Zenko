@@ -69,7 +69,7 @@ beforeEach(async () => {
     const depsUpdate = path.resolve(__dirname, "fixtures/test-deps.yaml");
     await exec(`git -C ${repoPath} checkout -b improvement/ZENKO-5210`);
     await exec(`cp ${depsUpdate} ${repoPath}/solution/deps.yaml`);
-    await exec(`git -C ${repoPath} add solution/deps.yaml && git -C ${repoPath} commit -m "bump sorbet"`);
+    await exec(`git -C ${repoPath} add solution/deps.yaml && git -C ${repoPath} commit --no-sign -m "bump sorbet"`);
     await exec(`git -C ${repoPath} push origin improvement/ZENKO-5210`);
 
     moctokit = new Moctokit("http://api.github.com");
@@ -226,7 +226,7 @@ describe("create-component-deployments action", () => {
         const repoPath = github.repo.getPath("zenko");
         await exec(`git -C ${repoPath} checkout development/2.11`);
         await exec(`yq -i '.backbeat.tag = "9.3.5"' ${repoPath}/solution/deps.yaml`);
-        await exec(`git -C ${repoPath} commit -m "bump backbeat on target" -- solution/deps.yaml`);
+        await exec(`git -C ${repoPath} commit --no-sign -m "bump backbeat on target" -- solution/deps.yaml`);
         await exec(`git -C ${repoPath} push origin development/2.11`);
         await exec(`git -C ${repoPath} checkout improvement/ZENKO-5210`);
 

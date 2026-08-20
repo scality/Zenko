@@ -15,9 +15,7 @@ PRODUCT_LOWERNAME=zenko-base
 BUILD_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILD_HOST=$(hostname)
 
-VERSION_FILE="${REPOSITORY_DIR}/VERSION"
-
-source "${VERSION_FILE}"
+[ -z "${VERSION_FULL:-}" ] && source "${REPOSITORY_DIR}/version.sh" ${BUILD_TYPE:+--$BUILD_TYPE}
 GIT_REVISION=$(git describe --long --always --tags --dirty)
 ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
