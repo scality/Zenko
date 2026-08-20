@@ -188,15 +188,24 @@ const Fail = { toString: () => "fail", value: () => 1 };
 //   hotfix/2.3.6:
 //     --release -> 2.3.6-1
 //     --rc      -> 2.3.6-1-rc.1
+// A non-empty `tag` sets the workflow_dispatch `tag` input and exercises the
+// second pass (build + release + promote). An empty `tag` leaves the input
+// unset and exercises the first pass, which either fails in verify-release
+// or (on success) fires the redispatch job.
 test.each([
     ['Promote artifacts', Pass, 'release', '2.3.7', ''],
     ['Promote artifacts', Pass, 'rc', '2.3.7-rc.1', ''],
     ['Promote artifacts', Pass, 'preview', '2.3.7-preview.1', ''],
     ['Promote artifacts', Pass, 'release', '2.3.6-1', withBranch('hotfix/2.3.6')],
     ['Promote artifacts', Pass, 'rc', '2.3.6-1-rc.1', withBranch('hotfix/2.3.6')],
-    ['Compute version', Fail, 'release', '', withBranch('improvement/ZENKO-1234')],
+    ['Compute version', Fail, 'release', '2.3.7', withBranch('improvement/ZENKO-1234')],
     ['Check if tag matches the branch name', Fail, 'release', '2.3.7', withBranch('q/2.3')],
     ['Check if tag has not already been created', Fail, 'release', '2.3.7', withRacingTag('2.3.7')],
+    // The following tests exercise the first pass (compute version + re-trigger)
+    ['Trigger release with computed tag', Pass, 'release', '', ''],
+    ['Compute version', Fail, 'release', '', withBranch('improvement/ZENKO-1234')],
+    ['Check if tag matches the branch name', Fail, 'release', '', withBranch('q/2.3')],
+    ['Check if tag has not already been created', Fail, 'release', '', withRacingTag('2.3.7')],
 ])("%s should %s when making %s %s%s", async (stepName, status, type, tag, ...configs) => {
 
     for(var c of configs.filter(c => !!c)) {
@@ -205,6 +214,9 @@ test.each([
     }
 
     act.setInput("type", type as string);
+    if (tag) {
+        act.setInput("tag", tag as string);
+    }
 
     const prerelease = type !== 'release';
 
@@ -222,6 +234,17 @@ test.each([
             mockapi.mock.artifacts.root
                 .upload()
                 .reply({ status: 200, data: "OK" }),
+
+            // Redispatch (first pass only): trigger-release triggers the second pass.
+            moctokit.rest.actions
+                .createWorkflowDispatch({
+                    owner: 'scality',
+                    repo: 'Zenko',
+                    workflow_id: 'release.yaml',
+                    ref: await currentBranch(),
+                    inputs: { type, tag: tag || '2.3.7' },
+                } as any)
+                .reply({ status: 204, data: {} } as any),
 
             // Mock artifact promotion: copy + set index
             mockapi.mock.artifacts.root
@@ -375,6 +398,15 @@ test.each([
                     },
                 }],
             } : {}),
+            'trigger-release': [{
+                // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
+                uses: 'actions/github-script@v7',
+                mockWith: {
+                    with: {
+                        'github-token': "my-token",
+                    },
+                },
+            }],
             'update-artifact-status': [{
                 // upload_final_status@1.17.0 wraps action-artifacts@v4 in a
                 // composite that doesn't forward `token:`, so its nested
