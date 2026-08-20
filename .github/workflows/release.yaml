@@ -63,12 +63,25 @@ jobs:
       build-type: ${{ inputs.type }}
     secrets: inherit
 
+  # Write the .final_status marker, which is required by the artifacts server
+  # before allowing promotion.
+  update-artifact-status:
+    needs: build-iso
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Upload final status
+        uses: scality/actions/upload_final_status@1.17.0
+        with:
+          ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
+          ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
+          JOBS_RESULTS: success
+
   release:
     name: Release
     runs-on: ubuntu-24.04
     needs:
       - verify-release
-      - build-iso
+      - update-artifact-status
     env:
       TAG: ${{ needs.verify-release.outputs.tag }}
     steps:
@@ -148,6 +161,7 @@ jobs:
     needs:
       - verify-release
       - build-iso
+      - update-artifact-status
       - create-deployments
       - release
     steps:

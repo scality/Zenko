@@ -371,10 +371,20 @@ test.each([
                     after: 'Compute version',
                     mockWith: {
                         name: 'Concurrent release creates the tag',
-                        run: 'git tag ' + racingTag,
+                        run: 'git tag --no-sign ' + racingTag,
                     },
                 }],
             } : {}),
+            'update-artifact-status': [{
+                // upload_final_status@1.17.0 wraps action-artifacts@v4 in a
+                // composite that doesn't forward `token:`, so its nested
+                // post-step (setDefaultIndex) can't authenticate. Thus we
+                // neutralize the step with `if: false` instead.
+                uses: 'scality/actions/upload_final_status@1.17.0',
+                mockWith: {
+                    if: 'false',
+                },
+            }],
             'release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
                 uses: 'softprops/action-gh-release@v3',
