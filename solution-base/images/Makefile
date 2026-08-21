@@ -29,7 +29,9 @@ create-remote:
 	@git remote get-url $(BITNAMI_REMOTE) >/dev/null 2>&1 || git remote add $(BITNAMI_REMOTE) $(BITNAMI_REPO)
 
 update-vendor-branch-%: create-remote
-	# Shallow-fetch only the pinned ref; full upstream history is unnecessary for a --squash merge.
+	# Shallow and blobless: the split only reads trees, and a full-history walk over
+	# the containers monorepo costs hours because `git subtree split` cannot restrict
+	# its rev-list to the prefix. Unrelated split roots are fine for a --squash merge.
 	git fetch --depth 1 --filter=blob:none $(BITNAMI_REMOTE) $(call bitnami_ref,$*)
 	-git branch -D $(call vendor_branch,$*)
 	sha=$(call bitnami_ref,$*) && \
@@ -39,6 +41,11 @@ update-vendor-branch-%: create-remote
 	git -C "$$wt" sparse-checkout set --no-cone bitnami/$*/$(call bitnami_path,$*) && \
 	git -C "$$wt" checkout && \
 	git -C "$$wt" subtree split --prefix=bitnami/$*/$(call bitnami_path,$*) "$$sha" -b $(call vendor_branch,$*)
+	# `git subtree merge --squash` resolves the recorded `git-subtree-split` trailer as
+	# an object, so the split commit has to stay reachable on origin or `vendor-sync`
+	# only ever works on the clone that produced it. Keyed by upstream sha so earlier
+	# baselines are never overwritten.
+	git push origin $(call vendor_branch,$*):refs/heads/vendor-baseline/$*/$(call bitnami_ref,$*)
 
 vendor-sync-%: update-vendor-branch-%
 	cd "$$(git rev-parse --show-toplevel)" && \
