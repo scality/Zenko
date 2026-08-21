@@ -38,8 +38,7 @@ update-vendor-branch-%: create-remote
 	wt=$$(mktemp -d) && \
 	trap 'git worktree remove --force "$$wt" 2>/dev/null' EXIT && \
 	git worktree add --no-checkout --detach "$$wt" "$$sha" && \
-	git -C "$$wt" sparse-checkout set --no-cone bitnami/$*/$(call bitnami_path,$*) && \
-	git -C "$$wt" checkout && \
+	mkdir -p "$$wt"/bitnami/$*/$(call bitnami_path,$*) && \
 	git -C "$$wt" subtree split --prefix=bitnami/$*/$(call bitnami_path,$*) "$$sha" -b $(call vendor_branch,$*)
 	# `git subtree merge --squash` resolves the recorded `git-subtree-split` trailer as
 	# an object, so the split commit has to stay reachable on origin or `vendor-sync`
