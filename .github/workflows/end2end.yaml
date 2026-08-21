@@ -681,7 +681,7 @@ jobs:
       - ctst-end2end-sharded
     steps:
       - name: Upload final status
-        uses: scality/actions/upload_final_status@1.9.0
+        uses: scality/actions/upload_final_status@1.17.0
         with:
           ARTIFACTS_USER: ${{ secrets.ARTIFACTS_USER }}
           ARTIFACTS_PASSWORD: ${{ secrets.ARTIFACTS_PASSWORD }}
