@@ -131,7 +131,7 @@ zenko-operator:
   sourceRegistry: ghcr.io/scality
   dashboard: zenko-operator/zenko-operator-dashboards
   image: zenko-operator
-  tag: v1.8.15
+  tag: v1.8.16
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
   sourceRegistry: ghcr.io/adobe/zookeeper-operator
