@@ -141,6 +141,13 @@ spec:
     zookeeperResources:
       requestMemory: 1Gi
       limitMemory: 1Gi
+    redisResources:
+      db:
+        requestMemory: 32Mi
+        limitMemory: 256Mi
+      exporter:
+        requestMemory: 32Mi
+        limitMemory: 256Mi
   featureFlags:
     lifecycleOptimization: true
     manageKafkaTopics: true
