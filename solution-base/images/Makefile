@@ -14,6 +14,9 @@ BITNAMI_os_shell_REF := f6aa42546a035ccefc7a2823674e622cc9ccaaba
 
 .PHONY: create-remote vendor-sync
 
+# Lock the .git/config to avoid corruption
+.NOTPARALLEL:
+
 normalize = $(subst -,_,$1)
 bitnami_path = $(BITNAMI_$(call normalize,$1)_PATH)
 bitnami_ref = $(BITNAMI_$(call normalize,$1)_REF)
