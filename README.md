@@ -52,6 +52,4 @@ all configured to talk to each other.
 - Includes high availability (HA)
 - Asks for pre-existing volumes
 
-[Zenko Kubernetes Helm Chart deployment](./kubernetes)
-
 [Deploying a HA Kubernetes cluster](https://github.com/scality/metal-k8s)
