@@ -7,7 +7,7 @@ Note : Multiple Cucumber vscode extensions are available to help with developmen
 
 ## Quick Start (Github Codespaces)
 
-> **Prerequisites:** This assumes you're running in a GitHub Codespace with the devcontainer fully set up. See [.devcontainer/README.md](../../.devcontainer/README.md) for setup details.
+> **Prerequisites:** This assumes you're running in a GitHub Codespace with the devcontainer fully set up. See [.devcontainer/README.md](../../../.devcontainer/README.md) for setup details.
 
 Run tests with a tag:
 

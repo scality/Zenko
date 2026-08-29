@@ -41,23 +41,30 @@ Do not copy files with `cp -r`. It keeps deleted files and loses merge history.
 Use Git merge semantics through `git subtree`.
 
 1. Ensure `git subtree` is available (may require installing git contrib tools).
-2. Run a single sync command:
+2. Bump `BITNAMI_<image>_REF` in `solution-base/images/Makefile` to the upstream
+   commit you want, and commit that change.
+3. From a clean working tree, run a single sync command:
 
 ```bash
 make -C solution-base/images vendor-sync
 ```
 
-This command:
+This command, per image:
 - creates the remote if needed,
-- fetches upstream refs once,
-- rebuilds all vendor branches at the same upstream point,
-- merges upstream updates for all three images.
+- fetches the pinned upstream commit,
+- rebuilds the vendor branch and publishes it to `origin` as
+  `vendor-baseline/<image>/<upstream-sha>`, so later syncs work from any clone,
+- merges upstream updates.
 
 Notes:
-- `mongodb-sharded` is pinned to a specific upstream commit in
-  `solution-base/images/Makefile`, because upstream `main` no longer contains
-  `bitnami/mongodb-sharded/8.0/debian-12`.
-- `mongodb-exporter` and `os-shell` are split from upstream `main`.
+- Every image is pinned to an explicit upstream commit; upstream `main` is never
+  used. To pick a new one, list the release commits for the image's prefix with
+  `gh api "repos/bitnami/containers/commits?path=bitnami/<image>/<path>"` and
+  check the prefix still exists at that commit.
+- `mongodb-sharded` cannot be bumped: upstream deleted
+  `bitnami/mongodb-sharded/8.0/debian-12`, so it stays pinned to the last commit
+  that still contains it.
+- You need push access to `origin`, and a clean working tree.
 
 After each upstream merge, make explicit local commits for Zenko-specific
 tweaks (for example base image pin updates, script adjustments, build changes).
@@ -76,7 +83,7 @@ Merge upstream commit YYYY
 
 To bump MongoDB:
 1. Update `solution-base/deps.yaml` `mongodb-sharded.tag`.
-2. CI passes `MONGODB_VERSION` from `deps.yaml` during `build-mongodb-images`.
+2. CI passes `MONGODB_VERSION` from `deps.yaml` during the `build-mongodb` job.
 3. For local builds, pass `--build-arg MONGODB_VERSION=<version>` explicitly.
 4. Also review the base image digest in each Dockerfile `FROM ...@sha256:...`.
    We keep the digest in Dockerfiles so dependency tooling can detect and
@@ -84,7 +91,8 @@ To bump MongoDB:
 
 ## CI Tagging Policy
 
-- CI builds happen in `.github/workflows/end2end.yaml` (`build-mongodb-images`).
+- CI builds happen in `.github/workflows/build-mongodb.yaml`, called by
+  `end2end.yaml` and `cache-warmer.yaml`.
 - Published and consumed tags are immutable: `${VERSION}-${TREE_HASH}`.
 - Floating tags are not used by ISO build nor by tests.
 

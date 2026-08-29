@@ -28,10 +28,11 @@ See `solution-base/images/README.md` for details.
 
 ### Re-vendoring upstream Bitnami scripts
 
-When upstream Bitnami script changes need to be pulled in,
-compare `bitnami/containers` and merge upstream changes to `prebuildfs/` /
-`rootfs/` directories into the corresponding image directories. See
-`solution-base/images/README.md` for the detailed steps to upgrade the images.
+When upstream Bitnami script changes need to be pulled in, bump the
+`BITNAMI_<image>_REF` pin in `solution-base/images/Makefile` and run
+`make -C solution-base/images vendor-sync`, which merges upstream through
+`git subtree`. Do not copy files by hand. See
+`solution-base/images/README.md` for the detailed steps.
 
 ## Helm Chart Upgrade Steps
 
