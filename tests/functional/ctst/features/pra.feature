@@ -87,6 +87,24 @@ Feature: PRA operations
     Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
+    # A version deleted on the primary site must be deleted on the DR site
+    Given 1 objects "objdel" of size <objectSize> bytes on "Primary" site
+    Then object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i delete object "objdel-1" on "Primary" site
+    Then object "objdel-1" should "not" exist on "DR" site
+
+    # An object overwritten in place, which only a non-versioned bucket allows,
+    # must carry its new metadata to the DR site
+    Given a "Non versioned" bucket on "Primary" site
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "objow" of size <objectSize> bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i overwrite object "objow-1" with 200 bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objow-1" should have the last written etag on "DR" site
+
     Examples:
     | versioningConfiguration | objectCount | objectSize |
     |               Versioned |           2 |        100 |
