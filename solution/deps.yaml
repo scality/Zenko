@@ -2,11 +2,11 @@
 # to sort keys, use the following command
 # yq eval 'sortKeys(.)' -i deps.yaml
 backbeat:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/delthas
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.5.1
+  tag: 9.5.3-hd161e550757dcbdd80674ae0c76d1e8fd47b129f
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -21,7 +21,7 @@ cloudserver:
 drctl:
   sourceRegistry: ghcr.io/scality
   image: zenko-drctl
-  tag: v1.0.6
+  tag: 8740c504d831370399d5a0f293b1b49db8060f5e
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
 fubectl:
@@ -131,7 +131,7 @@ zenko-operator:
   sourceRegistry: ghcr.io/scality
   dashboard: zenko-operator/zenko-operator-dashboards
   image: zenko-operator
-  tag: v1.8.16
+  tag: 03d68a483b0b3aa6fb04d64cc7f878fa8f951b24
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
   sourceRegistry: ghcr.io/adobe/zookeeper-operator

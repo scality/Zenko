@@ -25,7 +25,17 @@ spec:
       logLevel: debug
   backbeat:
     triggerExpirationsOneDayEarlierForTesting: ${EXPIRE_ONE_DAY_EARLIER}
-    backlogMetricsIntervalSeconds: 5
+    configurationOverrides:
+      # every consumer whose lag the lifecycle conductor waits on, and the
+      # conductor itself, which discards an offset older than twice this
+      backbeat-lifecycle-producer:
+        KAFKA_BACKLOG_METRICS_INTERVALS: "5"
+      backbeat-lifecycle-bucket-processor:
+        KAFKA_BACKLOG_METRICS_INTERVALS: "5"
+      backbeat-lifecycle-object-processor:
+        KAFKA_BACKLOG_METRICS_INTERVALS: "5"
+      backbeat-replication-data-processor:
+        KAFKA_BACKLOG_METRICS_INTERVALS: "5"
     lifecycleConductor:
       cronRule: "${BACKBEAT_LCC_CRON_RULE}"
     lifecycleBucketProcessor:
