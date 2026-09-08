@@ -89,4 +89,5 @@ Feature: PRA operations
 
     Examples:
     | versioningConfiguration | objectCount | objectSize |
+    |           Non versioned |           2 |        100 |
     |               Versioned |           2 |        100 |
