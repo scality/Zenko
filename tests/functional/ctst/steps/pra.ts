@@ -13,7 +13,8 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { CacheHelper, Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { CacheHelper, Constants, Identity, IdentityEnum, S3, SuperAdmin, Utils } from 'cli-testing';
+import { createUniqueBucket } from 'common/common';
 import { safeJsonParse } from 'common/utils';
 import { PrometheusDriver } from 'prometheus-query';
 import assert from 'assert';
@@ -49,6 +50,20 @@ interface DrState {
             phase: ZenkoDrSinkPhases;
         },
     };
+}
+
+function useSiteIdentity(site: string) {
+    const accountName = Zenko.sites['source'].accountName;
+    Identity.useIdentity(IdentityEnum.ACCOUNT, site === 'DR' ? `${accountName}-replicated` : accountName);
+}
+
+async function headObjectOnSite(world: Zenko, objectName: string, site: string) {
+    useSiteIdentity(site);
+    world.resetCommand();
+    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
+    world.addCommandParameter({ key: objectName });
+
+    return S3.headObject(world.getCommandParameters());
 }
 
 async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local', timeout = '30m') {
@@ -253,11 +268,7 @@ Then('object {string} should {string} be {string} and have the storage class {st
         storageClass: string,
         site: string) {
         this.resetCommand();
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        useSiteIdentity(site);
         try {
             await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
             if (isVerb === 'not') {
@@ -273,11 +284,7 @@ Then('object {string} should {string} be {string} and have the storage class {st
 
 When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
     async function (this: Zenko, site: string) {
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        useSiteIdentity(site);
         this.resetCommand();
         this.addToSaved('accountName', Zenko.sites['source'].accountName);
 
@@ -428,10 +435,84 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
 When('i restore object {string} for {int} days on {string} site',
     async function (this: Zenko, objectName: string, days: number, site: string) {
         this.resetCommand();
-        if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
-        } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-        }
+        useSiteIdentity(site);
         await restoreObject.call(this, objectName, days);
+    });
+
+Given('a {string} bucket on {string} site', async function (this: Zenko, versioning: string, site: string) {
+    useSiteIdentity(site);
+    await createUniqueBucket(this, versioning);
+});
+
+When('i delete object {string} on {string} site',
+    async function (this: Zenko, objectName: string, site: string) {
+        useSiteIdentity(site);
+        this.resetCommand();
+        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+        this.addCommandParameter({ key: objectName });
+        const versionId = this.getLatestObjectVersion(objectName);
+        if (versionId) {
+            this.addCommandParameter({ versionId });
+        }
+        const result = await S3.deleteObject(this.getCommandParameters());
+        assert.ifError(result.err);
+    });
+
+When('i overwrite object {string} with {int} bytes on {string} site',
+    async function (this: Zenko, objectName: string, sizeBytes: number, site: string) {
+        useSiteIdentity(site);
+        const result = await putObject(this, objectName, undefined, sizeBytes);
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Then('object {string} should {string} exist on {string} site', { timeout: 360000 },
+    async function (this: Zenko, objectName: string, isVerb: string, site: string) {
+        const shouldExist = isVerb !== 'not';
+        const timeout = 300000;
+        const start = Date.now();
+
+        // the head carries no version id, so a master left behind by a deletion
+        // that did not replicate keeps answering it
+        while (Date.now() - start < timeout) {
+            const res = await headObjectOnSite(this, objectName, site);
+            if (res.err && !res.err.includes('NotFound')) {
+                throw new Error(`HeadObject error for "${objectName}": ${res.err}`);
+            }
+
+            const exists = !res.err;
+            if (exists === shouldExist) {
+                return;
+            }
+
+            await Utils.sleep(1000);
+        }
+
+        assert.fail(`object "${objectName}" should ${shouldExist ? '' : 'not '}exist on the ${site} site`);
+    });
+
+Then('object {string} should have the last written etag on {string} site', { timeout: 360000 },
+    async function (this: Zenko, objectName: string, site: string) {
+        const expected = this.getSaved<string>('objectETag');
+        assert(expected, 'no write saved an etag to compare against');
+
+        const timeout = 300000;
+        const start = Date.now();
+        let seen;
+
+        while (Date.now() - start < timeout) {
+            const res = await headObjectOnSite(this, objectName, site);
+            if (!res.err) {
+                assert(res.stdout);
+                const parsed = safeJsonParse<{ ETag: string | undefined }>(res.stdout);
+                assert(parsed.ok);
+                seen = parsed.result?.ETag;
+                if (seen?.replace(/"/g, '') === expected.replace(/"/g, '')) {
+                    return;
+                }
+            }
+
+            await Utils.sleep(1000);
+        }
+
+        assert.fail(`object "${objectName}" carries etag ${seen} on the ${site} site, expected ${expected}`);
     });

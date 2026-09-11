@@ -87,6 +87,71 @@ Feature: PRA operations
     Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
+    # A version deleted on the primary site must be deleted on the DR site
+    Given 1 objects "objdel" of size <objectSize> bytes on "Primary" site
+    Then object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i delete object "objdel-1" on "Primary" site
+    Then object "objdel-1" should "not" exist on "DR" site
+
+    # An object overwritten in place, which only a non-versioned bucket allows,
+    # must carry its new metadata to the DR site
+    Given a "Non versioned" bucket on "Primary" site
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "objow" of size <objectSize> bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i overwrite object "objow-1" with 200 bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objow-1" should have the last written etag on "DR" site
+
     Examples:
     | versioningConfiguration | objectCount | objectSize |
+    |           Non versioned |           2 |        100 |
     |               Versioned |           2 |        100 |
+
+    @2.6.0
+    @PreMerge
+    @Dmf
+    @PRA
+    @ColdStorage
+    Scenario: PRA (suspended null version deletion)
+    # A put into a suspended bucket writes a null version, and deleting it
+    # creates a null delete marker in its place. The marker itself does not
+    # replicate -- it carries the bucket's location constraint, never a cold
+    # one. What removes the object is the other write the delete makes:
+    # cloudserver deletes the null version the marker replaces, and that
+    # deletion carries the cold object's own metadata.
+    Given a DR installed
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
+    Given a "Suspended" bucket on "Primary" site
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "objsdel" of size 100 bytes on "Primary" site
+    Then object "objsdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    Given access keys for the replicated account
+    Then object "objsdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i delete object "objsdel-1" on "Primary" site
+    Then object "objsdel-1" should "not" exist on "DR" site
+
+    @2.6.0
+    @PreMerge
+    @Dmf
+    @PRA
+    @ColdStorage
+    Scenario: PRA (unversioned deletion)
+    # An unversioned bucket holds no version to remove, so a delete takes away
+    # the object's only document. That is a different event from the version
+    # removal the nominal scenario covers, and it runs on its own so that a
+    # failure there does not hide it.
+    Given a DR installed
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
+    Given a "Non versioned" bucket on "Primary" site
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "objudel" of size 100 bytes on "Primary" site
+    Then object "objudel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    Given access keys for the replicated account
+    Then object "objudel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i delete object "objudel-1" on "Primary" site
+    Then object "objudel-1" should "not" exist on "DR" site
