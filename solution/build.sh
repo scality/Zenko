@@ -274,6 +274,18 @@ function validate_registry()
 {
     echo "Validating ISO registry completeness against zenkoversion.yaml..."
     local missing=0
+    local image_refs
+
+    # `..` walks sequences too (capabilities.lifecycleRules, ...), and indexing one with
+    # a string key is a hard error in yq: only mappings can hold an image reference.
+    if ! image_refs=$(yq eval '.. | select(tag == "!!map") | select(has("image") and has("tag")) | .image + ":" + .tag' ${ISO_ROOT}/zenkoversion.yaml) ; then
+        echo "::error::Failed to list the images referenced in zenkoversion.yaml. Aborting."
+        exit 1
+    fi
+    if [ -z "${image_refs}" ] ; then
+        echo "::error::No image referenced in zenkoversion.yaml, it is most likely malformed. Aborting."
+        exit 1
+    fi
 
     while IFS= read -r image_ref ; do
         local image="${image_ref%:*}"
@@ -283,7 +295,7 @@ function validate_registry()
             echo "::error::Missing image in ISO registry: ${image}:${tag}"
             missing=$((missing + 1))
         fi
-    done < <(yq eval '.. | select(.image and .tag) | .image + ":" + .tag' ${ISO_ROOT}/zenkoversion.yaml | sort -u)
+    done < <(sort -u <<< "${image_refs}")
 
     if [ ${missing} -gt 0 ] ; then
         echo "::error::${missing} image(s) referenced in zenkoversion.yaml are missing from the ISO registry. Aborting."
