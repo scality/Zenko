@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { parseGoDuration } from './utils';
+import { paramToCli, parseGoDuration } from './utils';
 
 const durations: [string, number][] = [
     ['1m', 60],
@@ -32,3 +32,29 @@ for (const input of invalid) {
     );
 }
 
+const cliParams: [Record<string, unknown>, string][] = [
+    // pflag boolean flags must use the "=" form: "--flag false" would set the
+    // flag to true and drop "false" as a positional argument.
+    [{ forceRotateServiceCredentials: false }, '--force-rotate-service-credentials=false'],
+    [{ forceRotateServiceCredentials: true }, '--force-rotate-service-credentials=true'],
+    [{ wait: true }, '--wait=true'],
+    [{ sinkZenkoInstance: 'end2end-pra' }, '--sink-zenko-instance end2end-pra'],
+    [{ kafkaExternalPort: 9092 }, '--kafka-external-port 9092'],
+    [{ kafkaPersistenceSelector: 'app=kafka-dr-sink' }, '--kafka-persistence-selector app=kafka-dr-sink'],
+    [{ mongodbHosts: ['host-a', 'host-b'] }, '--mongodb-hosts host-a,host-b'],
+    [{ timeout: undefined }, ''],
+    [{ timeout: null }, ''],
+    [{}, ''],
+    [
+        { sinkZenkoInstance: 'end2end-pra', wait: false, timeout: '30m' },
+        '--sink-zenko-instance end2end-pra --wait=false --timeout 30m',
+    ],
+];
+
+for (const [params, expected] of cliParams) {
+    const result = paramToCli(params);
+    assert.strictEqual(
+        result, expected,
+        `paramToCli(${JSON.stringify(params)}) = "${result}", expected "${expected}"`,
+    );
+}
