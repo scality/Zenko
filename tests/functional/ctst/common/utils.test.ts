@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { parseGoDuration } from './utils';
 
-const cases: [string, number][] = [
+const durations: [string, number][] = [
     ['1m', 60],
     ['2h', 7200],
     ['30s', 30],
@@ -15,7 +15,7 @@ const cases: [string, number][] = [
     ['0s', 0],
 ];
 
-for (const [input, expected] of cases) {
+for (const [input, expected] of durations) {
     const result = parseGoDuration(input);
     assert.strictEqual(
         Math.abs(result - expected) < 1e-12, true,
