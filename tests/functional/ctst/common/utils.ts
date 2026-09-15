@@ -135,6 +135,30 @@ export function parseGoDuration(duration: string): number {
     return totalSeconds;
 }
 
+/**
+ * Serialises an options object into arguments for a Go CLI built with cobra/pflag.
+ * @param {Record<string, unknown>} params - the options to serialise
+ * @return {string} - the arguments, space-separated
+ */
+export function paramToCli(params: Record<string, unknown>): string {
+    const command: string[] = [];
+    Object.keys(params).forEach(key => {
+        const value = params[key];
+        if (value == null) {
+            return;
+        }
+        const flag = `--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+        if (typeof value === 'boolean') {
+            // pflag boolean flags do not consume the next argument: "--flag false"
+            // sets the flag to true and drops "false" as a positional argument.
+            command.push(`${flag}=${String(value)}`);
+        } else {
+            command.push(flag, String(value));
+        }
+    });
+    return command.join(' ');
+}
+
 export function safeJsonParse<T>(jsonString: string): { ok: boolean, result: T | null, error?: Error | null } {
     let result: T;
     try {
