@@ -87,6 +87,52 @@ Feature: PRA operations
     Then object "obj3-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
     And object "obj3-2" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
 
+    # A version deleted on the primary site must be deleted on the DR site
+    Given 1 objects "objdel" of size <objectSize> bytes on "Primary" site
+    Then object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objdel-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i delete object "objdel-1" on "Primary" site
+    Then object "objdel-1" should "not" exist on "DR" site
+
     Examples:
     | versioningConfiguration | objectCount | objectSize |
+    |           Non versioned |           2 |        100 |
     |               Versioned |           2 |        100 |
+    |               Suspended |           2 |        100 |
+
+    @2.6.0
+    @PreMerge
+    @Dmf
+    @PRA
+    @ColdStorage
+    Scenario: PRA (null version in a versioned bucket)
+    Given a DR installed
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
+    Given a "Non versioned" bucket on "Primary" site
+    And 1 objects "objnull" of size 100 bytes on "Primary" site
+    When the bucket versioning is set to "Versioned"
+    And a transition workflow to "e2e-cold" location
+    Then object "objnull-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    Given access keys for the replicated account
+    Then object "objnull-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+
+    @2.6.0
+    @PreMerge
+    @Dmf
+    @PRA
+    @ColdStorage
+    Scenario: PRA (in-place overwrite)
+    Given a DR installed
+    Then the DR source should be in phase "Running"
+    And the DR sink should be in phase "Running"
+    Given a "Non versioned" bucket on "Primary" site
+    And a transition workflow to "e2e-cold" location
+    And 1 objects "objow" of size 100 bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    Given access keys for the replicated account
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    When i overwrite object "objow-1" with 200 bytes on "Primary" site
+    Then object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "Primary" site
+    And object "objow-1" should "" be "transitioned" and have the storage class "e2e-cold" on "DR" site
+    And object "objow-1" should have the last written etag on "DR" site
