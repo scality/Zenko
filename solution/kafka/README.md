@@ -1,3 +1,7 @@
-# Apache Kafka Docker Image
+# Kafka Docker Image
 
-Docker file for building docker image for [Apache Kafka](https://kafka.apache.org) from official [Apache Kafka Distros](https://www.apache.org/dyn/closer.cgi?path=/kafka/) running on Java 17.
+Thin layer over [koperator](https://github.com/adobe/koperator)'s [Apache Kafka](https://kafka.apache.org)
+image, adding Zenko's log4j configuration and disabling GC logging.
+
+Using koperator's own image keeps the brokers and the cruise-control metrics reporter koperator
+injects into them built against the same Kafka version.
