@@ -5503,7 +5503,7 @@
       "targets": [
         {
           "datasource": null,
-          "expr": "sum(jvm_memory_bytes_used{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
+          "expr": "sum(jvm_memory_used_bytes{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5511,14 +5511,14 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
-          "query": "sum(jvm_memory_bytes_used{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
+          "query": "sum(jvm_memory_used_bytes{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\"}) without(area)",
           "refId": "",
           "step": 10,
           "target": ""
         },
         {
           "datasource": null,
-          "expr": "jvm_memory_bytes_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
+          "expr": "jvm_memory_max_bytes{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5526,7 +5526,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
           "metric": "",
-          "query": "jvm_memory_bytes_max{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
+          "query": "jvm_memory_max_bytes{job=\"${job}\", namespace=\"${namespace}\", instance=~\"$instance\", area=\"heap\"}",
           "refId": "",
           "step": 10,
           "target": ""
@@ -5733,5 +5733,5 @@
   "timezone": "",
   "title": "Kafka Connect",
   "uid": null,
-  "version": 2
+  "version": 3
 }
