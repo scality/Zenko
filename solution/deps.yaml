@@ -65,9 +65,9 @@ kafka-connect:
   tag: 2.13-3.9.1-1.13.0
   envsubst: KAFKA_CONNECT_TAG
 kafka-cruise-control:
-  sourceRegistry: ghcr.io/banzaicloud
+  sourceRegistry: adobe
   image: cruise-control
-  tag: 2.5.123
+  tag: 3.0.3-adbe-20260722
   envsubst: KAFKA_CRUISECONTROL_TAG
 kafka-lag-exporter:
   sourceRegistry: seglo
