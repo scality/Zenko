@@ -65,7 +65,7 @@ kafka-connect:
   tag: 2.13-3.9.1-1.16.0
   envsubst: KAFKA_CONNECT_TAG
 kafka-cruise-control:
-  sourceRegistry: adobe
+  sourceRegistry: ghcr.io/scality/zenko
   image: cruise-control
   tag: 3.0.3-adbe-20260722
   envsubst: KAFKA_CRUISECONTROL_TAG

@@ -71,3 +71,39 @@ jobs:
             type=registry,ref=${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}
             type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
           cache-to: type=gha,mode=max,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
+
+  cruise-control:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to Registry
+        uses: docker/login-action@v4
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+
+      - name: Extract environment
+        run: |-
+          solution/kafka_build_vars.sh >> $GITHUB_ENV
+
+      - name: Build and push cruise-control
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          context: ./solution/cruise-control
+          build-args: |-
+            CC_VERSION=${{ env.KAFKA_CRUISECONTROL_TAG }}
+          tags: "${{ env.KAFKA_CRUISECONTROL_IMAGE }}:${{ env.KAFKA_CRUISECONTROL_TAG }}-${{ env.CRUISECONTROL_BUILD_TREE_HASH }}"
+          cache-from: |
+            type=registry,ref=${{ env.KAFKA_CRUISECONTROL_IMAGE }}:${{ env.KAFKA_CRUISECONTROL_TAG }}-${{ env.CRUISECONTROL_BUILD_TREE_HASH }}
+            type=gha,scope=cruise-control-${{ env.KAFKA_CRUISECONTROL_TAG }}
+          cache-to: type=gha,mode=max,scope=cruise-control-${{ env.KAFKA_CRUISECONTROL_TAG }}
+

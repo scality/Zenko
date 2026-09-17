@@ -22,4 +22,7 @@ JMX_JAVAAGENT_IMAGE=$(get_image_from_deps jmx-javaagent)
 JMX_JAVAAGENT_TAG=$(yq eval '.jmx-javaagent.tag' deps.yaml)
 MONGODB_CONNECTOR_TAG=$(yq eval '.mongodb-connector.tag' deps.yaml)
 BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka HEAD:solution/kafka-connect | sha1sum | cut -d' ' -f1)
+KAFKA_CRUISECONTROL_IMAGE=$(get_image_from_deps kafka-cruise-control)
+KAFKA_CRUISECONTROL_TAG=$(yq eval '.kafka-cruise-control.tag' deps.yaml)
+CRUISECONTROL_BUILD_TREE_HASH=$(git rev-parse HEAD:solution/cruise-control)
 EOF

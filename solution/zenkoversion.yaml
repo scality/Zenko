@@ -105,7 +105,7 @@ spec:
         tag: ${KAFKA_CONNECT_TAG}-${KAFKA_BUILD_TREE_HASH}
       cruiseControl:
         image: ${KAFKA_CRUISECONTROL_IMAGE}
-        tag: ${KAFKA_CRUISECONTROL_TAG}
+        tag: ${KAFKA_CRUISECONTROL_TAG}-${CRUISECONTROL_BUILD_TREE_HASH}
       lagExporter:
         image: ${KAFKA_LAGEXPORTER_IMAGE}
         tag: ${KAFKA_LAGEXPORTER_TAG}
