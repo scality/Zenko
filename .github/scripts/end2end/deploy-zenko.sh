@@ -83,6 +83,8 @@ function dependencies_versions_env()
 
     source <( "${REPOSITORY_DIR}/solution/kafka_build_vars.sh" )
     echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
+    echo "CRUISECONTROL_BUILD_TREE_HASH=${CRUISECONTROL_BUILD_TREE_HASH}"
+    echo "ZOOKEEPER_BUILD_TREE_HASH=${ZOOKEEPER_BUILD_TREE_HASH}"
 }
 
 function dependencies_env()
