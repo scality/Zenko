@@ -17,7 +17,7 @@ ARG ZK_OPERATOR_VERSION=0.2.15-adobe-20260818
 ARG ZK_OPERATOR_COMMIT=d7e40433c0bf1adba43236604c6ae1b379f4ebd9
 
 # ZooKeeper distribution, PGP-verified
-FROM alpine:3.21 AS zk_dist
+FROM alpine:3.24.2 AS zk_dist
 
 ARG ZK_VERSION
 WORKDIR /var/tmp
