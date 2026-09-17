@@ -107,3 +107,38 @@ jobs:
             type=gha,scope=cruise-control-${{ env.KAFKA_CRUISECONTROL_TAG }}
           cache-to: type=gha,mode=max,scope=cruise-control-${{ env.KAFKA_CRUISECONTROL_TAG }}
 
+  zookeeper:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to Registry
+        uses: docker/login-action@v4
+        with:
+          username: "${{ github.repository_owner }}"
+          password: "${{ github.token }}"
+          registry: ghcr.io
+
+      - name: Extract environment
+        run: |-
+          solution/kafka_build_vars.sh >> $GITHUB_ENV
+
+      - name: Build and push zookeeper
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          context: ./solution/zookeeper
+          build-args: |-
+            ZK_VERSION=${{ env.ZK_VERSION }}
+            ZK_OPERATOR_VERSION=${{ env.ZK_OPERATOR_VERSION }}
+          tags: "${{ env.ZOOKEEPER_IMAGE }}:${{ env.ZOOKEEPER_TAG }}-${{ env.ZOOKEEPER_BUILD_TREE_HASH }}"
+          cache-from: |
+            type=registry,ref=${{ env.ZOOKEEPER_IMAGE }}:${{ env.ZOOKEEPER_TAG }}-${{ env.ZOOKEEPER_BUILD_TREE_HASH }}
+            type=gha,scope=zookeeper-${{ env.ZOOKEEPER_TAG }}
+          cache-to: type=gha,mode=max,scope=zookeeper-${{ env.ZOOKEEPER_TAG }}

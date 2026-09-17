@@ -25,4 +25,9 @@ BUILD_TREE_HASH=$(git rev-parse HEAD:solution/kafka HEAD:solution/kafka-connect 
 KAFKA_CRUISECONTROL_IMAGE=$(get_image_from_deps kafka-cruise-control)
 KAFKA_CRUISECONTROL_TAG=$(yq eval '.kafka-cruise-control.tag' deps.yaml)
 CRUISECONTROL_BUILD_TREE_HASH=$(git rev-parse HEAD:solution/cruise-control)
+ZOOKEEPER_IMAGE=$(get_image_from_deps zookeeper)
+ZOOKEEPER_TAG=$(yq eval '.zookeeper.tag' deps.yaml)
+ZOOKEEPER_BUILD_TREE_HASH=$(git rev-parse HEAD:solution/zookeeper)
+ZK_VERSION=$(yq eval '.zookeeper.tag | split("-").[0]' deps.yaml)
+ZK_OPERATOR_VERSION=$(yq eval '.zookeeper.tag | sub("^[^-]*-"; "")' deps.yaml)
 EOF

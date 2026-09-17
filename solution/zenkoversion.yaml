@@ -92,7 +92,7 @@ spec:
       tag: ${SORBET_TAG}
     zookeeper:
       image: ${ZOOKEEPER_IMAGE}
-      tag: ${ZOOKEEPER_TAG}
+      tag: ${ZOOKEEPER_TAG}-${ZOOKEEPER_BUILD_TREE_HASH}
     kafka:
       cleaner:
         image: ${KAFKA_CLEANER_IMAGE}
