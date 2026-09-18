@@ -1,3 +1,5 @@
+ARG BASE_IMAGE=ghcr.io/scality/zenko/java:21.0.12_8
+
 FROM alpine:3.24.2 AS kafka_dist
 
 ARG scala_version=2.13
@@ -22,7 +24,7 @@ RUN tar -xzf $kafka_distro
 RUN rm -r kafka_$scala_version-$kafka_version/bin/windows
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.12_8-jre-noble
+FROM ${BASE_IMAGE}
 
 ARG scala_version=2.13
 ARG kafka_version=3.9.1
@@ -34,7 +36,7 @@ ENV KAFKA_VERSION=$kafka_version \
 
 ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
-RUN mkdir ${KAFKA_HOME} && apt-get update && apt-get install curl -y && apt-get clean
+RUN mkdir ${KAFKA_HOME}
 
 COPY --from=kafka_dist /var/tmp/kafka_$scala_version-$kafka_version ${KAFKA_HOME}
 COPY log4j.properties ${KAFKA_HOME}/config/

@@ -43,6 +43,11 @@ jmx-javaagent:
   image: jmx-javaagent
   tag: 1.5.0
   envsubst: JMX_JAVAAGENT_TAG
+java: # shared base for our java images; built, never deployed
+  sourceRegistry: ghcr.io/scality/zenko
+  image: java
+  tag: 21.0.12_8
+  buildOnly: true
 kaf: # CLI Kafka client all-in-one
   tag: 0.2.8
   envsubst: KAF_VERSION
