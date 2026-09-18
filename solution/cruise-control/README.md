@@ -1,7 +1,7 @@
 # CruiseControl Docker Image
 
 Docker file for building [CruiseControl](https://github.com/adobe/cruise-control) from Adobe's fork,
-running on Eclipse Temurin.
+running on an Eclipse Temurin runtime trimmed with `jlink`.
 
 We build it ourselves because the published `adobe/cruise-control` images ship Oracle JDK under the
 No-Fee Terms and Conditions, which does not allow redistribution as part of a commercial product.

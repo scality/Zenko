@@ -1,5 +1,5 @@
 # Apache Kafka Docker Image
 
 Docker file for building docker image for [Apache Kafka](https://kafka.apache.org) from official
-[Apache Kafka Distros](https://www.apache.org/dyn/closer.cgi?path=/kafka/), running on Eclipse
-Temurin.
+[Apache Kafka Distros](https://www.apache.org/dyn/closer.cgi?path=/kafka/), running on an Eclipse
+Temurin runtime trimmed with `jlink`.
