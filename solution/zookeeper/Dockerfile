@@ -11,6 +11,8 @@
 # scripts on top:
 # https://github.com/adobe/zookeeper-operator/tree/master/docker
 
+ARG JDK_IMAGE=eclipse-temurin:21.0.12_8-jdk-noble
+ARG BASE_IMAGE=ghcr.io/scality/zenko/java:21.0.12_8
 ARG ZK_VERSION=3.8.4
 ARG ZK_OPERATOR_REPO=https://github.com/adobe/zookeeper-operator.git
 ARG ZK_OPERATOR_VERSION=0.2.15-adobe-20260818
@@ -37,7 +39,7 @@ RUN set -eux; \
 ####################################################################################################
 # zu.jar, plus the operator's scripts. The JDK only here: the build drives Gradle
 # through the project's own wrapper.
-FROM eclipse-temurin:21.0.12_8-jdk-noble AS zu_build
+FROM ${JDK_IMAGE} AS zu_build
 
 ARG ZK_OPERATOR_REPO
 ARG ZK_OPERATOR_VERSION
@@ -57,7 +59,7 @@ RUN ./gradlew --console=plain --no-daemon shadowJar
 
 ####################################################################################################
 # runtime
-FROM eclipse-temurin:21.0.12_8-jre-noble
+FROM ${BASE_IMAGE}
 
 ARG ZK_VERSION
 
@@ -74,15 +76,13 @@ ENV ZOO_CONF_DIR=/conf \
     ZOO_STANDALONE_ENABLED=true \
     ZOO_ADMINSERVER_ENABLED=true
 
-# socat, hostname, curl and ps are used by the operator's zookeeper*.sh probe scripts; gosu
-# only by docker-entrypoint.sh, which the operator bypasses by setting an explicit command.
-# Upstream also installs netcat, but nothing here calls it.
+# socat, hostname and ps are used by the operator's zookeeper*.sh probe scripts; gosu only by
+# docker-entrypoint.sh, which the operator bypasses by setting an explicit command. The base
+# image already brings ca-certificates and curl.
+# Upstream also installs netcat and dnsutils, but nothing here calls them.
 RUN set -eux; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        dnsutils \
         gosu \
         hostname \
         procps \
@@ -90,10 +90,7 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*; \
     gosu nobody true
 
-# Ubuntu ships a default `ubuntu` user on uid/gid 1000, which is the uid ZooKeeper runs as
-# upstream. Reclaim it rather than picking another, so data directory ownership is unchanged.
 RUN set -eux; \
-    userdel -r ubuntu; \
     groupadd -r zookeeper --gid=1000; \
     useradd -r -g zookeeper --uid=1000 zookeeper; \
     mkdir -p "$ZOO_DATA_DIR" "$ZOO_DATA_LOG_DIR" "$ZOO_CONF_DIR" "$ZOO_LOG_DIR" /opt/libs; \
