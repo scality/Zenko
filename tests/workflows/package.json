@@ -12,13 +12,12 @@
     "@octokit/rest": "^22.0.1",
     "@kie/mock-github": "^2.0.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^18.8.5",
+    "@types/node": "^24.13.6",
     "@types/sinon": "^22.0.0",
     "jest": "^30.5.2",
     "js-yaml": "^5.4.2",
     "sinon": "^22.1.0",
     "ts-jest": "^29.4.12",
-    "ts-node": "^10.9.1",
     "tsc": "^2.0.4",
     "typescript": "^4.8.4"
   }
