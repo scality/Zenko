@@ -10,7 +10,7 @@
   "devDependencies": {
     "@kie/act-js": "^2.6.1",
     "@octokit/rest": "^22.0.1",
-    "@kie/mock-github": "^2.0.1",
+    "@kie/mock-github": "2.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.6",
     "@types/sinon": "^22.0.0",
