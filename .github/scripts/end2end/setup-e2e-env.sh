@@ -126,10 +126,8 @@ export RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE
 export CRR_SOURCE_LOCATION_NAME CRR_DESTINATION_LOCATION_NAME CRR_ROLE_NAME
 export CRR_LOCATION_A_NAME CRR_LOCATION_B_NAME CRR_LOCATION_C_NAME
 export CRR_INFO_A CRR_INFO_B CRR_INFO_C
-export MOCHA_FILE=${MOCHA_FILE:-_reports/test-results-[hash].xml}
-
-# Ensure test results dir exists for Mocha JUnit reporter
-mkdir -p "$(dirname "$MOCHA_FILE")"
+# Ensure test results dir exists for Mocha xunit reporter
+mkdir -p tests/functional/_reports
 
 # --- 8. TLS CA cert for ingress endpoints ---
 ZENKO_CA_CERT_FILE="$(mktemp /tmp/zenko-ca-cert-XXXXXX.pem)"
@@ -405,7 +403,6 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "VAULT_AUTH_HOST=$VAULT_AUTH_HOST" >> "$GITHUB_ENV"
     echo "KAFKA_CONNECT_URL=$KAFKA_CONNECT_URL" >> "$GITHUB_ENV"
     echo "NODE_EXTRA_CA_CERTS=$NODE_EXTRA_CA_CERTS" >> "$GITHUB_ENV"
-    echo "MOCHA_FILE=$MOCHA_FILE" >> "$GITHUB_ENV"
     echo "VERIFY_CERTIFICATES=$VERIFY_CERTIFICATES" >> "$GITHUB_ENV"
     echo "ENABLE_RING_TESTS=$ENABLE_RING_TESTS" >> "$GITHUB_ENV"
     echo "AWS_ACCESS_KEY=$AWS_ACCESS_KEY" >> "$GITHUB_ENV"
