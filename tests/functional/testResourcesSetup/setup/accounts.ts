@@ -1,7 +1,7 @@
 import { STSClient, AssumeRoleWithWebIdentityCommand } from '@aws-sdk/client-sts';
 import { CoreV1Api } from '@kubernetes/client-node';
-import { PensieveClient } from './clients/pensieveClient';
-import { AccountCredentials, createKubernetesSecret } from './clients/k8s';
+import { PensieveClient } from 'clients/pensieveClient';
+import { AccountCredentials, createKubernetesSecret } from 'clients/k8s';
 import { Env } from '../config';
 
 async function getAccountCredentials(

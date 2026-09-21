@@ -1,4 +1,4 @@
-import { PensieveClient } from './clients/pensieveClient';
+import { PensieveClient } from 'clients/pensieveClient';
 import { EndpointConfig, Env } from '../config';
 
 export async function createEndpoints(

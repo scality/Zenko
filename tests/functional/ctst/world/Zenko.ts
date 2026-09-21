@@ -23,7 +23,7 @@ import {
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
-import AzureClient from '../common/clients/azure';
+import AzureClient from 'clients/azure';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
 
