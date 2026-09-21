@@ -3,7 +3,7 @@ import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request } from '../common/utils';
 import { Given, Then, When } from '@cucumber/cucumber';
-import { AzureHelper, S3, Constants, Utils } from 'cli-testing';
+import { S3, Constants, Utils } from 'cli-testing';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
@@ -34,19 +34,6 @@ type manifest = {
 }
 
 /**
- * Returns an object containing azure credentials
- * @param {Zenko} world world object
- * @returns {object} azure creds
- */
-function getAzureCreds(
-    world: Zenko,
-): {accountName: string, accountKey: string } {
-    return {
-        accountName: world.parameters.AzureAccountName,
-        accountKey: world.parameters.AzureAccountKey,
-    };
-}
-/**
  * Verify that an object has well been rehydrated in azure
  * @param {Zenko} zenko zenko object
  * @param {string} objectName object name
@@ -62,10 +49,9 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
     const start = Date.now();
     //wait for 1 minute max
     while (Date.now() - start <= 60000) {
-        const found = await AzureHelper.blobExists(
+        const found = await zenko.azureClient.blobExists(
             zenko.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
-            getAzureCreds(zenko),
         );
         if (found) {
             return tarName;
@@ -89,18 +75,16 @@ async function findObjectPackAndManifest(
     objectName: string,
 ): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
     // lisintg all blobs in the container
-    const blobs = await AzureHelper.listBlobs(
+    const blobs = await world.azureClient.listBlobs(
         world.parameters.AzureArchiveContainer,
-        getAzureCreds(world),
     );
     // filtering the list of blobs only leaving the manifests
     const manifests = blobs.filter(blob => blob.name.includes('.json.'));
     for (let i = 0; i < manifests.length; i++) {
         // downloading the manifest
-        const manifestBuffer = await AzureHelper.downloadBlob(
+        const manifestBuffer = await world.azureClient.downloadBlob(
             world.parameters.AzureArchiveContainer,
             manifests[i].name,
-            getAzureCreds(world),
         );
         const { ok, result } = safeJsonParse(manifestBuffer.toString());
         if (!ok) {
@@ -168,22 +152,19 @@ export async function cleanAzureContainer(
             currentKey.value as string,
         );
         if (tarName) {
-            await AzureHelper.deleteBlob(
+            await world.azureClient.deleteBlob(
                 world.parameters.AzureArchiveContainer,
                 tarName,
-                getAzureCreds(world),
             );
-            await AzureHelper.deleteBlob(
+            await world.azureClient.deleteBlob(
                 world.parameters.AzureArchiveContainer,
                 `rehydrate/${tarName}`,
-                getAzureCreds(world),
             );
         }
         if (manifestName) {
-            await AzureHelper.deleteBlob(
+            await world.azureClient.deleteBlob(
                 world.parameters.AzureArchiveContainer,
                 manifestName,
-                getAzureCreds(world),
             );
         }
         currentKey = iterator.next();
@@ -200,10 +181,9 @@ Then('manifest access tier should be valid for object {string}', async function 
     );
     assert(manifestName);
     // manifest access tier
-    const manifestProperties = await AzureHelper.getBlobProperties(
+    const manifestProperties = await this.azureClient.getBlobProperties(
         this.parameters.AzureArchiveContainer,
         manifestName,
-        getAzureCreds(this),
     );
     assert.strictEqual(manifestProperties.accessTier, this.parameters.AzureArchiveManifestTier);
 });
@@ -218,10 +198,9 @@ Then('tar access tier should be valid for object {string}', async function (this
     );
     assert(tarName);
     // manifest access tier
-    const packProperties = await AzureHelper.getBlobProperties(
+    const packProperties = await this.azureClient.getBlobProperties(
         this.parameters.AzureArchiveContainer,
         tarName,
-        getAzureCreds(this),
     );
     assert.strictEqual(packProperties.accessTier, this.parameters.AzureArchiveAccessTier);
 });
@@ -296,13 +275,11 @@ Then('blob for object {string} must be rehydrated',
     async function (this: Zenko, objectName: string) {
         const tarName = await isObjectRehydrated(this, objectName);
         assert(tarName);
-        const sent = await AzureHelper.sendBlobCreatedEventToQueue(
+        await this.azureClient.sendBlobCreatedEventToQueue(
             this.parameters.AzureArchiveQueue,
             this.parameters.AzureArchiveContainer,
             `rehydrate/${tarName}`,
-            getAzureCreds(this),
         );
-        assert.strictEqual(sent, true, `Failed to send BlobCreatedEvent for ${tarName}, object ${objectName}`);
     });
 
 Then('restoration of object {string} failed and ends up in DLQ',

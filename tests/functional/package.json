@@ -10,8 +10,8 @@
     "@aws-sdk/client-iam": "^3.901.0",
     "@aws-sdk/client-s3": "^3.931.0",
     "@aws-sdk/client-sts": "^3.901.0",
-    "@azure/storage-blob": "^12.12.0",
-    "@azure/storage-queue": "^12.30.0",
+    "@azure/storage-blob": "^12.33.0",
+    "@azure/storage-queue": "^12.31.0",
     "@cucumber/cucumber": "^13.2.0",
     "@eslint/compat": "^2.1.0",
     "@eslint/eslintrc": "^3.3.6",
@@ -70,8 +70,5 @@
     "test:all_extensions": "run-p --aggregate-output test:crr test:aws_crr test:expiration test:transition test:ingestion_oob_s3c",
     "test:object_api": "MOCHA_FILE=_reports/object-api.xml mocha --config mocha/.mocharc.js -t 10000 --reporter mocha-multi-reporters --reporter-options configFile=mocha/mocha-reporter.js --recursive mocha/cloudserver/keyFormatVersion/tests",
     "lint": "eslint ."
-  },
-  "resolutions": {
-    "@azure/core-client": "1.10.1"
   }
 }

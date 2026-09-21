@@ -278,8 +278,6 @@ else
     # Azure archive settings
     export AZURE_ARCHIVE_ACCESS_TIER="Hot"
     export AZURE_ARCHIVE_MANIFEST_ACCESS_TIER="Hot"
-    export AZURE_BLOB_URL="${AZURE_BACKEND_ENDPOINT}"
-    export AZURE_QUEUE_URL="${AZURE_BACKEND_QUEUE_ENDPOINT}"
 
     # --- 15. Grant Kube API access (needed by CTST for CronJob/Pod operations) ---
     kubectl create clusterrolebinding serviceaccounts-cluster-admin \

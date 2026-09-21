@@ -388,7 +388,7 @@
     "@azure/core-util" "^1.13.0"
     tslib "^2.6.2"
 
-"@azure/core-client@1.10.1", "@azure/core-client@^1.9.2", "@azure/core-client@^1.9.3":
+"@azure/core-client@^1.9.2", "@azure/core-client@^1.9.3":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@azure/core-client/-/core-client-1.10.1.tgz#83d78f97d647ab22e6811a7a68bb4223e7a1d019"
   integrity sha512-Nh5PhEOeY6PrnxNPsEHRr9eimxLwgLlpmguQaHKBinFYA/RU9+kOYVOQqOrTsCL+KSxrLLl1gD8Dk5BFW/7l/w==
@@ -533,7 +533,7 @@
     events "^3.0.0"
     tslib "^2.8.1"
 
-"@azure/storage-blob@^12.12.0", "@azure/storage-blob@^12.31.0":
+"@azure/storage-blob@^12.31.0", "@azure/storage-blob@^12.33.0":
   version "12.33.0"
   resolved "https://registry.yarnpkg.com/@azure/storage-blob/-/storage-blob-12.33.0.tgz#10ad4586f4922731b8b79cc86becada7567a1fab"
   integrity sha512-2SX8oP8PyblUcAFZSg39c8Ls+tFjavM6sBeV+qpw33mRzRhI/5hrFJmJ/x0H9xx5l6ECPvgSP8uPxqTeVbHNIA==
@@ -586,7 +586,7 @@
     "@azure/storage-common" "^12.0.0"
     tslib "^2.8.1"
 
-"@azure/storage-queue@^12.30.0":
+"@azure/storage-queue@^12.31.0":
   version "12.31.0"
   resolved "https://registry.yarnpkg.com/@azure/storage-queue/-/storage-queue-12.31.0.tgz#af3615bf59614476b953c11037cf1c7c2b20cfe5"
   integrity sha512-OzhvKO7G8+EXkUQPbKFkO7JNIAMkQZ9gMyZ85dsTCOk8jRRCbGbn3wsk3qrCAf6XWm+E2/fUsdLbX4YCOAWEKw==

@@ -23,6 +23,7 @@ import {
 } from 'cli-testing';
 
 import { extractPropertyFromResults } from '../common/utils';
+import AzureClient from '../common/clients/azure';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
 
@@ -123,6 +124,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     private saved: Record<string, unknown> = {};
 
     public zenkoDrCtl: ZenkoDrctl | null = null;
+
+    private _azureClient: AzureClient | null = null;
+
+    public get azureClient(): AzureClient {
+        if (!this._azureClient) {
+            this._azureClient = new AzureClient({
+                accountName: this.parameters.AzureAccountName,
+                accountKey: this.parameters.AzureAccountKey,
+            });
+        }
+        return this._azureClient;
+    }
 
     static sites: {
         [key: string]: {
