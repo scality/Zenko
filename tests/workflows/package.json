@@ -9,8 +9,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@kie/act-js": "^2.6.1",
+    "@octokit/rest": "^22.0.1",
     "@kie/mock-github": "^2.0.1",
-    "@octokit/rest": "^19.0.4",
     "@types/jest": "^29.1.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^18.8.5",
