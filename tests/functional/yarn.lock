@@ -2754,7 +2754,7 @@ aws4@^1.11.0, aws4@^1.12.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.13.2.tgz#0aa167216965ac9474ccfa83892cfb6b3e1e52ef"
   integrity sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==
 
-axios@^1.13.2, axios@^1.8.4:
+axios@^1.8.4, axios@~1.18.1:
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.18.1.tgz#d63f9863bcd8938815c86f9e2abd380189d96dfe"
   integrity sha512-3nTvFlvpn9Zu/RkHUqtc7/+al4UpRW5az71ap5zccp6e8RAYEzhMTecX8Dz1wWDYrPpUoB1HAQEGEAEvUr7S9g==
@@ -6039,13 +6039,13 @@ sax@>=0.6.0:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.6.0.tgz#da59637629307b97e7c4cb28e080a7bc38560d5b"
   integrity sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==
 
-"scubaclient@git+https://github.com/scality/scubaclient.git#1.1.4":
-  version "1.1.3"
-  resolved "git+https://github.com/scality/scubaclient.git#950e26d10154f6351f16c8f9fef1f55a676d1c71"
+"scubaclient@git+https://github.com/scality/scubaclient.git#1.2.0":
+  version "1.2.0"
+  resolved "git+https://github.com/scality/scubaclient.git#93c9fcd4f76aa34f65bb54366a43a952eee18f37"
   dependencies:
     "@aws-crypto/sha256-js" "^5.2.0"
     "@smithy/signature-v4" "^5.3.7"
-    axios "^1.13.2"
+    axios "~1.18.1"
 
 scule@^1.3.0:
   version "1.3.0"
