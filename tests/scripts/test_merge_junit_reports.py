@@ -327,6 +327,32 @@ def test_missing_file_logs_warning_and_continues(tmp_path, capsys, merge_module)
     assert f"::warning::File not found: {missing}" in capsys.readouterr().err
 
 
+def test_malformed_report_logs_warning_and_continues(tmp_path, capsys, merge_module):
+    """An empty/truncated report (e.g. from a cancelled run) emits a warning but does not abort the merge."""
+    real = tmp_path / "real.xml"
+    empty = tmp_path / "empty.xml"
+    out = tmp_path / "merged.xml"
+
+    _write_xml(
+        real,
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <testsuites>
+          <testsuite name="S" package="p" tests="1" failures="0" errors="0" skipped="0">
+            <testcase name="t" classname="p.S" time="0.1" />
+          </testsuite>
+        </testsuites>
+        """,
+    )
+    empty.write_text("", encoding="utf-8")
+
+    merge_module.merge_reports(str(out), [str(real), str(empty)])
+
+    root = ET.parse(out).getroot()
+    assert root.get("tests") == "1"
+    assert f"::warning::Skipping malformed report {empty}" in capsys.readouterr().err
+
+
 def test_get_suite_key(merge_module):
     """get_suite_key returns 'package::name'."""
     suite = ET.Element("testsuite")
