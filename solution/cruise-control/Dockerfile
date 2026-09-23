@@ -10,12 +10,14 @@
 # invocation and jar layout come from:
 # https://github.com/adobe/cruise-control/blob/master/docker/Dockerfile
 
+ARG JDK_IMAGE=eclipse-temurin:21.0.12_8-jdk-noble
+ARG BASE_IMAGE=ghcr.io/scality/zenko/java:21.0.12_8
 ARG CC_REPO=https://github.com/adobe/cruise-control.git
 ARG CC_VERSION=3.0.3-adbe-20260722
 ARG CC_COMMIT=c668b8316df9260dc0865e3c3f2274ebc60c5ce8
 
 # The JDK only: the build drives Gradle through the project's own wrapper.
-FROM eclipse-temurin:21.0.12_8-jdk-noble AS build
+FROM ${JDK_IMAGE} AS build
 
 ARG CC_REPO
 ARG CC_VERSION
@@ -41,7 +43,7 @@ RUN ./gradlew --console=plain --no-daemon clean jar copyDependantLibs && \
           cruise-control/build/dependant-libs/cruise-control-metrics-reporter.jar
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.12_8-jre-noble
+FROM ${BASE_IMAGE}
 
 # CruiseControl reads webserver.ui.diskpath unconditionally, so the directory has to exist
 # even though no web UI is shipped.
