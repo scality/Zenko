@@ -15,6 +15,7 @@
         "baseUrl": "./",
         "paths": {
             "cli-testing": ["./node_modules/cli-testing"],
+            "clients/*": ["./clients/*"],
             "common/*": ["./ctst/common/*"],
             "steps/*": ["./ctst/steps/*"],
             "world/*": ["./ctst/world/*"]
@@ -29,6 +30,7 @@
         "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
     },
     "include": [
+        "clients/**/*",
         "ctst/**/*",
         "testResourcesSetup/**/*"
     ],
