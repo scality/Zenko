@@ -30,7 +30,7 @@ fubectl:
   toolUrl: https://raw.githubusercontent.com/kubermatic/fubectl/${FUBECTL_VERSION}/fubectl.source
   toolName: fubectl.source
 fzf: # fuzzy finder for fubectl
-  tag: 0.65.2
+  tag: 0.74.4
   envsubst: FZF_VERSION
   toolUrl: https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz
   toolName: fzf
@@ -44,7 +44,7 @@ jmx-javaagent:
   tag: 1.5.0
   envsubst: JMX_JAVAAGENT_TAG
 kaf: # CLI Kafka client all-in-one
-  tag: 0.2.8
+  tag: 0.2.14
   envsubst: KAF_VERSION
   toolUrl: https://github.com/birdayz/kaf/releases/download/v${KAF_VERSION}/kaf_${KAF_VERSION}_Linux_x86_64.tar.gz
   toolName: kaf
@@ -116,7 +116,7 @@ sorbet:
   tag: v1.2.7
   envsubst: SORBET_TAG
 stern: # tail any pod logs with pattern matchin
-  tag: 1.33.0
+  tag: 1.34.0
   envsubst: STERN_VERSION
   toolUrl: https://github.com/stern/stern/releases/download/v${STERN_VERSION}/stern_${STERN_VERSION}_linux_amd64.tar.gz
   toolName: stern
