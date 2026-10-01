@@ -13,7 +13,8 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { CacheHelper, Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import { CacheHelper, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
+import constants from 'common/constants';
 import { safeJsonParse } from 'common/utils';
 import { PrometheusDriver } from 'prometheus-query';
 import assert from 'assert';
@@ -405,7 +406,7 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
     const targetAccount = Zenko.sites['source'].accountName;
 
     let account;
-    let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
+    let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
     account = await SuperAdmin.getAccount({
         accountName: targetAccount,
     });

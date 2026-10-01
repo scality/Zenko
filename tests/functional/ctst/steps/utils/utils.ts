@@ -3,7 +3,6 @@ import { promises as fsp } from 'fs';
 import { join } from 'path';
 import {
     CacheHelper,
-    Constants,
     Identity,
     S3,
     Utils,
@@ -179,9 +178,9 @@ async function createBucketWithConfiguration(
     retentionMode?: string) {
     world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || Constants.ACCOUNT_NAME;
+        world.parameters.AccountName || constants.ACCOUNT_NAME;
     const usedBucketName = bucketName
-        || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+        || `${preName}${constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);
     world.addCommandParameter({ bucket: usedBucketName });
     if (withObjectLock === 'with') {
