@@ -6,12 +6,12 @@ import {
     PutBucketVersioningCommand,
     S3Client,
 } from '@aws-sdk/client-s3';
-import { IdentityEnum, Identity, S3, Utils } from 'cli-testing';
+import { IdentityEnum, Identity, S3 } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
 import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
-import { assertBudgetFitsStepTimeout, safeJsonParse } from 'common/utils';
+import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
 import { replicationLockTags } from 'common/hooks';
 import { CRRAccountInfo } from './crrCascade';
 
@@ -314,7 +314,7 @@ When('the job to replicate existing objects with status {string} is executed',
             apiVersion: 'v1',
             kind: 'Pod',
             metadata: {
-                name: `s3utils-crr-existing-${Utils.randomString().toLowerCase()}`,
+                name: `s3utils-crr-existing-${randomString().toLowerCase()}`,
                 namespace: 'default',
                 labels: {
                     app: 's3utils',

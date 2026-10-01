@@ -1,7 +1,8 @@
 import Zenko from 'world/Zenko';
 import { Then, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { CacheHelper, S3, Utils } from 'cli-testing';
+import { CacheHelper, S3 } from 'cli-testing';
+import { randomString } from 'common/utils';
 import { deleteFile, saveAsFile } from './utils/utils';
 
 const validSystemXml = `
@@ -58,7 +59,7 @@ When('I PUT the {string} {string} XML file',
         } else {
             objectBody = (isValidObject === 'valid') ? validCapacityXml : invalidCapacityXml;
         }
-        const tempFileName = `${Utils.randomString()}_${objectKey}`;
+        const tempFileName = `${randomString()}_${objectKey}`;
         this.addToSaved('tempFileName', `/tmp/${tempFileName}`);
         await saveAsFile(tempFileName, objectBody);
         this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
