@@ -1,7 +1,6 @@
 export default {
     complianceRetention: 'COMPLIANCE',
     governanceRetention: 'GOVERNANCE',
-    DEFAULT_SUBDOMAIN: 'my-company.com',
     DEFAULT_TIMEOUT: 100000,
     ACCOUNT_NAME: 'AccountTest',
     INTERNAL_SERVICES_ACCOUNT_ID: '000000000000',
@@ -9,7 +8,6 @@ export default {
     POLICY_NAME_TEST: 'policyNameForTest',
     ROLE_NAME_TEST: 'roleNameForTest',
     BUCKET_NAME_TEST: 'bucketForTest',
-    K_CLIENT: 'zenko-ui',
     MAX_ACCOUNT_CHECK_RETRIES: 100,
     // Must match the file name cli-testing's S3.getObject writes downloaded objects to
     OUTFILE_NAME: 'out.loc',

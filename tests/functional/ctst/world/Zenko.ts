@@ -340,7 +340,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 this.parameters.KeycloakHost || 'keycloak.zenko.local',
                 this.parameters.KeycloakPort || '80',
                 `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-                this.parameters.KeycloakClientId || constants.K_CLIENT,
+                this.parameters.KeycloakClientId,
                 this.parameters.KeycloakGrantType || 'password',
             );
             if (!webIdentityToken) {
@@ -916,8 +916,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}s3.${this.parameters.subdomain
-                || constants.DEFAULT_SUBDOMAIN}${path}`,
+            url: `${protocol}s3.${this.parameters.subdomain}${path}`,
             headers,
             data: payload,
         };
@@ -942,7 +941,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     createS3Client(): S3Client {
         const credentials = Identity.getCurrentCredentials();
         const protocol = this.parameters.ssl === false ? 'http' : 'https';
-        const subdomain = this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
+        const subdomain = this.parameters.subdomain;
 
         return new S3Client({
             region: 'us-east-1',
@@ -991,7 +990,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             this.parameters.KeycloakHost || 'keycloak.zenko.local',
             this.parameters.KeycloakPort || '80',
             `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
-            this.parameters.KeycloakClientId || constants.K_CLIENT,
+            this.parameters.KeycloakClientId,
             this.parameters.KeycloakGrantType || 'password',
         );
         const axiosInstance = axios.create();
@@ -1003,7 +1002,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         const axiosConfig: AxiosRequestConfig = {
             method,
-            url: `${protocol}management.${this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN}/api/v1${path}`,
+            url: `${protocol}management.${this.parameters.subdomain}/api/v1${path}`,
             headers,
             data: payload,
         };
