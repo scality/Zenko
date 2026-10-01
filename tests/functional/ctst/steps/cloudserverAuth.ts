@@ -38,7 +38,7 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
     this.useSavedIdentity();
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || constants.ACCOUNT_NAME;
+        this.parameters.AccountName;
     const usedBucketName = `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });

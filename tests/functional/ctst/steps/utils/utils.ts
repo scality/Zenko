@@ -177,7 +177,7 @@ async function createBucketWithConfiguration(
     retentionMode?: string) {
     world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || constants.ACCOUNT_NAME;
+        world.parameters.AccountName;
     const usedBucketName = bucketName
         || `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);
