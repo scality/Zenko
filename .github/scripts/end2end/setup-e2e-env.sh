@@ -157,7 +157,7 @@ else
     export STORAGE_ACCOUNT_OWNER_USER_NAME="storage_account_owner"
     export DATA_CONSUMER_USER_NAME="data_consumer"
     export DATA_ACCESSOR_USER_NAME="data_accessor"
-    # env vars used by cli-testing's Keycloak.ts seeder
+    # env vars read by the ctst Keycloak seeder (tests/functional/ctst/steps/utils/keycloak.ts)
     export ACCOUNT="${ZENKO_ACCOUNT_NAME}"
     export STORAGE_MANAGER="${STORAGE_MANAGER_USER_NAME}"
     export STORAGE_ACCOUNT_OWNER="${STORAGE_ACCOUNT_OWNER_USER_NAME}"

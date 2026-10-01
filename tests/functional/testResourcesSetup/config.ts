@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { load } from 'js-yaml';
+import { requireEnv } from 'clients/env';
 
 export interface EndpointConfig {
     hostname: string;
@@ -41,14 +42,6 @@ export interface E2EConfig {
     accounts: string[];
     endpoints: EndpointConfig[];
     locations: LocationConfig[];
-}
-
-function requireEnv(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-    return value;
 }
 
 export interface Env {
