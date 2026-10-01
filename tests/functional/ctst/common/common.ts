@@ -1,6 +1,6 @@
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
+import { CacheHelper, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import { parseGoDuration, safeJsonParse } from './utils';
 import assert from 'assert';
@@ -20,7 +20,7 @@ import {
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 import constants from './constants';
 
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+setDefaultTimeout(constants.DEFAULT_TIMEOUT);
 
 /**
  * Cleans the created test bucket
@@ -144,16 +144,16 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
 
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        this.parameters.AccountName || constants.ACCOUNT_NAME;
     await createBucket(this, versioning,
-        `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+        `${preName}.${constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        this.parameters.AccountName || constants.ACCOUNT_NAME;
     await createBucket(this, versioning,
-        `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+        `${preName}${constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
