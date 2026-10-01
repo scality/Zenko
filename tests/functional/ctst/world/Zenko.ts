@@ -287,19 +287,19 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             await this.prepareIamUser();
             break;
         case EntityType.STORAGE_MANAGER:
-            await this.prepareARWWI(this.parameters.StorageManagerUsername || 'storage_manager',
+            await this.prepareARWWI(this.parameters.StorageManagerUsername,
                 'storage-manager-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.STORAGE_ACCOUNT_OWNER:
-            await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername || 'storage_account_owner',
+            await this.prepareARWWI(this.parameters.StorageAccountOwnerUsername,
                 'storage-account-owner-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.DATA_CONSUMER:
-            await this.prepareARWWI(this.parameters.DataConsumerUsername || 'data_consumer',
+            await this.prepareARWWI(this.parameters.DataConsumerUsername,
                 'data-consumer-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.DATA_ACCESSOR:
-            await this.prepareARWWI(this.parameters.DataAccessorUsername || 'data_accessor',
+            await this.prepareARWWI(this.parameters.DataAccessorUsername,
                 'data-accessor-role', this.parameters.KeycloakTestPassword);
             break;
         case EntityType.ASSUME_ROLE_USER:
@@ -336,12 +336,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (!Identity.hasIdentity(IdentityEnum.ASSUMED_ROLE, key, accountName)) {
             const webIdentityToken = await this.getWebIdentityToken(
                 ARWWIName,
-                ARWWIPassword || '123',
-                this.parameters.KeycloakHost || 'keycloak.zenko.local',
-                this.parameters.KeycloakPort || '80',
-                `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+                ARWWIPassword,
+                this.parameters.KeycloakHost,
+                this.parameters.KeycloakPort,
+                `/auth/realms/${this.parameters.KeycloakRealm}/protocol/openid-connect/token`,
                 this.parameters.KeycloakClientId,
-                this.parameters.KeycloakGrantType || 'password',
+                this.parameters.KeycloakGrantType,
             );
             if (!webIdentityToken) {
                 throw new Error('Error when trying to get a WebIdentity token.');
@@ -985,13 +985,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         username?: string,
     ): Promise<{ statusCode: number; data: object } | { statusCode: number; err: unknown }> {
         const token = await this.getWebIdentityToken(
-            username || this.parameters.KeycloakUsername || 'storage_manager',
-            this.parameters.KeycloakPassword || '123',
-            this.parameters.KeycloakHost || 'keycloak.zenko.local',
-            this.parameters.KeycloakPort || '80',
-            `/auth/realms/${this.parameters.KeycloakRealm || 'zenko'}/protocol/openid-connect/token`,
+            username || this.parameters.KeycloakUsername,
+            this.parameters.KeycloakPassword,
+            this.parameters.KeycloakHost,
+            this.parameters.KeycloakPort,
+            `/auth/realms/${this.parameters.KeycloakRealm}/protocol/openid-connect/token`,
             this.parameters.KeycloakClientId,
-            this.parameters.KeycloakGrantType || 'password',
+            this.parameters.KeycloakGrantType,
         );
         const axiosInstance = axios.create();
         const protocol = this.parameters.ssl === false ? 'http://' : 'https://';

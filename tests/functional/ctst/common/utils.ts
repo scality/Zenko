@@ -19,6 +19,14 @@ import { AWSCredentials } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
 
+export function requireEnv(name: string): string {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${name}`);
+    }
+    return value;
+}
+
 export function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
