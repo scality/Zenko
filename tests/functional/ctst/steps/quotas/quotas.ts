@@ -1,7 +1,7 @@
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../../world/Zenko';
-import { Scality, Command, Utils } from 'cli-testing';
-import { prepareMetricsScenarios } from '../../common/utils';
+import { Scality, Command } from 'cli-testing';
+import { prepareMetricsScenarios, sleep } from '../../common/utils';
 import assert from 'assert';
 
 export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration: ITestCaseHookParameter) {
@@ -112,5 +112,5 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
 });
 
 When('I wait {int} seconds', async (seconds: number) => {
-    await Utils.sleep(seconds * 1000);
+    await sleep(seconds * 1000);
 });
