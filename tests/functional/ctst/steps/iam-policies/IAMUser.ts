@@ -1,7 +1,7 @@
 import { Given } from '@cucumber/cucumber';
-import { IAM, Identity, Utils } from 'cli-testing';
+import { IAM, Identity } from 'cli-testing';
 import constants from 'common/constants';
-import { extractPropertyFromResults } from '../../common/utils';
+import { extractPropertyFromResults, randomString } from '../../common/utils';
 import Zenko from 'world/Zenko';
 
 Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
@@ -10,7 +10,7 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
         this.resetCommand();
         this.addToSaved('action', action);
         // create the IAM policy
-        this.addCommandParameter({ policyName: `${constants.POLICY_NAME_TEST}${Utils.randomString()}` });
+        this.addCommandParameter({ policyName: `${constants.POLICY_NAME_TEST}${randomString()}` });
         this.addCommandParameter({
             policyDocument: JSON.stringify({
                 Version: '2012-10-17',

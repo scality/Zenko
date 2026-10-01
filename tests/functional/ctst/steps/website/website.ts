@@ -3,9 +3,10 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../../world/Zenko';
 import { putObject } from '../utils/utils';
 import { waitForZenkoToStabilize, waitForDataServicesToStabilize } from '../utils/kubernetes';
-import { S3, Utils } from 'cli-testing';
+import { S3 } from 'cli-testing';
+import { sleep, randomString } from 'common/utils';
 
-const pageMessage = Utils.randomString();
+const pageMessage = randomString();
 
 Given('an index html file', async function (this: Zenko) {
     // push a file with a basic html content named index.html in the bucket
@@ -83,7 +84,7 @@ Then('the user should be able to load the index.html file from the {string} endp
                     response,
                     content,
                 });
-                await Utils.sleep(1000);
+                await sleep(1000);
             }
         }
         assert.fail('Failed to fetch the bucket website after 60 tries');

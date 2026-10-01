@@ -1,6 +1,7 @@
 import { Then, Given, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, Utils, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { S3, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { randomString } from 'common/utils';
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
@@ -41,7 +42,7 @@ interface QueueConfiguration {
 async function copyObject(world: Zenko, sourceObject: string) {
     await putObject(world, sourceObject);
     world.resetCommand();
-    let objName = `notif-s3:objectcreated:copy-target-${Utils.randomString()}`.toLocaleLowerCase();
+    let objName = `notif-s3:objectcreated:copy-target-${randomString()}`.toLocaleLowerCase();
     if (world.getSaved<string>('filterType')) {
         objName = world.getSaved<string>('filterType') === 'prefix' ?
             `${world.getSaved<string>('objectNamePrefix') }${objName}` :
@@ -269,7 +270,7 @@ When('a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
         this.addToSaved('notificationEventType', notificationType);
-        let objName = `notif-${notificationType}-${enable}-${filterType}-${Utils.randomString()}`.toLocaleLowerCase();
+        let objName = `notif-${notificationType}-${enable}-${filterType}-${randomString()}`.toLocaleLowerCase();
         if (enable === 'with') {
             this.addToSaved('filterType', filterType);
             objName = filterType === 'prefix' ? `${this.getSaved<string>('objectNamePrefix')}${objName}` :
@@ -322,7 +323,7 @@ Then('notifications should be enabled for {string} event in destination {int}',
 Then('i should {string} a notification for {string} event in destination {int}',
     async function (this: Zenko, receive: string, notificationType: string, destination: number) {
         const { topic, hosts } = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination];
-        const groupId = `ctst_kafka_consumer_group_${Utils.randomString()}`;
+        const groupId = `ctst_kafka_consumer_group_${randomString()}`;
 
         const consumer = new Consumer({
             clientId: groupId,

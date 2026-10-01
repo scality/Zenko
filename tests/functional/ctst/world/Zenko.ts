@@ -16,12 +16,11 @@ import {
     IdentityEnum,
     STS,
     SuperAdmin,
-    Utils,
     AWSCredentials,
     Logger,
 } from 'cli-testing';
 
-import { extractPropertyFromResults } from '../common/utils';
+import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
 import ZenkoDrctl from 'steps/dr/drctl';
@@ -186,7 +185,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         });
 
         CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
-
 
         if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
@@ -379,7 +377,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
                 nextMarker = GRFWIResponse.data.IsTruncated ? GRFWIResponse.data.Marker : undefined;
                 callNumber++;
-                await Utils.sleep(500);
+                await sleep(500);
             } while (callNumber < 100);
 
             // Ensure we can assume at least one role
@@ -470,7 +468,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async createAccount(name?: string, force?: boolean, adminClientName?: string): Promise<string> {
         Identity.resetIdentity();
         const accountName = name || this.getSaved<string>('accountName') ||
-            `${constants.ACCOUNT_NAME}${Utils.randomString()}`;
+            `${constants.ACCOUNT_NAME}${randomString()}`;
         if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
             Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
             return accountName;
@@ -508,7 +506,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const accountName = Identity.getCurrentAccountName();
 
         // Creating a role to assume
-        const roleName = `${accountName}${constants.ROLE_NAME_TEST}${Utils.randomString()}`;
+        const roleName = `${accountName}${constants.ROLE_NAME_TEST}${randomString()}`;
         this.addToSaved('roleName', roleName);
         this.addCommandParameter({ roleName });
         this.addCommandParameter({ assumeRolePolicyDocument: constants.assumeRoleTrustPolicy });
@@ -521,7 +519,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (crossAccount) {
             // Creating a second account if its Cross-Account AssumeRole
             const account2 = await SuperAdmin.createAccount({
-                accountName: `${constants.ACCOUNT_NAME}${Utils.randomString()}`,
+                accountName: `${constants.ACCOUNT_NAME}${randomString()}`,
             });
 
             // Creating credentials for the second account
@@ -537,7 +535,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         // Creating a user in the account to be assumed from
         this.resetCommand();
-        const userName = `${accountToBeAssumedFrom}${constants.USER_NAME_TEST}${Utils.randomString()}`;
+        const userName = `${accountToBeAssumedFrom}${constants.USER_NAME_TEST}${randomString()}`;
         this.addCommandParameter({ userName });
         await IAM.createUser(this.getCommandParameters());
 
@@ -546,7 +544,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addCommandParameter({
             policyName: `${accountToBeAssumedFrom}` +
                 `${constants.POLICY_NAME_TEST}` +
-                `${Utils.randomString()}`,
+                `${randomString()}`,
         });
         this.addCommandParameter({ policyDocument: constants.assumeRolePolicy });
         const assumeRolePolicyArn =
@@ -686,7 +684,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
                 account = await SuperAdmin.getAccount({ accountName });
                 while (!account && remaining > 0) {
-                    await Utils.sleep(500);
+                    await sleep(500);
                     account = await SuperAdmin.getAccount({ accountName });
                     remaining--;
                 }
@@ -703,7 +701,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
                 if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
                     const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
-                    if (!Utils.isAccessKeys(accessKeys)) {
+                    if (!isAccessKeys(accessKeys)) {
                         throw new Error('Failed to generate account access keys for site ${siteKey}');
                     }
                     accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
@@ -728,7 +726,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
             const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
-            if (!Utils.isAccessKeys(accessKeys)) {
+            if (!isAccessKeys(accessKeys)) {
                 throw new Error('Failed to generate account access keys for site ${siteKey}');
             }
             accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
@@ -747,7 +745,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareIamUser() {
-        const userName = `iamusertest${Utils.randomString()}`;
+        const userName = `iamusertest${randomString()}`;
         Identity.resetIdentity();
         this.addToSaved('userName', userName);
         // Create IAM user

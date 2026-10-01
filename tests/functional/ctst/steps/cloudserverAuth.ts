@@ -1,6 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Utils, S3 } from 'cli-testing';
+import { S3 } from 'cli-testing';
+import { randomString } from 'common/utils';
 import constants from 'common/constants';
 import { strict as assert } from 'assert';
 
@@ -38,7 +39,7 @@ When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.useSavedIdentity();
     const preName = this.getSaved<string>('accountName') ||
         this.parameters.AccountName || constants.ACCOUNT_NAME;
-    const usedBucketName = `${preName}${constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+    const usedBucketName = `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });
     // Empty strings are used to pass parameters that are used as a flag and do not require a value

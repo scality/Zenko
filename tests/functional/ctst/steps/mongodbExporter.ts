@@ -1,5 +1,6 @@
 import { Then } from '@cucumber/cucumber';
-import { Utils } from 'cli-testing';
+import { sleep } from 'common/utils';
+
 import { PrometheusDriver } from 'prometheus-query';
 import assert from 'assert';
 import Zenko from 'world/Zenko';
@@ -36,7 +37,7 @@ Then(
                     `Metric ${metric} never appeared (no series in /api/v1/query)`,
                 );
             }
-            await Utils.sleep(POLL_MS);
+            await sleep(POLL_MS);
         }
     },
 );
@@ -54,7 +55,7 @@ Then(
                 `Expected ${metric} to be absent, got ${res.result.length} series`,
             );
             if (i < STABILITY_CHECKS - 1) {
-                await Utils.sleep(STABILITY_INTERVAL_MS);
+                await sleep(STABILITY_INTERVAL_MS);
             }
         }
     },
