@@ -26,11 +26,8 @@ export function randomString(): string {
     return randomBytes(5).toString('hex');
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isAccessKeys(object: any): object is AWSCredentials {
-    const isValidCredentials =
-        object.AccessKeyId && object.SecretAccessKey && object.AccessKeyId !== '' && object.SecretAccessKey !== '';
-    return isValidCredentials && object.SessionToken ? object.SessionToken !== '' : true;
+export function isAccessKeys(object: Partial<AWSCredentials>): object is AWSCredentials {
+    return Boolean(object.accessKeyId && object.secretAccessKey && object.sessionToken !== '');
 }
 
 export function assertBudgetFitsStepTimeout(budgetSeconds: number, stepTimeoutMs: number): void {
