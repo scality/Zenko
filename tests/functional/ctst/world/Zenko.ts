@@ -13,7 +13,6 @@ import {
     Identity,
     IdentityEnum,
     STS,
-    SuperAdmin,
     Logger,
 } from 'cli-testing';
 
@@ -21,6 +20,7 @@ import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '.
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
 import { AWSCredentials } from 'clients/aws';
+import { VaultAdminClient } from 'clients/vault';
 import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
@@ -143,6 +143,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     public praInstallCount = 0;
 
+    private static vaultAdmins: Record<string, VaultAdminClient> = {};
+
     private _azureClient: AzureClient | null = null;
 
     public get azureClient(): AzureClient {
@@ -231,6 +233,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accessKeyId: this.parameters.AdminAccessKey,
                 secretAccessKey: this.parameters.AdminSecretKey,
             }, undefined, undefined, undefined, this.parameters.subdomain);
+            Zenko.vaultAdmins[Zenko.PRIMARY_SITE_NAME] = this.createVaultAdmin(this.parameters.subdomain,
+                this.parameters.AdminAccessKey, this.parameters.AdminSecretKey);
 
             Zenko.sites['source'] = {
                 accountName: Identity.defaultAccountName,
@@ -244,6 +248,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accessKeyId: this.parameters.DRAdminAccessKey!,
                     secretAccessKey: this.parameters.DRAdminSecretKey!,
                 }, undefined, undefined, undefined, this.parameters.DRSubdomain);
+                Zenko.vaultAdmins[Zenko.SECONDARY_SITE_NAME] = this.createVaultAdmin(this.parameters.DRSubdomain!,
+                    this.parameters.DRAdminAccessKey!, this.parameters.DRAdminSecretKey!);
             }
 
             Zenko.sites['sink'] = {
@@ -255,6 +261,25 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.logger.debug('Zenko sites', {
             sites: Zenko.sites,
         });
+    }
+
+    private createVaultAdmin(subdomain: string, accessKeyId: string, secretAccessKey: string): VaultAdminClient {
+        return new VaultAdminClient({
+            host: `iam.${subdomain}`,
+            port: Number(this.parameters.port),
+            https: this.parameters.ssl,
+            credentials: { accessKeyId, secretAccessKey },
+        });
+    }
+
+    // Admin of the site last selected with Identity.useIdentity(IdentityEnum.ADMIN, ...)
+    static currentVaultAdmin(): VaultAdminClient {
+        const name = Identity.getCurrentAdminName();
+        const admin = Zenko.vaultAdmins[name];
+        if (!admin) {
+            throw new Error(`No Vault admin client for site admin "${name}"`);
+        }
+        return admin;
     }
 
     private needsSecondarySite() {
@@ -373,9 +398,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
             // Getting account ID
-            const account = await SuperAdmin.getAccount({
-                accountName,
-            });
+            const account = await Zenko.currentVaultAdmin().getAccount(accountName);
             this.logger.debug('Got account', account);
 
             // Getting roles with GetRolesForWebIdentity
@@ -384,7 +407,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             let callNumber = 1;
             let nextMarker: string | undefined;
             do {
-                const GRFWIResponse = await SuperAdmin.getRolesForWebIdentity(webIdentityToken, nextMarker);
+                const GRFWIResponse = await Zenko.currentVaultAdmin()
+                    .getRolesForWebIdentity(webIdentityToken, nextMarker);
 
                 this.logger.debug('getting roles for web identity', {
                     data: GRFWIResponse.data,
@@ -505,8 +529,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.useIdentity(IdentityEnum.ADMIN, adminClientName);
         }
 
-        await SuperAdmin.createAccount({ accountName });
-        const credentials = await SuperAdmin.generateAccountAccessKey({ accountName });
+        await Zenko.currentVaultAdmin().createAccount(accountName);
+        const credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
         Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, credentials, undefined, true, true);
 
         // Save the identity
@@ -518,7 +542,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (!name) {
             throw new Error('No account name provided');
         }
-        await SuperAdmin.deleteAccount({ accountName: name });
+        await Zenko.currentVaultAdmin().deleteAccount(name);
     }
 
     /**
@@ -545,14 +569,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         if (crossAccount) {
             // Creating a second account if its Cross-Account AssumeRole
-            const account2 = await SuperAdmin.createAccount({
-                accountName: `${constants.ACCOUNT_NAME}${randomString()}`,
-            });
+            const account2 = await Zenko.currentVaultAdmin()
+                .createAccount(`${constants.ACCOUNT_NAME}${randomString()}`);
 
             // Creating credentials for the second account
-            const account2Credentials = await SuperAdmin.generateAccountAccessKey({
-                accountName: account2.account.name,
-            });
+            const account2Credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(account2.account.name);
 
             Identity.addIdentity(IdentityEnum.ACCOUNT, account2.account.name, account2Credentials, undefined, true);
             this.addToSaved('crossAccountName', account2.account.name);
@@ -703,16 +724,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 await runOnceAcrossWorkers(
                     { lockName: `account-init-${accountName}`, logger },
                     async () => {
-                        await SuperAdmin.createAccount({ accountName });
+                        await Zenko.currentVaultAdmin().createAccount(accountName);
                     },
                 );
                 let account = null;
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await SuperAdmin.getAccount({ accountName });
+                account = await Zenko.currentVaultAdmin().getAccount(accountName);
                 while (!account && remaining > 0) {
                     await sleep(500);
-                    account = await SuperAdmin.getAccount({ accountName });
+                    account = await Zenko.currentVaultAdmin().getAccount(accountName);
                     remaining--;
                 }
                 if (!account) {
@@ -727,7 +748,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 };
 
                 if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-                    const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+                    const accessKeys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
                     if (!isAccessKeys(accessKeys)) {
                         throw new Error('Failed to generate account access keys for site ${siteKey}');
                     }
@@ -752,7 +773,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
 
         if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-            const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
+            const accessKeys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
             if (!isAccessKeys(accessKeys)) {
                 throw new Error('Failed to generate account access keys for site ${siteKey}');
             }
