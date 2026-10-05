@@ -1,8 +1,7 @@
 import { STSClient } from '@aws-sdk/client-sts';
-import { CoreV1Api } from '@kubernetes/client-node';
 import { loadConfig, loadEnv, Env } from './config';
 import { PensieveClient } from 'clients/pensieveClient';
-import { createK8sClient } from 'clients/k8s';
+import { KubernetesClient } from 'clients/k8s';
 import { createAccounts } from './setup/accounts';
 import { createEndpoints } from './setup/endpoints';
 import { createLocations } from './setup/locations';
@@ -12,7 +11,7 @@ import { createAzureContainers, createAzureQueues } from './setup/buckets/azure'
 
 async function createClients(
     env: Env,
-): Promise<{ pensieveClient: PensieveClient; stsClient: STSClient; k8sClient: CoreV1Api }> {
+): Promise<{ pensieveClient: PensieveClient; stsClient: STSClient; k8sClient: KubernetesClient }> {
     const pensieveClient = new PensieveClient(env.MANAGEMENT_ENDPOINT, env.TOKEN);
     await pensieveClient.init();
 
@@ -23,7 +22,7 @@ async function createClients(
         credentials: { accessKeyId: 'placeholder', secretAccessKey: 'placeholder' },
     });
 
-    const k8sClient = createK8sClient(env.KUBECONFIG);
+    const k8sClient = new KubernetesClient(console, env.KUBECONFIG);
 
     return { pensieveClient, stsClient, k8sClient };
 }
