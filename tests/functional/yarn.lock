@@ -1109,6 +1109,28 @@
     tar-fs "^3.0.9"
     ws "^8.18.2"
 
+"@kubernetes/client-node@^2.0.0":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@kubernetes/client-node/-/client-node-2.0.2.tgz#da57584d01f513d631931555c89e2f7b167803ee"
+  integrity sha512-AvVq87luFXIoo95dkBsNnzU6pIwKGJM5CZD/iLfxMPXPzVa4w8isIMvXmYly+4TkodQFf3fQzX3KDysVy1OYng==
+  dependencies:
+    "@types/js-yaml" "^4.0.1"
+    "@types/node" "^26.0.0"
+    "@types/stream-buffers" "^3.0.3"
+    form-data "^4.0.0"
+    hpagent "^1.2.0"
+    isomorphic-ws "^5.0.0"
+    js-yaml "^5.1.0"
+    jsonpath-plus "^10.3.0"
+    openid-client "^6.1.3"
+    rfc4648 "^1.3.0"
+    socks "^2.8.4"
+    socks-proxy-agent "^10.0.0"
+    stream-buffers "^3.0.2"
+    tar-fs "^3.0.9"
+    undici "^8.7.0"
+    ws "^8.18.2"
+
 "@microsoft/kiota-abstractions@1.0.0-preview.103":
   version "1.0.0-preview.103"
   resolved "https://registry.yarnpkg.com/@microsoft/kiota-abstractions/-/kiota-abstractions-1.0.0-preview.103.tgz#66f48c5c63589b7d98646f1fd0cce3f24f9df642"
@@ -2001,7 +2023,7 @@
     "@types/node" "*"
     form-data "^4.0.4"
 
-"@types/node@*", "@types/node@>=10.0.0", "@types/node@>=13.7.0":
+"@types/node@*", "@types/node@>=10.0.0", "@types/node@>=13.7.0", "@types/node@^26.0.0":
   version "26.6.6"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-26.6.6.tgz#9ed7b5817e728ed9216ef7c5b7d373fe3b777104"
   integrity sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==
@@ -2278,6 +2300,11 @@ agent-base@6:
   integrity sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==
   dependencies:
     debug "4"
+
+agent-base@9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-9.0.0.tgz#ec9efb08314e1e75b0852d74aabf9a387f99834e"
+  integrity sha512-TQf59BsZnytt8GdJKLPfUZ54g/iaUL2OWDSFCCvMOhsHduDQxO8xC4PNeyIkVcA5KwL2phPSv0douC0fgWzmnA==
 
 agent-base@^7.1.0, agent-base@^7.1.2:
   version "7.1.4"
@@ -4461,7 +4488,7 @@ js-yaml@^4.1.0, js-yaml@^4.3.2:
   dependencies:
     argparse "^2.0.1"
 
-js-yaml@^5.0.0, js-yaml@^5.2.2:
+js-yaml@^5.0.0, js-yaml@^5.1.0, js-yaml@^5.2.2:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-5.5.0.tgz#ec843f09ffb2a54b6758a41eee109a1815d16442"
   integrity sha512-paNr4LFIFPjeeSmwNYdrb8FafLLG/Cr2Af3GjbsHJ5CxIjH4r0c2emlmRdAtpPAieP1gRVzk6buBbVP5gBMGAg==
@@ -5996,6 +6023,15 @@ socket.io@^4.8.0:
     socket.io-adapter "~2.5.2"
     socket.io-parser "~4.2.4"
 
+socks-proxy-agent@^10.0.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-10.1.0.tgz#8eaf7d64ad8752ca43ab04a1a9567be9b7fc40b1"
+  integrity sha512-WlMj/67cEJ6MDI1OcsnjuYKDNDoyPCCYZ249kuuXPiMDw9F8PXkVaQ7YWu3siTydfQ/4BEZcvGzu+aYvz7dDCQ==
+  dependencies:
+    agent-base "9.0.0"
+    debug "^4.3.4"
+    socks "^2.8.3"
+
 socks-proxy-agent@^8.0.3, socks-proxy-agent@^8.0.4:
   version "8.0.5"
   resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-8.0.5.tgz#b9cdb4e7e998509d7659d689ce7697ac21645bee"
@@ -6005,7 +6041,7 @@ socks-proxy-agent@^8.0.3, socks-proxy-agent@^8.0.4:
     debug "^4.3.4"
     socks "^2.8.3"
 
-socks@^2.8.3:
+socks@^2.8.3, socks@^2.8.4:
   version "2.8.10"
   resolved "https://registry.yarnpkg.com/socks/-/socks-2.8.10.tgz#23aab4dccc1fdae110aaf4fa51cd190552432dc5"
   integrity sha512-e0VyvkVTwVYViNovRkZ9aodhxVlyoMn7eJhVUPxZ+eK9P/7CBkxvvsBOHqFPEH416726W8tLXXXjKwqgTErrCQ==
@@ -6572,6 +6608,11 @@ undici-types@~8.9.0:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-8.9.0.tgz#e240d97c8b5d85e5347ce73d25865c7906c1ec9f"
   integrity sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==
 
+undici@^8.7.0:
+  version "8.12.4"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-8.12.4.tgz#0c0cabeafd9a9c3139f9ace62ee9436c0d355c72"
+  integrity sha512-8Mx+uNKKER2bA4AdtedkqRbwUCIJFr2nJckXRe5yrDqzePqwLP7VNcctN8/XdmDSbF7mS+jJKIszlL+vbam1VA==
+
 unicorn-magic@^0.4.0:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/unicorn-magic/-/unicorn-magic-0.4.1.tgz#b7a367e6e10c96da7e6b9b007d69c11c7d558dee"
@@ -6696,7 +6737,6 @@ webidl-conversions@^7.0.0:
 
 "werelogs@git+https://github.com/scality/werelogs#8.2.4":
   version "8.2.4"
-  uid a7bbb5917a08b035d3763b24b070d517483d6982
   resolved "git+https://github.com/scality/werelogs#a7bbb5917a08b035d3763b24b070d517483d6982"
   dependencies:
     fast-safe-stringify "^2.1.1"
