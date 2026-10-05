@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/client-iam';
 import { PensieveClient } from 'clients/pensieveClient';
 import { LocationConfig, Env } from '../config';
-import { AccountCredentials } from 'clients/k8s';
+import { AccountCredentials } from './accounts';
 
 interface CRRUserCredentials {
     accessKey: string;

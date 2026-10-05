@@ -1,8 +1,13 @@
 import { STSClient, AssumeRoleWithWebIdentityCommand } from '@aws-sdk/client-sts';
-import { CoreV1Api } from '@kubernetes/client-node';
 import { PensieveClient } from 'clients/pensieveClient';
-import { AccountCredentials, createKubernetesSecret } from 'clients/k8s';
+import { KubernetesClient } from 'clients/k8s';
 import { Env } from '../config';
+
+export interface AccountCredentials {
+    AccessKeyId: string;
+    SecretAccessKey: string;
+    SessionToken: string;
+}
 
 async function getAccountCredentials(
     stsClient: STSClient,
@@ -28,7 +33,7 @@ async function getAccountCredentials(
 export async function createAccounts(
     pensieveClient: PensieveClient,
     stsClient: STSClient,
-    coreClient: CoreV1Api,
+    k8sClient: KubernetesClient,
     env: Env,
     accountNames: string[],
 ): Promise<Record<string, AccountCredentials>> {
@@ -36,7 +41,7 @@ export async function createAccounts(
     for (const accountName of accountNames) {
         const user = await pensieveClient.createUser(env.UUID, accountName);
         const credentials = await getAccountCredentials(stsClient, env.TOKEN, user.id);
-        await createKubernetesSecret(coreClient, env.NAMESPACE, `end2end-account-${user.userName}`, {
+        await k8sClient.createSecretIfMissing(env.NAMESPACE, `end2end-account-${user.userName}`, {
             AccessKeyId: credentials.AccessKeyId,
             SecretAccessKey: credentials.SecretAccessKey,
             SessionToken: credentials.SessionToken,
