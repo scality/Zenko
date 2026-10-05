@@ -11,7 +11,7 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Identity, IdentityEnum, SuperAdmin } from 'cli-testing';
+import { Identity, IdentityEnum } from 'cli-testing';
 import constants from 'common/constants';
 import { safeJsonParse, sleep } from 'common/utils';
 import { PrometheusDriver } from 'prometheus-query';
@@ -405,21 +405,15 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
 
     let account;
     let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
-    account = await SuperAdmin.getAccount({
-        accountName: targetAccount,
-    });
+    account = await Zenko.currentVaultAdmin().getAccount(targetAccount);
     while (!account && remaining > 0) {
         await sleep(500);
-        account = await SuperAdmin.getAccount({
-            accountName: targetAccount,
-        });
+        account = await Zenko.currentVaultAdmin().getAccount(targetAccount);
         remaining--;
     }
     assert(account);
 
-    const credentials = await SuperAdmin.generateAccountAccessKey({
-        accountName: targetAccount,
-    });
+    const credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(targetAccount);
 
     Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
