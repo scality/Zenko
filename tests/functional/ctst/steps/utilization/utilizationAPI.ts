@@ -1,7 +1,6 @@
 import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko from '../../world/Zenko';
-import { Command } from 'cli-testing';
+import Zenko, { Command } from '../../world/Zenko';
 import { Identity } from 'cli-testing';
 import ScubaClient, { ScubaMetrics } from 'scubaclient';
 import { prepareMetricsScenarios } from '../../common/utils';

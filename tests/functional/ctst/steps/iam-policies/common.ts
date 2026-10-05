@@ -1,7 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko from '../../world/Zenko';
-import { CacheHelper, ClientOptions, Command, Identity, VaultAuth } from 'cli-testing';
+import Zenko, { Command } from '../../world/Zenko';
+import { CacheHelper, ClientOptions, Identity, VaultAuth } from 'cli-testing';
 import { runActionAgainstBucket } from 'steps/utils/utils';
 
 When('the user tries to perform {string} on the bucket', async function (this: Zenko, action: string) {

@@ -3,7 +3,7 @@ import { exec } from 'child_process';
 import http from 'http';
 import { createHash, randomBytes } from 'crypto';
 import { setTimeout as sleep } from 'timers/promises';
-import { Command, IAM, Identity, IdentityEnum } from 'cli-testing';
+import { IAM, Identity, IdentityEnum } from 'cli-testing';
 import {
     AttachedPolicy,
     Group,
@@ -12,11 +12,11 @@ import {
     User,
 } from '@aws-sdk/client-iam';
 import { AWSCliOptions } from 'cli-testing';
-import Zenko from 'world/Zenko';
+import Zenko, { Command } from 'world/Zenko';
+import { AWSCredentials } from 'clients/aws';
 import fs from 'fs';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { ITestCaseHookParameter } from '@cucumber/cucumber';
-import { AWSCredentials } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
 

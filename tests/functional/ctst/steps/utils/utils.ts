@@ -6,10 +6,9 @@ import {
     Identity,
     S3,
     AWSVersionObject,
-    Command,
 } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse, sleep, randomString } from 'common/utils';
-import Zenko from 'world/Zenko';
+import Zenko, { Command } from 'world/Zenko';
 import assert from 'assert';
 import constants from 'common/constants';
 import { pollDLQBuffer } from './kafka';

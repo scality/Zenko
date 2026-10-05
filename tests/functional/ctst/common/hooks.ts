@@ -73,7 +73,7 @@ Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);
-    await Zenko.init(this.parameters);
+    await Zenko.init(this.parameters, this.logger);
 });
 
 Before({ tags: '@PRA' }, function () {
