@@ -9,23 +9,33 @@ import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
-    ClientOptions,
-    Command,
     IAM,
     Identity,
     IdentityEnum,
     STS,
     SuperAdmin,
-    AWSCredentials,
     Logger,
 } from 'cli-testing';
 
 import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
+import { AWSCredentials } from 'clients/aws';
 import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
+
+export interface Command {
+    stdout: string;
+    data?: unknown;
+    err?: string | null;
+    stderr?: string;
+    code?: string;
+    statusCode?: number;
+    retryable?: {
+        throttling?: boolean;
+    };
+}
 
 interface ServiceUsersCredentials {
     accessKey: string;
@@ -50,7 +60,12 @@ export enum EntityType {
     ASSUME_ROLE_USER_CROSS_ACCOUNT = 'ASSUME_ROLE_USER_CROSS_ACCOUNT',
 }
 
-export interface ZenkoWorldParameters extends ClientOptions {
+export interface ZenkoWorldParameters {
+    subdomain: string;
+    ssl: boolean;
+    port: string;
+    AdminAccessKey: string;
+    AdminSecretKey: string;
     AccountName: string;
     AccountAccessKey: string;
     AccountSecretKey: string;
@@ -126,6 +141,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     public zenkoDrCtl: ZenkoDrctl | null = null;
 
+    public praInstallCount = 0;
+
     private _azureClient: AzureClient | null = null;
 
     public get azureClient(): AzureClient {
@@ -158,7 +175,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
-    static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
     // Keyed by dlqKey(op, bucketName, objectKey). Array per key handles
     // Kafka at-least-once delivery and retries of the same object.
     static readonly dlqBuffer = new Map<string, DLQMessage[]>();
@@ -196,7 +212,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             ...this.parameters,
         });
 
-        CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
         if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
@@ -268,7 +283,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     decision = false;
                 }
             } catch (err) {
-                CacheHelper.logger.debug('Error when parsing JSON', {
+                this.logger.debug('Error when parsing JSON', {
                     err,
                     stdout: res.stdout,
                 });
@@ -667,8 +682,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @param {Object.<string,*>} parameters - the client-provided parameters
      * @returns {undefined}
      */
-    static async init(parameters: ZenkoWorldParameters) {
-        CacheHelper.logger.debug('Initializing Zenko', {
+    static async init(parameters: ZenkoWorldParameters, logger: Werelogs.RequestLogger) {
+        logger.debug('Initializing Zenko', {
             parameters,
         });
         // Create the default account for each site configured
@@ -678,7 +693,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
             const accountName = site.accountName;
             assert(accountName, `Account name is not defined for site ${siteKey}`);
-            CacheHelper.logger.debug('Initializing account for Zenko site', {
+            logger.debug('Initializing account for Zenko site', {
                 siteKey,
                 accountName,
             });
@@ -686,7 +701,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
                 Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
                 await runOnceAcrossWorkers(
-                    { lockName: `account-init-${accountName}`, logger: CacheHelper.logger },
+                    { lockName: `account-init-${accountName}`, logger },
                     async () => {
                         await SuperAdmin.createAccount({ accountName });
                     },
@@ -720,7 +735,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                     accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
                 }
 
-                CacheHelper.logger.debug('Adding account identity', {
+                logger.debug('Adding account identity', {
                     accountName,
                     accountAccessKeys,
                 });
@@ -728,10 +743,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        const accountName = this.sites['source']?.accountName || CacheHelper.parameters.AccountName!;
+        const accountName = this.sites['source']?.accountName || parameters.AccountName;
         const accountAccessKeys = Identity.getCredentialsForIdentity(
             IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-        || CacheHelper.parameters.AccountName!) || {
+        || parameters.AccountName) || {
             accessKeyId: '',
             secretAccessKey: '',
         };

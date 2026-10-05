@@ -1,11 +1,17 @@
 import { Then, Given, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { S3, AWSVersionObject, NotificationDestination } from 'cli-testing';
+import { S3, AWSVersionObject } from 'cli-testing';
 import { sleep, randomString } from 'common/utils';
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import Zenko from 'world/Zenko';
 import { putObject } from './utils/utils';
 import { waitForBucketInConnectorPipeline } from './utils/kafka';
+
+interface NotificationDestination {
+    destinationName: string;
+    topic: string;
+    hosts: string;
+}
 
 const KAFKA_TESTS_TIMEOUT = Number(process.env.KAFKA_TESTS_TIMEOUT) || 60000;
 
