@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/client-iam';
 import { PensieveClient } from 'clients/pensieveClient';
 import { LocationConfig, Env } from '../config';
-import { AccountCredentials } from './accounts';
+import { AWSCredentials } from 'clients/aws';
 
 interface CRRUserCredentials {
     accessKey: string;
@@ -16,15 +16,11 @@ interface CRRUserCredentials {
 }
 
 async function setupCRRIamResources(
-    accountCreds: AccountCredentials,
+    credentials: AWSCredentials,
     env: Env,
 ): Promise<CRRUserCredentials> {
     const iamClient = new IAMClient({
-        credentials: {
-            accessKeyId: accountCreds.AccessKeyId,
-            secretAccessKey: accountCreds.SecretAccessKey,
-            sessionToken: accountCreds.SessionToken,
-        },
+        credentials,
         endpoint: env.IAM_ENDPOINT,
         region: 'us-east-1',
     });
@@ -74,7 +70,7 @@ export async function createLocations(
     pensieveClient: PensieveClient,
     env: Env,
     locations: LocationConfig[],
-    accountsCreds: Record<string, AccountCredentials>,
+    accountsCreds: Record<string, AWSCredentials>,
 ): Promise<void> {
     for (const location of locations) {
         if (!location.name) {
