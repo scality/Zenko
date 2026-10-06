@@ -129,11 +129,7 @@ Given('{int} additional accounts', async function (this: Zenko, count: number) {
     }
 });
 
-async function createBucket(world: Zenko, versioning: string, bucketName: string) {
-    world.resetCommand();
-    world.addToSaved('bucketName', bucketName);
-    world.addCommandParameter({ bucket: bucketName });
-    await S3.createBucket(world.getCommandParameters());
+async function setBucketVersioning(world: Zenko, versioning: string) {
     world.addToSaved('bucketVersioning', versioning);
     if (versioning !== 'Non versioned') {
         const versioningConfiguration = versioning === 'Versioned' ? 'Enabled' : 'Suspended';
@@ -142,18 +138,33 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
     }
 }
 
+async function createBucket(world: Zenko, versioning: string, bucketName: string) {
+    world.resetCommand();
+    world.addToSaved('bucketName', bucketName);
+    world.addCommandParameter({ bucket: bucketName });
+    await S3.createBucket(world.getCommandParameters());
+    await setBucketVersioning(world, versioning);
+}
+
+export async function createUniqueBucket(world: Zenko, versioning: string, separator = '') {
+    const preName = world.getSaved<string>('accountName') ||
+        world.parameters.AccountName || Constants.ACCOUNT_NAME;
+    await createBucket(world, versioning,
+        `${preName}${separator}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+}
+
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
-    await createBucket(this, versioning,
-        `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+    await createUniqueBucket(this, versioning, '.');
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
-    await createBucket(this, versioning,
-        `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+    await createUniqueBucket(this, versioning);
+});
+
+When('the bucket versioning is set to {string}', async function (this: Zenko, versioning: string) {
+    this.resetCommand();
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    await setBucketVersioning(this, versioning);
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
