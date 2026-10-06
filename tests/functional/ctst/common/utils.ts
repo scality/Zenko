@@ -12,7 +12,8 @@ import {
     User,
 } from '@aws-sdk/client-iam';
 import { AWSCliOptions } from 'cli-testing';
-import Zenko, { Command } from 'world/Zenko';
+import Zenko from 'world/Zenko';
+import { Command } from 'common/command';
 import { AWSCredentials } from 'clients/aws';
 import fs from 'fs';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';

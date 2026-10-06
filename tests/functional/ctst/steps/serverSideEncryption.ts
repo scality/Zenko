@@ -91,7 +91,7 @@ When('an object {string} is uploaded with SSE algorithm {string} and key {string
         this.addToSaved('objectName', objectName);
         this.addToSaved('objectBody', SSE_TEST_BODY);
         const bucket = this.getSaved<string>('bucketName');
-        const client = this.createS3Client();
+        const client = this.s3;
         try {
             const resp = await client.send(new PutObjectCommand({
                 Bucket: bucket,
@@ -150,7 +150,7 @@ Then('the GetObject should return the uploaded body with SSE algorithm {string} 
         const bucket = this.getSaved<string>('bucketName');
         const objectName = this.getSaved<string>('objectName');
         const expectedBody = this.getSaved<string>('objectBody');
-        const client = this.createS3Client();
+        const client = this.s3;
         try {
             const resp = await client.send(
                 new GetObjectCommand({ Bucket: bucket, Key: objectName }),
@@ -193,7 +193,7 @@ Then('it should fail with error {string}',
 Then('objects {string} and {string} share the same KMS key',
     async function (this: Zenko, objA: string, objB: string) {
         const bucket = this.getSaved<string>('bucketName');
-        const client = this.createS3Client();
+        const client = this.s3;
         try {
             const [respA, respB] = await Promise.all([
                 client.send(new GetObjectCommand({ Bucket: bucket, Key: objA })),

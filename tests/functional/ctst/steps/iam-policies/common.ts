@@ -1,6 +1,7 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import Zenko, { Command } from '../../world/Zenko';
+import Zenko from '../../world/Zenko';
+import { Command } from 'common/command';
 import { CacheHelper, Identity } from 'cli-testing';
 import { VaultAuthClient } from 'clients/vault';
 import { runActionAgainstBucket } from 'steps/utils/utils';

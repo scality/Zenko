@@ -1,5 +1,6 @@
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';
-import Zenko, { EntityType, Command } from '../../world/Zenko';
+import Zenko, { EntityType } from '../../world/Zenko';
+import { Command } from 'common/command';
 import { Scality } from 'cli-testing';
 import { prepareMetricsScenarios, sleep } from '../../common/utils';
 import assert from 'assert';

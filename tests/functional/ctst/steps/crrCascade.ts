@@ -7,6 +7,7 @@ import {
     PutBucketVersioningCommand,
     PutObjectCommand,
     PutObjectTaggingCommand,
+    S3Client,
     StorageClass,
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
@@ -35,7 +36,7 @@ Given('a versioned bucket exists in location {string}', async function (this: Ze
     // Persist the identity so the default After-hook cleanup targets the
     // same account that owns the buckets created here (and by later steps).
     this.addToSaved('accountName', location);
-    const client = this.createS3Client();
+    const client = this.s3;
     await client.send(new CreateBucketCommand({ Bucket: bucket }));
     await client.send(new PutBucketVersioningCommand({
         Bucket: bucket,
@@ -75,7 +76,7 @@ Given(
         ].join(',');
 
         Identity.useIdentity(IdentityEnum.ACCOUNT, srcLocation);
-        await this.createS3Client().send(new PutBucketReplicationCommand({
+        await this.s3.send(new PutBucketReplicationCommand({
             Bucket: cascadeBuckets[srcLocation],
             ReplicationConfiguration: {
                 Role: role,
@@ -93,7 +94,7 @@ Given(
 );
 
 async function putCascadeObject(
-    client: ReturnType<Zenko['createS3Client']>,
+    client: S3Client,
     bucket: string,
     key: string,
     bodySize = 0,
@@ -112,7 +113,7 @@ When('an object {string} of {int} bytes is put in location {string}',
     async function (this: Zenko, objectName: string, bodySize: number, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const marker = await putCascadeObject(this.createS3Client(), cascadeBuckets[location], objectName, bodySize);
+        const marker = await putCascadeObject(this.s3, cascadeBuckets[location], objectName, bodySize);
         this.addToSaved('cascadeObjectName', objectName);
         this.addToSaved('cascadeSourceLocation', location);
         this.addToSaved('cascadeLastMarker', marker);
@@ -124,7 +125,7 @@ When('tags are put on the object {string} in location {string}',
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const tagValue = randomString().toLowerCase();
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        await this.createS3Client().send(new PutObjectTaggingCommand({
+        await this.s3.send(new PutObjectTaggingCommand({
             Bucket: cascadeBuckets[location],
             Key: objectName,
             Tagging: { TagSet: [{ Key: 'cascade-test-tag', Value: tagValue }] },
@@ -142,7 +143,7 @@ Then(
         const tagValue = this.getSaved<string>('cascadeTagValue');
         const deadline = Date.now() + timeoutSeconds * 1000;
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const client = this.createS3Client();
+        const client = this.s3;
         while (Date.now() < deadline) {
             const res = await client.send(
                 new GetObjectTaggingCommand({ Bucket: bucket, Key: objectName }),
@@ -170,7 +171,7 @@ Then(
         const objectName = this.getSaved<string>('cascadeObjectName');
         const deadline = Date.now() + timeoutSeconds * 1000;
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const client = this.createS3Client();
+        const client = this.s3;
         const expectedContentLength = this.getSaved<number>('cascadeExpectedContentLength');
         let lastStatus = 'unknown';
         while (Date.now() < deadline) {
@@ -218,7 +219,7 @@ Then(
         const bucket = cascadeBuckets[location];
         const deadline = Date.now() + waitSeconds * 1000;
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const client = this.createS3Client();
+        const client = this.s3;
         while (Date.now() < deadline) {
             const result = await client.send(
                 new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
@@ -242,7 +243,7 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
 
     for (const [location, bucket] of Object.entries(cascadeBuckets)) {
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const res = await world.createS3Client().send(
+        const res = await world.s3.send(
             new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
         );
 
@@ -305,7 +306,7 @@ When('the object {string} is concurrently written {int} times to every cascade l
         const clientByLocation = Object.fromEntries(
             Object.keys(cascadeBuckets).map(location => {
                 Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-                return [location, this.createS3Client()];
+                return [location, this.s3];
             }),
         );
 
@@ -335,7 +336,7 @@ Then(
         const clientByLocation = Object.fromEntries(
             Object.keys(cascadeBuckets).map(location => {
                 Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-                return [location, this.createS3Client()];
+                return [location, this.s3];
             }),
         );
 

@@ -390,7 +390,7 @@ function replicationInfoShape(info: ReplicationInfo | undefined) {
 
 When('the replication info of the object is saved', async function (this: Zenko) {
     const objectName = this.getSaved<string>('objectName');
-    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
+    const { Body } = await this.backbeatRoutes.send(new GetMetadataCommand({
         Bucket: this.getSaved<string>('bucketName'),
         Key: objectName,
         VersionId: this.getLatestObjectVersion(objectName),
@@ -410,7 +410,7 @@ Given('the object replication info is rewritten in the pre-2.16 format with stat
         assert.strictEqual(locations?.length, 1, 'the pre-2.16 format has one destination bucket');
         const site = locations[0];
 
-        const backbeatRoutes = this.createBackbeatRoutesClient();
+        const backbeatRoutes = this.backbeatRoutes;
         const versionId = this.getLatestObjectVersion(objectName);
         const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
             Bucket: bucket,
@@ -448,7 +448,7 @@ Then('the object replication info should match what cloudserver writes for a new
         const bucket = this.getSaved<string>('bucketName');
         const objectName = this.getSaved<string>('objectName');
         const locations = this.getSaved<string[]>('replicationLocations');
-        const backbeatRoutes = this.createBackbeatRoutesClient();
+        const backbeatRoutes = this.backbeatRoutes;
         const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
             Bucket: bucket,
             Key: objectName,
@@ -458,7 +458,7 @@ Then('the object replication info should match what cloudserver writes for a new
 
         // Same bucket, same rules, same size: only the writer differs.
         const referenceName = `${objectName}-reference`;
-        const { VersionId: referenceVersionId } = await this.createS3Client().send(new PutObjectCommand({
+        const { VersionId: referenceVersionId } = await this.s3.send(new PutObjectCommand({
             Bucket: bucket,
             Key: referenceName,
             Body: Buffer.alloc(md['content-length'] ?? 0),
@@ -484,7 +484,7 @@ Then('the {string} backend of the object should be unchanged', async function (t
     const saved = findBackend(this.getSaved<ReplicationInfo>('savedReplicationInfo'), site);
     assert(saved, `no '${site}' backend saved before the job`);
     const objectName = this.getSaved<string>('objectName');
-    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
+    const { Body } = await this.backbeatRoutes.send(new GetMetadataCommand({
         Bucket: this.getSaved<string>('bucketName'),
         Key: objectName,
         VersionId: this.getLatestObjectVersion(objectName),

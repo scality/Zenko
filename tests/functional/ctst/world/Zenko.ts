@@ -2,8 +2,9 @@ import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import { DLQMessage, dlqKey } from 'steps/utils/kafka';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { AccessKey } from '@aws-sdk/client-iam';
-import { S3Client, S3ServiceException } from '@aws-sdk/client-s3';
-import { Credentials } from '@aws-sdk/client-sts';
+import { S3Client } from '@aws-sdk/client-s3';
+import { IAMClient } from '@aws-sdk/client-iam';
+import { AssumeRoleCommand, AssumeRoleWithWebIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
@@ -12,7 +13,6 @@ import {
     IAM,
     Identity,
     IdentityEnum,
-    STS,
     Logger,
 } from 'cli-testing';
 
@@ -20,23 +20,12 @@ import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '.
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
 import { BackbeatRoutesClient } from '@scality/cloudserverclient';
-import { AWSCredentials } from 'clients/aws';
+import { AWSCredentials, AwsClients } from 'clients/aws';
+import { Command, toCommand } from 'common/command';
 import { VaultAdminClient } from 'clients/vault';
 import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
-
-export interface Command {
-    stdout: string;
-    data?: unknown;
-    err?: string | null;
-    stderr?: string;
-    code?: string;
-    statusCode?: number;
-    retryable?: {
-        throttling?: boolean;
-    };
-}
 
 interface ServiceUsersCredentials {
     accessKey: string;
@@ -144,6 +133,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     public praInstallCount = 0;
 
     private static vaultAdmins: Record<string, VaultAdminClient> = {};
+
+    private static awsClients = new Map<string, AwsClients>();
 
     private _azureClient: AzureClient | null = null;
 
@@ -445,14 +436,16 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
 
             // Assume the role and save the credentials
-            const ARWWI = await STS.assumeRoleWithWebIdentity({
-                roleArn,
-                webIdentityToken,
-            });
+            const ARWWI = await this.sts.send(new AssumeRoleWithWebIdentityCommand({
+                RoleArn: roleArn,
+                WebIdentityToken: webIdentityToken,
+                RoleSessionName: 'cli-tests',
+                DurationSeconds: constants.STS_DURATION_SECONDS,
+            }));
             this.logger.debug('Assumed role with web identity', ARWWI);
-            this.addToSaved('identityArn', extractPropertyFromResults(ARWWI, 'AssumedRoleUser', 'Arn'));
+            this.addToSaved('identityArn', ARWWI.AssumedRoleUser?.Arn);
 
-            const extractedCredentials = extractPropertyFromResults<Credentials>(ARWWI, 'Credentials');
+            const extractedCredentials = ARWWI.Credentials;
 
             if (!extractedCredentials) {
                 throw new Error('Error when trying to assume role with web identity: no credential');
@@ -562,8 +555,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         this.addCommandParameter({ roleName });
         this.addCommandParameter({ assumeRolePolicyDocument: constants.assumeRoleTrustPolicy });
         const roleArnToAssume =
-            extractPropertyFromResults(await IAM.createRole(
+            extractPropertyFromResults<string>(await IAM.createRole(
                 this.getCommandParameters()), 'Role', 'Arn');
+        if (!roleArnToAssume) {
+            throw new Error(`Error when trying to create role ${roleName}`);
+        }
 
         let accountToBeAssumedFrom = accountName;
 
@@ -621,10 +617,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             Identity.getCurrentAccountName(), true);
 
         // Assuming the role
-        this.resetCommand();
-        this.addCommandParameter({ roleArn: roleArnToAssume });
-        const res = extractPropertyFromResults<Credentials>(await STS.assumeRole(
-            this.getCommandParameters()), 'Credentials');
+        const res = (await this.sts.send(new AssumeRoleCommand({
+            RoleArn: roleArnToAssume,
+            RoleSessionName: `cli-tests${randomString()}`,
+            DurationSeconds: constants.STS_DURATION_SECONDS,
+        }))).Credentials;
 
         if (!res) {
             throw new Error('Error when trying to assume role');
@@ -673,16 +670,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         Identity.useIdentity(IdentityEnum.SERVICE_USER, serviceUserName, Identity.defaultAccountName);
 
         // Assuming the role as the service user
-        this.resetCommand();
-        this.addCommandParameter({ roleArn: roleArnToAssume });
-        const assumeRoleRes = await STS.assumeRole(this.getCommandParameters());
-        if (assumeRoleRes.err) {
-            throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}.
-            ${assumeRoleRes.err}`);
-        }
-
-        // Assign the assumed session credentials to the Assumed session.
-        const res = extractPropertyFromResults<Credentials>(assumeRoleRes, 'Credentials');
+        const res = (await this.sts.send(new AssumeRoleCommand({
+            RoleArn: roleArnToAssume,
+            RoleSessionName: `cli-tests${randomString()}`,
+            DurationSeconds: constants.STS_DURATION_SECONDS,
+        }))).Credentials;
 
         if (!res) {
             throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}`);
@@ -986,46 +978,49 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    private s3EndpointConfig() {
-        const credentials = Identity.getCurrentCredentials();
-        const protocol = this.parameters.ssl === false ? 'http' : 'https';
-        const subdomain = this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
-
-        return {
-            region: 'us-east-1',
-            endpoint: `${protocol}://s3.${subdomain}`,
-            credentials: {
-                accessKeyId: credentials.accessKeyId,
-                secretAccessKey: credentials.secretAccessKey,
-                sessionToken: credentials.sessionToken,
-            },
+    // Clients of the current identity. The endpoint follows the scenario's HTTPS switch,
+    // which still lives on cli-testing's parameters until its wrappers are gone.
+    private currentAwsClients(allowMissingCredentials = false): AwsClients {
+        const identity = Identity.getCurrentCredentials(allowMissingCredentials);
+        const credentials = identity?.accessKeyId ? {
+            accessKeyId: identity.accessKeyId,
+            secretAccessKey: identity.secretAccessKey,
+            sessionToken: identity.sessionToken,
+        } : undefined;
+        const endpoint = {
+            subdomain: Identity.getCurrentSubDomain() || this.parameters.subdomain,
+            https: CacheHelper.parameters.ssl !== false,
+            port: String(CacheHelper.parameters.port),
         };
+        const key = JSON.stringify([credentials?.accessKeyId, credentials?.sessionToken, endpoint]);
+        let clients = Zenko.awsClients.get(key);
+        if (!clients) {
+            clients = new AwsClients(credentials, endpoint);
+            Zenko.awsClients.set(key, clients);
+        }
+        return clients;
     }
 
-    createS3Client(): S3Client {
-        return new S3Client({
-            ...this.s3EndpointConfig(),
-            forcePathStyle: true,
-        });
+    get s3(): S3Client {
+        return this.currentAwsClients().s3;
     }
 
-    createBackbeatRoutesClient(): BackbeatRoutesClient {
-        return new BackbeatRoutesClient(this.s3EndpointConfig());
+    get iam(): IAMClient {
+        return this.currentAwsClients().iam;
+    }
+
+    // AssumeRoleWithWebIdentity is unsigned, so STS may be used without credentials
+    get sts(): STSClient {
+        return this.currentAwsClients(true).sts;
+    }
+
+    get backbeatRoutes(): BackbeatRoutesClient {
+        return this.currentAwsClients().backbeatRoutes;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async sendS3Command(command: any): Promise<void> {
-        try {
-            const client = this.createS3Client();
-            const result = await client.send(command);
-            this.setResult({ stdout: JSON.stringify(result), err: null, statusCode: 200 });
-        } catch (err: unknown) {
-            if (err instanceof S3ServiceException) {
-                this.setResult({ stdout: '', err: err.name, statusCode: err.$metadata.httpStatusCode || 403 });
-            } else {
-                throw err;
-            }
-        }
+        this.setResult(await toCommand(this.s3.send(command)));
     }
 
     /**

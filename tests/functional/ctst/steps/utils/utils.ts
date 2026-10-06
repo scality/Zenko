@@ -8,7 +8,8 @@ import {
     AWSVersionObject,
 } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse, sleep, randomString } from 'common/utils';
-import Zenko, { Command } from 'world/Zenko';
+import Zenko from 'world/Zenko';
+import { Command } from 'common/command';
 import assert from 'assert';
 import constants from 'common/constants';
 import { pollDLQBuffer } from './kafka';
