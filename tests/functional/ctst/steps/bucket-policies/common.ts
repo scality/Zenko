@@ -19,7 +19,14 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, Identity, S3 } from 'cli-testing';
+import { Identity, S3 } from 'cli-testing';
+import {
+    AttachRolePolicyCommand,
+    AttachUserPolicyCommand,
+    CreatePolicyCommand,
+    DetachRolePolicyCommand,
+    DetachUserPolicyCommand,
+} from '@aws-sdk/client-iam';
 import { extractPropertyFromResults, randomString } from 'common/utils';
 
 Given('an action {string}', function (this: Zenko, apiName: string) {
@@ -137,11 +144,10 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
             Resource: resources,
         });
     }
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const policyArn = (await this.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${randomString()}`,
+    }))).Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -150,18 +156,16 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     }
     if (identityType === EntityType.IAM_USER) {
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });
@@ -345,11 +349,10 @@ Given('an environment setup for the API', async function (this: Zenko) {
             },
         ],
     };
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const policyArn = (await this.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${randomString()}`,
+    }))).Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -359,17 +362,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
@@ -432,17 +433,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.detachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new DetachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const detachResult = await IAM.detachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(detachResult.stderr || detachResult.err);
+        await this.iam.send(new DetachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });

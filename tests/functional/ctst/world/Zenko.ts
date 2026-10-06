@@ -1,22 +1,28 @@
 import { World, IWorldOptions, setWorldConstructor } from '@cucumber/cucumber';
 import { DLQMessage, dlqKey } from 'steps/utils/kafka';
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import { AccessKey } from '@aws-sdk/client-iam';
 import { S3Client } from '@aws-sdk/client-s3';
-import { IAMClient } from '@aws-sdk/client-iam';
+import {
+    AttachUserPolicyCommand,
+    CreateAccessKeyCommand,
+    CreatePolicyCommand,
+    CreateRoleCommand,
+    CreateUserCommand,
+    GetRoleCommand,
+    IAMClient,
+} from '@aws-sdk/client-iam';
 import { AssumeRoleCommand, AssumeRoleWithWebIdentityCommand, STSClient } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
 import {
     CacheHelper,
-    IAM,
     Identity,
     IdentityEnum,
     Logger,
 } from 'cli-testing';
 
-import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '../common/utils';
+import { sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
 import { BackbeatRoutesClient } from '@scality/cloudserverclient';
@@ -552,11 +558,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Creating a role to assume
         const roleName = `${accountName}${constants.ROLE_NAME_TEST}${randomString()}`;
         this.addToSaved('roleName', roleName);
-        this.addCommandParameter({ roleName });
-        this.addCommandParameter({ assumeRolePolicyDocument: constants.assumeRoleTrustPolicy });
-        const roleArnToAssume =
-            extractPropertyFromResults<string>(await IAM.createRole(
-                this.getCommandParameters()), 'Role', 'Arn');
+        const roleArnToAssume = (await this.iam.send(new CreateRoleCommand({
+            RoleName: roleName,
+            AssumeRolePolicyDocument: constants.assumeRoleTrustPolicy,
+        }))).Role?.Arn;
         if (!roleArnToAssume) {
             throw new Error(`Error when trying to create role ${roleName}`);
         }
@@ -578,34 +583,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         // Creating a user in the account to be assumed from
-        this.resetCommand();
         const userName = `${accountToBeAssumedFrom}${constants.USER_NAME_TEST}${randomString()}`;
-        this.addCommandParameter({ userName });
-        await IAM.createUser(this.getCommandParameters());
+        await this.iam.send(new CreateUserCommand({ UserName: userName }));
 
-        // Creating a policy to allow it to AssumeRole
-        this.resetCommand();
-        this.addCommandParameter({
-            policyName: `${accountToBeAssumedFrom}` +
-                `${constants.POLICY_NAME_TEST}` +
-                `${randomString()}`,
-        });
-        this.addCommandParameter({ policyDocument: constants.assumeRolePolicy });
-        const assumeRolePolicyArn =
-            extractPropertyFromResults(await IAM.createPolicy(
-                this.getCommandParameters()), 'Policy', 'Arn');
-
-        // Attaching the policy to the user
-        this.resetCommand();
-        this.addCommandParameter({ userName });
-        this.addCommandParameter({ policyArn: assumeRolePolicyArn });
-        await IAM.attachUserPolicy(this.getCommandParameters());
+        // Creating a policy to allow it to AssumeRole, and attaching it to the user
+        const assumeRolePolicyArn = (await this.iam.send(new CreatePolicyCommand({
+            PolicyName: `${accountToBeAssumedFrom}${constants.POLICY_NAME_TEST}${randomString()}`,
+            PolicyDocument: constants.assumeRolePolicy,
+        }))).Policy?.Arn;
+        await this.iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: assumeRolePolicyArn }));
 
         // Creating credentials for the user
-        this.resetCommand();
-        this.addCommandParameter({ userName });
-        const userCredentials = extractPropertyFromResults<AccessKey>(
-            await IAM.createAccessKey(this.getCommandParameters()), 'AccessKey');
+        const userCredentials = (await this.iam.send(new CreateAccessKeyCommand({ UserName: userName }))).AccessKey;
         if (!userCredentials) {
             throw new Error('Error when trying to create access key for user');
         }
@@ -648,19 +637,13 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async prepareServiceUser(serviceUserName: string, roleName: string, internal = false) {
         Identity.resetIdentity();
 
-        let roleArnToAssume: string | null = null;
+        let roleArnToAssume: string | undefined;
         // Getting the role to assume
-        this.addCommandParameter({ roleName });
         if (internal) {
             roleArnToAssume =
                 `arn:aws:iam::${constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
         } else {
-            const role = await IAM.getRole(this.getCommandParameters());
-            if (role.err) {
-                throw new Error(`Error occured when getting ${roleName} for user account`);
-            }
-
-            roleArnToAssume = extractPropertyFromResults(role, 'Role', 'Arn');
+            roleArnToAssume = (await this.iam.send(new GetRoleCommand({ RoleName: roleName }))).Role?.Arn;
             if (!roleArnToAssume) {
                 throw new Error(`Failed to extract role ARN for ${roleName}`);
             }
@@ -788,14 +771,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         const userName = `iamusertest${randomString()}`;
         Identity.resetIdentity();
         this.addToSaved('userName', userName);
-        // Create IAM user
-        this.addCommandParameter({ userName });
-        const userInfos = await IAM.createUser(this.getCommandParameters());
-        this.resetCommand();
-        // Create credentials for the user
-        this.addCommandParameter({ userName });
-        const result = await IAM.createAccessKey(this.getCommandParameters());
-        const credentials = extractPropertyFromResults<AccessKey>(result, 'AccessKey');
+        const user = (await this.iam.send(new CreateUserCommand({ UserName: userName }))).User;
+        const credentials = (await this.iam.send(new CreateAccessKeyCommand({ UserName: userName }))).AccessKey;
 
         if (!credentials) {
             throw new Error('Error when trying to create access key for user');
@@ -806,8 +783,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             secretAccessKey: credentials.SecretAccessKey!,
         }, Identity.getCurrentAccountName(), true);
 
-        this.resetCommand();
-        this.addToSaved('identityArn', extractPropertyFromResults(userInfos, 'User', 'Arn'));
+        this.addToSaved('identityArn', user?.Arn);
         this.saveIdentityInformation(userName, IdentityEnum.IAM_USER, Identity.getCurrentAccountName());
     }
 
