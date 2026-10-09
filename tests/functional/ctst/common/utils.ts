@@ -15,9 +15,26 @@ import Zenko from 'world/Zenko';
 import fs from 'fs';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { ITestCaseHookParameter } from '@cucumber/cucumber';
-import { AWSCredentials, Utils } from 'cli-testing';
+import { AWSCredentials } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function randomString(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 10; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+export function isAccessKeys(object: Partial<AWSCredentials>): object is AWSCredentials {
+    return Boolean(object.accessKeyId && object.secretAccessKey && object.sessionToken !== '');
+}
 
 export function assertBudgetFitsStepTimeout(budgetSeconds: number, stepTimeoutMs: number): void {
     assert.ok(
@@ -417,7 +434,7 @@ export async function prepareMetricsScenarios(
             }
 
             await createJobAndWaitForCompletion(world, jobName, jobNamespace);
-            await Utils.sleep(2000);
+            await sleep(2000);
             fs.writeFileSync(dataFile, JSON.stringify(output));
         },
     );

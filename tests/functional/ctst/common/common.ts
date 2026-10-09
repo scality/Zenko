@@ -1,8 +1,8 @@
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { CacheHelper, Constants, Identity, IdentityEnum, S3, Utils } from 'cli-testing';
+import { CacheHelper, Identity, IdentityEnum, S3 } from 'cli-testing';
 import Zenko from 'world/Zenko';
-import { parseGoDuration, safeJsonParse } from './utils';
+import { parseGoDuration, safeJsonParse, sleep, randomString } from './utils';
 import assert from 'assert';
 import { Admin } from '@platformatic/kafka';
 import {
@@ -20,7 +20,7 @@ import {
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
 import constants from './constants';
 
-setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
+setDefaultTimeout(constants.DEFAULT_TIMEOUT);
 
 /**
  * Cleans the created test bucket
@@ -71,7 +71,7 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     for (let i = 1; i <= numberObjects; i++) {
         this.resetCommand();
         const objectNameFinal = getObjectNameWithBackendFlakiness.call(this, `${objectName}-${i}`) ||
-            Utils.randomString();
+            randomString();
         if (sizeBytes > 0) {
             this.addToSaved('objectSize', sizeBytes);
         }
@@ -144,16 +144,16 @@ async function createBucket(world: Zenko, versioning: string, bucketName: string
 
 Given('a {string} bucket with dot', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        this.parameters.AccountName;
     await createBucket(this, versioning,
-        `${preName}.${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+        `${preName}.${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase());
 });
 
 Given('a {string} bucket', async function (this: Zenko, versioning: string) {
     const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || Constants.ACCOUNT_NAME;
+        this.parameters.AccountName;
     await createBucket(this, versioning,
-        `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase());
+        `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase());
 });
 
 Given('an existing bucket {string} {string} versioning, {string} ObjectLock {string} retention mode', async function
@@ -381,7 +381,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
                     break;
                 }
                 remainingTopics = nextTopics;
-                await Utils.sleep(5000);
+                await sleep(5000);
             }
         } finally {
             await kafkaAdmin.close();
@@ -431,16 +431,16 @@ When('the user tries to perform the current S3 action on the bucket {int} times 
         for (let i = 0; i < numberOfRuns; i++) {
             // For repeated WRITE actions, we want to change the object name
             if (action.action === 'PutObject') {
-                this.addToSaved('objectName', `objectrepeat-${Utils.randomString()}`);
+                this.addToSaved('objectName', `objectrepeat-${randomString()}`);
             } else if (action.action === 'CopyObject') {
-                this.addToSaved('copyObject', `objectrepeatcopy-${Utils.randomString()}`);
+                this.addToSaved('copyObject', `objectrepeatcopy-${randomString()}`);
             }
             await runActionAgainstBucket(this, this.getSaved<ActionPermissionsType>('currentAction').action);
             if (this.getResult().err && this.getResult().retryable?.throttling !== true) {
                 this.logger.debug('Error during repeated action', { error: this.getResult().err });
                 break;
             }
-            await Utils.sleep(delay);
+            await sleep(delay);
         }
     });
 
@@ -492,6 +492,6 @@ When('I PUT an object with size {int}', async function (this: Zenko, size: numbe
         this.addToSaved('objectSize', size);
     }
     const result = await addMultipleObjects.call(
-        this, 1, `object-${Utils.randomString()}`, size);
+        this, 1, `object-${randomString()}`, size);
     this.setResult(result!);
 });

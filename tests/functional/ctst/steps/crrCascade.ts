@@ -10,8 +10,8 @@ import {
     StorageClass,
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
-import { assertBudgetFitsStepTimeout } from 'common/utils';
-import { Identity, IdentityEnum, Utils } from 'cli-testing';
+import { assertBudgetFitsStepTimeout, sleep, randomString } from 'common/utils';
+import { Identity, IdentityEnum } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
 const REPLICATE_STEP_TIMEOUT_MS = 300_000;
@@ -30,7 +30,7 @@ export interface CRRAccountInfo {
 }
 
 Given('a versioned bucket exists in location {string}', async function (this: Zenko, location: string) {
-    const bucket = `cascade-${Utils.randomString().toLowerCase()}`;
+    const bucket = `cascade-${randomString().toLowerCase()}`;
     Identity.useIdentity(IdentityEnum.ACCOUNT, location);
     // Persist the identity so the default After-hook cleanup targets the
     // same account that owns the buckets created here (and by later steps).
@@ -80,7 +80,7 @@ async function putCascadeObject(
     key: string,
     bodySize = 0,
 ): Promise<string> {
-    const marker = Utils.randomString().toLowerCase();
+    const marker = randomString().toLowerCase();
     await client.send(new PutObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -104,7 +104,7 @@ When('an object {string} of {int} bytes is put in location {string}',
 When('tags are put on the object {string} in location {string}',
     async function (this: Zenko, objectName: string, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
-        const tagValue = Utils.randomString().toLowerCase();
+        const tagValue = randomString().toLowerCase();
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         await this.createS3Client().send(new PutObjectTaggingCommand({
             Bucket: cascadeBuckets[location],
@@ -135,7 +135,7 @@ Then(
             if (found) {
                 return;
             }
-            await Utils.sleep(POLL_MS);
+            await sleep(POLL_MS);
         }
         assert.fail(
             `Timeout: tag 'cascade-test-tag=${tagValue}' not found at '${location}' after ${timeoutSeconds}s`,
@@ -162,7 +162,7 @@ Then(
                 );
                 lastStatus = res.ReplicationStatus ?? 'unset';
                 if (res.ReplicationStatus === 'PENDING') {
-                    await Utils.sleep(POLL_MS);
+                    await sleep(POLL_MS);
                     continue;
                 }
                 assert.strictEqual(
@@ -180,7 +180,7 @@ Then(
                     throw err;
                 }
                 lastStatus = 'not found';
-                await Utils.sleep(POLL_MS);
+                await sleep(POLL_MS);
             }
         }
         assert.fail(
@@ -211,7 +211,7 @@ Then(
                 `Object at '${location}' was found with ReplicationStatus=PENDING, ` +
                 'indicating the cascade loop wrote back to the source.',
             );
-            await Utils.sleep(STABILITY_INTERVAL_MS);
+            await sleep(STABILITY_INTERVAL_MS);
         }
     },
 );
@@ -257,7 +257,7 @@ Then(
             if (unsettled === undefined) {
                 return;
             }
-            await Utils.sleep(POLL_MS);
+            await sleep(POLL_MS);
         }
         assert.fail(`cascade states did not settle within ${settleSeconds}s. ${unsettled}`);
     },
@@ -270,7 +270,7 @@ Then(
         assertBudgetFitsStepTimeout(holdSeconds, HOLD_STEP_TIMEOUT_MS);
         const deadline = Date.now() + holdSeconds * 1000;
         while (Date.now() < deadline) {
-            await Utils.sleep(STABILITY_INTERVAL_MS);
+            await sleep(STABILITY_INTERVAL_MS);
             const changed = await cascadeUnsettledReason(this);
             assert.strictEqual(
                 changed, undefined,
@@ -347,7 +347,7 @@ Then(
                 );
                 return;
             }
-            await Utils.sleep(POLL_MS);
+            await sleep(POLL_MS);
         }
 
         assert.fail(`Cascade locations did not converge to the same marker within ${timeoutSeconds}s`);

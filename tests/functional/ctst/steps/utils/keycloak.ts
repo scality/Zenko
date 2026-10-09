@@ -1,8 +1,7 @@
 import KcAdminClient from '@keycloak/keycloak-admin-client';
 import RoleRepresentation from '@keycloak/keycloak-admin-client/lib/defs/roleRepresentation';
 import * as Werelogs from 'werelogs';
-
-const DEFAULT_ACCOUNT_NAME = 'AccountTest';
+import { requireEnv } from 'clients/env';
 
 /**
  * Keycloak configuration utility using the official Keycloak Admin Client.
@@ -17,13 +16,12 @@ export default class Keycloak {
     private readonly password: string;
     private readonly clientId: string;
 
-    // Configuration from environment variables with defaults
     private readonly config = {
-        account: process.env.ACCOUNT || DEFAULT_ACCOUNT_NAME,
-        storageManager: process.env.STORAGE_MANAGER || 'storage_manager',
-        storageAccountOwner: process.env.STORAGE_ACCOUNT_OWNER || 'storage_account_owner',
-        dataConsumer: process.env.DATA_CONSUMER || 'data_consumer',
-        dataAccessor: process.env.DATA_ACCESSOR || 'data_accessor',
+        account: requireEnv('ACCOUNT'),
+        storageManager: requireEnv('STORAGE_MANAGER'),
+        storageAccountOwner: requireEnv('STORAGE_ACCOUNT_OWNER'),
+        dataConsumer: requireEnv('DATA_CONSUMER'),
+        dataAccessor: requireEnv('DATA_ACCESSOR'),
     };
 
     private readonly passwordConfig = [

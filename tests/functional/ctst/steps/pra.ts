@@ -13,8 +13,9 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { CacheHelper, Constants, Identity, IdentityEnum, SuperAdmin, Utils } from 'cli-testing';
-import { safeJsonParse } from 'common/utils';
+import { CacheHelper, Identity, IdentityEnum, SuperAdmin } from 'cli-testing';
+import constants from 'common/constants';
+import { safeJsonParse, sleep } from 'common/utils';
 import { PrometheusDriver } from 'prometheus-query';
 import assert from 'assert';
 import { EntityType } from 'world/Zenko';
@@ -141,7 +142,7 @@ async function waitForPhase(
             world.logger.debug('Failed to parse DR status, retrying', {
                 parsedStatus,
             });
-            await Utils.sleep(1000);
+            await sleep(1000);
             continue;
         }
 
@@ -159,7 +160,7 @@ async function waitForPhase(
         if (phase === state) {
             return true;
         }
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
 
     return false;
@@ -292,7 +293,7 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
                 this.logger.error('Failed to setup entity', { err });
             }
             if (!conditionOk) {
-                await Utils.sleep(1000);
+                await sleep(1000);
             }
         }
 
@@ -330,7 +331,7 @@ Then('prometheus should scrap federated metrics from DR sink', { timeout: 180000
             break;
         }
 
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
 });
 
@@ -405,12 +406,12 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
     const targetAccount = Zenko.sites['source'].accountName;
 
     let account;
-    let remaining = Constants.MAX_ACCOUNT_CHECK_RETRIES;
+    let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
     account = await SuperAdmin.getAccount({
         accountName: targetAccount,
     });
     while (!account && remaining > 0) {
-        await Utils.sleep(500);
+        await sleep(500);
         account = await SuperAdmin.getAccount({
             accountName: targetAccount,
         });
