@@ -11,10 +11,10 @@
 # scripts on top:
 # https://github.com/adobe/zookeeper-operator/tree/master/docker
 
-ARG ZK_VERSION=3.8.4
+ARG ZK_VERSION=3.9.6
 ARG ZK_OPERATOR_REPO=https://github.com/adobe/zookeeper-operator.git
-ARG ZK_OPERATOR_VERSION=0.2.15-adobe-20260818
-ARG ZK_OPERATOR_COMMIT=d7e40433c0bf1adba43236604c6ae1b379f4ebd9
+ARG ZK_OPERATOR_VERSION=0.2.15-adobe-20260924
+ARG ZK_OPERATOR_COMMIT=fd2633ddf15e12eadc66e4388b47585885c4742d
 
 # ZooKeeper distribution, PGP-verified
 FROM alpine:3.24.2 AS zk_dist
