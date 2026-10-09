@@ -328,7 +328,6 @@ else
       "PrometheusEndpoint":"http://localhost:${PROMETHEUS_PORT}",
       "KafkaHosts":"${KAFKA_HOST_PORT}",
       "KafkaAuthHosts":"${KAFKA_AUTH_HOST_PORT}",
-      "KafkaConnectUrl":"${KAFKA_CONNECT_URL}",
       "KeycloakUsername":"${OIDC_USERNAME}",
       "KeycloakPassword":"${OIDC_PASSWORD}",
       "KeycloakTestPassword":"${KEYCLOAK_TEST_PASSWORD}",
@@ -399,7 +398,6 @@ if [ -n "${GITHUB_ENV:-}" ]; then # Don't do it for Codespace
     echo "VAULT_ENDPOINT=$VAULT_ENDPOINT" >> "$GITHUB_ENV"
     echo "VAULT_STS_ENDPOINT=$VAULT_STS_ENDPOINT" >> "$GITHUB_ENV"
     echo "VAULT_AUTH_HOST=$VAULT_AUTH_HOST" >> "$GITHUB_ENV"
-    echo "KAFKA_CONNECT_URL=$KAFKA_CONNECT_URL" >> "$GITHUB_ENV"
     echo "NODE_EXTRA_CA_CERTS=$NODE_EXTRA_CA_CERTS" >> "$GITHUB_ENV"
     echo "VERIFY_CERTIFICATES=$VERIFY_CERTIFICATES" >> "$GITHUB_ENV"
     echo "ENABLE_RING_TESTS=$ENABLE_RING_TESTS" >> "$GITHUB_ENV"
