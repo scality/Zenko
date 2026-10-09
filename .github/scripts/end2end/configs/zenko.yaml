@@ -42,6 +42,8 @@ spec:
       concurrency: 2
     replicationDataProcessor:
       objectRefreshSizeThresholdMB: 2
+    oplogPopulator:
+      connectorCount: 2
     logging:
       logLevel: debug
   mongodb:
