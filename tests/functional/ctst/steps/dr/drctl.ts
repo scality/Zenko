@@ -186,16 +186,8 @@ export default class ZenkoDrctl {
         this.world = world;
     }
 
-    private getKubeconfigPath(): string | undefined {
-        const kp = this.world.parameters.KubeconfigPath as string | undefined;
-        return kp || process.env.KUBECONFIG;
-    }
-
     private withSourceSinkKubeconfig<T extends Record<string, unknown>>(config: T): T {
-        const kp = this.getKubeconfigPath();
-        if (!kp) {
-            return config;
-        }
+        const kp = this.world.parameters.KubeconfigPath;
         return {
             ...config,
             sourceKubeconfigPath: (config as Record<string, unknown>).sourceKubeconfigPath || kp,
@@ -204,10 +196,7 @@ export default class ZenkoDrctl {
     }
 
     private withSinkKubeconfig<T extends Record<string, unknown>>(config: T): T {
-        const kp = this.getKubeconfigPath();
-        if (!kp) {
-            return config;
-        }
+        const kp = this.world.parameters.KubeconfigPath;
         return {
             ...config,
             sinkKubeconfigPath: (config as Record<string, unknown>).sinkKubeconfigPath || kp,
@@ -215,10 +204,7 @@ export default class ZenkoDrctl {
     }
 
     private withTargetKubeconfig<T extends Record<string, unknown>>(config: T): T {
-        const kp = this.getKubeconfigPath();
-        if (!kp) {
-            return config;
-        }
+        const kp = this.world.parameters.KubeconfigPath;
         return {
             ...config,
             kubeconfigPath: (config as Record<string, unknown>).kubeconfigPath || kp,
