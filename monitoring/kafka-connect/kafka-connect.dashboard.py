@@ -222,12 +222,12 @@ class Metrics:
         'process_cpu_seconds_total', 'instance', job='${job}', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
-    jvm_memory_bytes_used = metrics.Metric(
-        'jvm_memory_bytes_used', 'area', 'instance', job='${job}', namespace='${namespace}'
+    jvm_memory_used_bytes = metrics.Metric(
+        'jvm_memory_used_bytes', 'area', 'instance', job='${job}', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
-    jvm_memory_bytes_max = metrics.Metric(
-        'jvm_memory_bytes_max', 'area', 'instance', job='${job}', namespace='${namespace}'
+    jvm_memory_max_bytes = metrics.Metric(
+        'jvm_memory_max_bytes', 'area', 'instance', job='${job}', namespace='${namespace}'
     ).with_defaults('instance=~"$instance"')
 
     jvm_gc_collection_seconds = metrics.BucketMetric(
@@ -705,11 +705,11 @@ jvm_memory_used = TimeSeries(
     unit=UNITS.BYTES,
     targets=[
         Target(
-            expr='sum(' + Metrics.jvm_memory_bytes_used() + ') without(area)',
+            expr='sum(' + Metrics.jvm_memory_used_bytes() + ') without(area)',
             legendFormat='{{instance}}'
         ),
         Target(
-            expr=Metrics.jvm_memory_bytes_max(area='heap'),
+            expr=Metrics.jvm_memory_max_bytes(area='heap'),
             legendFormat='{{instance}}'
         ),
     ],

@@ -9,7 +9,7 @@ ARG KAFKA_TAG
 FROM ${JMX_JAVAAGENT_IMAGE}:${JMX_JAVAAGENT_TAG} AS jmx-exporter
 
 # Get mongodb connector
-FROM library/alpine:3.15 AS mongodb-connector
+FROM alpine:3.24.2 AS mongodb-connector
 RUN apk update && apk upgrade && apk add --no-cache curl zip
 
 ARG MONGODB_CONNECTOR_TAG

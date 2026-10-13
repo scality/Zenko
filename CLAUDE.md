@@ -21,7 +21,7 @@ Multiple runtimes in play — check the specific subproject's Dockerfile / workf
 
 - Node.js — ctst uses node 24 (set via `actions/setup-node` in `.github/workflows/end2end.yaml`); `end2end.yaml` jobs use node 22, and 24 for different tasks
 - Python — `tests/zenko_tests/` targets Python 3
-- Kafka images — alpine + `eclipse-temurin` JRE 17 (`solution/kafka/Dockerfile`)
+- Kafka images — apache kafka distro on `eclipse-temurin` JRE 21 (`solution/kafka/Dockerfile`)
 
 ## PR review
 

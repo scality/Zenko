@@ -38,6 +38,19 @@ export default tseslint.config(
         },
     },
 
+    // TypeScript files (shared clients)
+    {
+        files: ['clients/**/*.ts'],
+        extends: [
+            ...compat.extends('scality'),
+            ...tseslint.configs.recommended,
+        ],
+        rules: {
+            // CLI setup scripts report progress to the console
+            'no-console': 'off',
+        },
+    },
+
     // JavaScript files (mocha)
     {
         files: ['mocha/**/*.js'],

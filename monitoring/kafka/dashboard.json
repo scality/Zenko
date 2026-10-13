@@ -1237,7 +1237,7 @@
       "repeatDirection": "h",
       "targets": [
         {
-          "expr": "100 - rate(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_count{namespace=\"${namespace}\", job=\"$instance\",pod=\"${broker}\"}[$__rate_interval]) / 10000000",
+          "expr": "100 - rate(kafka_server_kafkarequesthandlerpool_requesthandleravgidlepercent_count_total{namespace=\"${namespace}\", job=\"$instance\",pod=\"${broker}\"}[$__rate_interval]) / 10000000",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -4222,7 +4222,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_log_logflushstats_logflushrateandtimems_count{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
+          "expr": "sum (irate(kafka_log_logflushstats_logflushrateandtimems_count_total{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -4436,7 +4436,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (irate(kafka_controller_controllerstats_leaderelectionrateandtimems_count{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
+          "expr": "sum (irate(kafka_controller_controllerstats_leaderelectionrateandtimems_count_total{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"}[$__rate_interval]))by(pod)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -5012,7 +5012,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "sum without(area)(jvm_memory_bytes_used{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"} )",
+              "expr": "sum without(area)(jvm_memory_used_bytes{namespace=\"${namespace}\", job=\"$instance\",pod=~\"$broker\"} )",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -5409,5 +5409,5 @@
   "timezone": "",
   "title": "Kafka",
   "uid": null,
-  "version": 13
+  "version": 14
 }

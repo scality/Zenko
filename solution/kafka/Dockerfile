@@ -1,7 +1,7 @@
-FROM alpine:3.17 AS kafka_dist
+FROM alpine:3.24.2 AS kafka_dist
 
 ARG scala_version=2.13
-ARG kafka_version=3.1.0
+ARG kafka_version=3.9.1
 ARG kafka_distro_base_url=https://archive.apache.org/dist/kafka
 
 ENV kafka_distro=kafka_$scala_version-$kafka_version.tgz
@@ -22,10 +22,10 @@ RUN tar -xzf $kafka_distro
 RUN rm -r kafka_$scala_version-$kafka_version/bin/windows
 
 ####################################################################################################
-FROM eclipse-temurin:17.0.18_8-jre
+FROM eclipse-temurin:21.0.12_8-jre-noble
 
 ARG scala_version=2.13
-ARG kafka_version=3.1.0
+ARG kafka_version=3.9.1
 
 ENV KAFKA_VERSION=$kafka_version \
     SCALA_VERSION=$scala_version \

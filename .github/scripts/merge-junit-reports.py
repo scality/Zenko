@@ -111,8 +111,11 @@ def merge_reports(output_file, input_files):
             all_testsuites.extend(testsuites)
 
         except ET.ParseError as e:
-            print(f"::error::Error parsing {file}: {e}", file=sys.stderr)
-            sys.exit(1)
+            # A report can be empty or truncated when its run was cancelled
+            # before the test runner finished writing it. Skip it rather than
+            # aborting the whole merge, since later attempts are still valid.
+            print(f"::warning::Skipping malformed report {file}: {e}", file=sys.stderr)
+            continue
         except FileNotFoundError:
             print(f"::warning::File not found: {file}", file=sys.stderr)
             continue

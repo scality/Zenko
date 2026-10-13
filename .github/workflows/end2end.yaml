@@ -118,8 +118,6 @@ env:
   TMATE_SERVER_PORT: ${{ secrets.TMATE_SERVER_PORT }}
   TMATE_SERVER_RSA_FINGERPRINT: ${{ secrets.TMATE_SERVER_RSA_FINGERPRINT }}
   TMATE_SERVER_ED25519_FINGERPRINT: ${{ secrets.TMATE_SERVER_ED25519_FINGERPRINT }}
-  # Mocha reporter configuration
-  MOCHA_FILE: ${{ github.workspace }}/_reports/test-results-[hash].xml
 
 jobs:
   check-dashboards:
@@ -439,13 +437,13 @@ jobs:
         run: yarn run test:object_api
       - name: Run smoke tests
         working-directory: tests/functional
-        run: yarn run test:smoke
+        run: MOCHA_FILE=_reports/smoke-http.xml yarn run test:smoke
       - name: Enable HTTPS
         run: bash enable-https.sh
         working-directory: ./.github/scripts/end2end
       - name: Run smoke tests (HTTPS)
         working-directory: tests/functional
-        run: yarn run test:smoke
+        run: MOCHA_FILE=_reports/smoke-https.xml yarn run test:smoke
       - name: Debug wait
         uses: ./.github/actions/debug-wait
         timeout-minutes: 60
@@ -456,6 +454,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/functional/_reports/*.xml
         if: always()
 
   end2end-sharded:
@@ -514,6 +513,7 @@ jobs:
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
           trunk_token: ${{ secrets.TRUNK_TOKEN }}
+          junit-paths: ${{ github.workspace }}/tests/functional/_reports/*.xml
         if: always()
 
   ctst-end2end-sharded:

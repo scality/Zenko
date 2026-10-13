@@ -1,8 +1,8 @@
 import { STSClient } from '@aws-sdk/client-sts';
 import { CoreV1Api } from '@kubernetes/client-node';
 import { loadConfig, loadEnv, Env } from './config';
-import { PensieveClient } from './setup/clients/pensieveClient';
-import { createK8sClient } from './setup/clients/k8s';
+import { PensieveClient } from 'clients/pensieveClient';
+import { createK8sClient } from 'clients/k8s';
 import { createAccounts } from './setup/accounts';
 import { createEndpoints } from './setup/endpoints';
 import { createLocations } from './setup/locations';
