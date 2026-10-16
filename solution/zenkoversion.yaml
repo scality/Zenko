@@ -154,6 +154,7 @@ spec:
     multipleColdLocations: true
     backbeatGCVaultAuthorized: true
     enableVersionIdV2Format: true
+    listenAllBuckets: true
   capabilities:
     lifecycleRules:
       - Expiration
