@@ -3,7 +3,8 @@ import { MockGithub, Moctokit } from "@kie/mock-github";
 import path from "path";
 import { exec as execCb } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 
 const exec = promisify(execCb);
 
@@ -346,6 +347,79 @@ describe("archive-artifacts action", () => {
 
             expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
             expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+        });
+    });
+
+    describe("cucumber report links", () => {
+        function writeReports(failures: number, cucumber: boolean) {
+            const dir = path.join(github.repo.getPath("zenko")!, "artifacts/data/reports");
+            mkdirSync(dir, { recursive: true });
+            writeFileSync(path.join(dir, "report.xml"), createJUnitReport("Suite", 5, failures));
+            if (cucumber) {
+                writeFileSync(path.join(dir, "report.ndjson"), "{}\n");
+            }
+        }
+
+        // Last step of the action: it is directly followed by the action's own result, which does
+        // not match the layout findStep() expects
+        function findLinkStep(result: { name: string; status: number; output: string }[]) {
+            const idx = result.findIndex(r => r.name?.includes("Main Add dashboard link to job summary"));
+            return idx < 0 ? undefined : { status: result[idx + 1]?.status, output: result[idx + 1]?.output };
+        }
+
+        // The job summary only shows up in act's raw log, so always keep it
+        async function runAct(logName: string, cucumber: boolean) {
+            const logFile = process.env.ACT_LOG
+                ? path.join(__dirname, `act-archive-${logName}.log`)
+                : path.join(mkdtempSync(path.join(tmpdir(), "act-")), "act.log");
+            const result = await act.runEvent("workflow_dispatch", {
+                logFile,
+                mockApi: commonMockApi(
+                    mockapi.mock.artifacts.root.uploadReport({ report: "report.xml" }).reply({ status: 200, data: {} }),
+                    ...(cucumber ? [
+                        mockapi.mock.artifacts.root.uploadReport({ report: "report.ndjson" }).reply({ status: 200, data: {} }),
+                    ] : []),
+                ),
+                bind: true,
+            });
+            return { result, log: readFileSync(logFile, "utf8") };
+        }
+
+        it("should link cucumber reports in log and summary when tests failed", async () => {
+            writeReports(1, true);
+
+            const { result, log } = await runAct("cucumber-failed", true);
+
+            const step = findLinkStep(result);
+            expect(step?.status).toBe(0);
+            expect(step?.output).toContain("/data/test-archive.1/reports/ctst-dashboard.html");
+            expect(step?.output).toContain("/data/test-archive.1/reports/report.html");
+            expect(log).toContain("### Test Reports");
+        });
+
+        it("should link cucumber reports only in log when tests passed", async () => {
+            writeReports(0, true);
+
+            const { result, log } = await runAct("cucumber-passed", true);
+
+            expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+            const step = findLinkStep(result);
+            expect(step?.status).toBe(0);
+            expect(step?.output).toContain("/data/test-archive.1/reports/ctst-dashboard.html");
+            expect(step?.output).toContain("/data/test-archive.1/reports/report.html");
+            expect(log).not.toContain("### Test Reports");
+        });
+
+        it("should not link cucumber reports for non-cucumber tests", async () => {
+            writeReports(1, false);
+
+            const { result, log } = await runAct("not-cucumber", false);
+
+            const step = findLinkStep(result);
+            expect(step?.status).toBe(0);
+            expect(step?.output).toContain("No cucumber report found");
+            expect(step?.output).not.toContain("ctst-dashboard.html");
+            expect(log).not.toContain("### Test Reports");
         });
     });
 });
