@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { paramToCli, parseGoDuration } from './utils';
+import { isAccessKeys, paramToCli, parseGoDuration } from './utils';
 
 const durations: [string, number][] = [
     ['1m', 60],
@@ -56,5 +56,22 @@ for (const [params, expected] of cliParams) {
     assert.strictEqual(
         result, expected,
         `paramToCli(${JSON.stringify(params)}) = "${result}", expected "${expected}"`,
+    );
+}
+
+const accessKeysCases: [Record<string, string>, boolean][] = [
+    [{ accessKeyId: 'AK', secretAccessKey: 'SK' }, true],
+    [{ accessKeyId: 'AK', secretAccessKey: 'SK', sessionToken: 'ST' }, true],
+    [{ accessKeyId: 'AK', secretAccessKey: 'SK', sessionToken: '' }, false],
+    [{ accessKeyId: '', secretAccessKey: 'SK' }, false],
+    [{ accessKeyId: 'AK' }, false],
+    [{}, false],
+];
+
+for (const [creds, expected] of accessKeysCases) {
+    const result = isAccessKeys(creds);
+    assert.strictEqual(
+        result, expected,
+        `isAccessKeys(${JSON.stringify(creds)}) = ${result}, expected ${expected}`,
     );
 }

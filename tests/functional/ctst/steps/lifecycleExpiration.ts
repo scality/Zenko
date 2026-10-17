@@ -1,9 +1,9 @@
 import { Then, When } from '@cucumber/cucumber';
-import { S3, Utils } from 'cli-testing';
+import { S3 } from 'cli-testing';
 import { ListObjectVersionsOutput } from '@aws-sdk/client-s3';
 import assert from 'assert';
 import Zenko from 'world/Zenko';
-import { safeJsonParse } from 'common/utils';
+import { safeJsonParse, sleep } from 'common/utils';
 import { addExpirationWorkflow } from './utils/utils';
 
 When('i set a lifecycle expiration of {int} days for the {string}',
@@ -31,7 +31,7 @@ Then('the bucket should contain {int} objects within {int} seconds', { timeout: 
             if (count === expectedCount) {
                 return;
             }
-            await Utils.sleep(2000);
+            await sleep(2000);
         } while (Date.now() < deadline);
         assert.fail(
             `Bucket ${bucketName} has ${count} versions/delete markers, ` +

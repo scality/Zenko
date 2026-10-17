@@ -1,8 +1,9 @@
 import { Then, When } from '@cucumber/cucumber';
+import { sleep } from 'common/utils';
 import { strict as assert } from 'assert';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { randomBytes } from 'crypto';
-import { Utils } from 'cli-testing';
+
 import Zenko from 'world/Zenko';
 
 const JAEGER_POLL_TIMEOUT = 30000;
@@ -66,7 +67,7 @@ async function pollJaegerForTrace(
         } catch (err) {
             lastError = err as Error;
         }
-        await Utils.sleep(intervalMs);
+        await sleep(intervalMs);
     }
 
     throw new Error(

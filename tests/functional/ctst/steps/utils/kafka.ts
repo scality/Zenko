@@ -1,5 +1,6 @@
-import { Utils } from 'cli-testing';
+
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
+import { sleep, randomString } from 'common/utils';
 
 export interface DLQMessage {
     op: string;
@@ -29,8 +30,8 @@ export async function startDLQConsumer(
     onMessage: (msg: DLQMessage) => void,
 ): Promise<void> {
     const consumer = new Consumer({
-        clientId: `zenko-e2e-dlq-${Utils.randomString()}`,
-        groupId: `zenko-e2e-dlq-${Utils.randomString()}`,
+        clientId: `zenko-e2e-dlq-${randomString()}`,
+        groupId: `zenko-e2e-dlq-${randomString()}`,
         bootstrapBrokers: [kafkaHosts],
         deserializers: stringDeserializers,
     });
@@ -88,7 +89,7 @@ export async function waitForDLQMessage(
             seenMessages.add(msg.requestId);
             return msg;
         }
-        await Utils.sleep(500);
+        await sleep(500);
     }
     throw new Error(
         `DLQ: no "${op}" message for object "${objectName}" in bucket "${bucketName}" ` +
@@ -106,7 +107,6 @@ interface ConnectorInfo {
         [key: string]: unknown;
     };
 }
-
 
 /**
  * Polls the Kafka Connect REST API until the given bucket appears in
@@ -151,7 +151,7 @@ export async function waitForBucketInConnectorPipeline(
         } catch {
             // Kafka Connect not reachable, retry
         }
-        await Utils.sleep(intervalMs);
+        await sleep(intervalMs);
     }
     throw new Error(
         `waitForBucketInConnectorPipeline timed out after ${timeoutMs}ms waiting for bucket ` +

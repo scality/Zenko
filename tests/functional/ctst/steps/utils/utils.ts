@@ -3,14 +3,12 @@ import { promises as fsp } from 'fs';
 import { join } from 'path';
 import {
     CacheHelper,
-    Constants,
     Identity,
     S3,
-    Utils,
     AWSVersionObject,
     Command,
 } from 'cli-testing';
-import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse } from 'common/utils';
+import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse, sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
 import assert from 'assert';
 import constants from 'common/constants';
@@ -42,7 +40,7 @@ export async function uploadSetup(world: Zenko, action: string, body?: string, s
     }
     const objectSize = (size ?? world.getSaved<number>('objectSize')) || 0;
     if (body || objectSize > 0) {
-        const tempFileName = `${Utils.randomString()}_${world.getSaved<string>('objectName')}`;
+        const tempFileName = `${randomString()}_${world.getSaved<string>('objectName')}`;
         world.addToSaved('tempFileName', `/tmp/${tempFileName}`);
         const objectBody = body || 'a'.repeat(objectSize);
         await saveAsFile(tempFileName, objectBody);
@@ -179,9 +177,9 @@ async function createBucketWithConfiguration(
     retentionMode?: string) {
     world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || Constants.ACCOUNT_NAME;
+        world.parameters.AccountName;
     const usedBucketName = bucketName
-        || `${preName}${Constants.BUCKET_NAME_TEST}${Utils.randomString()}`.toLocaleLowerCase();
+        || `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);
     world.addCommandParameter({ bucket: usedBucketName });
     if (withObjectLock === 'with') {
@@ -211,7 +209,7 @@ async function createBucketWithConfiguration(
 }
 
 async function putMpuObject(world: Zenko, parts: number = 2, objectName: string, content?: string) {
-    const key = objectName || `${Utils.randomString()}`;
+    const key = objectName || `${randomString()}`;
     const bucket = world.getSaved<string>('bucketName');
 
     world.resetCommand();
@@ -292,7 +290,7 @@ async function putObject(world: Zenko, objectName?: string, content?: string, ob
     world.resetCommand();
     let finalObjectName = objectName;
     if (!finalObjectName) {
-        finalObjectName = `${Utils.randomString()}`;
+        finalObjectName = `${randomString()}`;
     }
     world.addToSaved('objectName', finalObjectName);
     world.logger.debug('Adding object', { objectName: finalObjectName });
@@ -315,7 +313,7 @@ async function putObject(world: Zenko, objectName?: string, content?: string, ob
     return result;
 }
 
-async function getObject(world: Zenko, objectKey: string, bucketName: string): Promise<Utils.Command> {
+async function getObject(world: Zenko, objectKey: string, bucketName: string): Promise<Command> {
     const result = await S3.getObject({
         key: objectKey,
         bucket: bucketName,
@@ -324,7 +322,7 @@ async function getObject(world: Zenko, objectKey: string, bucketName: string): P
     return result;
 }
 
-async function headObject(world: Zenko, objectKey: string, bucketName: string): Promise<Utils.Command> {
+async function headObject(world: Zenko, objectKey: string, bucketName: string): Promise<Command> {
     const result = await S3.headObject({
         key: objectKey,
         bucket: bucketName,
@@ -341,7 +339,6 @@ function getAuthorizationConfiguration(world: Zenko): AuthorizationConfiguration
             || AuthorizationType.NO_RESOURCE,
     };
 }
-
 
 async function emptyNonVersionedBucket(world: Zenko) {
     world.resetCommand();
@@ -388,7 +385,7 @@ async function putBucketLifecycleConfigurationWithRetry(world: Zenko, rules: Rec
         const res = await S3.putBucketLifecycleConfiguration(commandParameters);
         conditionOk = res.err === null;
         // Wait for the configuration to be accepted because the deployment of the location's pods can take some time
-        await Utils.sleep(5000);
+        await sleep(5000);
     }
 }
 
@@ -459,7 +456,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
 
         const res = await S3.headObject(this.getCommandParameters());
         if (res.err?.includes('NotFound')) {
-            await Utils.sleep(1000);
+            await sleep(1000);
             continue;
         } else if (res.err) {
             throw new Error(`HeadObject error for "${objName}": ${res.err}`);
@@ -480,7 +477,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }
         if (conditionOk) return;
 
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
 
     throw new Error(
@@ -573,7 +570,6 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     }
     return objectNameFinal;
 }
-
 
 export {
     AuthorizationType,
