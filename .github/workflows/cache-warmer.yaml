@@ -39,6 +39,11 @@ jobs:
     with:
       ref: ${{ inputs.source_branch }}
 
+  docker-build-summary:
+    needs: [warm-kafka, warm-mongodb]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/docker-build-summary.yaml
+
   warm-tools:
     runs-on: ubuntu-24.04
     steps:

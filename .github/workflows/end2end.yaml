@@ -224,6 +224,7 @@ jobs:
       ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
       ROOT_DOCUMENTATION_BUILDDIR: "docs/docsource/build"
       DOCUMENTATION_BUILDDIR: "build"
+      DOCKER_BUILD_SUMMARY: false
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -260,6 +261,12 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCS_IMAGE }}:${{ env.DOCS_DOCKERFILE_HASH }}
           cache-to: type=inline
 
+      - name: Upload docker builds
+        uses: ./.github/actions/upload-docker-builds
+        with:
+          name: docs
+        if: always()
+
       - name: Build docs
         run: |
           mkdir -p ${{ env.ROOT_DOCUMENTATION_BUILDDIR }}
@@ -295,6 +302,11 @@ jobs:
   build-mongodb:
     uses: ./.github/workflows/build-mongodb.yaml
     secrets: inherit
+
+  docker-build-summary:
+    needs: [build-doc, build-kafka, build-mongodb]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/docker-build-summary.yaml
 
   lint-functional-tests:
     runs-on: ubuntu-24.04
