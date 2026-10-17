@@ -1,0 +1,69 @@
+---
+name: Upload docker builds
+description: >-
+  Upload the build records of the job's buildx builder, to be listed by the
+  docker-build-summary workflow. Builds should run with DOCKER_BUILD_SUMMARY=false
+  to avoid also getting one summary per build.
+
+inputs:
+  name:
+    description: Name of this job's builds, must be unique within the workflow run
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Export build records
+      id: export
+      shell: bash
+      run: |-
+        # Export build records
+        mapfile -t refs < <(docker buildx history ls --format '{{.Ref}}')
+        mkdir -p "$DIR"
+        docker buildx history export --finalize --output "$DIR/$NAME.dockerbuild" "${refs[@]}"
+        for ref in "${refs[@]}"; do
+          docker buildx history inspect --format json "$ref" | jq -c .
+        done > "$DIR/inspect.ndjson"
+      env:
+        NAME: ${{ inputs.name }}
+        DIR: ${{ runner.temp }}/docker-builds
+      continue-on-error: true
+
+    - name: Upload build records
+      id: upload
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ runner.temp }}/docker-builds/${{ inputs.name }}.dockerbuild
+        archive: false
+        overwrite: true
+      if: steps.export.outcome == 'success'
+      continue-on-error: true
+
+    - name: Describe builds
+      shell: bash
+      run: |-
+        # Describe builds
+        jq -c --arg record "$NAME.dockerbuild" --arg url "$URL" '{
+            build: (.Context // .Name),
+            status: .Status,
+            duration: .Duration,
+            cached: .NumCachedSteps,
+            total: .NumTotalSteps,
+            record: $record,
+            url: $url
+          }' "$DIR/inspect.ndjson" > "$DIR/$NAME.ndjson"
+      env:
+        NAME: ${{ inputs.name }}
+        DIR: ${{ runner.temp }}/docker-builds
+        URL: ${{ steps.upload.outputs.artifact-url }}
+      if: steps.export.outcome == 'success'
+      continue-on-error: true
+
+    - name: Upload build descriptions
+      uses: actions/upload-artifact@v7
+      with:
+        name: docker-builds-${{ inputs.name }}
+        path: ${{ runner.temp }}/docker-builds/${{ inputs.name }}.ndjson
+        overwrite: true
+      if: steps.export.outcome == 'success'
+      continue-on-error: true

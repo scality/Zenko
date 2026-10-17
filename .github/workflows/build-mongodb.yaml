@@ -14,6 +14,10 @@ permissions:
   contents: read
   packages: write
 
+env:
+  # Builds are reported in a single summary, by the docker-build-summary workflow
+  DOCKER_BUILD_SUMMARY: false
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -77,3 +81,10 @@ jobs:
             type=registry,ref=${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
             type=gha,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}
           cache-to: type=gha,mode=max,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}
+
+      - name: Upload docker builds
+        uses: ./.github/actions/upload-docker-builds
+        with:
+          name: mongodb
+        # The cache-warmer may check out an older branch, without this action
+        if: always() && hashFiles('.github/actions/upload-docker-builds/action.yaml') != ''
