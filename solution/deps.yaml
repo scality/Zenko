@@ -74,6 +74,11 @@ kafka-lag-exporter:
   image: kafka-lag-exporter
   tag: 0.7.3
   envsubst: KAFKA_LAGEXPORTER_TAG
+logrotate:
+  sourceRegistry: ghcr.io/scality/zenko
+  image: logrotate
+  tag: 3.22.0
+  envsubst: LOGROTATE_TAG
 mongodb-connector:
   tag: 1.16.0
   envsubst: MONGODB_CONNECTOR_TAG
