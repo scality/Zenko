@@ -180,11 +180,10 @@ else
     export SERVICE_USERS_CREDENTIALS=$(echo '{"backbeat-lifecycle-bp-1":'"${BACKBEAT_LCBP_1_CREDS}"',"backbeat-lifecycle-conductor-1":'"${BACKBEAT_LCC_1_CREDS}"',"backbeat-lifecycle-op-1":'"${BACKBEAT_LCOP_1_CREDS}"',"backbeat-qp-1":'"${BACKBEAT_QP_1_CREDS}"',"sorbet-fwd-2":{"accessKey":"'"${SORBET_FWD_2_ACCESSKEY}"'","secretKey":"'"${SORBET_FWD_2_SECRETKEY}"'"}}' | jq -R)
 
     # --- 12. Kafka topics for sorbet ---
+    # Per-location topics (archive requests, dead letter, GC) are derived from the instance id by the tests
     SORBET_CONFIG=$(kubectl get secret -l app.kubernetes.io/name=cold-sorbet-config-e2e-azure-archive,app.kubernetes.io/instance=${ZENKO_NAME} \
         -o jsonpath='{.items[0].data.config\.json}' | base64 -di)
-    export KAFKA_DEAD_LETTER_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-dead-letter-topic"')
     export KAFKA_OBJECT_TASK_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-object-task-topic"')
-    export KAFKA_GC_REQUEST_TOPIC=$(echo "${SORBET_CONFIG}" | jq -r '."kafka-gc-request-topic"')
 
     # --- 13. Kafka host from backbeat config + port-forward ---
     KAFKA_HOST_PORT_ORIG=$(kubectl get secret -l app.kubernetes.io/name=backbeat-config,app.kubernetes.io/instance=${ZENKO_NAME} \
@@ -351,8 +350,6 @@ else
       "AzureArchiveQueue":"${AZURE_ARCHIVE_QUEUE_NAME:-}",
       "TimeProgressionFactor":"${TIME_PROGRESSION_FACTOR}",
       "KafkaObjectTaskTopic":"${KAFKA_OBJECT_TASK_TOPIC}",
-      "KafkaGCRequestTopic":"${KAFKA_GC_REQUEST_TOPIC}",
-      "KafkaDeadLetterQueueTopic":"${KAFKA_DEAD_LETTER_TOPIC}",
       "InstanceID":"${INSTANCE_ID}",
       "BackbeatApiHost":"${BACKBEAT_API_HOST}",
       "BackbeatApiPort":"${BACKBEAT_API_PORT}",

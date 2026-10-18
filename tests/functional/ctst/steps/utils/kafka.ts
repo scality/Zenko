@@ -1,5 +1,25 @@
 import { Utils } from 'cli-testing';
-import { Consumer, stringDeserializers } from '@platformatic/kafka';
+import { Admin, Consumer, stringDeserializers } from '@platformatic/kafka';
+
+// Sorbet topics are per cold location, named after the Zenko instance and the location
+export function coldTopicName(instanceId: string, prefix: string, location: string): string {
+    return `${instanceId}.${prefix}${location}`;
+}
+
+export const coldGCRequestTopicPrefix = 'cold-gc-req-';
+export const coldDeadLetterTopicPrefix = 'cold-dead-letter-';
+
+export async function listTopics(kafkaHosts: string, filter: (topic: string) => boolean): Promise<string[]> {
+    const admin = new Admin({
+        clientId: `zenko-e2e-${Utils.randomString()}`,
+        bootstrapBrokers: [kafkaHosts],
+    });
+    try {
+        return (await admin.listTopics()).filter(filter);
+    } finally {
+        await admin.close();
+    }
+}
 
 export interface DLQMessage {
     op: string;
@@ -18,34 +38,51 @@ export function dlqKey(op: string, bucketName: string, objectKey: string): strin
     return `${op}:${bucketName}:${objectKey}`;
 }
 
-let dlqConsumerCleanup: (() => Promise<void>) | undefined;
-
 /**
- * Starts a long-lived background Kafka consumer. Each arriving DLQ message is
- * passed to `onMessage` — the caller owns the buffer. Call once from BeforeAll.
+ * Starts a background Kafka consumer reading the topics from their beginning, and returns a
+ * function stopping it. Each message is passed to `onMessage`: the caller owns the buffer.
  */
-export async function startDLQConsumer(
-    kafkaHosts: string, topic: string,
-    onMessage: (msg: DLQMessage) => void,
-): Promise<void> {
+async function consumeTopics<T>(
+    kafkaHosts: string, topics: string[],
+    onMessage: (msg: T) => void,
+): Promise<() => Promise<void>> {
     const consumer = new Consumer({
-        clientId: `zenko-e2e-dlq-${Utils.randomString()}`,
-        groupId: `zenko-e2e-dlq-${Utils.randomString()}`,
+        clientId: `zenko-e2e-${Utils.randomString()}`,
+        groupId: `zenko-e2e-${Utils.randomString()}`,
         bootstrapBrokers: [kafkaHosts],
         deserializers: stringDeserializers,
     });
-    const stream = await consumer.consume({ topics: [topic], mode: 'earliest' });
+    const stream = await consumer.consume({ topics, mode: 'earliest' });
     void (async () => {
         try {
             for await (const msg of stream) {
-                try { onMessage(JSON.parse(msg.value) as DLQMessage); } catch { /* ignore malformed messages */ }
+                try { onMessage(JSON.parse(msg.value) as T); } catch { /* ignore malformed messages */ }
             }
         } catch { /* consumer disconnected — stop silently */ }
     })();
-    dlqConsumerCleanup = async () => {
+    return async () => {
         await stream.close().catch(() => {});
         await consumer.close().catch(() => {});
     };
+}
+
+let dlqConsumerCleanup: (() => Promise<void>) | undefined;
+
+/**
+ * Starts a long-lived background Kafka consumer on the dead letter topics of all the cold
+ * locations. Each arriving DLQ message is passed to `onMessage` — the caller owns the buffer.
+ * Call once from BeforeAll.
+ */
+export async function startDLQConsumer(
+    kafkaHosts: string, instanceId: string,
+    onMessage: (msg: DLQMessage) => void,
+): Promise<void> {
+    const prefix = coldTopicName(instanceId, coldDeadLetterTopicPrefix, '');
+    const topics = await listTopics(kafkaHosts, topic => topic.startsWith(prefix));
+    if (topics.length === 0) {
+        return;
+    }
+    dlqConsumerCleanup = await consumeTopics(kafkaHosts, topics, onMessage);
 }
 
 /** Stops the background DLQ consumer. Call from AfterAll. */
@@ -141,7 +178,8 @@ export async function waitForBucketInConnectorPipeline(
                     const matchStage = pipeline[0]?.$match as Record<string, unknown> | undefined;
                     const nsColl = matchStage?.['ns.coll'] as Record<string, unknown> | undefined;
                     const bucketList = nsColl?.$in as string[] | undefined;
-                    if (bucketList?.includes(bucketName)) {
+                    // A connector listening to all buckets excludes the internal ones with $not
+                    if (bucketList?.includes(bucketName) || nsColl?.$not) {
                         return;
                     }
                 } catch {
