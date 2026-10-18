@@ -20,12 +20,27 @@ function readBuilds(dir) {
         .map(line => JSON.parse(line));
 }
 
+function formatSizes(sizes) {
+    return sizes.map(({ platform, size }) => `${Math.round(size / 1e6)} MB ${platform}`).join('<br>') || '-';
+}
+
+function sum(values) {
+    return values.reduce((total, value) => total + value, 0);
+}
+
+function imageSizes(build) {
+    return (build.images || []).map(image => ({
+        platform: image.platform,
+        size: sum(image.layers.map(layer => layer.size)),
+    }));
+}
+
 function formatBuild(build) {
     const icon = STATUS_ICONS[build.status] || '❔';
     const cached = build.total > 0 ? Math.round(build.cached * 100 / build.total) : 0;
     const record = build.url ? `[${build.record}](${build.url})` : '-';
     return `| \`${build.build}\` | ${icon} ${build.status} | ${cached}% | ${Math.round(build.duration / 1e9)}s `
-        + `| ${record} |`;
+        + `| ${formatSizes(imageSizes(build))} | ${record} |`;
 }
 
 function renderSummary(builds) {
@@ -36,8 +51,8 @@ function renderSummary(builds) {
     return [
         '### Docker builds',
         '',
-        '| Build | Status | Cached | Duration | Build record |',
-        '|:------|:-------|-------:|---------:|:-------------|',
+        '| Build | Status | Cached | Duration | Size | Build record |',
+        '|:------|:-------|-------:|---------:|-----:|:-------------|',
         ...rows,
         '',
         "Build records can be imported in Docker Desktop's Builds view.",
