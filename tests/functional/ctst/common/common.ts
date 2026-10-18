@@ -300,17 +300,23 @@ Then('object {string} should have the user metadata with key {string} and value 
         assert(parsed.result!.Metadata[userMDKey] === userMDValue);
     });
 
-// add a transition workflow to a bucket
-Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    await addTransitionWorkflow.call(this, location);
-});
+// Backbeat only tails the oplog of buckets with a transition rule, and the Kafka Connect
+// pipeline is updated asynchronously: wait for it so that direct-to-cold writes and restores
+// done right after this step are not missed. A disabled rule to a cold location is enough
+// for that, without transitioning anything by itself.
+async function addTransitionWorkflowAndWaitForOplog(this: Zenko, location: string, enabled: boolean) {
+    await addTransitionWorkflow.call(this, location, enabled);
+    await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
+}
 
-// A disabled transition rule to a cold location does not transition anything, but it is enough
-// for backbeat to tail the oplog of the bucket, which direct-to-cold writes rely on
+Given('a transition workflow to {string} location',
+    { timeout: 3 * 60 * 1000 }, async function (this: Zenko, location: string) {
+        await addTransitionWorkflowAndWaitForOplog.call(this, location, true);
+    });
+
 Given('a disabled transition workflow to {string} location',
     { timeout: 3 * 60 * 1000 }, async function (this: Zenko, location: string) {
-        await addTransitionWorkflow.call(this, location, false);
-        await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
+        await addTransitionWorkflowAndWaitForOplog.call(this, location, false);
     });
 
 Given('a replication configuration to {string} location',
