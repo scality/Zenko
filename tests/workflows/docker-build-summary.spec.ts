@@ -8,6 +8,10 @@ const {
     writeSummary,
 } = require('../../.github/scripts/docker-build-summary');
 
+function image(platform: string, layers: [string, number][]) {
+    return { platform, layers: layers.map(([digest, size]) => ({ digest, size })) };
+}
+
 function build(overrides: object = {}) {
     return {
         build: 'solution/kafka',
@@ -15,6 +19,7 @@ function build(overrides: object = {}) {
         duration: 83.4e9,
         cached: 3,
         total: 4,
+        images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])],
         record: 'kafka.dockerbuild',
         url: 'https://github.com/scality/Zenko/actions/runs/1/artifacts/42',
         ...overrides,
@@ -29,7 +34,7 @@ describe('renderSummary', () => {
     it('lists each build', () => {
         const rows = tableRows(renderSummary([build()]));
 
-        expect(rows[0]).toBe('| `solution/kafka` | ✅ completed | 75% | 83s '
+        expect(rows[0]).toBe('| `solution/kafka` | ✅ completed | 75% | 83s | 5 MB linux/amd64 '
             + '| [kafka.dockerbuild](https://github.com/scality/Zenko/actions/runs/1/artifacts/42) |');
     });
 
@@ -43,12 +48,20 @@ describe('renderSummary', () => {
         expect(rows[1]).toContain('`solution/zookeeper`');
     });
 
-    it('handles failed builds, without build record', () => {
+    it('shows the size of each platform', () => {
+        const rows = tableRows(renderSummary([build({
+            images: [image('linux/amd64', [['amd', 5e6]]), image('linux/arm64', [['arm', 4e6]])],
+        })]));
+
+        expect(rows[0]).toContain('| 5 MB linux/amd64<br>4 MB linux/arm64 |');
+    });
+
+    it('handles failed builds, without image nor build record', () => {
         const rows = tableRows(renderSummary([
-            build({ status: 'failed', cached: 0, total: 0, url: '' }),
+            build({ status: 'failed', cached: 0, total: 0, images: [], url: '' }),
         ]));
 
-        expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - |');
+        expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - | - |');
     });
 });
 

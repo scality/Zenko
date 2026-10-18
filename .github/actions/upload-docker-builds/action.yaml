@@ -22,7 +22,20 @@ runs:
         mkdir -p "$DIR"
         docker buildx history export --finalize --output "$DIR/$NAME.dockerbuild" "${refs[@]}"
         for ref in "${refs[@]}"; do
-          docker buildx history inspect --format json "$ref" | jq -c .
+          inspect=$(docker buildx history inspect --format json "$ref")
+
+          # Layers of each image (one per platform), to compute their (compressed) size
+          images=$(
+            jq -r '.Attachments[]?
+                | select(.Type | IN("application/vnd.oci.image.manifest.v1+json", "application/vnd.docker.distribution.manifest.v2+json"))
+                | "\(.Digest) \(.Platform // "")"' <<< "$inspect" |
+              while read -r digest platform; do
+                { docker buildx history inspect attachment "$ref" "$digest" || true; } |
+                  jq -c --arg platform "$platform" '{platform: $platform, layers: [.layers[] | {digest, size}]}'
+              done | jq -cs .
+          )
+
+          jq -c --argjson images "$images" '. + {Images: $images}' <<< "$inspect"
         done > "$DIR/inspect.ndjson"
       env:
         NAME: ${{ inputs.name }}
@@ -49,6 +62,7 @@ runs:
             duration: .Duration,
             cached: .NumCachedSteps,
             total: .NumTotalSteps,
+            images: (.Images // []),
             record: $record,
             url: $url
           }' "$DIR/inspect.ndjson" > "$DIR/$NAME.ndjson"
