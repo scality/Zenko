@@ -9,7 +9,12 @@ import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
 import { waitForDataServicesToStabilize, waitForZenkoToStabilize } from './utils/kubernetes';
-import { waitForDLQMessage } from './utils/kafka';
+import {
+    coldDeadLetterTopicPrefix,
+    coldGCRequestTopicPrefix,
+    coldTopicName,
+    waitForDLQMessage,
+} from './utils/kafka';
 
 type manifestEntry = {
     'archive-id': string,
@@ -338,13 +343,14 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
         assert(secondsPassed === seconds);
     });
 
-When('i run sorbetctl to retry failed restore for {string} location',
+When('i run sorbetctl to retry failed jobs for {string} location',
     { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
+        const instanceId = this.parameters.InstanceID;
         const command = `./ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
-            --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+            --kafka-dead-letter-topic=${coldTopicName(instanceId, coldDeadLetterTopicPrefix, location)} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
-            --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
+            --kafka-gc-request-topic=${coldTopicName(instanceId, coldGCRequestTopicPrefix, location)} \
             --kafka-brokers ${this.parameters.KafkaHosts}`;
         try {
             this.logger.debug('Running command', { command, location });
