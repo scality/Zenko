@@ -160,3 +160,36 @@ Feature: Direct to cold
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
     |               Versioned |        100 |
+
+    # While the location is paused, Sorbet keeps the archive request aside instead of dropping
+    # it, and sends it again once the location is resumed. It only does so once it has caught up
+    # with the incoming requests, which it checks as they arrive: the write after the resume is
+    # what gets the backlog going, and must not be held back by it.
+    @2.16.0
+    @PreMerge
+    @Dmf
+    @ColdStorage
+    @DirectToCold
+    Scenario Outline: Direct-to-cold write while the cold location is paused
+    Given a "<versioningConfiguration>" bucket
+    And the archive requests sent to "e2e-cold" location are recorded
+    And that lifecycle is "paused" for the "e2e-cold" location
+    And 2 objects "obj" of size <objectSize> bytes with storage class "e2e-cold"
+    Then object "obj-1" should stay awaiting transition to "e2e-cold" for 15 seconds
+    And object "obj-2" should be awaiting transition to "e2e-cold"
+    And i "should" be able to read object "obj-1"
+    And dmf volume should contain 0 objects
+    When that lifecycle is "resumed" for the "e2e-cold" location
+    And 1 objects "new" of size <objectSize> bytes with storage class "e2e-cold"
+    Then object "new-1" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-1" should be "transitioned" and have the storage class "e2e-cold"
+    And object "obj-2" should be "transitioned" and have the storage class "e2e-cold"
+    And dmf volume should contain 3 objects
+    And exactly 1 archive request should have been sent for object "new-1"
+    And exactly 2 archive requests should have been sent for object "obj-1"
+    And exactly 2 archive requests should have been sent for object "obj-2"
+
+    Examples:
+    | versioningConfiguration | objectSize |
+    |           Non versioned |        100 |
+    |               Versioned |        100 |
