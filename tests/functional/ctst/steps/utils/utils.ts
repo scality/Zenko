@@ -223,6 +223,10 @@ async function putMpuObject(world: Zenko, parts: number = 2, objectName: string,
     if (userMetadata) {
         world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
     }
+    const storageClass = world.getSaved<string>('storageClass');
+    if (storageClass) {
+        world.addCommandParameter({ storageClass });
+    }
 
     const initiateMPUResult = await S3.createMultipartUpload(world.getCommandParameters());
     assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
@@ -280,6 +284,10 @@ async function copyObject(world: Zenko, srcObjectName?: string, dstObjectName?: 
     if (userMetadata) {
         world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
     }
+    const storageClass = world.getSaved<string>('storageClass');
+    if (storageClass) {
+        world.addCommandParameter({ storageClass });
+    }
 
     const result = await S3.copyObject(world.getCommandParameters());
     const versionId = extractPropertyFromResults<string>(result, 'VersionId');
@@ -302,6 +310,10 @@ async function putObject(world: Zenko, objectName?: string, content?: string, ob
     const userMetadata = world.getSaved<string>('userMetadata');
     if (userMetadata) {
         world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    }
+    const storageClass = world.getSaved<string>('storageClass');
+    if (storageClass) {
+        world.addCommandParameter({ storageClass });
     }
     const result = await S3.putObject(world.getCommandParameters());
     const versionId = extractPropertyFromResults<string>(result, 'VersionId');
@@ -438,7 +450,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         this.addCommandParameter({ versionId });
     }
 
-    const op = objectTransitionStatus === 'restored' ? 'restore' : 'archive';
+    const op = ['restored', 'restoring'].includes(objectTransitionStatus) ? 'restore' : 'archive';
     const bucketName = this.getSaved<string>('bucketName');
     const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
     this.addToSaved('seenDLQMessages', seenDLQ);
@@ -468,15 +480,23 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         const parsed = safeJsonParse<{
             StorageClass: string | undefined,
             Restore: string | undefined,
+            Metadata: Record<string, string> | undefined,
         }>(res.stdout);
         assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
+        // A direct-to-cold object reports the cold storage class from the moment it is written,
+        // so the storage class alone does not tell whether the data has actually been archived
+        const transitionInProgress = parsed.result?.Metadata?.[constants.transitionInProgressMD] === 'true';
         let conditionOk = parsed.result?.StorageClass === expectedClass;
-        if (objectTransitionStatus === 'restored') {
+        if (objectTransitionStatus === 'transitioned') {
+            conditionOk = conditionOk && !transitionInProgress;
+        } else if (objectTransitionStatus === 'restoring') {
+            conditionOk = conditionOk && !!parsed.result?.Restore?.includes('ongoing-request="true"');
+        } else if (objectTransitionStatus === 'restored') {
             conditionOk = conditionOk && !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
         } else if (objectTransitionStatus === 'cold') {
-            conditionOk = conditionOk && !parsed.result?.Restore;
+            conditionOk = conditionOk && !transitionInProgress && !parsed.result?.Restore;
         }
         if (conditionOk) return;
 
@@ -552,10 +572,12 @@ async function putBucketReplication(
  */
 function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     let objectNameFinal;
-    const backendFlakinessRetryNumber = this.getSaved<string>('backendFlakinessRetryNumber');
+    const backendFlakinessRetryNumber = this.getSaved<number>('backendFlakinessRetryNumber');
     const backendFlakiness = this.getSaved<string>('backendFlakiness');
+    // 'retry' makes the mock backend succeed after the retries, 'fail' makes it give up for good
+    const backendFlakinessOutcome = this.getSaved<string>('backendFlakinessOutcome') || 'retry';
 
-    if (!backendFlakiness || !backendFlakinessRetryNumber || !objectName) {
+    if (!backendFlakiness || backendFlakinessRetryNumber === undefined || !objectName) {
         return objectName;
     }
 
@@ -565,7 +587,8 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
         break;
     case 'archive':
     case 'restore':
-        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+        objectNameFinal = `${objectName}.scal-${backendFlakinessOutcome}-${backendFlakiness}-job-` +
+            `${backendFlakinessRetryNumber}`;
         break;
     default:
         this.logger.debug('Unknown backend flakyness', { backendFlakiness });

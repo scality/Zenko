@@ -18,6 +18,7 @@ import {
     putBucketReplication,
 } from 'steps/utils/utils';
 import { ActionPermissionsType } from 'steps/bucket-policies/utils';
+import { waitForBucketInConnectorPipeline } from 'steps/utils/kafka';
 import constants from './constants';
 
 setDefaultTimeout(Constants.DEFAULT_TIMEOUT);
@@ -83,6 +84,16 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
             : await putMpuObject(this, parts, objectNameFinal);
     }
     return lastResult;
+}
+
+// Scopes the storage class to the uploads performed by `fn`
+async function withStorageClass<T>(world: Zenko, storageClass: string, fn: () => Promise<T>): Promise<T> {
+    world.addToSaved('storageClass', storageClass);
+    try {
+        return await fn();
+    } finally {
+        world.addToSaved('storageClass', undefined);
+    }
 }
 
 async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
@@ -184,6 +195,27 @@ Given('{string} is copied to {string}',
         assert.ifError(result?.stderr || result?.err);
     });
 
+Given('{int} objects {string} of size {int} bytes with storage class {string}',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => addMultipleObjects.call(this, numberObjects, objectName, sizeBytes));
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{int} mpu objects {string} of size {int} bytes with storage class {string}',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined, 1));
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{string} is copied to {string} with storage class {string}',
+    async function (this: Zenko, sourceObject: string, destinationObject: string, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => copyObject(this, sourceObject, destinationObject));
+        assert.ifError(result?.stderr || result?.err);
+    });
+
 Given('{int} objects {string} of size {int} bytes on {string} site',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, site: string) {
         this.resetCommand();
@@ -268,10 +300,24 @@ Then('object {string} should have the user metadata with key {string} and value 
         assert(parsed.result!.Metadata[userMDKey] === userMDValue);
     });
 
-// add a transition workflow to a bucket
-Given('a transition workflow to {string} location', async function (this: Zenko, location: string) {
-    await addTransitionWorkflow.call(this, location);
-});
+// Backbeat only tails the oplog of buckets with a transition rule, and the Kafka Connect
+// pipeline is updated asynchronously: wait for it so that direct-to-cold writes and restores
+// done right after this step are not missed. A disabled rule to a cold location is enough
+// for that, without transitioning anything by itself.
+async function addTransitionWorkflowAndWaitForOplog(this: Zenko, location: string, enabled: boolean) {
+    await addTransitionWorkflow.call(this, location, enabled);
+    await waitForBucketInConnectorPipeline(this.parameters.KafkaConnectUrl, this.getSaved<string>('bucketName'));
+}
+
+Given('a transition workflow to {string} location',
+    { timeout: 3 * 60 * 1000 }, async function (this: Zenko, location: string) {
+        await addTransitionWorkflowAndWaitForOplog.call(this, location, true);
+    });
+
+Given('a disabled transition workflow to {string} location',
+    { timeout: 3 * 60 * 1000 }, async function (this: Zenko, location: string) {
+        await addTransitionWorkflowAndWaitForOplog.call(this, location, false);
+    });
 
 Given('a replication configuration to {string} location',
     async function (this: Zenko, replicationLocation: string) {

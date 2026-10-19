@@ -59,6 +59,18 @@ Given('a flaky backend that will require {int} retries for {string}',
         this.addToSaved('backendFlakiness', op);
     });
 
+// The job ends up in the dead letter queue: only an explicit retry (sorbetctl) gives it
+// another chance, which fails the same way
+Given('a flaky backend that will fail {string} after {int} retries',
+    function (this: Zenko, op: string, retryNumber: number) {
+        assert(['restore', 'archive'].includes(op), `Invalid operation ${op}`);
+        assert(retryNumber >= 0, `Invalid retry number ${retryNumber}`);
+
+        this.addToSaved('backendFlakinessRetryNumber', retryNumber);
+        this.addToSaved('backendFlakiness', op);
+        this.addToSaved('backendFlakinessOutcome', 'fail');
+    });
+
 After({ tags: '@Dmf' }, async () => {
     await cleanDmfVolume();
 });
