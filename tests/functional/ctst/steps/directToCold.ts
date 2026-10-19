@@ -77,6 +77,15 @@ Then('object {string} should be awaiting transition to {string} on attempt {int}
         await assertAwaitingTransition(this, objectName, location, attempt);
     });
 
+Then('object {string} should stay awaiting transition to {string} for {int} seconds',
+    { timeout: 2 * 60 * 1000 }, async function (this: Zenko, objectName: string, location: string, seconds: number) {
+        const deadline = Date.now() + seconds * 1000;
+        while (Date.now() < deadline) {
+            await assertAwaitingTransition(this, objectName, location);
+            await Utils.sleep(1000);
+        }
+    });
+
 Then('i {string} be able to read object {string}',
     async function (this: Zenko, expectedResult: string, objectName: string) {
         const objName = targetObject(this, objectName);
