@@ -9,19 +9,12 @@ import {
     QueueServiceClient,
     StorageSharedKeyCredential as StorageQueueSharedKeyCredential,
 } from '@azure/storage-queue';
+import { requireEnv } from './env';
 
 export type AzureCreds = {
     accountName: string;
     accountKey: string;
 };
-
-function requireEnv(name: string): string {
-    const value = process.env[name];
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-    return value;
-}
 
 export default class AzureClient {
     private readonly blobClient: BlobServiceClient;
