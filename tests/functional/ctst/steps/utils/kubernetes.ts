@@ -1,6 +1,7 @@
 import fs from 'fs';
 import * as path from 'path';
-import { KubernetesHelper, Utils } from 'cli-testing';
+import { KubernetesHelper } from 'cli-testing';
+import { sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
 import {
     V1Job,
@@ -201,7 +202,7 @@ export async function createJobAndWaitForCompletion(
                     waitedSec: Math.round((Date.now() - lockStart) / 1000),
                 });
             }
-            await Utils.sleep(1000);
+            await sleep(1000);
         }
     }
 
@@ -226,7 +227,7 @@ export async function createJobAndWaitForCompletion(
         job.apiVersion = 'batch/v1';
         job.kind = 'Job';
         job.spec = cronJobSpec;
-        metadata.name = `${jobName}-${Utils.randomString().toLowerCase()}`;
+        metadata.name = `${jobName}-${randomString().toLowerCase()}`;
         metadata.annotations = {
             'cronjob.kubernetes.io/instantiate': 'ctst',
         };
@@ -412,7 +413,7 @@ export async function waitForZenkoToStabilize(
         });
 
         if (!zenkoCR) {
-            await Utils.sleep(1000);
+            await sleep(1000);
             continue;
         }
 
@@ -455,7 +456,7 @@ export async function waitForZenkoToStabilize(
             return;
         }
 
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
 
     throw new Error('Zenko did not stabilize');
@@ -524,7 +525,7 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
         if (allRunning) {
             return true;
         }
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
 
     throw new Error('Data services did not stabilize');

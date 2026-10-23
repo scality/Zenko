@@ -19,8 +19,8 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, Identity, S3, Utils } from 'cli-testing';
-import { extractPropertyFromResults } from 'common/utils';
+import { IAM, Identity, S3 } from 'cli-testing';
+import { extractPropertyFromResults, randomString } from 'common/utils';
 
 Given('an action {string}', function (this: Zenko, apiName: string) {
     // dynamically know the config based on the action
@@ -52,7 +52,7 @@ Given('an existing bucket prepared for the action', async function (this: Zenko)
         this.getSaved<string>('withObjectLock'),
         this.getSaved<string>('retentionMode'));
     if (this.getSaved<boolean>('preExistingObject')) {
-        await putObject(this, `objectforbptests-${Utils.randomString()}`);
+        await putObject(this, `objectforbptests-${randomString()}`);
     }
 });
 
@@ -139,7 +139,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     }
     const createdPolicy = await IAM.createPolicy({
         policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${Utils.randomString()}`,
+        policyName: `policyforauthz-${randomString()}`,
     });
     const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
 
@@ -347,7 +347,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     };
     const createdPolicy = await IAM.createPolicy({
         policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${Utils.randomString()}`,
+        policyName: `policyforauthz-${randomString()}`,
     });
     const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
 
@@ -378,7 +378,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'CompleteMultipartUpload':
     case 'AbortMultipartUpload':
     case 'UploadPart':
-        const objectKey = `multipartUpload-${Utils.randomString()}`;
+        const objectKey = `multipartUpload-${randomString()}`;
         const initiateMPUResult = await S3.createMultipartUpload({
             bucket: this.getSaved<string>('bucketName'),
             key: objectKey,
@@ -389,11 +389,11 @@ Given('an environment setup for the API', async function (this: Zenko) {
         break;
     case 'UploadPartCopy':
         // create an object to copy from
-        const copyObjectKey = `objectforcopy-${Utils.randomString()}`;
+        const copyObjectKey = `objectforcopy-${randomString()}`;
         await putObject(this, copyObjectKey);
         this.addToSaved('objectName', copyObjectKey);
         // create an object for the MPU as copyObject
-        const objectKeyCopy = `multipartUpload-${Utils.randomString()}`;
+        const objectKeyCopy = `multipartUpload-${randomString()}`;
         const initiateMPUResultCopy = await S3.createMultipartUpload({
             bucket: this.getSaved<string>('bucketName'),
             key: objectKeyCopy,
@@ -423,7 +423,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
         this.addCommandParameter({ bypassGovernanceRetention: 'true' });
         break;
     case 'CreateMultipartUpload':
-        this.addToSaved('objectName', `objectforbptests-${Utils.randomString()}`);
+        this.addToSaved('objectName', `objectforbptests-${randomString()}`);
         this.addCommandParameter({ key: this.getSaved<string>('objectName') });
         break;
     default:

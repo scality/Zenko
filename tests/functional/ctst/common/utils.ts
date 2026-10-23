@@ -1,7 +1,8 @@
 import assert from 'assert';
 import { exec } from 'child_process';
 import http from 'http';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
+import { setTimeout as sleep } from 'timers/promises';
 import { Command, IAM, Identity, IdentityEnum } from 'cli-testing';
 import {
     AttachedPolicy,
@@ -15,9 +16,19 @@ import Zenko from 'world/Zenko';
 import fs from 'fs';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { ITestCaseHookParameter } from '@cucumber/cucumber';
-import { AWSCredentials, Utils } from 'cli-testing';
+import { AWSCredentials } from 'cli-testing';
 import { createBucketWithConfiguration, putObject } from '../steps/utils/utils';
 import { createJobAndWaitForCompletion } from '../steps/utils/kubernetes';
+
+export { sleep };
+
+export function randomString(): string {
+    return randomBytes(5).toString('hex');
+}
+
+export function isAccessKeys(object: Partial<AWSCredentials>): object is AWSCredentials {
+    return Boolean(object.accessKeyId && object.secretAccessKey && object.sessionToken !== '');
+}
 
 export function assertBudgetFitsStepTimeout(budgetSeconds: number, stepTimeoutMs: number): void {
     assert.ok(
@@ -417,7 +428,7 @@ export async function prepareMetricsScenarios(
             }
 
             await createJobAndWaitForCompletion(world, jobName, jobNamespace);
-            await Utils.sleep(2000);
+            await sleep(2000);
             fs.writeFileSync(dataFile, JSON.stringify(output));
         },
     );

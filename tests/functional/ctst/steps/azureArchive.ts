@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
-import { safeJsonParse, request } from '../common/utils';
+import { safeJsonParse, request, sleep } from '../common/utils';
 import { Given, Then, When } from '@cucumber/cucumber';
-import { S3, Constants, Utils } from 'cli-testing';
+import { S3 } from 'cli-testing';
+import constants from 'common/constants';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
@@ -56,7 +57,7 @@ async function isObjectRehydrated(zenko: Zenko, objectName: string) {
         if (found) {
             return tarName;
         }
-        await Utils.sleep(1000);
+        await sleep(1000);
     }
     return undefined;
 }
@@ -230,7 +231,7 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     const res = await S3.getObject(this.getCommandParameters());
     assert.ifError(res.err);
     const cliTestingPath = path.dirname(require.resolve('cli-testing'));
-    const objectPath = path.join(cliTestingPath, 'utils', 'api', Constants.OUTFILE_NAME);
+    const objectPath = path.join(cliTestingPath, 'utils', 'api', constants.OUTFILE_NAME);
     const objectBuffer = fs.readFileSync(objectPath);
     fs.rmSync(objectPath);
     const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');
@@ -331,7 +332,7 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
             if (head?.StorageClass !== expectedClass) {
                 break;
             }
-            await Utils.sleep(1000);
+            await sleep(1000);
             secondsPassed++;
         }
         assert(secondsPassed === seconds);
@@ -360,7 +361,7 @@ When('i run sorbetctl to retry failed restore for {string} location',
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
     const realTimeDay = days * 24 * 60 * 60 * 1000 /
         (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
-    await Utils.sleep(realTimeDay);
+    await sleep(realTimeDay);
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
