@@ -90,7 +90,8 @@ function flatten_source_images()
     yq eval '.* | select(.image) | (.sourceRegistry // "docker.io") + "/" + .image + ":" + .tag' deps.yaml |
         sed '/ghcr.io\/scality\/zenko\/kafka/ s/$/-'"${BUILD_TREE_HASH}"'/' |
         sed '/ghcr.io\/scality\/zenko\/cruise-control/ s/$/-'"${CRUISECONTROL_BUILD_TREE_HASH}"'/' |
-        sed '/ghcr.io\/scality\/zenko\/zookeeper/ s/$/-'"${ZOOKEEPER_BUILD_TREE_HASH}"'/'
+        sed '/ghcr.io\/scality\/zenko\/zookeeper/ s/$/-'"${ZOOKEEPER_BUILD_TREE_HASH}"'/' |
+        sed '/ghcr.io\/scality\/zenko\/logrotate/ s/$/-'"${LOGROTATE_BUILD_TREE_HASH}"'/'
 }
 
 function zenko_operator_tag()
@@ -114,6 +115,7 @@ function dependencies_versions_env()
     echo "KAFKA_BUILD_TREE_HASH=${BUILD_TREE_HASH}"
     echo "CRUISECONTROL_BUILD_TREE_HASH=${CRUISECONTROL_BUILD_TREE_HASH}"
     echo "ZOOKEEPER_BUILD_TREE_HASH=${ZOOKEEPER_BUILD_TREE_HASH}"
+    echo "LOGROTATE_BUILD_TREE_HASH=${LOGROTATE_BUILD_TREE_HASH}"
 }
 
 function copy_yamls()
