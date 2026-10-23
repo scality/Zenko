@@ -702,7 +702,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
                     const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
                     if (!isAccessKeys(accessKeys)) {
-                        throw new Error('Failed to generate account access keys for site ${siteKey}');
+                        throw new Error(`Failed to generate account access keys for site ${siteKey}`);
                     }
                     accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
                     accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
@@ -727,7 +727,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
             const accessKeys = await SuperAdmin.generateAccountAccessKey({ accountName });
             if (!isAccessKeys(accessKeys)) {
-                throw new Error('Failed to generate account access keys for site ${siteKey}');
+                throw new Error(`Failed to generate account access keys for account ${accountName}`);
             }
             accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
             accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
