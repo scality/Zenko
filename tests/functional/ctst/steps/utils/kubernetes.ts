@@ -1,20 +1,11 @@
 import fs from 'fs';
 import * as path from 'path';
-import { KubernetesHelper } from 'cli-testing';
 import { sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
 import {
     V1Job,
-    Watch,
     V1ObjectMeta,
-    AppsV1Api,
     V1Deployment,
-    AppsApi,
-    CustomObjectsApi,
-    V1PersistentVolumeClaim,
-    CoreV1Api,
-    BatchV1Api,
-    V1Pod,
 } from '@kubernetes/client-node';
 
 type ZenkoStatusValue = {
@@ -45,61 +36,13 @@ type ZenkoVersionSpec = {
     };
 };
 
-export function createKubeBatchClient(world: Zenko): BatchV1Api {
-    if (!KubernetesHelper.clientBatch) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.clientBatch;
-}
-
-export function createKubeCoreClient(world: Zenko): CoreV1Api {
-    if (!KubernetesHelper.clientBatch) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.clientCore;
-}
-
-export function createKubeWatchClient(world: Zenko): Watch {
-    if (!KubernetesHelper.clientWatch) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.clientWatch;
-}
-
-export function createKubeAppsV1Client(world: Zenko): AppsV1Api {
-    if (!KubernetesHelper.clientAppsV1) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.clientAppsV1;
-}
-
-export function createKubeAppsClient(world: Zenko): AppsApi {
-    if (!KubernetesHelper.clientApps) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.clientApps;
-}
-
-export function createKubeCustomObjectClient(world: Zenko): CustomObjectsApi {
-    if (!KubernetesHelper.customObject) {
-        KubernetesHelper.init(world.parameters);
-    }
-    // @ts-expect-error kube client class is not stable yet
-    return KubernetesHelper.customObject;
-}
-
 export async function createJobAndWaitForCompletion(
     world: Zenko,
     jobName: string,
     customMetadata?: string
 ) {
-    const batchClient = createKubeBatchClient(world);
-    const watchClient = createKubeWatchClient(world);
+    const batchClient = world.kubernetesClient.batch;
+    const watchClient = world.kubernetesClient.watch;
 
     const lockFilePath = path.join('/tmp', `${jobName}.lock`);
 
@@ -134,7 +77,7 @@ export async function createJobAndWaitForCompletion(
             world.logger.warn('Failed to read cronjob status', { jobName, e });
         }
         try {
-            const coreClient = createKubeCoreClient(world);
+            const coreClient = world.kubernetesClient.core;
             const pods = await coreClient.listNamespacedPod({
                 namespace: 'default',
                 labelSelector: `batch.kubernetes.io/job-name=${expectedJobName}`,
@@ -296,75 +239,6 @@ export async function createJobAndWaitForCompletion(
     }
 }
 
-export async function createAndRunPod(
-    world: Zenko,
-    podManifest: V1Pod,
-    waitForCompletion = true,
-    cleanup = false, // The pod will be visible in the artifacts is set to false
-    timeout = 300000,
-) {
-    const clientCore = createKubeCoreClient(world);
-    const watchClient = createKubeWatchClient(world);
-
-    try {
-        const response = await clientCore.createNamespacedPod({ namespace: 'default', body: podManifest });
-        const podName = response.metadata?.name;
-        if (waitForCompletion && podName) {
-            world.logger.debug('Waiting for pod completion', { podName });
-
-            await new Promise<void>((resolve, reject) => {
-                const timeoutId = setTimeout(() => {
-                    reject(new Error(`Pod ${podName} did not complete within ${timeout}ms`));
-                }, timeout);
-
-                void watchClient.watch(
-                    '/api/v1/namespaces/default/pods',
-                    {},
-                    (type: string, apiObj, watchObj) => {
-                        if (watchObj.object?.metadata?.name === podName) {
-                            const phase = watchObj.object?.status?.phase;
-                            world.logger.debug('Pod status update', { podName, phase });
-                            
-                            if (phase === 'Succeeded') {
-                                clearTimeout(timeoutId);
-                                world.logger.debug('Pod completed successfully', { podName });
-                                resolve();
-                            } else if (phase === 'Failed') {
-                                clearTimeout(timeoutId);
-                                world.logger.error('Pod failed', { 
-                                    podName, 
-                                    status: watchObj.object?.status 
-                                });
-                                reject(new Error(`Pod ${podName} failed`));
-                            }
-                        }
-                    },
-                    err => {
-                        world.logger.debug('Watch error callback triggered', { podName, err });
-                        clearTimeout(timeoutId);
-                        reject(err);
-                    }
-                );
-            });
-        }
-
-        // Cleanup if requested
-        if (cleanup && podName) {
-            world.logger.debug('Cleaning up pod', { podName });
-            try {
-                await clientCore.deleteNamespacedPod({ name: podName, namespace: 'default' });
-            } catch (cleanupErr) {
-                world.logger.warn('Failed to cleanup pod', { podName, err: cleanupErr });
-            }
-        }
-
-        return response;
-    } catch (err: unknown) {
-        world.logger.error('Failed to create and run pod:', { err });
-        throw new Error(`Failed to create and run pod: ${err}`);
-    }
-}
-
 export async function waitForZenkoToStabilize(
     world: Zenko, needsReconciliation = false, timeout = 15 * 60 * 1000, namespace = 'default') {
     // ZKOP pulls the overlay configuration from Pensieve every 5 seconds
@@ -396,7 +270,7 @@ export async function waitForZenkoToStabilize(
     let reconciliationDetected = !needsReconciliation;
 
     world.logger.debug('Waiting for Zenko to stabilize');
-    const zenkoClient = createKubeCustomObjectClient(world);
+    const zenkoClient = world.kubernetesClient.customObjects;
 
     while (Date.now() - startTime < timeout) {
         const zenkoCR = await zenkoClient.getNamespacedCustomObject({
@@ -467,7 +341,7 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
     const annotationKey = 'operator.zenko.io/dependencies';
     const dataServices = ['connector-cloudserver-config', 'backbeat-config'];
 
-    const appsClient = createKubeAppsV1Client(world);
+    const appsClient = world.kubernetesClient.appsV1;
 
     world.logger.debug('Waiting for data services to stabilize', {
         namespace,
@@ -532,7 +406,7 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
 }
 
 export async function displayCRStatus(world: Zenko, namespace = 'default') {
-    const zenkoClient = createKubeCustomObjectClient(world);
+    const zenkoClient = world.kubernetesClient.customObjects;
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject({
         group: 'zenko.io',
@@ -557,7 +431,7 @@ export async function displayCRStatus(world: Zenko, namespace = 'default') {
 }
 
 export async function getDRSource(world: Zenko, namespace = 'default') {
-    const zenkoClient = createKubeCustomObjectClient(world);
+    const zenkoClient = world.kubernetesClient.customObjects;
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject({
         group: 'zenko.io',
@@ -575,7 +449,7 @@ export async function getDRSource(world: Zenko, namespace = 'default') {
 }
 
 export async function getDRSink(world: Zenko, namespace = 'default') {
-    const zenkoClient = createKubeCustomObjectClient(world);
+    const zenkoClient = world.kubernetesClient.customObjects;
 
     const zenkoCR = await zenkoClient.getNamespacedCustomObject({
         group: 'zenko.io',
@@ -592,88 +466,12 @@ export async function getDRSink(world: Zenko, namespace = 'default') {
     return zenkoCR;
 }
 
-export async function getPVCFromLabel(world: Zenko, label: string, value: string, namespace = 'default') {
-    const coreClient = createKubeCoreClient(world);
-
-    const pvcList = await coreClient.listNamespacedPersistentVolumeClaim({ namespace });
-    const pvc = pvcList.items.find((pvc: V1PersistentVolumeClaim) => pvc.metadata?.labels?.[label] === value);
-
-    return pvc;
-}
-
-export async function createSecret(
-    world: Zenko,
-    secretName: string,
-    data: Record<string, string>,
-    namespace = 'default',
-) {
-    const coreClient = createKubeCoreClient(world);
-
-    const secret = {
-        apiVersion: 'v1',
-        kind: 'Secret',
-        metadata: {
-            name: secretName,
-        },
-        data,
-    };
-
-    try {
-        await coreClient.deleteNamespacedSecret({ name: secretName, namespace });
-    } catch (err) {
-        world.logger.debug('Secret does not exist, creating new', {
-            secretName,
-            namespace,
-            err,
-        });
-    }
-
-    try {
-        const response = await coreClient.createNamespacedSecret({ namespace, body: secret });
-        return response;
-    } catch (err) {
-        world.logger.error('Error creating secret', {
-            namespace,
-            secret,
-            err,
-        });
-        throw err;
-    }
-}
-
-export async function getMongoDBConfig(
-    world: Zenko,
-    namespace = 'default',
-) : Promise<{replicaSetHosts: string[]}> {
-    const customObjectClient = createKubeCustomObjectClient(world);
-    try {
-        // Get replicaSetHosts from Zenko CR
-        const zenkoCR = await customObjectClient.getNamespacedCustomObject({
-            group: 'zenko.io',
-            version: 'v1alpha2',
-            namespace,
-            plural: 'zenkos',
-            name: 'end2end',
-        });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mongodbSpec = (zenkoCR as any)?.spec?.mongodb;
-        const mongodbConfig = {
-            replicaSetHosts: mongodbSpec?.endpoints || [],
-        };
-
-        return mongodbConfig;
-    } catch (err) {
-        world.logger.debug('Error getting MongoDB config from secret and CR', {namespace, err});
-        throw err;
-    }
-}
-
 export async function getLocationConfigs(
     world: Zenko,
     namespace = 'default',
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-    const coreClient = createKubeCoreClient(world);
+    const coreClient = world.kubernetesClient.core;
     try {
         // Get location configurations from connector-cloudserver-config secret
         const secretList = await coreClient.listNamespacedSecret({
@@ -699,7 +497,7 @@ export async function getZenkoVersion(
     world: Zenko,
     namespace = 'default',
 ): Promise<ZenkoVersion> {
-    const customObjectClient = createKubeCustomObjectClient(world);
+    const customObjectClient = world.kubernetesClient.customObjects;
     try {
         const zenkoVersionList = await customObjectClient.listNamespacedCustomObject({
             group: 'zenko.io',

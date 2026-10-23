@@ -9,7 +9,7 @@ import {
 import { IdentityEnum, Identity, S3 } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
-import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
+import { getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
 import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
 import { replicationLockTags } from 'common/hooks';
@@ -342,7 +342,7 @@ When('the job to replicate existing objects with status {string} is executed',
             }
         };
 
-        await createAndRunPod(this, podManifest);
+        await this.kubernetesClient.createAndRunPod(podManifest);
     });
 
 Given('a deleted destination bucket on that location', async function (this: Zenko) {
