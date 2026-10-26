@@ -5,12 +5,12 @@
 #    tox -e pip-compile
 #
 -e git+https://github.com/scality/sphinx-tools.git@v5.7.2#egg=sphinx_scality
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 alabaster==0.7.16
     # via sphinx
 babel==2.18.0
     # via sphinx
-certifi==2026.7.22
+certifi==2026.10.19
     # via requests
 charset-normalizer==3.4.9
     # via requests
@@ -35,7 +35,7 @@ pyenchant==3.3.0
 pygments==2.20.0
     # via sphinx
 recommonmark==0.7.1
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 requests==2.34.2
     # via
     #   sphinx
@@ -44,7 +44,7 @@ snowballstemmer==3.1.1
     # via sphinx
 sphinx==7.4.7
     # via
-    #   -r docsource/requirements.in
+    #   -r requirements.in
     #   recommonmark
     #   sphinx-scality
     #   sphinx-version-ref
@@ -52,7 +52,7 @@ sphinx==7.4.7
     #   sphinxcontrib-spelling
     #   sphinxcontrib-svg2pdfconverter
 sphinx-version-ref==0.1.0
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
 sphinxcontrib-devhelp==2.0.0
@@ -62,15 +62,15 @@ sphinxcontrib-htmlhelp==2.1.0
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-plantuml==0.31
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sphinxcontrib-spelling==8.0.2
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 sphinxcontrib-svg2pdfconverter==2.1.0
-    # via -r docsource/requirements.in
+    # via -r requirements.in
 tomli==2.4.1
     # via sphinx
 urllib3==2.7.0
