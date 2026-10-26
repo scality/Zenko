@@ -1,7 +1,7 @@
 # Copyright Broadcom, Inc. All Rights Reserved.
 # SPDX-License-Identifier: APACHE-2.0
 
-FROM docker.io/bitnami/minideb:bookworm@sha256:5b4e544f5d0c4669d3dbe4f4de8d3ca221d430e6a1cf3ac60007387abbbd5363
+FROM docker.io/bitnami/minideb:bookworm@sha256:f9866d12dc97d99f6dddfc4ed624186e414807ab39190025ba0d01b997dc2b0c
 
 ARG DOWNLOADS_URL="downloads.bitnami.com/files/stacksmith"
 ARG TARGETARCH
