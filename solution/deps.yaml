@@ -106,7 +106,7 @@ scuba:
   sourceRegistry: ghcr.io/scality
   dashboard: scuba/scuba-dashboards
   image: scuba
-  tag: 1.2.0
+  tag: 1.2.2
   envsubst: SCUBA_TAG
 sorbet:
   sourceRegistry: ghcr.io/scality
