@@ -121,11 +121,12 @@ runs:
         fail_on_failure: true
 
     - name: Upload results
-      uses: trunk-io/analytics-uploader@v1
+      uses: trunk-io/analytics-uploader@v2
       with:
         junit-paths: ${{ inputs.junit-paths }}
         org-slug: ${{ github.repository_owner }}
         token: ${{ inputs.trunk_token }}
+        test-collection-id: YDrqNpt4
       if: inputs.trunk_token && job.status != 'cancelled'
       continue-on-error: true
 
