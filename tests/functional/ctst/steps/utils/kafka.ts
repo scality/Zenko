@@ -7,6 +7,7 @@ export function coldTopicName(instanceId: string, prefix: string, location: stri
     return `${instanceId}.${prefix}${location}`;
 }
 
+export const coldArchiveRequestTopicPrefix = 'cold-archive-req-';
 export const coldGCRequestTopicPrefix = 'cold-gc-req-';
 export const coldDeadLetterTopicPrefix = 'cold-dead-letter-';
 
@@ -33,6 +34,21 @@ export interface DLQMessage {
     originalMessage: string;
     reason: string;
     date: string;
+    // retry count of the job, omitted on the first attempt
+    try?: number;
+}
+
+/** Transition request published by backbeat to the cold-archive-req-<location> topic */
+export interface ArchiveRequest {
+    accountId: string;
+    bucketName: string;
+    objectKey: string;
+    objectVersion?: string;
+    requestId: string;
+    size: number;
+    eTag: string;
+    try?: number;
+    transitionTime: string;
 }
 
 export function dlqKey(op: string, bucketName: string, objectKey: string): string {
@@ -84,6 +100,21 @@ export async function startDLQConsumer(
         return;
     }
     dlqConsumerCleanup = await consumeTopics(kafkaHosts, topics, onMessage);
+}
+
+export interface TopicRecorder<T> {
+    messages: T[];
+    stop: () => Promise<void>;
+}
+
+/**
+ * Buffers all the messages of a topic, for a scenario to check what was published while it
+ * ran. The recorder is not shared: each scenario starts its own and stops it when done.
+ */
+export async function startTopicRecorder<T>(kafkaHosts: string, topic: string): Promise<TopicRecorder<T>> {
+    const messages: T[] = [];
+    const stop = await consumeTopics<T>(kafkaHosts, [topic], msg => messages.push(msg));
+    return { messages, stop };
 }
 
 /** Stops the background DLQ consumer. Call from AfterAll. */
