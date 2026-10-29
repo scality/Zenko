@@ -411,4 +411,87 @@ describe('resolveFromManifest', () => {
         const manifestCall = fetchStub.secondCall;
         expect(manifestCall.args[1].headers.Authorization).toBe('Bearer scoped-reg-token');
     });
+
+    it('follows an image index to the image manifest, skipping attestations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [
+                {
+                    digest: 'sha256:attestation',
+                    annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+                },
+                { digest: 'sha256:image' },
+            ],
+        }));
+        fetchStub.onThirdCall().resolves(mockOk({
+            annotations: {
+                'org.opencontainers.image.revision': 'abc1234',
+                'org.opencontainers.image.source': 'https://github.com/scality/backbeat',
+            },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', '9.6.3-dev.2.sha-abc1234', 'gh-token');
+
+        expect(result).toEqual({ repo: 'scality/backbeat', ref: 'abc1234' });
+        expect(fetchStub.secondCall.args[1].headers.Accept).toContain('application/vnd.oci.image.index.v1+json');
+        expect(fetchStub.thirdCall.args[0]).toContain('/manifests/sha256:image');
+    });
+
+    it('resolves from image index annotations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [{ digest: 'sha256:image' }],
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+        expect(fetchStub.callCount).toBe(2);
+    });
+
+    it('tries each image of an index until one has a revision', async () => {
+        fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onCall(1).resolves(mockOk({
+            manifests: [{ digest: 'sha256:image1' }, { digest: 'sha256:image2' }],
+        }));
+        fetchStub.onCall(2).resolves(mockOk({ config: { digest: 'sha256:config1' } }));
+        fetchStub.onCall(3).resolves(mockOk({ config: { Labels: {} } }));
+        fetchStub.onCall(4).resolves(mockOk({
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+        expect(fetchStub.getCall(4).args[0]).toContain('/manifests/sha256:image2');
+    });
+
+    it('follows nested image indexes', async () => {
+        fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onCall(1).resolves(mockOk({ manifests: [{ digest: 'sha256:index' }] }));
+        fetchStub.onCall(2).resolves(mockOk({ manifests: [{ digest: 'sha256:image' }] }));
+        fetchStub.onCall(3).resolves(mockOk({
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+    });
+
+    it('returns null when an image index has only attestations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [{
+                digest: 'sha256:attestation',
+                annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+            }],
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toBeNull();
+        expect(fetchStub.callCount).toBe(2);
+    });
 });
