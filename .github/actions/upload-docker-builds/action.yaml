@@ -24,7 +24,8 @@ runs:
         for ref in "${refs[@]}"; do
           inspect=$(docker buildx history inspect --format json "$ref")
 
-          # Layers of each image (one per platform), to compute their (compressed) size
+          # Layers of each image (one per platform), to compute their (compressed) size: per
+          # image, and overall since layers may be shared between images
           images=$(
             jq -r '.Attachments[]?
                 | select(.Type | IN("application/vnd.oci.image.manifest.v1+json", "application/vnd.docker.distribution.manifest.v2+json"))
