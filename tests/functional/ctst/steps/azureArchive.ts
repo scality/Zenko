@@ -419,7 +419,12 @@ Given('that lifecycle is {string} for the {string} location',
         await setLifecycleStatus(this, status, location);
     });
 
-After(async function (this: Zenko) {
+After(async function (this: Zenko, { willBeRetried }) {
+    // A retry finds the location already paused, so it does not race the propagation of the
+    // pause to backbeat and sorbet again: only lift it once the scenario is done for good
+    if (willBeRetried) {
+        return;
+    }
     for (const location of this.getSaved<string[]>('pausedLocations') ?? []) {
         await setLifecycleStatus(this, 'resumed', location);
     }
