@@ -34,34 +34,63 @@ async function resolveFromManifest(image, tag, token) {
     const headers = {
         Authorization: `Bearer ${registryToken}`,
         Accept: [
+            'application/vnd.oci.image.index.v1+json',
+            'application/vnd.docker.distribution.manifest.list.v2+json',
             'application/vnd.oci.image.manifest.v1+json',
             'application/vnd.docker.distribution.manifest.v2+json',
         ].join(', '),
     };
 
-    // Fetch manifest
-    const manifestResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/manifests/${tag}`, { headers });
-    if (!manifestResp.ok) {
-        return null;
-    }
-    const manifest = await manifestResp.json();
-
-    // Check manifest annotations first (OCI image manifest)
-    let annotations = manifest.annotations || {};
-
-    // If no revision in manifest annotations, check the config blob
-    if (!annotations['org.opencontainers.image.revision'] && manifest.config) {
-        const configResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/blobs/${manifest.config.digest}`, { headers });
-        if (configResp.ok) {
-            const config = await configResp.json();
-            annotations = config.config?.Labels || {};
+    /**
+     * Find the annotations holding the revision: on the manifest itself, else
+     * on the first image of an index that has it (skipping attestations added
+     * by docker/build-push-action), else on the config labels. Revision and
+     * source are taken from the same place, never mixed.
+     *
+     * @param {string} reference - tag or digest
+     * @returns {Promise<Record<string, string> | null>}
+     */
+    const findAnnotations = async reference => {
+        const manifestResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/manifests/${reference}`, { headers });
+        if (!manifestResp.ok) {
+            return null;
         }
+        const manifest = await manifestResp.json();
+
+        if (manifest.annotations?.['org.opencontainers.image.revision']) {
+            return manifest.annotations;
+        }
+
+        for (const entry of manifest.manifests || []) {
+            if (entry.annotations?.['vnd.docker.reference.type'] === 'attestation-manifest') {
+                continue;
+            }
+            const found = await findAnnotations(entry.digest);
+            if (found) {
+                return found;
+            }
+        }
+
+        if (manifest.config) {
+            const configResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/blobs/${manifest.config.digest}`, { headers });
+            if (configResp.ok) {
+                const config = await configResp.json();
+                const labels = config.config?.Labels;
+                if (labels?.['org.opencontainers.image.revision']) {
+                    return labels;
+                }
+            }
+        }
+
+        return null;
+    };
+
+    const annotations = await findAnnotations(tag);
+    if (!annotations) {
+        return null;
     }
 
     const ref = annotations['org.opencontainers.image.revision'];
-    if (!ref) {
-        return null;
-    }
 
     // Derive repo from source annotation or image path
     const source = annotations['org.opencontainers.image.source'] || '';
