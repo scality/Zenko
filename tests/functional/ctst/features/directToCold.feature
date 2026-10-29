@@ -42,6 +42,7 @@ Feature: Direct to cold
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
     |               Versioned |        100 |
+    |               Suspended |        100 |
 
     @2.16.0
     @PreMerge
@@ -62,6 +63,7 @@ Feature: Direct to cold
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
     |               Versioned |        100 |
+    |               Suspended |        100 |
 
     @2.16.0
     @PreMerge
@@ -80,6 +82,7 @@ Feature: Direct to cold
     Examples:
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
+    |               Suspended |        100 |
 
     @2.16.0
     @PreMerge
@@ -160,6 +163,7 @@ Feature: Direct to cold
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
     |               Versioned |        100 |
+    |               Suspended |        100 |
 
     # While the location is paused, Sorbet keeps the archive request aside instead of dropping
     # it, and sends it again once the location is resumed. It only does so once it has caught up
@@ -193,3 +197,4 @@ Feature: Direct to cold
     | versioningConfiguration | objectSize |
     |           Non versioned |        100 |
     |               Versioned |        100 |
+    |               Suspended |        100 |
