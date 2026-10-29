@@ -85,6 +85,16 @@ async function addMultipleObjects(this: Zenko, numberObjects: number,
     return lastResult;
 }
 
+// Scopes the storage class to the uploads performed by `fn`
+async function withStorageClass<T>(world: Zenko, storageClass: string, fn: () => Promise<T>): Promise<T> {
+    world.addToSaved('storageClass', storageClass);
+    try {
+        return await fn();
+    } finally {
+        world.addToSaved('storageClass', undefined);
+    }
+}
+
 async function addUserMetadataToObject(this: Zenko, objectName: string | undefined, userMD: string) {
     const objName = objectName || this.getSaved<string>('objectName');
     const bucketName = this.getSaved<string>('bucketName');
@@ -181,6 +191,27 @@ Given('{int} mpu objects {string} of size {int} bytes',
 Given('{string} is copied to {string}',
     async function (this: Zenko, sourceObject: string, destinationObject: string) {
         const result = await copyObject(this, sourceObject, destinationObject);
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{int} objects {string} of size {int} bytes with storage class {string}',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => addMultipleObjects.call(this, numberObjects, objectName, sizeBytes));
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{int} mpu objects {string} of size {int} bytes with storage class {string}',
+    async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => addMultipleObjects.call(this, numberObjects, objectName, sizeBytes, undefined, 1));
+        assert.ifError(result?.stderr || result?.err);
+    });
+
+Given('{string} is copied to {string} with storage class {string}',
+    async function (this: Zenko, sourceObject: string, destinationObject: string, storageClass: string) {
+        const result = await withStorageClass(this, storageClass,
+            () => copyObject(this, sourceObject, destinationObject));
         assert.ifError(result?.stderr || result?.err);
     });
 

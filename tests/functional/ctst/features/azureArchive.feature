@@ -240,7 +240,7 @@ Feature: Azure Archive
     When i restore object "retry-obj-1" for <restoreDays> days
     Then restoration of object "retry-obj-1" failed and ends up in DLQ
     Then object "retry-obj-1" should be "transitioning" and have the storage class "e2e-azure-archive"
-    When i run sorbetctl to retry failed restore for "e2e-azure-archive" location
+    When i run sorbetctl to retry failed jobs for "e2e-azure-archive" location
     Then object "retry-obj-1" should be "restored" and have the storage class "e2e-azure-archive"
     And object "retry-obj-1" should expire in <restoreDays> days
     And object "retry-obj-1" should have the same data

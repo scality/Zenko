@@ -44,9 +44,9 @@ setParallelCanAssign(noParallelRun);
 
 BeforeAll(async function () {
     const kafkaHosts = process.env['KAFKA_HOST_PORT'];
-    const dlqTopic = process.env['KAFKA_DEAD_LETTER_TOPIC'];
-    if (kafkaHosts && dlqTopic) {
-        await startDLQConsumer(kafkaHosts, dlqTopic, Zenko.addToDLQBuffer);
+    const instanceId = process.env['INSTANCE_ID'];
+    if (kafkaHosts && instanceId) {
+        await startDLQConsumer(kafkaHosts, instanceId, Zenko.addToDLQBuffer);
     }
 });
 
