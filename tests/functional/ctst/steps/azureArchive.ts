@@ -378,6 +378,11 @@ Given(
     async function (this: Zenko, status: string, location: string) {
         assert(status === 'paused' || status === 'resumed', `Unknown lifecycle status "${status}"`);
         await setLifecycleStatus(this, status, location);
+        if (status === 'paused') {
+            // Backbeat and sorbet get the pause through a MongoDB change stream, about a second
+            // later: objects written before then may still be transitioned
+            await sleep(3000);
+        }
     },
 );
 
