@@ -5,6 +5,7 @@ import path from 'path';
 const {
     readBuilds,
     renderSummary,
+    totalSizes,
     writeSummary,
 } = require('../../.github/scripts/docker-build-summary');
 
@@ -20,6 +21,7 @@ function build(overrides: object = {}) {
         cached: 3,
         total: 4,
         images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])],
+        deployed: true,
         record: 'kafka.dockerbuild',
         url: 'https://github.com/scality/Zenko/actions/runs/1/artifacts/42',
         ...overrides,
@@ -29,6 +31,38 @@ function build(overrides: object = {}) {
 function tableRows(summary: string) {
     return summary.split('\n').filter(line => line.startsWith('| ') && !line.startsWith('| Build |'));
 }
+
+describe('totalSizes', () => {
+    it('counts layers shared between images once', () => {
+        const totals = totalSizes([
+            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
+            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6], ['connect', 1e6]])] }),
+        ]);
+
+        expect(totals).toEqual([{ platform: 'linux/amd64', size: 6e6 }]);
+    });
+
+    it('computes the total for each platform', () => {
+        const totals = totalSizes([
+            build({ images: [image('linux/arm64', [['base-arm', 1e6]]), image('linux/amd64', [['base', 2e6]])] }),
+            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
+        ]);
+
+        expect(totals).toEqual([
+            { platform: 'linux/amd64', size: 5e6 },
+            { platform: 'linux/arm64', size: 1e6 },
+        ]);
+    });
+
+    it('ignores images which are not deployed', () => {
+        const totals = totalSizes([
+            build(),
+            build({ deployed: false, images: [image('linux/amd64', [['docs', 9e6]])] }),
+        ]);
+
+        expect(totals).toEqual([{ platform: 'linux/amd64', size: 5e6 }]);
+    });
+});
 
 describe('renderSummary', () => {
     it('lists each build', () => {
@@ -62,6 +96,22 @@ describe('renderSummary', () => {
         ]));
 
         expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - | - |');
+    });
+
+    it('adds the total size', () => {
+        const rows = tableRows(renderSummary([
+            build({ build: 'solution/kafka', images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
+            build({ build: 'solution/zookeeper', images: [image('linux/amd64', [['base', 2e6], ['zk', 1e6]])] }),
+        ]));
+
+        expect(rows).toHaveLength(3);
+        expect(rows[2]).toBe('| **Total** (shared layers counted once) | | | | 6 MB linux/amd64 | |');
+    });
+
+    it('does not add the total size when no image is deployed', () => {
+        const rows = tableRows(renderSummary([build({ build: 'docs', deployed: false })]));
+
+        expect(rows).toHaveLength(1);
     });
 });
 

@@ -9,6 +9,9 @@ inputs:
   name:
     description: Name of this job's builds, must be unique within the workflow run
     required: true
+  deployed:
+    description: Whether the images are deployed with Zenko, to count them in the total size
+    default: 'true'
 
 runs:
   using: composite
@@ -24,7 +27,8 @@ runs:
         for ref in "${refs[@]}"; do
           inspect=$(docker buildx history inspect --format json "$ref")
 
-          # Layers of each image (one per platform), to compute their (compressed) size
+          # Layers of each image (one per platform), to compute their (compressed) size: per
+          # image, and overall since layers may be shared between images
           images=$(
             jq -r '.Attachments[]?
                 | select(.Type | IN("application/vnd.oci.image.manifest.v1+json", "application/vnd.docker.distribution.manifest.v2+json"))
@@ -56,13 +60,14 @@ runs:
       shell: bash
       run: |-
         # Describe builds
-        jq -c --arg record "$NAME.dockerbuild" --arg url "$URL" '{
+        jq -c --arg record "$NAME.dockerbuild" --arg url "$URL" --arg deployed "$DEPLOYED" '{
             build: (.Context // .Name),
             status: .Status,
             duration: .Duration,
             cached: .NumCachedSteps,
             total: .NumTotalSteps,
             images: (.Images // []),
+            deployed: ($deployed == "true"),
             record: $record,
             url: $url
           }' "$DIR/inspect.ndjson" > "$DIR/$NAME.ndjson"
@@ -70,6 +75,7 @@ runs:
         NAME: ${{ inputs.name }}
         DIR: ${{ runner.temp }}/docker-builds
         URL: ${{ steps.upload.outputs.artifact-url }}
+        DEPLOYED: ${{ inputs.deployed }}
       if: steps.export.outcome == 'success'
       continue-on-error: true
 

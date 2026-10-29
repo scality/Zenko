@@ -35,6 +35,21 @@ function imageSizes(build) {
     }));
 }
 
+/** Size of all deployed images, for each platform: layers shared between images are counted once */
+function totalSizes(builds) {
+    const layersByPlatform = new Map();
+    for (const build of builds.filter(build => build.deployed)) {
+        for (const image of build.images || []) {
+            const layers = layersByPlatform.get(image.platform) || new Map();
+            image.layers.forEach(layer => layers.set(layer.digest, layer.size));
+            layersByPlatform.set(image.platform, layers);
+        }
+    }
+    return [...layersByPlatform]
+        .map(([platform, layers]) => ({ platform, size: sum([...layers.values()]) }))
+        .sort((a, b) => a.platform.localeCompare(b.platform));
+}
+
 function formatBuild(build) {
     const icon = STATUS_ICONS[build.status] || '❔';
     const cached = build.total > 0 ? Math.round(build.cached * 100 / build.total) : 0;
@@ -47,6 +62,11 @@ function renderSummary(builds) {
     const rows = [...builds]
         .sort((a, b) => a.build.localeCompare(b.build))
         .map(formatBuild);
+
+    const totals = totalSizes(builds);
+    if (totals.length > 0) {
+        rows.push(`| **Total** (shared layers counted once) | | | | ${formatSizes(totals)} | |`);
+    }
 
     return [
         '### Docker builds',
@@ -72,5 +92,6 @@ async function writeSummary(core, dir) {
 module.exports = {
     readBuilds,
     renderSummary,
+    totalSizes,
     writeSummary,
 };

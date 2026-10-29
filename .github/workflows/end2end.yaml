@@ -265,6 +265,7 @@ jobs:
         uses: ./.github/actions/upload-docker-builds
         with:
           name: docs
+          deployed: false
         if: always()
 
       - name: Build docs
