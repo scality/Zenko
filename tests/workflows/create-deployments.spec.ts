@@ -212,6 +212,55 @@ describe('resolveRef', () => {
         expect(resolve.firstCall.args).toEqual(['scality/backbeat', 'dev-tag', 'tok']);
     });
 
+    it('returns the full commit from the sha suffix of the tag', async () => {
+        const getCommit = sinon.stub();
+        getCommit.onFirstCall().rejects(notFound());
+        getCommit.onSecondCall().resolves({ data: { sha: '13bbb8b13ea055fdc35df2df9c230b14f278988e' } });
+        const github = makeMockGithub({ getCommit });
+        const resolve = sinon.stub();
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('13bbb8b13ea055fdc35df2df9c230b14f278988e');
+        expect(getCommit.secondCall.args[0].ref).toBe('13bbb8b');
+        expect(resolve.called).toBe(false);
+    });
+
+    it.each(['sha-13bbb8b', '1.0.0-sha-13bbb8b'])('matches the sha suffix of %s', async tag => {
+        const getCommit = sinon.stub();
+        getCommit.onFirstCall().rejects(notFound());
+        getCommit.onSecondCall().resolves({ data: { sha: 'abc1234def' } });
+        const github = makeMockGithub({ getCommit });
+
+        await resolveRef(github, 'scality/backbeat', tag, 'scality/backbeat', 'tok', sinon.stub());
+
+        expect(getCommit.secondCall.args[0].ref).toBe('13bbb8b');
+    });
+
+    it.each([
+        '1.0.0-dev.2.sha-13bbb8b-extra',
+        '1.0.0-dev.2.xsha-13bbb8b',
+        '1.0.0-dev.2.sha-13bb',
+    ])('ignores the non-matching suffix of %s', async tag => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: '', ref: 'abc1234' });
+
+        await resolveRef(github, 'scality/backbeat', tag, 'scality/backbeat', 'tok', resolve);
+
+        expect(github.rest.repos.getCommit.calledOnce).toBe(true);
+        expect(resolve.calledOnce).toBe(true);
+    });
+
+    it('returns the image revision when the sha suffix is no commit of the repo', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: '', ref: 'abc1234' });
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('abc1234');
+        expect(github.rest.repos.getCommit.callCount).toBe(2);
+    });
+
     it('throws when the image was built from another repo', async () => {
         const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
         const resolve = sinon.stub().resolves({ repo: 'scality/cloudserver', ref: 'abc1234' });

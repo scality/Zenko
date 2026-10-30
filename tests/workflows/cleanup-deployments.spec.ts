@@ -204,6 +204,21 @@ describe('resolveRepo', () => {
         expect(fetchStub.called).toBe(false);
     });
 
+    it('resolves ref from the sha suffix of a dev tag', async () => {
+        const getCommit = sinon.stub();
+        getCommit.onFirstCall().rejects(Object.assign(new Error('No commit found'), { status: 422 }));
+        getCommit.onSecondCall().resolves({ data: { sha: '13bbb8b13ea055fdc35df2df9c230b14f278988e' } });
+
+        const result = await resolveRepo(
+            makeMockGithub({ getCommit }),
+            { repo: 'scality/backbeat', ref: '9.6.3-dev.2.sha-13bbb8b', image: 'scality/backbeat' },
+            'tok',
+        );
+
+        expect(result.ref).toBe('13bbb8b13ea055fdc35df2df9c230b14f278988e');
+        expect(fetchStub.called).toBe(false);
+    });
+
     it('resolves ref via OCI manifest when the tag is not a git ref', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
         fetchStub.onSecondCall().resolves(mockOk({
