@@ -9,6 +9,10 @@
 
 const GHCR_REGISTRY = 'https://ghcr.io';
 
+// e.g. 9.6.3-dev.2.sha-13bbb8b as tagged by docker/metadata-action, or a bare
+// (short) commit sha
+const SHA_TAG = /^(?:(?:.*[.-])?sha-([0-9a-f]{7,40})|([0-9a-f]{7}|[0-9a-f]{40}))$/;
+
 /**
  * Fetch OCI image annotations from ghcr.io to resolve repo and git ref.
  *
@@ -166,8 +170,9 @@ async function getCommit(github, repo, ref) {
 }
 
 /**
- * Resolve the git ref of an image tag within the component repo: the tag
- * itself when it is a git ref of the repo, else the image revision.
+ * Resolve the git ref of an image tag within the component repo: the commit
+ * from a `sha-<hex>` suffix or bare sha tag, else the tag itself when it is a
+ * git ref of the repo, else the image revision.
  *
  * @param {Octokit} github
  * @param {string} repo - owner/name
@@ -178,8 +183,13 @@ async function getCommit(github, repo, ref) {
  * @returns {Promise<{repo: string, ref: string}>}
  */
 async function resolveRef(github, repo, tag, image, token, resolve = resolveFromManifest) {
-    if (await getCommit(github, repo, tag)) {
-        return tag;
+    if (repo) {
+        const match = tag.match(SHA_TAG);
+        const sha = match?.[1] || match?.[2];
+        const commit = await getCommit(github, repo, sha || tag);
+        if (commit) {
+            return { repo, ref: sha ? commit : tag };
+        }
     }
 
     const resolved = await resolve(image, tag, token);
