@@ -2,11 +2,9 @@ import { Given, Then, When } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import {
-    createSecret,
     displayCRStatus,
     getDRSink,
     getDRSource,
-    getPVCFromLabel,
 } from './utils/kubernetes';
 import {
     putObject,
@@ -170,9 +168,9 @@ const installTimeout = 360000;
 Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this: Zenko) {
     Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
     const credentials = Identity.getCurrentCredentials();
-    await createSecret(this, 'drctl-s3-creds', {
-        accessKey: Buffer.from(credentials.accessKeyId).toString('base64'),
-        secretAccessKey: Buffer.from(credentials.secretAccessKey).toString('base64'),
+    await this.kubernetesClient.replaceSecret('default', 'drctl-s3-creds', {
+        accessKey: credentials.accessKeyId,
+        secretAccessKey: credentials.secretAccessKey,
     });
 
     // Timeout is set to 1 second less than the cucumber
@@ -302,7 +300,7 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
 
 const volumeTimeout = 60000;
 Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async function (this: Zenko) {
-    const volumeClaim = await getPVCFromLabel(this, 'kafka_cr', 'end2end-pra-sink-base-queue');
+    const volumeClaim = await this.kubernetesClient.getPVCFromLabel('kafka_cr', 'end2end-pra-sink-base-queue');
     this.logger.debug('kafka volume claim', { volumeClaim });
     assert(volumeClaim);
     const volume = await this.zenkoDrCtl?.volumeGet({

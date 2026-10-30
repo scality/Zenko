@@ -19,7 +19,7 @@ import { displayDebuggingInformation, preparePRA } from 'steps/pra';
 import {
     cleanupAccount,
 } from './utils';
-import { createKubeCustomObjectClient, waitForZenkoToStabilize } from 'steps/utils/kubernetes';
+import { waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
 import 'cli-testing/hooks/Logger';
@@ -113,7 +113,7 @@ Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
             async () => {
                 const namespace = 'default';
                 const zenkoName = 'end2end';
-                const client = createKubeCustomObjectClient(this);
+                const client = this.kubernetesClient.customObjects;
                 const cr = await client.getNamespacedCustomObject({
                     group: 'zenko.io',
                     version: 'v1alpha2',
