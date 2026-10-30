@@ -19,9 +19,9 @@ cloudserver:
   tag: 9.5.2
   envsubst: CLOUDSERVER_TAG
 drctl:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: ghcr.io/scality/playground/delthas
   image: zenko-drctl
-  tag: v1.1.0-preview.3
+  tag: v1.1.1-h4f5d655fc63912806703bba8540a181d95f1772c
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
 fubectl:
