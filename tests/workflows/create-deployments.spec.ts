@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 
-const { findOrCreateDeployment, resolveDeployment, createDeployments, resolveFromManifest } = require('../../.github/actions/create-component-deployments/create-deployments');
+const { findOrCreateDeployment, resolveRef, resolveDeployment, createDeployments, resolveFromManifest } = require('../../.github/actions/create-component-deployments/create-deployments');
 
 function makeMockCore() {
     return {
@@ -18,6 +18,7 @@ function makeMockGithub(overrides: Record<string, sinon.SinonStub> = {}) {
                 createDeployment: overrides.createDeployment ?? sinon.stub().resolves({ data: { id: 42 } }),
                 listDeployments: overrides.listDeployments ?? sinon.stub().resolves({ data: [] }),
                 createDeploymentStatus: overrides.createDeploymentStatus ?? sinon.stub().resolves({}),
+                getCommit: overrides.getCommit ?? sinon.stub().resolves({ data: { sha: 'abc1234def' } }),
             },
         },
     };
@@ -93,39 +94,20 @@ describe('resolveDeployment', () => {
         ).rejects.toThrow('Could not resolve repo');
     });
 
-    it('retries via manifest on 422 and returns resolved component', async () => {
-        const err = Object.assign(new Error('Unprocessable'), { status: 422 });
-        const createDeployment = sinon.stub();
-        createDeployment.onFirstCall().rejects(err);
-        createDeployment.onSecondCall().resolves({ data: { id: 77 } });
-        const github = makeMockGithub({ createDeployment });
+    it('resolves ref from manifest when the tag is not a git ref', async () => {
+        const err = Object.assign(new Error('No commit found'), { status: 422 });
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(err) });
         const core = makeMockCore();
         const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'abc1234' });
 
         const result = await resolveDeployment(github, core, resolve, component, deployParams);
 
         expect(result.component).toEqual({ repo: 'scality/sorbet', ref: 'abc1234', image: 'scality/sorbet' });
-        expect(result.deploymentId).toBe(77);
-        expect(createDeployment.callCount).toBe(2);
-        expect(createDeployment.secondCall.args[0].ref).toBe('abc1234');
+        expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
+        expect(github.rest.repos.createDeployment.firstCall.args[0].ref).toBe('abc1234');
     });
 
-    it('retries via manifest on 409 and returns resolved component', async () => {
-        const err = Object.assign(new Error('Conflict'), { status: 409 });
-        const createDeployment = sinon.stub();
-        createDeployment.onFirstCall().rejects(err);
-        createDeployment.onSecondCall().resolves({ data: { id: 55 } });
-        const github = makeMockGithub({ createDeployment });
-        const core = makeMockCore();
-        const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'abc1234' });
-
-        const result = await resolveDeployment(github, core, resolve, component, deployParams);
-
-        expect(result.deploymentId).toBe(55);
-        expect(createDeployment.callCount).toBe(2);
-    });
-
-    it('throws non-422/409 errors directly', async () => {
+    it('throws deployment errors directly', async () => {
         const err = Object.assign(new Error('Server error'), { status: 500 });
         const github = makeMockGithub({ createDeployment: sinon.stub().rejects(err) });
         const core = makeMockCore();
@@ -204,6 +186,59 @@ describe('resolveDeployment', () => {
           expect(call.production_environment).toBe(true);
           expect(call.transient_environment).toBe(false);
       });
+});
+
+describe('resolveRef', () => {
+    const notFound = () => Object.assign(new Error('No commit found'), { status: 422 });
+
+    it('returns the tag when it is a git ref of the repo', async () => {
+        const github = makeMockGithub();
+        const resolve = sinon.stub();
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.3.0', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('9.3.0');
+        expect(github.rest.repos.getCommit.firstCall.args[0]).toEqual({ owner: 'scality', repo: 'backbeat', ref: '9.3.0' });
+        expect(resolve.called).toBe(false);
+    });
+
+    it('returns the image revision when the tag is not a git ref', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: 'scality/backbeat', ref: 'abc1234' });
+
+        const ref = await resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('abc1234');
+        expect(resolve.firstCall.args).toEqual(['scality/backbeat', 'dev-tag', 'tok']);
+    });
+
+    it('throws when the image was built from another repo', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: 'scality/cloudserver', ref: 'abc1234' });
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', resolve),
+        ).rejects.toThrow('Image scality/backbeat:dev-tag was built from scality/cloudserver, not scality/backbeat');
+    });
+
+    it('throws when the image has no revision', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', sinon.stub().resolves(null)),
+        ).rejects.toThrow('Could not resolve ref for scality/backbeat:dev-tag on scality/backbeat');
+    });
+
+    it('throws unexpected commit lookup errors', async () => {
+        const err = Object.assign(new Error('Forbidden'), { status: 403 });
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(err) });
+        const resolve = sinon.stub();
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', '9.3.0', 'scality/backbeat', 'tok', resolve),
+        ).rejects.toMatchObject({ status: 403 });
+        expect(resolve.called).toBe(false);
+    });
 });
 
 describe('createDeployments', () => {

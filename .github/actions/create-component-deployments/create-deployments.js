@@ -145,9 +145,56 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
 }
 
 /**
- * Resolve repo/ref from manifest if needed, then find or create a deployment.
- * If findOrCreateDeployment fails with 409/422 and repo was not yet resolved,
- * resolves from the manifest and retries once.
+ * Get the full sha of a commit, or null when the ref is not found in the repo.
+ *
+ * @param {Octokit} github
+ * @param {string} repo - owner/name
+ * @param {string} ref
+ * @returns {Promise<string | null>}
+ */
+async function getCommit(github, repo, ref) {
+    const [owner, repoName] = repo.split('/');
+    try {
+        const { data } = await github.rest.repos.getCommit({ owner, repo: repoName, ref });
+        return data.sha;
+    } catch (/** @type {any} */ err) {
+        if (err.status === 404 || err.status === 422) {
+            return null;
+        }
+        throw err;
+    }
+}
+
+/**
+ * Resolve the git ref of an image tag within the component repo: the tag
+ * itself when it is a git ref of the repo, else the image revision.
+ *
+ * @param {Octokit} github
+ * @param {string} repo - owner/name
+ * @param {string} tag
+ * @param {string} image
+ * @param {string} token - token with packages:read for manifest lookups
+ * @param {Function} [resolve] - manifest resolver
+ * @returns {Promise<string>}
+ */
+async function resolveRef(github, repo, tag, image, token, resolve = resolveFromManifest) {
+    if (await getCommit(github, repo, tag)) {
+        return tag;
+    }
+
+    const resolved = await resolve(image, tag, token);
+    if (!resolved?.ref) {
+        throw new Error(`Could not resolve ref for ${image}:${tag} on ${repo}`);
+    }
+    // Labels are inherited from the base image: ignore a revision from another repo
+    if (resolved.repo && resolved.repo.toLowerCase() !== repo.toLowerCase()) {
+        throw new Error(`Image ${image}:${tag} was built from ${resolved.repo}, not ${repo}`);
+    }
+    return resolved.ref;
+}
+
+/**
+ * Resolve repo/ref of the component, then find or create a deployment.
  *
  * @param {Octokit} github
  * @param {Core} core
@@ -158,7 +205,6 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
  */
 async function resolveDeployment(github, core, resolve, { repo, ref, image }, deployParams) {
     const { token, environment, description, transient, production, createOnly } = deployParams;
-    const canRetry = !!repo;
 
     // Resolve repo/ref from manifest if not provided
     if (!repo) {
@@ -169,23 +215,16 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
 
         repo = resolved.repo;
         ref = resolved.ref || ref;
+    } else {
+        ref = await resolveRef(github, repo, ref, image, token, resolve);
     }
 
     const [owner, repoName] = repo.split('/');
-    try {
-        const deploymentId = await findOrCreateDeployment(github, {
-            owner, repo: repoName, ref, environment, description, transient, production, createOnly,
-        });
+    const deploymentId = await findOrCreateDeployment(github, {
+        owner, repo: repoName, ref, environment, description, transient, production, createOnly,
+    });
 
-        return { component: { repo, ref, image }, deploymentId };
-    } catch (/** @type {any} */ err) {
-        if (canRetry && (err.status === 409 || err.status === 422)) {
-            core.info(`Ref "${ref}" not found on ${repo}, checking image manifest...`);
-            return resolveDeployment(github, core, resolve, { repo: '', ref, image }, deployParams);
-        }
-
-        throw err;
-    }
+    return { component: { repo, ref, image }, deploymentId };
 }
 
 /**
@@ -243,6 +282,7 @@ async function createDeployments({ github, core, components, environment, status
 
 module.exports = {
     findOrCreateDeployment,
+    resolveRef,
     resolveDeployment,
     resolveFromManifest,
     createDeployments,
