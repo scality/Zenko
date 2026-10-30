@@ -5,25 +5,7 @@
  * @typedef {import('./create-deployments').Core} Core
  */
 
-const { resolveFromManifest } = require('./create-deployments');
-
-/**
- * Resolve a component's repo via OCI manifest when not set (playground-style).
- *
- * @param {Component} component
- * @param {string} token
- * @returns {Promise<Component>}
- */
-async function resolveRepo(component, token) {
-    if (component.repo) {
-        return component;
-    }
-    const resolved = await resolveFromManifest(component.image, component.ref, token);
-    if (!resolved?.repo) {
-        throw new Error(`Could not resolve repo for ${component.image}:${component.ref}`);
-    }
-    return { ...component, repo: resolved.repo, ref: resolved.ref || component.ref };
-}
+const { resolveRef } = require('./create-deployments');
 
 /**
  * Inactivate deployments on component repos whose environment starts with
@@ -45,7 +27,7 @@ async function cleanupDeployments({ github, core, components, environmentPrefix,
         core.startGroup(`${component.repo || component.image}:${component.ref}`);
 
         try {
-            const resolved = await resolveRepo(component, token);
+            const resolved = await resolveRef(github, component.repo, component.ref, component.image, token);
             const [owner, repoName] = resolved.repo.split('/');
 
             const { data: deployments } = await github.rest.repos.listDeployments({
@@ -77,4 +59,4 @@ async function cleanupDeployments({ github, core, components, environmentPrefix,
     }
 }
 
-module.exports = { cleanupDeployments, resolveRepo };
+module.exports = { cleanupDeployments };

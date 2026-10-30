@@ -73,6 +73,7 @@ jobs:
           repositories: ${{ steps.parse.outputs.repos }}
           permission-deployments: write
           permission-packages: read
+          permission-contents: read
 
       - name: Inactivate prior deployments
         if: steps.parse.outputs.components != ''

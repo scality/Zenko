@@ -119,6 +119,8 @@ describe("create-component-deployments action", () => {
                 // playground-sandbox has empty repo, manifest resolution will fail (non-fatal)
 
                 // Sorbet: createDeployment + createDeploymentStatus
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.createDeployment({
                     owner: "scality",
                     repo: "sorbet",
@@ -136,6 +138,8 @@ describe("create-component-deployments action", () => {
                 }).reply({ status: 201, data: { id: 1 } }),
 
                 // Backbeat: createDeployment + createDeploymentStatus
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "backbeat", ref: "9.3.0" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.createDeployment({
                     owner: "scality",
                     repo: "backbeat",
@@ -183,6 +187,8 @@ describe("create-component-deployments action", () => {
                 }),
 
                 // Only sorbet should be deployed (tag changed v1.2.1 -> v1.2.2)
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.createDeployment({
                     owner: "scality",
                     repo: "sorbet",
@@ -250,6 +256,8 @@ describe("create-component-deployments action", () => {
                 // Only sorbet should be deployed (merge-base diff). Backbeat
                 // differs vs target tip but was not touched by the feature
                 // branch, so no mock for it.
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.createDeployment({
                     owner: "scality",
                     repo: "sorbet",

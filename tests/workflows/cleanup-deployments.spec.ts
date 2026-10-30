@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 
-const { cleanupDeployments, resolveRepo } = require('../../.github/actions/create-component-deployments/cleanup-deployments');
+const { cleanupDeployments } = require('../../.github/actions/create-component-deployments/cleanup-deployments');
 
 function makeMockCore() {
     return {
@@ -17,6 +17,7 @@ function makeMockGithub(overrides: Record<string, sinon.SinonStub> = {}) {
             repos: {
                 listDeployments: overrides.listDeployments ?? sinon.stub().resolves({ data: [] }),
                 createDeploymentStatus: overrides.createDeploymentStatus ?? sinon.stub().resolves({}),
+                getCommit: overrides.getCommit ?? sinon.stub().resolves({ data: { sha: 'abc1234def' } }),
             },
         },
     };
@@ -194,13 +195,29 @@ describe('resolveRepo', () => {
         fetchStub.restore();
     });
 
-    it('returns the component unchanged when repo is set', async () => {
+    it('returns the component unchanged when the tag is a git ref', async () => {
         const component = { repo: 'scality/sorbet', ref: 'v1.0.0', image: 'scality/sorbet' };
 
-        const result = await resolveRepo(component, 'tok');
+        const result = await resolveRepo(makeMockGithub(), component, 'tok');
 
-        expect(result).toBe(component);
+        expect(result).toEqual(component);
         expect(fetchStub.called).toBe(false);
+    });
+
+    it('resolves ref via OCI manifest when the tag is not a git ref', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+        const github = makeMockGithub({
+            getCommit: sinon.stub().rejects(Object.assign(new Error('No commit found'), { status: 422 })),
+        });
+
+        const result = await resolveRepo(
+            github, { repo: 'scality/backbeat', ref: 'dev-tag', image: 'scality/backbeat' }, 'tok',
+        );
+
+        expect(result).toEqual({ repo: 'scality/backbeat', ref: 'abc1234', image: 'scality/backbeat' });
     });
 
     it('resolves repo and ref via OCI manifest when repo is empty', async () => {
@@ -213,7 +230,7 @@ describe('resolveRepo', () => {
         }));
 
         const result = await resolveRepo(
-            { repo: '', ref: 'sha256-tag', image: 'scality/playground/sandbox' },
+            makeMockGithub(), { repo: '', ref: 'sha256-tag', image: 'scality/playground/sandbox' },
             'tok',
         );
 
@@ -225,8 +242,9 @@ describe('resolveRepo', () => {
     it('throws when manifest resolution returns no repo', async () => {
         fetchStub.onFirstCall().resolves({ ok: false });
 
-        await expect(
-            resolveRepo({ repo: '', ref: 'tag', image: 'scality/playground/x' }, 'tok'),
-        ).rejects.toThrow('Could not resolve repo');
+        expect(github.rest.repos.getCommit.firstCall.args[0].ref).toBe('13bbb8b');
+        expect(github.rest.repos.listDeployments.firstCall.args[0]).toMatchObject({
+            owner: 'scality', repo: 'backbeat', ref: '13bbb8b13ea055fdc35df2df9c230b14f278988e',
+        });
     });
 });
