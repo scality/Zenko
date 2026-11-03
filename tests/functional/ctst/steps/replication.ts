@@ -12,6 +12,7 @@ import Zenko from '../world/Zenko';
 import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
 import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
+import constants from 'common/constants';
 import { replicationLockTags } from 'common/hooks';
 import { CRRAccountInfo } from './crrCascade';
 
@@ -91,7 +92,7 @@ function readPerBackendStatuses(
  *   from `Metadata['<location>-replication-status']`) must also match the
  *   expected outcome before the call returns successfully.
  */
-async function pollReplicationOutcome(
+export async function pollReplicationOutcome(
     world: Zenko,
     objectName: string,
     bucketName: string,
@@ -238,7 +239,7 @@ type RuleRow = {
 };
 
 const REPLICATION_OUTCOME_STEP_TIMEOUT_MS = 600_000;
-const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
+export const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
 
 function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): object {
     // Optional cascade state, populated by the cascade-tests' "cascade
@@ -295,54 +296,85 @@ function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): 
     return { Role: role, Rules };
 }
 
+/**
+ * Run s3utils crrExistingObjects.js on one bucket, as the bucket owner, and
+ * wait for the pod to succeed.
+ * SITE_NAME (and STORAGE_TYPE, from the location type) are only set when
+ * `siteName` is given: without it the script requeues every site of the rules.
+ */
+export async function runCrrExistingObjectsJob(
+    world: Zenko,
+    params: {
+        bucket: string;
+        accountName: string;
+        targetStatus: string;
+        siteName?: string;
+    },
+): Promise<void> {
+    const { bucket, accountName, targetStatus, siteName } = params;
+    const zenkoVersion = await getZenkoVersion(world);
+    const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
+    const credentials = Identity.getCredentialsForIdentity(IdentityEnum.ACCOUNT, accountName);
+    assert(credentials?.accessKeyId, `no credentials for account '${accountName}'`);
+    // crrExistingObjects only takes ACCESS_KEY / SECRET_KEY
+    assert(!credentials.sessionToken, `account '${accountName}' only has session credentials`);
+    const subDomain = credentials.subDomain || world.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
+
+    const env = [
+        { name: 'ACCESS_KEY', value: credentials.accessKeyId },
+        { name: 'SECRET_KEY', value: credentials.secretAccessKey },
+        { name: 'ENDPOINT', value: `http://s3.${subDomain}` },
+        { name: 'TARGET_REPLICATION_STATUS', value: targetStatus },
+    ];
+    if (siteName) {
+        const locationConfigs = await getLocationConfigs(world);
+        assert(locationConfigs[siteName], `unknown location '${siteName}'`);
+        env.push(
+            { name: 'SITE_NAME', value: siteName },
+            { name: 'STORAGE_TYPE', value: locationConfigs[siteName].type },
+        );
+    }
+
+    const podManifest = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+            name: `s3utils-crr-existing-${randomString().toLowerCase()}`,
+            namespace: 'default',
+            labels: {
+                app: 's3utils',
+                script: 'crrExistingObjects.js'
+            }
+        },
+        spec: {
+            restartPolicy: 'Never',
+            containers: [
+                {
+                    name: 's3utils',
+                    image: `${s3utilsVersion.image}:${s3utilsVersion.tag}`,
+                    command: ['node'],
+                    args: ['crrExistingObjects.js', bucket],
+                    env,
+                }
+            ]
+        }
+    };
+
+    await createAndRunPod(world, podManifest);
+}
+
 When('the job to replicate existing objects with status {string} is executed',
     { timeout: 600000 },
     async function (
         this: Zenko,
         sourceObjectStatus: string,
     ) {
-        const sourceBucket = this.getSaved<string>('bucketName');
-        const replicationLocation = this.getSaved<string[]>('replicationLocations')[0];
-        const { locationType } = await getReplicationLocationConfig(this, replicationLocation);
-        const zenkoVersion = await getZenkoVersion(this);
-        const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
-        const credentials = Identity.getCredentialsForIdentity(
-            IdentityEnum.ACCOUNT,
-            this.parameters.AccountName
-        );
-        const podManifest = {
-            apiVersion: 'v1',
-            kind: 'Pod',
-            metadata: {
-                name: `s3utils-crr-existing-${randomString().toLowerCase()}`,
-                namespace: 'default',
-                labels: {
-                    app: 's3utils',
-                    script: 'crrExistingObjects.js'
-                }
-            },
-            spec: {
-                restartPolicy: 'Never',
-                containers: [
-                    {
-                        name: 's3utils',
-                        image: `${s3utilsVersion.image}:${s3utilsVersion.tag}`,
-                        command: ['node'],
-                        args: ['crrExistingObjects.js', sourceBucket],
-                        env: [
-                            { name: 'ACCESS_KEY', value: credentials?.accessKeyId },
-                            { name: 'SECRET_KEY', value: credentials?.secretAccessKey },
-                            { name: 'ENDPOINT', value: `http://s3.${credentials?.subDomain}` },
-                            { name: 'STORAGE_TYPE', value: locationType },
-                            { name: 'TARGET_REPLICATION_STATUS', value: sourceObjectStatus },
-                            { name: 'SITE_NAME', value: replicationLocation },
-                        ]
-                    }
-                ]
-            }
-        };
-
-        await createAndRunPod(this, podManifest);
+        await runCrrExistingObjectsJob(this, {
+            bucket: this.getSaved<string>('bucketName'),
+            accountName: this.getSaved<string>('accountName') || this.parameters.AccountName,
+            targetStatus: sourceObjectStatus,
+            siteName: this.getSaved<string[]>('replicationLocations')[0],
+        });
     });
 
 Given('a deleted destination bucket on that location', async function (this: Zenko) {
