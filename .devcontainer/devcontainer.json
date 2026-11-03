@@ -12,7 +12,9 @@
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers/features/node:1": { "version": "24" },
+        // yarn classic from apt: without it the feature runs `corepack enable`, and
+        // corepack prompts to download yarn on the first `yarn install` in setup.sh
+        "ghcr.io/devcontainers/features/node:1": { "version": "24", "installYarnUsingApt": true },
         "ghcr.io/devcontainers/features/python:1": {},
         "ghcr.io/devcontainers/features/sshd:1": {},
         "ghcr.io/devcontainers/features/aws-cli:1": {},
@@ -111,7 +113,6 @@
     "containerEnv": {
         "ZENKO_MONGODB_DATABASE": "zenko-database"
     },
-    "onCreateCommand": "sudo corepack disable",
     // Use 'postCreateCommand' to run commands after the container is created.
     "postCreateCommand": ".devcontainer/setup.sh"
 }
