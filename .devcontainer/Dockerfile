@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 ENV YQ_VERSION=v4.44.3
 ENV TILT_VERSION=0.35.2
 ENV KUSTOMIZE_VERSION=v5.7.1
+ENV KIND_VERSION=v0.30.0
 
 RUN curl -L "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq
@@ -12,6 +13,9 @@ RUN curl -L "https://github.com/tilt-dev/tilt/releases/download/v${TILT_VERSION}
 
 RUN curl -L "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" | tar -xvz && \
     install kustomize /usr/local/bin
+
+RUN curl -fL "https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64" -o /usr/local/bin/kind && \
+    chmod +x /usr/local/bin/kind
 
 # Auto-source Zenko env vars in all future terminals
 RUN echo '[ -f "$HOME/.zenko.env" ] && source "$HOME/.zenko.env"' >> /etc/bash.bashrc
