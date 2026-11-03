@@ -6,7 +6,7 @@ import {
     PutBucketVersioningCommand,
     S3Client,
 } from '@aws-sdk/client-s3';
-import { IdentityEnum, Identity, S3 } from 'cli-testing';
+import { IdentityEnum, Identity, S3, SuperAdmin } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
 import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
@@ -302,6 +302,27 @@ function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): 
  * SITE_NAME (and STORAGE_TYPE, from the location type) are only set when
  * `siteName` is given: without it the script requeues every site of the rules.
  */
+/**
+ * crrExistingObjects only takes ACCESS_KEY / SECRET_KEY, but the CRR accounts
+ * are registered with session credentials: generate access keys for the
+ * Vault account behind the location.
+ */
+async function generatePermanentKeys(world: Zenko, identityName: string) {
+    const vaultAccountName = world.getSaved<Record<string, string>>('cascadeVaultAccountByLocation')?.[identityName];
+    assert(vaultAccountName, `account '${identityName}' only has session credentials and no known Vault account`);
+    const previous = {
+        type: Identity.currentIdentityType,
+        name: Identity.currentIdentityName,
+        account: Identity.currentIdentityAccount,
+    };
+    Identity.useIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME);
+    try {
+        return await SuperAdmin.generateAccountAccessKey({ accountName: vaultAccountName });
+    } finally {
+        Identity.useIdentity(previous.type, previous.name, previous.account);
+    }
+}
+
 export async function runCrrExistingObjectsJob(
     world: Zenko,
     params: {
@@ -316,13 +337,14 @@ export async function runCrrExistingObjectsJob(
     const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
     const credentials = Identity.getCredentialsForIdentity(IdentityEnum.ACCOUNT, accountName);
     assert(credentials?.accessKeyId, `no credentials for account '${accountName}'`);
-    // crrExistingObjects only takes ACCESS_KEY / SECRET_KEY
-    assert(!credentials.sessionToken, `account '${accountName}' only has session credentials`);
+    const { accessKeyId, secretAccessKey } = credentials.sessionToken
+        ? await generatePermanentKeys(world, accountName)
+        : credentials;
     const subDomain = credentials.subDomain || world.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
 
     const env = [
-        { name: 'ACCESS_KEY', value: credentials.accessKeyId },
-        { name: 'SECRET_KEY', value: credentials.secretAccessKey },
+        { name: 'ACCESS_KEY', value: accessKeyId },
+        { name: 'SECRET_KEY', value: secretAccessKey },
         { name: 'ENDPOINT', value: `http://s3.${subDomain}` },
         { name: 'TARGET_REPLICATION_STATUS', value: targetStatus },
     ];
@@ -427,7 +449,12 @@ Given('CRR replication accounts are registered', function (this: Zenko) {
     assert.ok(locationNames.every(Boolean), 'CRR_LOCATION_A/B/C_NAME must be set');
 
     const infoByLocation: Record<string, CRRAccountInfo> = {};
+    // Vault account behind each location, same defaults as setup-e2e-env.sh
+    const vaultAccountByLocation: Record<string, string> = {};
     for (const [i, loc] of locationNames.entries()) {
+        const letter = ['A', 'B', 'C'][i];
+        vaultAccountByLocation[loc!] = process.env[`CRR_ACCOUNT_${letter}_NAME`]
+            || `crr-account-${letter.toLowerCase()}`;
         const varName = `CRR_INFO_${['A', 'B', 'C'][i]}`;
         const raw = process.env[varName];
         assert.ok(raw, `${varName} must be set`);
@@ -441,6 +468,7 @@ Given('CRR replication accounts are registered', function (this: Zenko) {
     }
 
     this.addToSaved('cascadeInfoByLocation', infoByLocation);
+    this.addToSaved('cascadeVaultAccountByLocation', vaultAccountByLocation);
     this.addToSaved('cascadeRoleName', roleName);
     this.addToSaved('cascadeBuckets', {} as Record<string, string>);
 });
