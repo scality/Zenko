@@ -64,6 +64,20 @@ Feature: Replication
     @2.16.0
     @PreMerge
     @ReplicationTest
+    Scenario: Requeue of an object with pre-2.16 replication metadata to a cloud location
+        Given an existing bucket "crr-existing-legacy-md" "with" versioning, "without" ObjectLock "without" retention mode
+        And a replication configuration to "awsbackendmismatch" location
+        And an object "existing-legacy-md" that "exists"
+        And the object replication should "succeed" within 300 seconds
+        And the object replication info is rewritten in the pre-2.16 format with status "FAILED"
+        When the job to replicate existing objects with status "FAILED" is executed
+        Then the object replication should "succeed" within 300 seconds
+        And the replicated object should match the source on every configured destination
+        And the object replication info should match what cloudserver writes for a new object
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
     @CRRCascade
     Scenario: Existing replicas are replicated further and stay replicas
         Given CRR replication accounts are registered
