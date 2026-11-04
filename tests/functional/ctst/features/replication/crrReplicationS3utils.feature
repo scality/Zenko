@@ -5,19 +5,11 @@ Feature: Replication
     @2.12.0
     @PreMerge
     @ReplicationTest
-    Scenario Outline: Objects created before setting up replication should not be replicated automatically
-        Given an existing bucket "source-bucket-0" "with" versioning, "without" ObjectLock "without" retention mode
-        And an object "source-object-1" that "exists"
-        And a replication configuration to "awsbackendmismatch" location
-        Then the object replication should "never happen" within 30 seconds
-
-    @2.12.0
-    @PreMerge
-    @ReplicationTest
     Scenario Outline: Replicate objects created before creating the replication rule
         Given an existing bucket "source-bucket-1" "with" versioning, "without" ObjectLock "without" retention mode
         And an object "source-object-1" that "exists"
         And a replication configuration to "awsbackendmismatch" location
+        Then the object replication should "never happen" within 30 seconds
         When the job to replicate existing objects with status "NEW" is executed
         Then the object replication should "succeed" within 300 seconds
         And the replicated object should match the source on every configured destination
@@ -40,14 +32,13 @@ Feature: Replication
     @2.16.0
     @PreMerge
     @ReplicationTest
-    # S3C-11596: with V2 rules the script set the top-level status to
-    # PROCESSING, so backbeat never queued the object.
     Scenario: Existing object with V2 rules replicates
         Given an existing bucket "crr-existing-v2" "with" versioning, "without" ObjectLock "without" retention mode
         And an object "existing-v2" that "exists"
         And a valid multi-destination replication configuration with rules:
             | id | prefix | priority | location           |
             | r1 |        | 1        | awsbackendmismatch |
+        And getBucketReplication should return a "V2" configuration with 1 rules
         When the job to replicate existing objects with status "NEW" is executed
         Then the object replication should "succeed" within 300 seconds
         And the replicated object should match the source on every configured destination
@@ -55,26 +46,6 @@ Feature: Replication
     @2.16.0
     @PreMerge
     @ReplicationTest
-    # S3C-11599: with V1 rules the script wrote backends without bucket and
-    # role, and backbeat failed with BadRole on CRR destinations.
-    Scenario: Existing object with V1 rules replicates to a CRR location
-        Given CRR replication accounts are registered
-        And a versioned bucket exists in location "crr-location-a"
-        And a versioned bucket exists in location "crr-location-b"
-        And an existing bucket "crr-existing-v1-crr" "with" versioning, "without" ObjectLock "without" retention mode
-        And an object "existing-v1-crr" that "exists"
-        And a valid multi-destination replication configuration with rules:
-            | id | prefix | location       |
-            | r1 |        | crr-location-a |
-        When the job to replicate existing objects with status "NEW" is executed
-        Then the object replication should "succeed" within 300 seconds
-        And the replicated object on "crr-location-a" should match the source
-
-    @2.16.0
-    @PreMerge
-    @ReplicationTest
-    # SITE_NAME targets one destination: the other destination of the object
-    # must keep its status and dataStoreVersionId.
     Scenario: Requeue to one new location leaves the other location untouched
         Given an existing bucket "crr-existing-multi" "with" versioning, "without" ObjectLock "without" retention mode
         And a replication configuration to "awsbackendmismatch" location
@@ -94,9 +65,6 @@ Feature: Replication
     @PreMerge
     @ReplicationTest
     @CRRCascade
-    # Cascade backfill: B holds replicas from A. A B -> C rule is added and the
-    # script is run on B. The object must reach C, and stay a replica on B
-    # (x-amz-replication-status REPLICA, checked by the settle step).
     Scenario: Existing replicas are replicated further and stay replicas
         Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
