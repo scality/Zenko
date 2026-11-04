@@ -22,14 +22,11 @@ RUN tar -xzf $kafka_distro
 RUN rm -r kafka_$scala_version-$kafka_version/bin/windows
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.12_8-jre-noble
+FROM eclipse-temurin:21.0.13_9-jre-noble
 
-# Distrust the compromised eMudhra emSign roots. Temurin 21.0.13+ is expected to drop G3, C1 and
-# C3, but may still trust G1: check which ones are still present when bumping.
-RUN keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__g1,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_ecc_root_ca__g3,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__c1,o_emudhra_inc,ou_emsign_pki,c_us [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_ecc_root_ca__c3,o_emudhra_inc,ou_emsign_pki,c_us [jdk]"
+# Distrust the compromised eMudhra emSign G1 root, which Temurin still ships (Mozilla trusts it)
+# but OpenJDK removed (JDK-8395690).
+RUN keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__g1,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]"
 
 ARG scala_version=2.13
 ARG kafka_version=3.9.1

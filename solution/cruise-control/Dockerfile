@@ -15,7 +15,7 @@ ARG CC_VERSION=3.0.3-adbe-20260722
 ARG CC_COMMIT=c668b8316df9260dc0865e3c3f2274ebc60c5ce8
 
 # The JDK only: the build drives Gradle through the project's own wrapper.
-FROM eclipse-temurin:21.0.12_8-jdk-noble AS build
+FROM eclipse-temurin:21.0.13_9-jdk-noble AS build
 
 ARG CC_REPO
 ARG CC_VERSION
@@ -41,14 +41,11 @@ RUN ./gradlew --console=plain --no-daemon clean jar copyDependantLibs && \
           cruise-control/build/dependant-libs/cruise-control-metrics-reporter.jar
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.12_8-jre-noble
+FROM eclipse-temurin:21.0.13_9-jre-noble
 
-# Distrust the compromised eMudhra emSign roots. Temurin 21.0.13+ is expected to drop G3, C1 and
-# C3, but may still trust G1: check which ones are still present when bumping.
-RUN keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__g1,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_ecc_root_ca__g3,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__c1,o_emudhra_inc,ou_emsign_pki,c_us [jdk]" && \
-    keytool -delete -cacerts -storepass changeit -alias "cn_emsign_ecc_root_ca__c3,o_emudhra_inc,ou_emsign_pki,c_us [jdk]"
+# Distrust the compromised eMudhra emSign G1 root, which Temurin still ships (Mozilla trusts it)
+# but OpenJDK removed (JDK-8395690).
+RUN keytool -delete -cacerts -storepass changeit -alias "cn_emsign_root_ca__g1,o_emudhra_technologies_limited,ou_emsign_pki,c_in [jdk]"
 
 # CruiseControl reads webserver.ui.diskpath unconditionally, so the directory has to exist
 # even though no web UI is shipped.
