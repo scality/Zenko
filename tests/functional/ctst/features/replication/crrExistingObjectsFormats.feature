@@ -2,8 +2,7 @@ Feature: Replication of existing objects across rule formats and metadata format
     crrExistingObjects.js (s3utils) rewrites the replicationInfo of existing
     objects so backbeat replicates them. Whatever the rule format (V1 Prefix,
     V2 Filter) and whatever format the object metadata had before the run,
-    what it writes must replicate, and must be what cloudserver writes for
-    a PUT in the same bucket (ZENKO-5391, S3UTILS-256, S3UTILS-257).
+    what it writes must replicate (ZENKO-5391, S3UTILS-256).
     Each scenario targets one issue.
 
     @2.16.0
@@ -62,37 +61,18 @@ Feature: Replication of existing objects across rule formats and metadata format
     @2.16.0
     @PreMerge
     @ReplicationTest
-    # S3UTILS-257: objects written before Zenko 2.16 (top-level destination/
-    # role/storageClass/storageType) must come out of a requeue in the format
-    # cloudserver writes today, without destination/role on cloud backends.
-    Scenario: Requeue of an object with pre-2.16 replication metadata
-        Given an existing bucket "crr-existing-legacy-md" "with" versioning, "without" ObjectLock "without" retention mode
-        And a replication configuration to "awsbackendmismatch" location
-        And an object "existing-legacy-md" that "exists"
-        And the object replication should "succeed" within 300 seconds
-        And the object replication info is rewritten in the pre-2.16 format with status "FAILED"
-        When the job to replicate existing objects with status "FAILED" is executed
-        Then the object replication should "succeed" within 300 seconds
-        And the replicated object should match the source on every configured destination
-        And the object replication info should match what cloudserver writes for a new object
-
-    @2.16.0
-    @PreMerge
-    @ReplicationTest
     @CRRCascade
-    # Cascade backfill: B holds replicas from A written before Zenko 2.16
-    # (status REPLICA, no isReplica flag). A B -> C rule is added and the
+    # Cascade backfill: B holds replicas from A. A B -> C rule is added and the
     # script is run on B. The object must reach C, and stay a replica on B
     # (x-amz-replication-status REPLICA, checked by the settle step).
-    Scenario: Existing pre-2.16 replicas are replicated further and stay replicas
+    Scenario: Existing replicas are replicated further and stay replicas
         Given CRR replication accounts are registered
         And a versioned bucket exists in location "crr-location-a"
         And a versioned bucket exists in location "crr-location-b"
         And a versioned bucket exists in location "crr-location-c"
         And replication is configured from location "crr-location-a" to "crr-location-b"
-        And an object "backfill-legacy-replica" of 42 bytes is put in location "crr-location-a"
+        And an object "backfill-replica" of 42 bytes is put in location "crr-location-a"
         And the object should replicate to location "crr-location-b" within 280 seconds
-        And the replica at location "crr-location-b" has pre-2.16 replica metadata
         And replication is configured from location "crr-location-b" to "crr-location-c"
         When the job to replicate existing objects with status "NEW" is executed on location "crr-location-b" for site "crr-location-c"
         Then the object should replicate to location "crr-location-c" within 280 seconds

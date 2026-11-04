@@ -92,7 +92,7 @@ function readPerBackendStatuses(
  *   from `Metadata['<location>-replication-status']`) must also match the
  *   expected outcome before the call returns successfully.
  */
-export async function pollReplicationOutcome(
+async function pollReplicationOutcome(
     world: Zenko,
     objectName: string,
     bucketName: string,
@@ -239,7 +239,7 @@ type RuleRow = {
 };
 
 const REPLICATION_OUTCOME_STEP_TIMEOUT_MS = 600_000;
-export const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
+const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
 
 function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): object {
     // Optional cascade state, populated by the cascade-tests' "cascade
