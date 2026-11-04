@@ -9,7 +9,9 @@ import {
 import { IdentityEnum, Identity, S3, SuperAdmin } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
-import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
+import {
+    createAndRunPod, getLocationConfigSecretName, getLocationConfigs, getZenkoVersion,
+} from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
 import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
 import constants from 'common/constants';
@@ -240,6 +242,7 @@ type RuleRow = {
 
 const REPLICATION_OUTCOME_STEP_TIMEOUT_MS = 600_000;
 const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
+const LOCATION_CONFIG_MOUNT = '/etc/s3utils';
 
 function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): object {
     // Optional cascade state, populated by the cascade-tests' "cascade
@@ -347,6 +350,8 @@ export async function runCrrExistingObjectsJob(
         { name: 'SECRET_KEY', value: secretAccessKey },
         { name: 'ENDPOINT', value: `http://s3.${subDomain}` },
         { name: 'TARGET_REPLICATION_STATUS', value: targetStatus },
+        // tells the script which sites are public clouds (no bucket and role on their backend)
+        { name: 'LOCATION_CONFIG_FILE', value: `${LOCATION_CONFIG_MOUNT}/locationConfig.json` },
     ];
     if (siteName) {
         const locationConfigs = await getLocationConfigs(world);
@@ -377,8 +382,16 @@ export async function runCrrExistingObjectsJob(
                     command: ['node'],
                     args: ['crrExistingObjects.js', bucket],
                     env,
+                    volumeMounts: [{ name: 'location-config', mountPath: LOCATION_CONFIG_MOUNT, readOnly: true }],
                 }
-            ]
+            ],
+            volumes: [{
+                name: 'location-config',
+                secret: {
+                    secretName: await getLocationConfigSecretName(world),
+                    items: [{ key: 'locationConfig.json', path: 'locationConfig.json' }],
+                },
+            }],
         }
     };
 
