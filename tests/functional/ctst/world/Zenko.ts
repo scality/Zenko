@@ -23,6 +23,7 @@ import {
 import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
+import { BackbeatRoutesClient } from '@scality/cloudserverclient';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
 
@@ -938,12 +939,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    createS3Client(): S3Client {
+    private s3EndpointConfig() {
         const credentials = Identity.getCurrentCredentials();
         const protocol = this.parameters.ssl === false ? 'http' : 'https';
         const subdomain = this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
 
-        return new S3Client({
+        return {
             region: 'us-east-1',
             endpoint: `${protocol}://s3.${subdomain}`,
             credentials: {
@@ -951,8 +952,18 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 secretAccessKey: credentials.secretAccessKey,
                 sessionToken: credentials.sessionToken,
             },
+        };
+    }
+
+    createS3Client(): S3Client {
+        return new S3Client({
+            ...this.s3EndpointConfig(),
             forcePathStyle: true,
         });
+    }
+
+    createBackbeatRoutesClient(): BackbeatRoutesClient {
+        return new BackbeatRoutesClient(this.s3EndpointConfig());
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

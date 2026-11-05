@@ -279,6 +279,13 @@ Given('a replication configuration to {string} location',
         await putBucketReplication.call(this, this.getSaved<string>('bucketName'), replicationLocation);
     });
 
+Given('a {string} replication configuration to {string} location',
+    async function (this: Zenko, format: 'V1' | 'V2', replicationLocation: string) {
+        assert(format === 'V1' || format === 'V2', `unsupported rule format '${format}', expected 'V1' or 'V2'`);
+        this.addToSaved('replicationLocations', [replicationLocation]);
+        await putBucketReplication.call(this, this.getSaved<string>('bucketName'), replicationLocation, format);
+    });
+
 When('i restore object {string} for {int} days', async function (this: Zenko, objectName: string, days: number) {
     await restoreObject.call(this, objectName, days);
 });

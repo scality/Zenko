@@ -4,14 +4,20 @@ import {
     DeleteBucketCommand,
     GetObjectCommand,
     PutBucketVersioningCommand,
+    PutObjectCommand,
     S3Client,
 } from '@aws-sdk/client-s3';
+import { GetMetadataCommand, PutMetadataCommand } from '@scality/cloudserverclient';
+import type { Backend, ObjectMDData, ReplicationInfo } from 'arsenal/build/lib/models/ObjectMD';
 import { IdentityEnum, Identity, S3 } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
-import { createAndRunPod, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
+import {
+    createAndRunPod, getLocationConfigSecretName, getLocationConfigs, getZenkoVersion,
+} from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
 import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
+import constants from 'common/constants';
 import { replicationLockTags } from 'common/hooks';
 import { CRRAccountInfo } from './crrCascade';
 
@@ -242,6 +248,7 @@ type RuleRow = {
 
 const REPLICATION_OUTCOME_STEP_TIMEOUT_MS = 600_000;
 const DEFAULT_ROLE = 'arn:aws:iam::root:role/s3-replication-role';
+const LOCATION_CONFIG_MOUNT = '/etc/s3utils';
 
 function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): object {
     // Optional cascade state, populated by the cascade-tests' "cascade
@@ -298,21 +305,36 @@ function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): 
     return { Role: role, Rules };
 }
 
-When('the job to replicate existing objects with status {string} is executed',
+When(/^the job to replicate existing objects with status "([^"]*)" is executed(?: for site "([^"]*)")?$/,
     { timeout: 600000 },
-    async function (
-        this: Zenko,
-        sourceObjectStatus: string,
-    ) {
-        const sourceBucket = this.getSaved<string>('bucketName');
-        const replicationLocation = this.getSaved<string[]>('replicationLocations')[0];
-        const { locationType } = await getReplicationLocationConfig(this, replicationLocation);
+    async function (this: Zenko, targetStatus: string, site?: string) {
+        const bucket = this.getSaved<string>('bucketName');
+        const accountName = this.getSaved<string>('accountName') || this.parameters.AccountName;
+        const siteName = site ?? this.getSaved<string[]>('replicationLocations')?.[0];
         const zenkoVersion = await getZenkoVersion(this);
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
-        const credentials = Identity.getCredentialsForIdentity(
-            IdentityEnum.ACCOUNT,
-            this.parameters.AccountName
-        );
+        const credentials = Identity.getCredentialsForIdentity(IdentityEnum.ACCOUNT, accountName);
+        assert(credentials?.accessKeyId, `no credentials for account '${accountName}'`);
+        assert(!credentials.sessionToken,
+            `crrExistingObjects.js needs access keys, '${accountName}' has session credentials`);
+        const subDomain = credentials.subDomain || this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
+
+        const env = [
+            { name: 'ACCESS_KEY', value: credentials.accessKeyId },
+            { name: 'SECRET_KEY', value: credentials.secretAccessKey },
+            { name: 'ENDPOINT', value: `http://s3.${subDomain}` },
+            { name: 'TARGET_REPLICATION_STATUS', value: targetStatus },
+            { name: 'LOCATION_CONFIG_FILE', value: `${LOCATION_CONFIG_MOUNT}/locationConfig.json` },
+        ];
+        if (siteName) {
+            const locationConfigs = await getLocationConfigs(this);
+            assert(locationConfigs[siteName], `unknown location '${siteName}'`);
+            env.push(
+                { name: 'SITE_NAME', value: siteName },
+                { name: 'STORAGE_TYPE', value: locationConfigs[siteName].type },
+            );
+        }
+
         const podManifest = {
             apiVersion: 'v1',
             kind: 'Pod',
@@ -331,22 +353,152 @@ When('the job to replicate existing objects with status {string} is executed',
                         name: 's3utils',
                         image: `${s3utilsVersion.image}:${s3utilsVersion.tag}`,
                         command: ['node'],
-                        args: ['crrExistingObjects.js', sourceBucket],
-                        env: [
-                            { name: 'ACCESS_KEY', value: credentials?.accessKeyId },
-                            { name: 'SECRET_KEY', value: credentials?.secretAccessKey },
-                            { name: 'ENDPOINT', value: `http://s3.${credentials?.subDomain}` },
-                            { name: 'STORAGE_TYPE', value: locationType },
-                            { name: 'TARGET_REPLICATION_STATUS', value: sourceObjectStatus },
-                            { name: 'SITE_NAME', value: replicationLocation },
-                        ]
+                        args: ['crrExistingObjects.js', bucket],
+                        env,
+                        volumeMounts: [{ name: 'location-config', mountPath: LOCATION_CONFIG_MOUNT, readOnly: true }],
                     }
-                ]
+                ],
+                volumes: [{
+                    name: 'location-config',
+                    secret: {
+                        secretName: await getLocationConfigSecretName(this),
+                        items: [{ key: 'locationConfig.json', path: 'locationConfig.json' }],
+                    },
+                }],
             }
         };
 
         await createAndRunPod(this, podManifest);
     });
+
+function findBackend(info: ReplicationInfo | undefined, site: string): Backend | undefined {
+    return info?.backends?.find(b => b.site === site);
+}
+
+function replicationInfoShape(info: ReplicationInfo | undefined) {
+    const legacyTopLevel = ['destination', 'storageClass', 'storageType', 'dataStoreVersionId'] as const;
+    return {
+        role: info?.role,
+        isReplica: !!info?.isReplica,
+        isNFS: !!info?.isNFS,
+        // cloudserver writes ['DATA', 'METADATA'], s3utils ['METADATA', 'DATA']: same meaning
+        content: (info?.content ?? []).filter(c => c === 'DATA' || c === 'METADATA').sort(),
+        legacyTopLevelFields: legacyTopLevel.filter(field => info?.[field]),
+        backends: (info?.backends ?? [])
+            .map(b => ({ site: b.site, destination: b.destination, role: b.role }))
+            .sort((a, b) => a.site.localeCompare(b.site)),
+    };
+}
+
+When('the replication info of the object is saved', async function (this: Zenko) {
+    const objectName = this.getSaved<string>('objectName');
+    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objectName,
+        VersionId: this.getLatestObjectVersion(objectName),
+    }));
+    const md = JSON.parse(Body!) as ObjectMDData;
+    this.addToSaved('savedReplicationInfo', md.replicationInfo);
+});
+
+// Rewrites the object metadata the way cloudserver/backbeat wrote it before
+// Zenko 2.16 (S3C 9.5 format): top-level destination/role/storageClass/
+// storageType, backends with site/status/dataStoreVersionId only.
+Given('the object replication info is rewritten in the pre-2.16 format with status {string}',
+    async function (this: Zenko, status: string) {
+        const bucket = this.getSaved<string>('bucketName');
+        const objectName = this.getSaved<string>('objectName');
+        const locations = this.getSaved<string[]>('replicationLocations');
+        assert.strictEqual(locations?.length, 1, 'the pre-2.16 format has one destination bucket');
+        const site = locations[0];
+
+        const backbeatRoutes = this.createBackbeatRoutesClient();
+        const versionId = this.getLatestObjectVersion(objectName);
+        const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
+            Bucket: bucket,
+            Key: objectName,
+            VersionId: versionId,
+        }));
+        const md = JSON.parse(Body!) as ObjectMDData;
+        const current = md.replicationInfo;
+        md.replicationInfo = {
+            status,
+            backends: [{
+                site,
+                status,
+                dataStoreVersionId: status === 'COMPLETED'
+                    ? (findBackend(current, site)?.dataStoreVersionId ?? '') : '',
+            }],
+            content: current?.content ?? ['DATA', 'METADATA'],
+            destination: `arn:aws:s3:::${bucket}`,
+            storageClass: site,
+            role: DEFAULT_ROLE,
+            storageType: 'aws_s3',
+            dataStoreVersionId: '',
+        };
+        await backbeatRoutes.send(new PutMetadataCommand({
+            Bucket: bucket,
+            Key: objectName,
+            VersionId: versionId,
+            Body: Buffer.from(JSON.stringify(md)),
+        }));
+    });
+
+Then('the object replication info should match what cloudserver writes for a new object',
+    { timeout: REPLICATION_OUTCOME_STEP_TIMEOUT_MS },
+    async function (this: Zenko) {
+        const bucket = this.getSaved<string>('bucketName');
+        const objectName = this.getSaved<string>('objectName');
+        const locations = this.getSaved<string[]>('replicationLocations');
+        const backbeatRoutes = this.createBackbeatRoutesClient();
+        const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
+            Bucket: bucket,
+            Key: objectName,
+            VersionId: this.getLatestObjectVersion(objectName),
+        }));
+        const md = JSON.parse(Body!) as ObjectMDData;
+
+        // Same bucket, same rules, same size: only the writer differs.
+        const referenceName = `${objectName}-reference`;
+        const { VersionId: referenceVersionId } = await this.createS3Client().send(new PutObjectCommand({
+            Bucket: bucket,
+            Key: referenceName,
+            Body: Buffer.alloc(md['content-length'] ?? 0),
+        }));
+        await pollReplicationOutcome(this, referenceName, bucket, 'succeed', 300_000, locations);
+        const { Body: referenceBody } = await backbeatRoutes.send(new GetMetadataCommand({
+            Bucket: bucket,
+            Key: referenceName,
+            VersionId: referenceVersionId,
+        }));
+        const referenceMD = JSON.parse(referenceBody!) as ObjectMDData;
+
+        assert.deepStrictEqual(
+            replicationInfoShape(md.replicationInfo),
+            replicationInfoShape(referenceMD.replicationInfo),
+            'replicationInfo written by crrExistingObjects differs from the one cloudserver writes on a PUT.\n'
+            + `crrExistingObjects: ${JSON.stringify(md.replicationInfo)}\n`
+            + `cloudserver: ${JSON.stringify(referenceMD.replicationInfo)}`,
+        );
+    });
+
+Then('the {string} backend of the object should be unchanged', async function (this: Zenko, site: string) {
+    const saved = findBackend(this.getSaved<ReplicationInfo>('savedReplicationInfo'), site);
+    assert(saved, `no '${site}' backend saved before the job`);
+    const objectName = this.getSaved<string>('objectName');
+    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objectName,
+        VersionId: this.getLatestObjectVersion(objectName),
+    }));
+    const md = JSON.parse(Body!) as ObjectMDData;
+    const current = findBackend(md.replicationInfo, site);
+    assert.deepStrictEqual(
+        { status: current?.status, dataStoreVersionId: current?.dataStoreVersionId },
+        { status: saved.status, dataStoreVersionId: saved.dataStoreVersionId },
+        `'${site}' backend changed: before ${JSON.stringify(saved)}, after ${JSON.stringify(current)}`,
+    );
+});
 
 Given('a deleted destination bucket on that location', async function (this: Zenko) {
     const replicationLocation = this.getSaved<string[]>('replicationLocations')[0];

@@ -2,25 +2,23 @@ Feature: Replication
     This feature tests replication using the script crrExistingObjects.js from S3utils,
     that replicates objects created before the replication was enabled on source the bucket.
 
-    @2.12.0
+    @2.16.0
     @PreMerge
     @ReplicationTest
-    Scenario Outline: Objects created before setting up replication should not be replicated automatically
-        Given an existing bucket "source-bucket-0" "with" versioning, "without" ObjectLock "without" retention mode
+    Scenario Outline: Replicate objects created before creating a <format> replication rule
+        Given an existing bucket "<bucket>" "with" versioning, "without" ObjectLock "without" retention mode
         And an object "source-object-1" that "exists"
-        And a replication configuration to "awsbackendmismatch" location
+        And a "<format>" replication configuration to "awsbackendmismatch" location
+        And getBucketReplication should return a "<format>" configuration with 1 rules
         Then the object replication should "never happen" within 30 seconds
-
-    @2.12.0
-    @PreMerge
-    @ReplicationTest
-    Scenario Outline: Replicate objects created before creating the replication rule
-        Given an existing bucket "source-bucket-1" "with" versioning, "without" ObjectLock "without" retention mode
-        And an object "source-object-1" that "exists"
-        And a replication configuration to "awsbackendmismatch" location
         When the job to replicate existing objects with status "NEW" is executed
         Then the object replication should "succeed" within 300 seconds
         And the replicated object should match the source on every configured destination
+
+        Examples:
+            | format | bucket          |
+            | V1     | crr-existing-v1 |
+            | V2     | crr-existing-v2 |
 
     @2.12.0
     @PreMerge
@@ -36,3 +34,54 @@ Feature: Replication
         And the job to replicate existing objects with status "FAILED" is executed
         Then the object replication should "succeed" within 300 seconds
         And the replicated object should match the source on every configured destination
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
+    Scenario: Requeue to one new location leaves the other location untouched
+        Given an existing bucket "crr-existing-multi" "with" versioning, "without" ObjectLock "without" retention mode
+        And a replication configuration to "awsbackendmismatch" location
+        And an object "existing-multi" that "exists"
+        And the object replication should "succeed" within 300 seconds
+        And the replication info of the object is saved
+        And a valid multi-destination replication configuration with rules:
+            | id | prefix | priority | location           |
+            | r1 |        | 1        | awsbackendmismatch |
+            | r2 |        | 2        | awsbackend         |
+        When the job to replicate existing objects with status "NEW" is executed for site "awsbackend"
+        Then the object replication should "succeed" within 300 seconds
+        And the replicated object on "awsbackend" should match the source
+        And the "awsbackendmismatch" backend of the object should be unchanged
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
+    Scenario: Requeue of an object with pre-2.16 replication metadata to a cloud location
+        Given an existing bucket "crr-existing-legacy-md" "with" versioning, "without" ObjectLock "without" retention mode
+        And a replication configuration to "awsbackendmismatch" location
+        And an object "existing-legacy-md" that "exists"
+        And the object replication should "succeed" within 300 seconds
+        And the object replication info is rewritten in the pre-2.16 format with status "FAILED"
+        When the job to replicate existing objects with status "FAILED" is executed
+        Then the object replication should "succeed" within 300 seconds
+        And the replicated object should match the source on every configured destination
+        And the object replication info should match what cloudserver writes for a new object
+
+    @2.16.0
+    @PreMerge
+    @ReplicationTest
+    @CRRCascade
+    Scenario: Existing replicas are replicated further and stay replicas
+        Given CRR replication accounts are registered
+        And a versioned bucket exists in location "crr-location-a"
+        And a versioned bucket exists in location "crr-location-b"
+        And a versioned bucket exists in location "crr-location-c"
+        And replication is configured from location "crr-location-a" to "crr-location-b"
+        And an object "backfill-replica" of 42 bytes is put in location "crr-location-a"
+        And the object should replicate to location "crr-location-b" within 280 seconds
+        And replication is configured from location "crr-location-b" to "crr-location-c"
+        And the bucket in location "crr-location-b" is used
+        And the account of location "crr-location-b" has access keys
+        When the job to replicate existing objects with status "NEW" is executed for site "crr-location-c"
+        Then the object should replicate to location "crr-location-c" within 280 seconds
+        And the cascade replication states should settle within 120 seconds

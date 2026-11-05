@@ -668,20 +668,34 @@ export async function getMongoDBConfig(
     }
 }
 
+async function getCloudserverConfigSecret(world: Zenko, namespace: string) {
+    const secretList = await createKubeCoreClient(world).listNamespacedSecret({
+        namespace,
+        labelSelector: 'app.kubernetes.io/name=connector-cloudserver-config',
+    });
+    const secret = secretList.items[0];
+    if (!secret) {
+        throw new Error('connector-cloudserver-config secret not found');
+    }
+    return secret;
+}
+
+export async function getLocationConfigSecretName(world: Zenko, namespace = 'default'): Promise<string> {
+    const secret = await getCloudserverConfigSecret(world, namespace);
+    if (!secret.metadata?.name || !secret.data?.['locationConfig.json']) {
+        throw new Error('locationConfig.json not found in the connector-cloudserver-config secret');
+    }
+    return secret.metadata.name;
+}
+
 export async function getLocationConfigs(
     world: Zenko,
     namespace = 'default',
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-    const coreClient = createKubeCoreClient(world);
     try {
         // Get location configurations from connector-cloudserver-config secret
-        const secretList = await coreClient.listNamespacedSecret({
-            namespace,
-            labelSelector: 'app.kubernetes.io/name=connector-cloudserver-config',
-        });
-
-        const secret = secretList.items[0];
+        const secret = await getCloudserverConfigSecret(world, namespace);
         const locationConfigData = secret.data?.['locationConfig.json'];
         if (!locationConfigData) {
             throw new Error('locationConfig.json not found in secret');

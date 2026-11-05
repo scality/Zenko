@@ -518,12 +518,21 @@ async function putBucketReplication(
     this: Zenko,
     srcBucket: string,
     replicationLocation: string,
+    format: 'V1' | 'V2' = 'V1',
 ) {
+    const keyFilter = format === 'V2'
+        ? {
+            Filter: { Prefix: '' },
+            Priority: 1,
+        }
+        : {
+            Prefix: '',
+        };
     const res = await putBucketReplicationRaw.call(this, srcBucket, {
         Role: 'arn:aws:iam::root:role/s3-replication-role',
         Rules: [
             {
-                Prefix: '',
+                ...keyFilter,
                 Destination: {
                     Bucket: `arn:aws:s3:::${srcBucket}`,
                     StorageClass: replicationLocation,
