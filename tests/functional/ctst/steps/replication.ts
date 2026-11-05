@@ -142,10 +142,13 @@ async function pollReplicationOutcome(
                 expected, 'never happen',
                 `got undefined replication status for expected outcome '${expected}'`,
             );
-            return;
+            continue;
         default:
             throw new Error(`Unexpected replication status: ${top}`);
         }
+    }
+    if (expected === 'never happen') {
+        return;
     }
     assert.fail(`Timeout: object '${objectName}' did not reach outcome '${expected}' in time`);
 }
