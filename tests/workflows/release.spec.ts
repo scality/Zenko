@@ -364,6 +364,9 @@ test.each([
 
             // Mock deployment creation for sorbet
             moctokit.rest.repos
+                .getCommit({ owner: 'scality', repo: 'sorbet', ref: 'v1.2.1' } as any)
+                .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
+            moctokit.rest.repos
                 .listDeployments({
                     owner: 'scality', repo: 'sorbet', environment: `zenko/${tag}`, ref: 'v1.2.1', per_page: 1,
                 } as any)
@@ -376,6 +379,9 @@ test.each([
                 .reply({ status: 201, data: {} }),
 
             // Mock deployment creation for backbeat
+            moctokit.rest.repos
+                .getCommit({ owner: 'scality', repo: 'backbeat', ref: '9.3.0' } as any)
+                .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
             moctokit.rest.repos
                 .listDeployments({
                     owner: 'scality', repo: 'backbeat', environment: `zenko/${tag}`, ref: '9.3.0', per_page: 1,

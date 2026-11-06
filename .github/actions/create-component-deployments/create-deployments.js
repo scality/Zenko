@@ -9,6 +9,9 @@
 
 const GHCR_REGISTRY = 'https://ghcr.io';
 
+// e.g. 9.6.3-dev.2.sha-13bbb8b, as tagged by docker/metadata-action
+const SHA_TAG_SUFFIX = /(?:^|[.-])sha-([0-9a-f]{7,40})$/;
+
 /**
  * Fetch OCI image annotations from ghcr.io to resolve repo and git ref.
  *
@@ -34,34 +37,63 @@ async function resolveFromManifest(image, tag, token) {
     const headers = {
         Authorization: `Bearer ${registryToken}`,
         Accept: [
+            'application/vnd.oci.image.index.v1+json',
+            'application/vnd.docker.distribution.manifest.list.v2+json',
             'application/vnd.oci.image.manifest.v1+json',
             'application/vnd.docker.distribution.manifest.v2+json',
         ].join(', '),
     };
 
-    // Fetch manifest
-    const manifestResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/manifests/${tag}`, { headers });
-    if (!manifestResp.ok) {
-        return null;
-    }
-    const manifest = await manifestResp.json();
-
-    // Check manifest annotations first (OCI image manifest)
-    let annotations = manifest.annotations || {};
-
-    // If no revision in manifest annotations, check the config blob
-    if (!annotations['org.opencontainers.image.revision'] && manifest.config) {
-        const configResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/blobs/${manifest.config.digest}`, { headers });
-        if (configResp.ok) {
-            const config = await configResp.json();
-            annotations = config.config?.Labels || {};
+    /**
+     * Find the annotations holding the revision: on the manifest itself, else
+     * on the first image of an index that has it (skipping attestations added
+     * by docker/build-push-action), else on the config labels. Revision and
+     * source are taken from the same place, never mixed.
+     *
+     * @param {string} reference - tag or digest
+     * @returns {Promise<Record<string, string> | null>}
+     */
+    const findAnnotations = async reference => {
+        const manifestResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/manifests/${reference}`, { headers });
+        if (!manifestResp.ok) {
+            return null;
         }
+        const manifest = await manifestResp.json();
+
+        if (manifest.annotations?.['org.opencontainers.image.revision']) {
+            return manifest.annotations;
+        }
+
+        for (const entry of manifest.manifests || []) {
+            if (entry.annotations?.['vnd.docker.reference.type'] === 'attestation-manifest') {
+                continue;
+            }
+            const found = await findAnnotations(entry.digest);
+            if (found) {
+                return found;
+            }
+        }
+
+        if (manifest.config) {
+            const configResp = await fetch(`${GHCR_REGISTRY}/v2/${image}/blobs/${manifest.config.digest}`, { headers });
+            if (configResp.ok) {
+                const config = await configResp.json();
+                const labels = config.config?.Labels;
+                if (labels?.['org.opencontainers.image.revision']) {
+                    return labels;
+                }
+            }
+        }
+
+        return null;
+    };
+
+    const annotations = await findAnnotations(tag);
+    if (!annotations) {
+        return null;
     }
 
     const ref = annotations['org.opencontainers.image.revision'];
-    if (!ref) {
-        return null;
-    }
 
     // Derive repo from source annotation or image path
     const source = annotations['org.opencontainers.image.source'] || '';
@@ -116,9 +148,63 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
 }
 
 /**
- * Resolve repo/ref from manifest if needed, then find or create a deployment.
- * If findOrCreateDeployment fails with 409/422 and repo was not yet resolved,
- * resolves from the manifest and retries once.
+ * Get the full sha of a commit, or null when the ref is not found in the repo.
+ *
+ * @param {Octokit} github
+ * @param {string} repo - owner/name
+ * @param {string} ref
+ * @returns {Promise<string | null>}
+ */
+async function getCommit(github, repo, ref) {
+    const [owner, repoName] = repo.split('/');
+    try {
+        const { data } = await github.rest.repos.getCommit({ owner, repo: repoName, ref });
+        return data.sha;
+    } catch (/** @type {any} */ err) {
+        if (err.status === 404 || err.status === 422) {
+            return null;
+        }
+        throw err;
+    }
+}
+
+/**
+ * Resolve the git ref of an image tag within the component repo: the tag
+ * itself when it is a git ref of the repo, else the commit from its
+ * `sha-<hex>` suffix, else the image revision.
+ *
+ * @param {Octokit} github
+ * @param {string} repo - owner/name
+ * @param {string} tag
+ * @param {string} image
+ * @param {string} token - token with packages:read for manifest lookups
+ * @param {Function} [resolve] - manifest resolver
+ * @returns {Promise<string>}
+ */
+async function resolveRef(github, repo, tag, image, token, resolve = resolveFromManifest) {
+    if (await getCommit(github, repo, tag)) {
+        return tag;
+    }
+
+    const sha = tag.match(SHA_TAG_SUFFIX)?.[1];
+    const commit = sha && await getCommit(github, repo, sha);
+    if (commit) {
+        return commit;
+    }
+
+    const resolved = await resolve(image, tag, token);
+    if (!resolved?.ref) {
+        throw new Error(`Could not resolve ref for ${image}:${tag} on ${repo}`);
+    }
+    // Labels are inherited from the base image: ignore a revision from another repo
+    if (resolved.repo && resolved.repo.toLowerCase() !== repo.toLowerCase()) {
+        throw new Error(`Image ${image}:${tag} was built from ${resolved.repo}, not ${repo}`);
+    }
+    return resolved.ref;
+}
+
+/**
+ * Resolve repo/ref of the component, then find or create a deployment.
  *
  * @param {Octokit} github
  * @param {Core} core
@@ -129,7 +215,6 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
  */
 async function resolveDeployment(github, core, resolve, { repo, ref, image }, deployParams) {
     const { token, environment, description, transient, production, createOnly } = deployParams;
-    const canRetry = !!repo;
 
     // Resolve repo/ref from manifest if not provided
     if (!repo) {
@@ -140,23 +225,16 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
 
         repo = resolved.repo;
         ref = resolved.ref || ref;
+    } else {
+        ref = await resolveRef(github, repo, ref, image, token, resolve);
     }
 
     const [owner, repoName] = repo.split('/');
-    try {
-        const deploymentId = await findOrCreateDeployment(github, {
-            owner, repo: repoName, ref, environment, description, transient, production, createOnly,
-        });
+    const deploymentId = await findOrCreateDeployment(github, {
+        owner, repo: repoName, ref, environment, description, transient, production, createOnly,
+    });
 
-        return { component: { repo, ref, image }, deploymentId };
-    } catch (/** @type {any} */ err) {
-        if (canRetry && (err.status === 409 || err.status === 422)) {
-            core.info(`Ref "${ref}" not found on ${repo}, checking image manifest...`);
-            return resolveDeployment(github, core, resolve, { repo: '', ref, image }, deployParams);
-        }
-
-        throw err;
-    }
+    return { component: { repo, ref, image }, deploymentId };
 }
 
 /**
@@ -214,6 +292,7 @@ async function createDeployments({ github, core, components, environment, status
 
 module.exports = {
     findOrCreateDeployment,
+    resolveRef,
     resolveDeployment,
     resolveFromManifest,
     createDeployments,

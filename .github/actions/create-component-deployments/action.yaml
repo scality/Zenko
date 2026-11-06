@@ -2,7 +2,7 @@ name: Manage Component Deployments
 description: >
   Create or update GitHub Deployments on scality component repos
   referenced in deps.yaml, providing integration visibility.
-  Generates a minimally-scoped token (deployments:write + packages:read,
+  Generates a minimally-scoped token (deployments:write + contents:read + packages:read,
   limited to the exact repos found in deps.yaml).
   Falls back to OCI manifest annotations when image tags are not valid git refs.
 
@@ -111,6 +111,7 @@ runs:
         repositories: ${{ steps.parse.outputs.repos }}
         permission-deployments: write
         permission-packages: read
+        permission-contents: read
 
     - name: Create or update deployments
       if: steps.parse.outputs.components != ''

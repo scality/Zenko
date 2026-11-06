@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 
-const { findOrCreateDeployment, resolveDeployment, createDeployments, resolveFromManifest } = require('../../.github/actions/create-component-deployments/create-deployments');
+const { findOrCreateDeployment, resolveRef, resolveDeployment, createDeployments, resolveFromManifest } = require('../../.github/actions/create-component-deployments/create-deployments');
 
 function makeMockCore() {
     return {
@@ -18,6 +18,7 @@ function makeMockGithub(overrides: Record<string, sinon.SinonStub> = {}) {
                 createDeployment: overrides.createDeployment ?? sinon.stub().resolves({ data: { id: 42 } }),
                 listDeployments: overrides.listDeployments ?? sinon.stub().resolves({ data: [] }),
                 createDeploymentStatus: overrides.createDeploymentStatus ?? sinon.stub().resolves({}),
+                getCommit: overrides.getCommit ?? sinon.stub().resolves({ data: { sha: 'abc1234def' } }),
             },
         },
     };
@@ -93,39 +94,20 @@ describe('resolveDeployment', () => {
         ).rejects.toThrow('Could not resolve repo');
     });
 
-    it('retries via manifest on 422 and returns resolved component', async () => {
-        const err = Object.assign(new Error('Unprocessable'), { status: 422 });
-        const createDeployment = sinon.stub();
-        createDeployment.onFirstCall().rejects(err);
-        createDeployment.onSecondCall().resolves({ data: { id: 77 } });
-        const github = makeMockGithub({ createDeployment });
+    it('resolves ref from manifest when the tag is not a git ref', async () => {
+        const err = Object.assign(new Error('No commit found'), { status: 422 });
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(err) });
         const core = makeMockCore();
         const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'abc1234' });
 
         const result = await resolveDeployment(github, core, resolve, component, deployParams);
 
         expect(result.component).toEqual({ repo: 'scality/sorbet', ref: 'abc1234', image: 'scality/sorbet' });
-        expect(result.deploymentId).toBe(77);
-        expect(createDeployment.callCount).toBe(2);
-        expect(createDeployment.secondCall.args[0].ref).toBe('abc1234');
+        expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
+        expect(github.rest.repos.createDeployment.firstCall.args[0].ref).toBe('abc1234');
     });
 
-    it('retries via manifest on 409 and returns resolved component', async () => {
-        const err = Object.assign(new Error('Conflict'), { status: 409 });
-        const createDeployment = sinon.stub();
-        createDeployment.onFirstCall().rejects(err);
-        createDeployment.onSecondCall().resolves({ data: { id: 55 } });
-        const github = makeMockGithub({ createDeployment });
-        const core = makeMockCore();
-        const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'abc1234' });
-
-        const result = await resolveDeployment(github, core, resolve, component, deployParams);
-
-        expect(result.deploymentId).toBe(55);
-        expect(createDeployment.callCount).toBe(2);
-    });
-
-    it('throws non-422/409 errors directly', async () => {
+    it('throws deployment errors directly', async () => {
         const err = Object.assign(new Error('Server error'), { status: 500 });
         const github = makeMockGithub({ createDeployment: sinon.stub().rejects(err) });
         const core = makeMockCore();
@@ -204,6 +186,108 @@ describe('resolveDeployment', () => {
           expect(call.production_environment).toBe(true);
           expect(call.transient_environment).toBe(false);
       });
+});
+
+describe('resolveRef', () => {
+    const notFound = () => Object.assign(new Error('No commit found'), { status: 422 });
+
+    it('returns the tag when it is a git ref of the repo', async () => {
+        const github = makeMockGithub();
+        const resolve = sinon.stub();
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.3.0', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('9.3.0');
+        expect(github.rest.repos.getCommit.firstCall.args[0]).toEqual({ owner: 'scality', repo: 'backbeat', ref: '9.3.0' });
+        expect(resolve.called).toBe(false);
+    });
+
+    it('returns the image revision when the tag is not a git ref', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: 'scality/backbeat', ref: 'abc1234' });
+
+        const ref = await resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('abc1234');
+        expect(resolve.firstCall.args).toEqual(['scality/backbeat', 'dev-tag', 'tok']);
+    });
+
+    it('returns the full commit from the sha suffix of the tag', async () => {
+        const getCommit = sinon.stub();
+        getCommit.onFirstCall().rejects(notFound());
+        getCommit.onSecondCall().resolves({ data: { sha: '13bbb8b13ea055fdc35df2df9c230b14f278988e' } });
+        const github = makeMockGithub({ getCommit });
+        const resolve = sinon.stub();
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('13bbb8b13ea055fdc35df2df9c230b14f278988e');
+        expect(getCommit.secondCall.args[0].ref).toBe('13bbb8b');
+        expect(resolve.called).toBe(false);
+    });
+
+    it.each(['sha-13bbb8b', '1.0.0-sha-13bbb8b'])('matches the sha suffix of %s', async tag => {
+        const getCommit = sinon.stub();
+        getCommit.onFirstCall().rejects(notFound());
+        getCommit.onSecondCall().resolves({ data: { sha: 'abc1234def' } });
+        const github = makeMockGithub({ getCommit });
+
+        await resolveRef(github, 'scality/backbeat', tag, 'scality/backbeat', 'tok', sinon.stub());
+
+        expect(getCommit.secondCall.args[0].ref).toBe('13bbb8b');
+    });
+
+    it.each([
+        '1.0.0-dev.2.sha-13bbb8b-extra',
+        '1.0.0-dev.2.xsha-13bbb8b',
+        '1.0.0-dev.2.sha-13bb',
+    ])('ignores the non-matching suffix of %s', async tag => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: '', ref: 'abc1234' });
+
+        await resolveRef(github, 'scality/backbeat', tag, 'scality/backbeat', 'tok', resolve);
+
+        expect(github.rest.repos.getCommit.calledOnce).toBe(true);
+        expect(resolve.calledOnce).toBe(true);
+    });
+
+    it('returns the image revision when the sha suffix is no commit of the repo', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: '', ref: 'abc1234' });
+
+        const ref = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+
+        expect(ref).toBe('abc1234');
+        expect(github.rest.repos.getCommit.callCount).toBe(2);
+    });
+
+    it('throws when the image was built from another repo', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+        const resolve = sinon.stub().resolves({ repo: 'scality/cloudserver', ref: 'abc1234' });
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', resolve),
+        ).rejects.toThrow('Image scality/backbeat:dev-tag was built from scality/cloudserver, not scality/backbeat');
+    });
+
+    it('throws when the image has no revision', async () => {
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', 'dev-tag', 'scality/backbeat', 'tok', sinon.stub().resolves(null)),
+        ).rejects.toThrow('Could not resolve ref for scality/backbeat:dev-tag on scality/backbeat');
+    });
+
+    it('throws unexpected commit lookup errors', async () => {
+        const err = Object.assign(new Error('Forbidden'), { status: 403 });
+        const github = makeMockGithub({ getCommit: sinon.stub().rejects(err) });
+        const resolve = sinon.stub();
+
+        await expect(
+            resolveRef(github, 'scality/backbeat', '9.3.0', 'scality/backbeat', 'tok', resolve),
+        ).rejects.toMatchObject({ status: 403 });
+        expect(resolve.called).toBe(false);
+    });
 });
 
 describe('createDeployments', () => {
@@ -410,5 +494,88 @@ describe('resolveFromManifest', () => {
 
         const manifestCall = fetchStub.secondCall;
         expect(manifestCall.args[1].headers.Authorization).toBe('Bearer scoped-reg-token');
+    });
+
+    it('follows an image index to the image manifest, skipping attestations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [
+                {
+                    digest: 'sha256:attestation',
+                    annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+                },
+                { digest: 'sha256:image' },
+            ],
+        }));
+        fetchStub.onThirdCall().resolves(mockOk({
+            annotations: {
+                'org.opencontainers.image.revision': 'abc1234',
+                'org.opencontainers.image.source': 'https://github.com/scality/backbeat',
+            },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', '9.6.3-dev.2.sha-abc1234', 'gh-token');
+
+        expect(result).toEqual({ repo: 'scality/backbeat', ref: 'abc1234' });
+        expect(fetchStub.secondCall.args[1].headers.Accept).toContain('application/vnd.oci.image.index.v1+json');
+        expect(fetchStub.thirdCall.args[0]).toContain('/manifests/sha256:image');
+    });
+
+    it('resolves from image index annotations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [{ digest: 'sha256:image' }],
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+        expect(fetchStub.callCount).toBe(2);
+    });
+
+    it('tries each image of an index until one has a revision', async () => {
+        fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onCall(1).resolves(mockOk({
+            manifests: [{ digest: 'sha256:image1' }, { digest: 'sha256:image2' }],
+        }));
+        fetchStub.onCall(2).resolves(mockOk({ config: { digest: 'sha256:config1' } }));
+        fetchStub.onCall(3).resolves(mockOk({ config: { Labels: {} } }));
+        fetchStub.onCall(4).resolves(mockOk({
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+        expect(fetchStub.getCall(4).args[0]).toContain('/manifests/sha256:image2');
+    });
+
+    it('follows nested image indexes', async () => {
+        fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onCall(1).resolves(mockOk({ manifests: [{ digest: 'sha256:index' }] }));
+        fetchStub.onCall(2).resolves(mockOk({ manifests: [{ digest: 'sha256:image' }] }));
+        fetchStub.onCall(3).resolves(mockOk({
+            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toEqual({ repo: '', ref: 'abc1234' });
+    });
+
+    it('returns null when an image index has only attestations', async () => {
+        fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
+        fetchStub.onSecondCall().resolves(mockOk({
+            manifests: [{
+                digest: 'sha256:attestation',
+                annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+            }],
+        }));
+
+        const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
+
+        expect(result).toBeNull();
+        expect(fetchStub.callCount).toBe(2);
     });
 });

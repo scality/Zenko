@@ -129,6 +129,8 @@ describe("cleanup-deployments workflow", () => {
                 // as self-repo.
 
                 // Sorbet: one matching deployment, one non-matching (dev branch shares ref)
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.1" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "sorbet", ref: "v1.2.1", per_page: 100,
                 } as any).reply({
@@ -144,6 +146,8 @@ describe("cleanup-deployments workflow", () => {
                 }).reply({ status: 201, data: { id: 1 } }),
 
                 // Backbeat: no deployments at that ref
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "backbeat", ref: "9.3.0" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "backbeat", ref: "9.3.0", per_page: 100,
                 } as any).reply({ status: 200, data: [] }),
@@ -178,6 +182,8 @@ describe("cleanup-deployments workflow", () => {
             mockApi: [
                 ...appTokenMocks(moctokit),
 
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "sorbet", ref: "v1.2.2", per_page: 100,
                 } as any).reply({
@@ -188,6 +194,8 @@ describe("cleanup-deployments workflow", () => {
                     owner: "scality", repo: "sorbet", deployment_id: 201,
                     state: "inactive", description: "Superseded",
                 }).reply({ status: 201, data: { id: 1 } }),
+
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "backbeat", ref: "9.3.0" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
 
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "backbeat", ref: "9.3.0", per_page: 100,
@@ -241,6 +249,8 @@ describe("cleanup-deployments workflow", () => {
                 ...appTokenMocks(moctokit),
 
                 // Sorbet: deployments exist at this ref, but for OTHER envs only
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.1" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "sorbet", ref: "v1.2.1", per_page: 100,
                 } as any).reply({
@@ -250,6 +260,8 @@ describe("cleanup-deployments workflow", () => {
                         { id: 302, environment: "zenko/improvement/OTHER-BRANCH@2.14" },
                     ],
                 }),
+                moctokit.rest.repos.getCommit({ owner: "scality", repo: "backbeat", ref: "9.3.0" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+
                 moctokit.rest.repos.listDeployments({
                     owner: "scality", repo: "backbeat", ref: "9.3.0", per_page: 100,
                 } as any).reply({ status: 200, data: [] }),
