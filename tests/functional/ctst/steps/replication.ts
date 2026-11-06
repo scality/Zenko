@@ -12,9 +12,7 @@ import type { Backend, ObjectMDData, ReplicationInfo } from 'arsenal/build/lib/m
 import { IdentityEnum, Identity, S3 } from 'cli-testing';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
-import {
-    createAndRunPod, getLocationConfigSecretName, getLocationConfigs, getZenkoVersion,
-} from 'steps/utils/kubernetes';
+import { getLocationConfigSecretName, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
 import { getObject, headObject, putBucketReplicationRaw } from 'steps/utils/utils';
 import { assertBudgetFitsStepTimeout, safeJsonParse, randomString } from 'common/utils';
 import constants from 'common/constants';
@@ -368,7 +366,7 @@ When(/^the job to replicate existing objects with status "([^"]*)" is executed(?
             }
         };
 
-        await createAndRunPod(this, podManifest);
+        await this.kubernetesClient.createAndRunPod(podManifest);
     });
 
 function findBackend(info: ReplicationInfo | undefined, site: string): Backend | undefined {
