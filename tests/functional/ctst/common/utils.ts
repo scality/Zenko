@@ -3,7 +3,7 @@ import { exec } from 'child_process';
 import http from 'http';
 import { createHash, randomBytes } from 'crypto';
 import { setTimeout as sleep } from 'timers/promises';
-import { Identity, IdentityEnum } from 'cli-testing';
+import { IdentityType, saveCredentials } from 'world/identities';
 import {
     AttachedPolicy,
     DeleteGroupCommand,
@@ -173,7 +173,7 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
     }
 
     try {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
+        world.useIdentity(IdentityType.ACCOUNT, accountName);
         const iam = world.iam;
         const paginator = { client: iam };
 
@@ -281,7 +281,7 @@ export async function prepareMetricsScenarios(
                 for (let i = 0; i < objectCount; i++) {
                     await putObject(world, undefined, undefined, objectSize);
                 }
-                output[scenarioId] = Identity.getCurrentCredentials()!;
+                output[scenarioId] = world.credentials;
             }
 
             await createJobAndWaitForCompletion(world, jobName, jobNamespace);
@@ -302,6 +302,7 @@ export async function prepareMetricsScenarios(
     world.addToSaved('metricsEnvironmentSetup', true);
     
     if (configuration[key]) {
-        Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key], undefined, true, true);
+        saveCredentials(IdentityType.ACCOUNT, key, configuration[key]);
+        world.useDefaultAccount(key);
     }
 }

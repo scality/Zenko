@@ -15,7 +15,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { GetMetadataCommand, PutMetadataCommand } from '@scality/cloudserverclient';
 import type { Backend, ObjectMDData, ReplicationInfo } from 'arsenal/build/lib/models/ObjectMD';
-import { IdentityEnum, Identity } from 'cli-testing';
+import { IdentityType, getCredentials, saveCredentials } from 'world/identities';
 import assert from 'assert';
 import Zenko from '../world/Zenko';
 import { getLocationConfigSecretName, getLocationConfigs, getZenkoVersion } from 'steps/utils/kubernetes';
@@ -296,11 +296,11 @@ When(/^the job to replicate existing objects with status "([^"]*)" is executed(?
         const siteName = site ?? this.getSaved<string[]>('replicationLocations')?.[0];
         const zenkoVersion = await getZenkoVersion(this);
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
-        const credentials = Identity.getCredentialsForIdentity(IdentityEnum.ACCOUNT, accountName);
+        const credentials = getCredentials(IdentityType.ACCOUNT, accountName);
         assert(credentials?.accessKeyId, `no credentials for account '${accountName}'`);
         assert(!credentials.sessionToken,
             `crrExistingObjects.js needs access keys, '${accountName}' has session credentials`);
-        const subDomain = credentials.subDomain || this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
+        const subDomain = this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
 
         const env = [
             { name: 'ACCESS_KEY', value: credentials.accessKeyId },
@@ -538,7 +538,7 @@ Given('CRR replication accounts are registered', function (this: Zenko) {
         const raw = process.env[varName];
         assert.ok(raw, `${varName} must be set`);
         const info = JSON.parse(raw) as CRRAccountInfo;
-        Identity.addIdentity(IdentityEnum.ACCOUNT, loc!, {
+        saveCredentials(IdentityType.ACCOUNT, loc!, {
             accessKeyId: info.AccessKeyId,
             secretAccessKey: info.SecretAccessKey,
             sessionToken: info.SessionToken,

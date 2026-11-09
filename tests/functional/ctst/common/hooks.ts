@@ -8,7 +8,6 @@ import {
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { Identity } from 'cli-testing';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
@@ -69,7 +68,6 @@ Before((scenario: ITestCaseHookParameter) => {
 
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
-    Identity.resetIdentity();
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);

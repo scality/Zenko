@@ -19,7 +19,6 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { Identity } from 'cli-testing';
 import {
     CreateMultipartUploadCommand,
     PutBucketPolicyCommand,
@@ -93,7 +92,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -178,7 +177,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
 });
 
 Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -255,7 +254,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -342,7 +341,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     }
     // Create an IAM policy with full S3 permission on any bucket
     // and attach it to the current identity
-    Identity.resetIdentity();
+    this.resetIdentity();
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [

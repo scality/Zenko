@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
-import { IdentityEnum } from 'cli-testing';
+import { IdentityType } from 'world/identities';
 
 interface LocationUsage {
     bytesTotal: number;
@@ -58,7 +58,7 @@ Then('the storage usage report contains the additional accounts', async function
     const response = this.getSaved<{ statusCode: number; data: ReportingUsageResponse }>(
         'lastHttpResponse');
     const accountNames = this.getSavedIdentities()
-        .filter(id => id.identityType === IdentityEnum.ACCOUNT)
+        .filter(id => id.identityType === IdentityType.ACCOUNT)
         .map(id => id.accountName);
     for (const accountName of accountNames) {
         assert.ok(accountName in response.data.accounts,

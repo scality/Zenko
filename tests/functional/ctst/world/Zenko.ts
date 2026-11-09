@@ -11,16 +11,11 @@ import {
     GetRoleCommand,
     IAMClient,
 } from '@aws-sdk/client-iam';
-import { AssumeRoleCommand, AssumeRoleWithWebIdentityCommand, STSClient } from '@aws-sdk/client-sts';
+import { AssumeRoleCommand, AssumeRoleWithWebIdentityCommand, Credentials, STSClient } from '@aws-sdk/client-sts';
 import { aws4Interceptor } from 'aws4-axios';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
-import {
-    CacheHelper,
-    Identity,
-    IdentityEnum,
-    Logger,
-} from 'cli-testing';
+import { Logger } from 'cli-testing';
 
 import { sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
@@ -31,6 +26,7 @@ import { ApiError, ApiResult } from 'common/result';
 import { VaultAccountClient, VaultAdminClient } from 'clients/vault';
 import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
+import { IdentityRef, IdentityType, getCredentials, saveCredentials } from './identities';
 import assert from 'assert';
 
 interface ServiceUsersCredentials {
@@ -41,7 +37,7 @@ interface ServiceUsersCredentials {
 // Zenko entities
 export interface SavedIdentity {
     identityName: string;
-    identityType: IdentityEnum;
+    identityType: IdentityType;
     accountName: string;
 }
 
@@ -132,6 +128,12 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     private saved: Record<string, unknown> = {};
 
+    // Identity the requests of the scenario are signed with
+    private identity: IdentityRef | null = null;
+
+    // Account the scenario comes back to with resetIdentity
+    private defaultAccountName: string | undefined;
+
     public zenkoDrCtl: ZenkoDrctl | null = null;
 
     public praInstallCount = 0;
@@ -195,8 +197,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             const serviceUserCredentials =
                 JSON.parse(this.parameters.ServiceUsersCredentials) as Record<string, ServiceUsersCredentials>;
             for (const serviceUserName in serviceUserCredentials) {
-                if (!Identity.hasIdentity(IdentityEnum.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
-                    Identity.addIdentity(IdentityEnum.SERVICE_USER, serviceUserName, {
+                if (!getCredentials(IdentityType.SERVICE_USER, serviceUserName, this.parameters.AccountName)) {
+                    saveCredentials(IdentityType.SERVICE_USER, serviceUserName, {
                         accessKeyId: serviceUserCredentials[serviceUserName].accessKey,
                         secretAccessKey: serviceUserCredentials[serviceUserName].secretKey,
                     }, this.parameters.AccountName);
@@ -204,45 +206,29 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             }
         }
 
-        // Workaround to be able to access global parameters in BeforeAll/AfterAll hooks
-        CacheHelper.cacheParameters({
-            ...this.parameters,
-        });
-
-
-        if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
-            Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
-                accessKeyId: this.parameters.AccountAccessKey,
-                secretAccessKey: this.parameters.AccountSecretKey,
-            });
-        }
-
         if (this.parameters.AccountName) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName);
-            Identity.defaultAccountName = this.parameters.AccountName;
+            if (!getCredentials(IdentityType.ACCOUNT, this.parameters.AccountName)) {
+                saveCredentials(IdentityType.ACCOUNT, this.parameters.AccountName, {
+                    accessKeyId: this.parameters.AccountAccessKey,
+                    secretAccessKey: this.parameters.AccountSecretKey,
+                });
+            }
+            this.useDefaultAccount(this.parameters.AccountName);
         }
 
         if (this.parameters.AdminAccessKey && this.parameters.AdminSecretKey &&
-            !Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME)) {
-            Identity.addIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME, {
-                accessKeyId: this.parameters.AdminAccessKey,
-                secretAccessKey: this.parameters.AdminSecretKey,
-            }, undefined, undefined, undefined, this.parameters.subdomain);
+            !Zenko.vaultAdmins[Zenko.PRIMARY_SITE_NAME]) {
             Zenko.vaultAdmins[Zenko.PRIMARY_SITE_NAME] = this.createVaultAdmin(this.parameters.subdomain,
                 this.parameters.AdminAccessKey, this.parameters.AdminSecretKey);
 
             Zenko.sites['source'] = {
-                accountName: Identity.defaultAccountName,
+                accountName: this.parameters.AccountName,
                 adminIdentityName: Zenko.PRIMARY_SITE_NAME,
             };
         }
 
         if (this.needsSecondarySite()) {
-            if (!Identity.hasIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME)) {
-                Identity.addIdentity(IdentityEnum.ADMIN, Zenko.SECONDARY_SITE_NAME, {
-                    accessKeyId: this.parameters.DRAdminAccessKey!,
-                    secretAccessKey: this.parameters.DRAdminSecretKey!,
-                }, undefined, undefined, undefined, this.parameters.DRSubdomain);
+            if (!Zenko.vaultAdmins[Zenko.SECONDARY_SITE_NAME]) {
                 Zenko.vaultAdmins[Zenko.SECONDARY_SITE_NAME] = this.createVaultAdmin(this.parameters.DRSubdomain!,
                     this.parameters.DRAdminAccessKey!, this.parameters.DRAdminSecretKey!);
             }
@@ -267,12 +253,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         });
     }
 
-    // Admin of the site last selected with Identity.useIdentity(IdentityEnum.ADMIN, ...)
-    static currentVaultAdmin(): VaultAdminClient {
-        const name = Identity.getCurrentAdminName();
-        const admin = Zenko.vaultAdmins[name];
+    // Vault admin client of a site, the primary one by default
+    static vaultAdmin(site: string = Zenko.PRIMARY_SITE_NAME): VaultAdminClient {
+        const admin = Zenko.vaultAdmins[site];
         if (!admin) {
-            throw new Error(`No Vault admin client for site admin "${name}"`);
+            throw new Error(`No Vault admin client for site "${site}"`);
         }
         return admin;
     }
@@ -336,14 +321,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareARWWI(ARWWIName: string, ARWWITargetRole: string, ARWWIPassword: string) {
-        const accountName = this.getSaved<string>('accountName') || Identity.getCurrentAccountName();
+        const accountName = this.getSaved<string>('accountName') || this.currentAccountName;
         const key = `${accountName}_${ARWWIName}`;
         this.logger.debug('preparing ARWWI', {
             accountName,
             key,
         });
 
-        if (!Identity.hasIdentity(IdentityEnum.ASSUMED_ROLE, key, accountName)) {
+        if (!getCredentials(IdentityType.ASSUMED_ROLE, key, accountName)) {
             const webIdentityToken = await this.getWebIdentityToken(
                 ARWWIName,
                 ARWWIPassword || '123',
@@ -357,7 +342,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 throw new Error('Error when trying to get a WebIdentity token.');
             }
             // Getting account ID
-            const account = await Zenko.currentVaultAdmin().getAccount(accountName);
+            const account = await Zenko.vaultAdmin().getAccount(accountName);
             this.logger.debug('Got account', account);
 
             // Getting roles with GetRolesForWebIdentity
@@ -366,7 +351,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             let callNumber = 1;
             let nextMarker: string | undefined;
             do {
-                const GRFWIResponse = await Zenko.currentVaultAdmin()
+                const GRFWIResponse = await Zenko.vaultAdmin()
                     .getRolesForWebIdentity(webIdentityToken, nextMarker);
 
                 this.logger.debug('getting roles for web identity', {
@@ -419,15 +404,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 throw new Error('Error when trying to assume role with web identity: no credential');
             }
 
-            Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, key, {
+            saveCredentials(IdentityType.ASSUMED_ROLE, key, {
                 accessKeyId: extractedCredentials.AccessKeyId!,
                 secretAccessKey: extractedCredentials.SecretAccessKey!,
                 sessionToken: extractedCredentials.SessionToken,
-            }, accountName, true);
-        } else {
-            Identity.useIdentity(IdentityEnum.ASSUMED_ROLE, key, accountName);
+            }, accountName);
         }
-        this.saveIdentityInformation(key, IdentityEnum.ASSUMED_ROLE, accountName);
+        this.useIdentity(IdentityType.ASSUMED_ROLE, key, accountName);
+        this.saveIdentityInformation(key, IdentityType.ASSUMED_ROLE, accountName);
     }
 
     /**
@@ -477,25 +461,22 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
     }
 
-    async createAccount(name?: string, force?: boolean, adminClientName?: string): Promise<string> {
-        Identity.resetIdentity();
+    async createAccount(name?: string, force?: boolean): Promise<string> {
+        this.resetIdentity();
         const accountName = name || this.getSaved<string>('accountName') ||
             `${constants.ACCOUNT_NAME}${randomString()}`;
-        if (Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName) && !force) {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
+        if (getCredentials(IdentityType.ACCOUNT, accountName) && !force) {
+            this.useIdentity(IdentityType.ACCOUNT, accountName);
             return accountName;
         }
 
-        if (adminClientName && Identity.hasIdentity(IdentityEnum.ADMIN, adminClientName)) {
-            Identity.useIdentity(IdentityEnum.ADMIN, adminClientName);
-        }
-
-        await Zenko.currentVaultAdmin().createAccount(accountName);
-        const credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
-        Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, credentials, undefined, true, true);
+        await Zenko.vaultAdmin().createAccount(accountName);
+        const credentials = await Zenko.vaultAdmin().generateAccountAccessKey(accountName);
+        saveCredentials(IdentityType.ACCOUNT, accountName, credentials);
+        this.useDefaultAccount(accountName);
 
         // Save the identity
-        this.saveIdentityInformation(accountName, IdentityEnum.ACCOUNT, accountName);
+        this.saveIdentityInformation(accountName, IdentityType.ACCOUNT, accountName);
         return accountName;
     }
 
@@ -503,7 +484,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (!name) {
             throw new Error('No account name provided');
         }
-        await Zenko.currentVaultAdmin().deleteAccount(name);
+        await Zenko.vaultAdmin().deleteAccount(name);
     }
 
     /**
@@ -512,10 +493,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareAssumeRole(crossAccount = false) {
-        Identity.resetIdentity();
+        this.resetIdentity();
 
         // Getting default account ID
-        const accountName = Identity.getCurrentAccountName();
+        const accountName = this.currentAccountName;
 
         // Creating a role to assume
         const roleName = `${accountName}${constants.ROLE_NAME_TEST}${randomString()}`;
@@ -532,13 +513,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
         if (crossAccount) {
             // Creating a second account if its Cross-Account AssumeRole
-            const account2 = await Zenko.currentVaultAdmin()
+            const account2 = await Zenko.vaultAdmin()
                 .createAccount(`${constants.ACCOUNT_NAME}${randomString()}`);
 
             // Creating credentials for the second account
-            const account2Credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(account2.account.name);
+            const account2Credentials = await Zenko.vaultAdmin().generateAccountAccessKey(account2.account.name);
 
-            Identity.addIdentity(IdentityEnum.ACCOUNT, account2.account.name, account2Credentials, undefined, true);
+            saveCredentials(IdentityType.ACCOUNT, account2.account.name, account2Credentials);
+            this.useIdentity(IdentityType.ACCOUNT, account2.account.name);
             this.addToSaved('crossAccountName', account2.account.name);
 
             accountToBeAssumedFrom = account2.account.name;
@@ -564,8 +546,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             accessKeyId: userCredentials.AccessKeyId!,
             secretAccessKey: userCredentials.SecretAccessKey!,
         };
-        Identity.addIdentity(IdentityEnum.IAM_USER, userName, extractedCredentials,
-            Identity.getCurrentAccountName(), true);
+        saveCredentials(IdentityType.IAM_USER, userName, extractedCredentials, this.currentAccountName);
+        this.useIdentity(IdentityType.IAM_USER, userName, this.currentAccountName);
 
         // Assuming the role
         const res = (await this.sts.send(new AssumeRoleCommand({
@@ -578,15 +560,11 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             throw new Error('Error when trying to assume role');
         }
 
-        Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, {
-            accessKeyId: res.AccessKeyId!,
-            secretAccessKey: res.SecretAccessKey!,
-            sessionToken: res.SessionToken,
-        }, Identity.getCurrentAccountName(), true);
+        this.useNewAssumedRole(roleName, res);
 
         // Save the identity
         this.addToSaved('identityArn', roleArnToAssume);
-        this.saveIdentityInformation(roleName, IdentityEnum.ASSUMED_ROLE, Identity.getCurrentAccountName());
+        this.saveIdentityInformation(roleName, IdentityType.ASSUMED_ROLE, this.currentAccountName);
     }
 
     /**
@@ -597,7 +575,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async prepareServiceUser(serviceUserName: string, roleName: string, internal = false) {
-        Identity.resetIdentity();
+        this.resetIdentity();
 
         let roleArnToAssume: string | undefined;
         // Getting the role to assume
@@ -612,7 +590,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         }
 
         // Assign the credentials of the service user to the IAM session.
-        Identity.useIdentity(IdentityEnum.SERVICE_USER, serviceUserName, Identity.defaultAccountName);
+        this.useIdentity(IdentityType.SERVICE_USER, serviceUserName, this.defaultAccountName);
 
         // Assuming the role as the service user
         const res = (await this.sts.send(new AssumeRoleCommand({
@@ -625,14 +603,10 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             throw new Error(`Error when trying to assume role ${roleArnToAssume} as service user ${serviceUserName}`);
         }
 
-        Identity.addIdentity(IdentityEnum.ASSUMED_ROLE, roleName, {
-            accessKeyId: res.AccessKeyId!,
-            secretAccessKey: res.SecretAccessKey!,
-            sessionToken: res.SessionToken,
-        }, Identity.getCurrentAccountName(), true);
+        this.useNewAssumedRole(roleName, res);
 
         // Save the identity
-        this.saveIdentityInformation(roleName, IdentityEnum.ASSUMED_ROLE, Identity.getCurrentAccountName());
+        this.saveIdentityInformation(roleName, IdentityType.ASSUMED_ROLE, this.currentAccountName);
     }
 
     /**
@@ -648,7 +622,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // and generate access keys for it
         for (const siteKey in Zenko.sites) {
             const site = Zenko.sites[siteKey];
-            Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
+            const admin = Zenko.vaultAdmin(site.adminIdentityName);
             const accountName = site.accountName;
             assert(accountName, `Account name is not defined for site ${siteKey}`);
             logger.debug('Initializing account for Zenko site', {
@@ -656,71 +630,50 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 accountName,
             });
 
-            if (!Identity.hasIdentity(IdentityEnum.ACCOUNT, accountName)) {
-                Identity.useIdentity(IdentityEnum.ADMIN, site.adminIdentityName);
+            if (!getCredentials(IdentityType.ACCOUNT, accountName)) {
                 await runOnceAcrossWorkers(
                     { lockName: `account-init-${accountName}`, logger },
                     async () => {
-                        await Zenko.currentVaultAdmin().createAccount(accountName);
+                        await admin.createAccount(accountName);
                     },
                 );
                 let account = null;
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await Zenko.currentVaultAdmin().getAccount(accountName);
+                account = await admin.getAccount(accountName);
                 while (!account && remaining > 0) {
                     await sleep(500);
-                    account = await Zenko.currentVaultAdmin().getAccount(accountName);
+                    account = await admin.getAccount(accountName);
                     remaining--;
                 }
                 if (!account) {
                     throw new Error(`Account ${accountName} not found in site ${siteKey}.`);
                 }
 
-                // Account was found, generate access keys if not provided
-                const accountAccessKeys = Identity.getCredentialsForIdentity(
-                    IdentityEnum.ACCOUNT, accountName) || {
-                    accessKeyId: '',
-                    secretAccessKey: '',
-                };
-
-                if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-                    const accessKeys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
-                    if (!isAccessKeys(accessKeys)) {
-                        throw new Error(`Failed to generate account access keys for site ${siteKey}`);
-                    }
-                    accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
-                    accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
+                // Account was found, generate access keys for it
+                const accessKeys = await admin.generateAccountAccessKey(accountName);
+                if (!isAccessKeys(accessKeys)) {
+                    throw new Error(`Failed to generate account access keys for site ${siteKey}`);
                 }
-
-                logger.debug('Adding account identity', {
-                    accountName,
-                    accountAccessKeys,
+                logger.debug('Adding account identity', { accountName });
+                saveCredentials(IdentityType.ACCOUNT, accountName, {
+                    accessKeyId: accessKeys.accessKeyId,
+                    secretAccessKey: accessKeys.secretAccessKey,
                 });
-                Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
             }
         }
 
         const accountName = this.sites['source']?.accountName || parameters.AccountName;
-        const accountAccessKeys = Identity.getCredentialsForIdentity(
-            IdentityEnum.ACCOUNT, this.sites['source']?.accountName
-        || parameters.AccountName) || {
-            accessKeyId: '',
-            secretAccessKey: '',
-        };
-
-        if (!accountAccessKeys.accessKeyId || !accountAccessKeys.secretAccessKey) {
-            const accessKeys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
+        if (!getCredentials(IdentityType.ACCOUNT, accountName)) {
+            const accessKeys = await Zenko.vaultAdmin().generateAccountAccessKey(accountName);
             if (!isAccessKeys(accessKeys)) {
                 throw new Error(`Failed to generate account access keys for account ${accountName}`);
             }
-            accountAccessKeys.accessKeyId = accessKeys.accessKeyId;
-            accountAccessKeys.secretAccessKey = accessKeys.secretAccessKey;
-            Identity.addIdentity(IdentityEnum.ACCOUNT, accountName, accountAccessKeys, undefined, true, true);
+            saveCredentials(IdentityType.ACCOUNT, accountName, {
+                accessKeyId: accessKeys.accessKeyId,
+                secretAccessKey: accessKeys.secretAccessKey,
+            });
         }
-
-        // Fallback to the primary site's account at the end of the init by default
-        Identity.useIdentity(IdentityEnum.ACCOUNT, accountName);
     }
 
     /**
@@ -731,7 +684,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     async prepareIamUser() {
         const userName = `iamusertest${randomString()}`;
-        Identity.resetIdentity();
+        this.resetIdentity();
         this.addToSaved('userName', userName);
         const user = (await this.iam.send(new CreateUserCommand({ UserName: userName }))).User;
         const credentials = (await this.iam.send(new CreateAccessKeyCommand({ UserName: userName }))).AccessKey;
@@ -740,16 +693,67 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             throw new Error('Error when trying to create access key for user');
         }
 
-        Identity.addIdentity(IdentityEnum.IAM_USER, userName, {
+        const accountName = this.currentAccountName;
+        saveCredentials(IdentityType.IAM_USER, userName, {
             accessKeyId: credentials.AccessKeyId!,
             secretAccessKey: credentials.SecretAccessKey!,
-        }, Identity.getCurrentAccountName(), true);
+        }, accountName);
+        this.useIdentity(IdentityType.IAM_USER, userName, accountName);
 
         this.addToSaved('identityArn', user?.Arn);
-        this.saveIdentityInformation(userName, IdentityEnum.IAM_USER, Identity.getCurrentAccountName());
+        this.saveIdentityInformation(userName, IdentityType.IAM_USER, accountName);
     }
 
-    saveIdentityInformation(name: string, identity: IdentityEnum, accountName: string) {
+    // Saves the session of a role assumed by the current identity, and uses it
+    private useNewAssumedRole(roleName: string, session: Credentials) {
+        const accountName = this.currentAccountName;
+        saveCredentials(IdentityType.ASSUMED_ROLE, roleName, {
+            accessKeyId: session.AccessKeyId!,
+            secretAccessKey: session.SecretAccessKey!,
+            sessionToken: session.SessionToken,
+        }, accountName);
+        this.useIdentity(IdentityType.ASSUMED_ROLE, roleName, accountName);
+    }
+
+    useIdentity(type: IdentityType, name: string, accountName?: string) {
+        this.logger.debug('Using identity', { type, name, accountName });
+        this.identity = { type, name, accountName };
+    }
+
+    // Uses the account, and makes it the one resetIdentity comes back to
+    useDefaultAccount(accountName: string) {
+        this.defaultAccountName = accountName;
+        this.useIdentity(IdentityType.ACCOUNT, accountName);
+    }
+
+    // Comes back to the default account of the scenario, if any
+    resetIdentity() {
+        if (this.defaultAccountName) {
+            this.useIdentity(IdentityType.ACCOUNT, this.defaultAccountName);
+        }
+    }
+
+    // The current account, or the default one when the current identity is not an account
+    get currentAccountName(): string {
+        return this.identity?.type === IdentityType.ACCOUNT ? this.identity.name : this.defaultAccountName!;
+    }
+
+    private findCredentials(): AWSCredentials | undefined {
+        return this.identity
+            ? getCredentials(this.identity.type, this.identity.name, this.identity.accountName)
+            : undefined;
+    }
+
+    // Credentials of the current identity
+    get credentials(): AWSCredentials {
+        const credentials = this.findCredentials();
+        if (!credentials) {
+            throw new Error(`Missing credentials for the current identity ${JSON.stringify(this.identity)}`);
+        }
+        return credentials;
+    }
+
+    saveIdentityInformation(name: string, identity: IdentityType, accountName: string) {
         const identities = this.getSavedIdentities();
         identities.push({ identityName: name, identityType: identity, accountName });
         this.addToSaved('savedIdentities', identities);
@@ -770,7 +774,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         if (!last) {
             return;
         }
-        Identity.useIdentity(last.identityType, last.identityName, last.accountName);
+        this.useIdentity(last.identityType, last.identityName, last.accountName);
     }
 
     /**
@@ -903,14 +907,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     // Clients of the current identity, on the endpoint of the scenario's HTTPS switch
     private currentAwsClients(allowMissingCredentials = false): AwsClients {
-        const identity = Identity.getCurrentCredentials(allowMissingCredentials);
-        const credentials = identity?.accessKeyId ? {
-            accessKeyId: identity.accessKeyId,
-            secretAccessKey: identity.secretAccessKey,
-            sessionToken: identity.sessionToken,
-        } : undefined;
+        const credentials = allowMissingCredentials ? this.findCredentials() : this.credentials;
         const endpoint = {
-            subdomain: Identity.getCurrentSubDomain() || this.parameters.subdomain,
+            subdomain: this.parameters.subdomain,
             https: this.https,
             port: this.port,
         };
@@ -946,9 +945,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     // Vault calls of the current identity on its own account
     get vaultAccount(): VaultAccountClient {
-        const { accessKeyId, secretAccessKey, sessionToken } = Identity.getCurrentCredentials();
+        const { accessKeyId, secretAccessKey, sessionToken } = this.credentials;
         return new VaultAccountClient({
-            host: `iam.${Identity.getCurrentSubDomain() || this.parameters.subdomain}`,
+            host: `iam.${this.parameters.subdomain}`,
             port: Number(this.port),
             https: this.https,
             credentials: { accessKeyId, secretAccessKey, sessionToken },

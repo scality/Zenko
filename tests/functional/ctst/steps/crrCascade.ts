@@ -12,7 +12,7 @@ import {
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
 import { assertBudgetFitsStepTimeout, sleep, randomString } from 'common/utils';
-import { Identity, IdentityEnum } from 'cli-testing';
+import { IdentityType, saveCredentials } from 'world/identities';
 import Zenko from 'world/Zenko';
 
 const REPLICATE_STEP_TIMEOUT_MS = 300_000;
@@ -32,7 +32,7 @@ export interface CRRAccountInfo {
 
 Given('a versioned bucket exists in location {string}', async function (this: Zenko, location: string) {
     const bucket = `cascade-${randomString().toLowerCase()}`;
-    Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+    this.useIdentity(IdentityType.ACCOUNT, location);
     // Persist the identity so the default After-hook cleanup targets the
     // same account that owns the buckets created here (and by later steps).
     this.addToSaved('accountName', location);
@@ -49,19 +49,18 @@ Given('a versioned bucket exists in location {string}', async function (this: Ze
 Given('the bucket in location {string} is used', function (this: Zenko, location: string) {
     const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')?.[location];
     assert(bucket, `no cascade bucket in location '${location}'`);
-    Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+    this.useIdentity(IdentityType.ACCOUNT, location);
     this.addToSaved('accountName', location);
     this.addToSaved('bucketName', bucket);
 });
 
-Given('the account of location {string} has access keys', async (location: string) => {
+Given('the account of location {string} has access keys', async function (this: Zenko, location: string) {
     const letter = ['A', 'B', 'C'].find(l => process.env[`CRR_LOCATION_${l}_NAME`] === location);
     assert(letter, `'${location}' is not a CRR location`);
     const accountName = process.env[`CRR_ACCOUNT_${letter}_NAME`] || `crr-account-${letter.toLowerCase()}`;
-    Identity.useIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME);
-    const keys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
-    Identity.addIdentity(IdentityEnum.ACCOUNT, location, keys, undefined, true, true);
-    Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+    const keys = await Zenko.vaultAdmin(Zenko.PRIMARY_SITE_NAME).generateAccountAccessKey(accountName);
+    saveCredentials(IdentityType.ACCOUNT, location, keys);
+    this.useDefaultAccount(location);
 });
 
 Given(
@@ -75,7 +74,7 @@ Given(
             `arn:aws:iam::${infoByLocation[dstLocation].AccountId}:role/${roleName}`,
         ].join(',');
 
-        Identity.useIdentity(IdentityEnum.ACCOUNT, srcLocation);
+        this.useIdentity(IdentityType.ACCOUNT, srcLocation);
         await this.s3.send(new PutBucketReplicationCommand({
             Bucket: cascadeBuckets[srcLocation],
             ReplicationConfiguration: {
@@ -112,7 +111,7 @@ async function putCascadeObject(
 When('an object {string} of {int} bytes is put in location {string}',
     async function (this: Zenko, objectName: string, bodySize: number, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        this.useIdentity(IdentityType.ACCOUNT, location);
         const marker = await putCascadeObject(this.s3, cascadeBuckets[location], objectName, bodySize);
         this.addToSaved('cascadeObjectName', objectName);
         this.addToSaved('cascadeSourceLocation', location);
@@ -124,7 +123,7 @@ When('tags are put on the object {string} in location {string}',
     async function (this: Zenko, objectName: string, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const tagValue = randomString().toLowerCase();
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        this.useIdentity(IdentityType.ACCOUNT, location);
         await this.s3.send(new PutObjectTaggingCommand({
             Bucket: cascadeBuckets[location],
             Key: objectName,
@@ -142,7 +141,7 @@ Then(
         const objectName = this.getSaved<string>('cascadeObjectName');
         const tagValue = this.getSaved<string>('cascadeTagValue');
         const deadline = Date.now() + timeoutSeconds * 1000;
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        this.useIdentity(IdentityType.ACCOUNT, location);
         const client = this.s3;
         while (Date.now() < deadline) {
             const res = await client.send(
@@ -170,7 +169,7 @@ Then(
         const bucket = this.getSaved<Record<string, string>>('cascadeBuckets')[location];
         const objectName = this.getSaved<string>('cascadeObjectName');
         const deadline = Date.now() + timeoutSeconds * 1000;
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        this.useIdentity(IdentityType.ACCOUNT, location);
         const client = this.s3;
         const expectedContentLength = this.getSaved<number>('cascadeExpectedContentLength');
         let lastStatus = 'unknown';
@@ -218,7 +217,7 @@ Then(
         const objectName = this.getSaved<string>('cascadeObjectName');
         const bucket = cascadeBuckets[location];
         const deadline = Date.now() + waitSeconds * 1000;
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        this.useIdentity(IdentityType.ACCOUNT, location);
         const client = this.s3;
         while (Date.now() < deadline) {
             const result = await client.send(
@@ -242,7 +241,7 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
     const sourceLocation = world.getSaved<string>('cascadeSourceLocation');
 
     for (const [location, bucket] of Object.entries(cascadeBuckets)) {
-        Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+        world.useIdentity(IdentityType.ACCOUNT, location);
         const res = await world.s3.send(
             new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
         );
@@ -305,7 +304,7 @@ When('the object {string} is concurrently written {int} times to every cascade l
 
         const clientByLocation = Object.fromEntries(
             Object.keys(cascadeBuckets).map(location => {
-                Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+                this.useIdentity(IdentityType.ACCOUNT, location);
                 return [location, this.s3];
             }),
         );
@@ -335,7 +334,7 @@ Then(
         const deadline = Date.now() + timeoutSeconds * 1000;
         const clientByLocation = Object.fromEntries(
             Object.keys(cascadeBuckets).map(location => {
-                Identity.useIdentity(IdentityEnum.ACCOUNT, location);
+                this.useIdentity(IdentityType.ACCOUNT, location);
                 return [location, this.s3];
             }),
         );

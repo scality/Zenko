@@ -2,7 +2,7 @@ import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
 import { ApiError, failedWith, settle } from 'common/result';
-import { Identity } from 'cli-testing';
+import { getCredentials } from 'world/identities';
 import { VaultAuthClient } from 'clients/vault';
 import { runActionAgainstBucket } from 'steps/utils/utils';
 
@@ -12,7 +12,7 @@ When('the user tries to perform {string} on the bucket', async function (this: Z
 
 When('the user tries to perform vault auth {string}', async function (this: Zenko, action: string) {
     const lastIdentity = this.getSavedIdentity();
-    const userCredentials = Identity.getCredentialsForIdentity(
+    const userCredentials = getCredentials(
         lastIdentity.identityType,
         lastIdentity.identityName,
         lastIdentity.accountName,

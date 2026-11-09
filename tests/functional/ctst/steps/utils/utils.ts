@@ -24,7 +24,6 @@ import {
     LifecycleRule,
     ObjectLockRetentionMode,
 } from '@aws-sdk/client-s3';
-import { Identity } from 'cli-testing';
 import { sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
 import { ApiResult, settle } from 'common/result';
@@ -152,11 +151,7 @@ type S3Command = Parameters<s3.S3Client['send']>[0];
 
 async function runActionAgainstBucket(world: Zenko, action: string) {
     world.useSavedIdentity();
-    const userCredentials = Identity.getCurrentCredentials();
-    if (!userCredentials) {
-        throw new Error('User credentials not set. '
-            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
-    }
+    const userCredentials = world.credentials;
     switch (action) {
     case 'MetadataSearch': {
         world.setResult(await world.metadataSearchResponseCode(userCredentials,

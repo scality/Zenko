@@ -11,7 +11,7 @@ import {
     restoreObject,
     verifyObjectLocation,
 } from 'steps/utils/utils';
-import { Identity, IdentityEnum } from 'cli-testing';
+import { IdentityType, saveCredentials } from 'world/identities';
 import constants from 'common/constants';
 import { safeJsonParse, sleep } from 'common/utils';
 import { PrometheusDriver } from 'prometheus-query';
@@ -166,8 +166,8 @@ async function waitForPhase(
 
 const installTimeout = 360000;
 Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this: Zenko) {
-    Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
-    const credentials = Identity.getCurrentCredentials();
+    this.useIdentity(IdentityType.ACCOUNT, Zenko.sites['source'].accountName);
+    const { credentials } = this;
     await this.kubernetesClient.replaceSecret('default', 'drctl-s3-creds', {
         accessKey: credentials.accessKeyId,
         secretAccessKey: credentials.secretAccessKey,
@@ -252,9 +252,9 @@ Then('object {string} should {string} be {string} and have the storage class {st
         storageClass: string,
         site: string) {
         if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+            this.useIdentity(IdentityType.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+            this.useIdentity(IdentityType.ACCOUNT, Zenko.sites['source'].accountName);
         }
         try {
             await verifyObjectLocation.call(this, objName, objectTransitionStatus, storageClass);
@@ -272,9 +272,9 @@ Then('object {string} should {string} be {string} and have the storage class {st
 When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
     async function (this: Zenko, site: string) {
         if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+            this.useIdentity(IdentityType.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+            this.useIdentity(IdentityType.ACCOUNT, Zenko.sites['source'].accountName);
         }
         this.addToSaved('accountName', Zenko.sites['source'].accountName);
 
@@ -395,33 +395,34 @@ Then('the DR custom resources should be deleted', { timeout: 360000 }, async fun
     assert(!drSink);
 });
 
-Given('access keys for the replicated account', { timeout: 360000 }, async () => {
-    Identity.useIdentity(IdentityEnum.ADMIN, Zenko.sites['sink'].adminIdentityName);
+Given('access keys for the replicated account', { timeout: 360000 }, async function (this: Zenko) {
+    const sinkAdmin = Zenko.vaultAdmin(Zenko.sites['sink'].adminIdentityName);
     // The account is the one from the source cluster: it replaces the sink account
     // after the bootstrap phases
     const targetAccount = Zenko.sites['source'].accountName;
 
     let account;
     let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
-    account = await Zenko.currentVaultAdmin().getAccount(targetAccount);
+    account = await sinkAdmin.getAccount(targetAccount);
     while (!account && remaining > 0) {
         await sleep(500);
-        account = await Zenko.currentVaultAdmin().getAccount(targetAccount);
+        account = await sinkAdmin.getAccount(targetAccount);
         remaining--;
     }
     assert(account);
 
-    const credentials = await Zenko.currentVaultAdmin().generateAccountAccessKey(targetAccount);
+    const credentials = await sinkAdmin.generateAccountAccessKey(targetAccount);
 
-    Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
+    saveCredentials(IdentityType.ACCOUNT, `${targetAccount}-replicated`, credentials);
+    this.useIdentity(IdentityType.ACCOUNT, `${targetAccount}-replicated`);
 });
 
 When('i restore object {string} for {int} days on {string} site',
     async function (this: Zenko, objectName: string, days: number, site: string) {
         if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+            this.useIdentity(IdentityType.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+            this.useIdentity(IdentityType.ACCOUNT, Zenko.sites['source'].accountName);
         }
         await restoreObject.call(this, objectName, days);
     });

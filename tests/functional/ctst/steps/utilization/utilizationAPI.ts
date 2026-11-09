@@ -2,7 +2,6 @@ import { When, Then, ITestCaseHookParameter } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
 import { settle } from 'common/result';
-import { Identity } from 'cli-testing';
 import ScubaClient, { ScubaMetrics } from 'scubaclient';
 import { prepareMetricsScenarios } from '../../common/utils';
 
@@ -18,11 +17,7 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
     async function (this: Zenko, metricType: string) {
         const accountName = this.getSaved<string>('accountName');
         
-        const userCredentials = Identity.getCurrentCredentials();
-
-        if (!userCredentials) {
-            throw new Error('User credentials not found');
-        }
+        const userCredentials = this.credentials;
 
         this.addToSaved('metricType', metricType);
 

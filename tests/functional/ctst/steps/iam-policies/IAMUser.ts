@@ -1,5 +1,4 @@
 import { Given } from '@cucumber/cucumber';
-import { Identity } from 'cli-testing';
 import {
     AttachGroupPolicyCommand,
     AttachRolePolicyCommand,
@@ -12,7 +11,7 @@ import Zenko from 'world/Zenko';
 
 Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
     async function (this: Zenko, entity: string, effect: string, service: string, action: string, resource: string) {
-        Identity.resetIdentity();
+        this.resetIdentity();
         this.addToSaved('action', action);
         // create the IAM policy
         const policyArn = (await this.iam.send(new CreatePolicyCommand({

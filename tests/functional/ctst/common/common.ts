@@ -11,7 +11,7 @@ import {
     PutObjectTaggingCommand,
 } from '@aws-sdk/client-s3';
 import { Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber';
-import { Identity, IdentityEnum } from 'cli-testing';
+import { IdentityType } from 'world/identities';
 import Zenko from 'world/Zenko';
 import { parseGoDuration, sleep, randomString } from './utils';
 import { failedWith, settle, succeededOrFailedWith } from './result';
@@ -53,7 +53,7 @@ export async function cleanS3Bucket(
         // Do not try to clean a bucket with compliance retention
         return;
     }
-    Identity.useIdentity(IdentityEnum.ACCOUNT, world.getSaved<string>('accountName') ||
+    world.useIdentity(IdentityType.ACCOUNT, world.getSaved<string>('accountName') ||
         world.parameters.AccountName);
     // Best effort: objects under retention cannot be deleted, so neither can their bucket
     const bestEffort = async (what: string, request: Promise<unknown>) => {
@@ -195,9 +195,9 @@ Given('{string} is copied to {string}',
 Given('{int} objects {string} of size {int} bytes on {string} site',
     async function (this: Zenko, numberObjects: number, objectName: string, sizeBytes: number, site: string) {
         if (site === 'DR') {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
+            this.useIdentity(IdentityType.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
-            Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
+            this.useIdentity(IdentityType.ACCOUNT, Zenko.sites['source'].accountName);
         }
         const result = await addMultipleObjects.call(this, numberObjects, objectName, sizeBytes);
         assert.ifError(result?.error);
