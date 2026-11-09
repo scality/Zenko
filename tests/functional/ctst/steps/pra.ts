@@ -251,7 +251,6 @@ Then('object {string} should {string} be {string} and have the storage class {st
         objectTransitionStatus: string,
         storageClass: string,
         site: string) {
-        this.resetCommand();
         if (site === 'DR') {
             Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {
@@ -277,7 +276,6 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
         } else {
             Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
-        this.resetCommand();
         this.addToSaved('accountName', Zenko.sites['source'].accountName);
 
         // At this point, the role may take some time to be propagated
@@ -420,7 +418,6 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
 
 When('i restore object {string} for {int} days on {string} site',
     async function (this: Zenko, objectName: string, days: number, site: string) {
-        this.resetCommand();
         if (site === 'DR') {
             Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
         } else {

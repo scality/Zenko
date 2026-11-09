@@ -86,3 +86,25 @@ export class VaultAuthClient {
         return call(cb => this.client.getAccounts(accountNames, undefined, undefined, { accountNames: true }, cb));
     }
 }
+
+/**
+ * Vault API calls a user makes on its own account, on the IAM endpoint. Vault only
+ * accepts them from the account's storage manager, not from the admin.
+ */
+export class VaultAccountClient {
+    private readonly client: VaultIAMClient;
+
+    constructor(connection: VaultConnection) {
+        this.client = createClient(connection);
+    }
+
+    // Without an account name, Vault applies the call to the caller's account
+
+    updateAccountQuota(quota: number): Promise<{ quota?: string }> {
+        return call(cb => this.client.updateAccountQuota('', quota, cb));
+    }
+
+    async deleteAccountQuota(): Promise<void> {
+        await call(cb => this.client.deleteAccountQuota('', cb));
+    }
+}

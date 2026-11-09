@@ -25,10 +25,10 @@ import {
 import { sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
-import { BackbeatRoutesClient } from '@scality/cloudserverclient';
+import { BackbeatRoutesClient, BucketQuotaClient } from '@scality/cloudserverclient';
 import { AWSCredentials, AwsClients } from 'clients/aws';
-import { Command, toCommand } from 'common/command';
-import { VaultAdminClient } from 'clients/vault';
+import { ApiError, ApiResult } from 'common/result';
+import { VaultAccountClient, VaultAdminClient } from 'clients/vault';
 import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
@@ -124,13 +124,11 @@ export interface ZenkoWorldParameters {
  * Shared between all tests (S3, IAM, STS).
  */
 export default class Zenko extends World<ZenkoWorldParameters> {
-    private result: Command = {
-        err: '',
-        stdout: '',
-        stderr: '',
-    };
+    private result: ApiResult = {};
 
-    private commandParameters: Record<string, unknown> = {};
+    // Overrides of the S3/IAM/STS endpoint protocol and port, set by the HTTPS switch
+    // of a scenario
+    private endpointOverride: { https: boolean, port: string } | null = null;
 
     private saved: Record<string, unknown> = {};
 
@@ -284,38 +282,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
-     * This function will dynamically determine if the result from the AWS command
-     * is a success or a failure. Based on the fact that AWS either return an empty string
-     * or a JSON-parsable string.
-     * @param {Array} result - array with result objects containing both stderr and stdout from the CLI command.
-     * @returns {boolean} - if the result is a success or a failure
-     */
-    checkResults(result: Command[]): boolean {
-        const usedResult: Command[] = Array.isArray(result) ? result : [result];
-        let decision = true;
-        usedResult.forEach(res => {
-            if (!res || res.err) {
-                decision = false;
-            }
-            try {
-                // Accept empty responses (in case of success)
-                if (res.stdout && res.stdout !== '') {
-                    JSON.parse(res.stdout) as Command;
-                } else if (res.stdout !== '') {
-                    decision = false;
-                }
-            } catch (err) {
-                this.logger.debug('Error when parsing JSON', {
-                    err,
-                    stdout: res.stdout,
-                });
-                decision = res.stdout === '';
-            }
-        });
-        return decision;
-    }
-
-    /**
      * This function will dynamically prepare credentials based on the type of
      * entity provided to let the test run the AWS CLI command using this particular
      * type of entity.
@@ -324,7 +290,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      * @returns {undefined}
      */
     async setupEntity(entityType: string): Promise<void> {
-        const savedParameters = JSON.parse(JSON.stringify(this.commandParameters)) as object;
         this.addToSaved('identityType', entityType);
 
         switch (entityType) {
@@ -359,9 +324,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         default:
             break;
         }
-
-        this.resetCommand();
-        this.commandParameters = savedParameters as Record<string, unknown>;
     }
 
     /**
@@ -812,44 +774,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
-     * Map the given parameter to the AWS CLI command
-     * @param {object} param - an object with a key and a value
-     * @returns {undefined}
-     */
-    addCommandParameter(param: Record<string, unknown>): void {
-        this.commandParameters[Object.keys(param)[0]] = param[Object.keys(param)[0]];
-    }
-
-    /**
-     * Clean all mapped parameters
-     * @returns {undefined}
-     */
-    resetCommand(): void {
-        this.commandParameters = {};
-    }
-
-    /**
-     * Remove option from set of options
-     * @param {string} key - name of the key to remove
-     * @returns {undefined}
-     */
-    deleteKeyFromCommand(key: string): void {
-        if (key in this.commandParameters) {
-            delete this.commandParameters[key];
-        }
-    }
-
-    /**
-     * Get all mapped parameters
-     * @returns {Record<string, unknown>} - an object with the api command options
-     */
-    getCommandParameters() {
-        return {
-            ...this.commandParameters,
-        };
-    }
-
-    /**
      * Get all saved parameters
      * @param {string} key - key to recover
      * @returns {T} - an object with any saved parameters
@@ -877,20 +801,45 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     /**
-     * Get all saved result object
-     * @returns {Command} - an object with saved API call results
+     * Outcome of the last API call made by a step, to be checked by the next steps
+     * @returns {ApiResult} - the saved outcome
      */
-    public getResult(): Command {
-        return this.result;
+    public getResult<T = unknown>(): ApiResult<T> {
+        return this.result as ApiResult<T>;
     }
 
     /**
-     * Get all saved result object
-     * @param {Command} result - an object with API call results
+     * Saves the outcome of an API call for the next steps
+     * @param {ApiResult} result - the outcome to save
      * @returns {undefined}
      */
-    public setResult(result: Command): void {
+    public setResult(result: ApiResult): void {
         this.result = result;
+    }
+
+    /**
+     * Sends the S3, IAM and STS requests over HTTPS on port 443, or HTTP on port 80
+     * @param {boolean} https - whether to use HTTPS
+     * @returns {undefined}
+     */
+    public useHttps(https: boolean): void {
+        this.endpointOverride = { https, port: https ? '443' : '80' };
+    }
+
+    /**
+     * Goes back to the protocol and port of the world parameters
+     * @returns {undefined}
+     */
+    public resetEndpoint(): void {
+        this.endpointOverride = null;
+    }
+
+    public get https(): boolean {
+        return this.endpointOverride?.https ?? this.parameters.ssl !== false;
+    }
+
+    private get port(): string {
+        return this.endpointOverride?.port ?? String(this.parameters.port);
     }
 
     /**
@@ -917,7 +866,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     }
 
     async awsS3Request(method: Method, path: string,
-        userCredentials: AWSCredentials, headers: object = {}, payload: object = {}): Promise<Command> {
+        userCredentials: AWSCredentials, headers: object = {}, payload: object = {}): Promise<ApiResult> {
         const interceptor = aws4Interceptor({
             options: {
                 region: 'us-east-1',
@@ -938,24 +887,21 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         };
         try {
             const response: AxiosResponse = await axiosInstance(axiosConfig);
-            return {
-                stdout: '',
-                statusCode: response.status,
-                data: response.data as unknown,
-            };
-            /* eslint-disable */
-        } catch (err: any) {
-            return {
-                stdout: '',
-                statusCode: err.response.status,
-                err: err.response.data,
-            };
-            /* eslint-enable */
+            return { data: response.data as unknown };
+        } catch (err) {
+            if (!axios.isAxiosError(err) || !err.response) {
+                throw err;
+            }
+            // S3 error bodies are XML: <Error><Code>AccessDenied</Code><Message>...</Message></Error>
+            const body = String(err.response.data);
+            const error: ApiError = new Error(body.match(/<Message>(.*?)<\/Message>/)?.[1] ?? body);
+            error.name = body.match(/<Code>(.*?)<\/Code>/)?.[1] ?? `HTTP ${err.response.status}`;
+            error.$metadata = { httpStatusCode: err.response.status };
+            return { error };
         }
     }
 
-    // Clients of the current identity. The endpoint follows the scenario's HTTPS switch,
-    // which still lives on cli-testing's parameters until its wrappers are gone.
+    // Clients of the current identity, on the endpoint of the scenario's HTTPS switch
     private currentAwsClients(allowMissingCredentials = false): AwsClients {
         const identity = Identity.getCurrentCredentials(allowMissingCredentials);
         const credentials = identity?.accessKeyId ? {
@@ -965,8 +911,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         } : undefined;
         const endpoint = {
             subdomain: Identity.getCurrentSubDomain() || this.parameters.subdomain,
-            https: CacheHelper.parameters.ssl !== false,
-            port: String(CacheHelper.parameters.port),
+            https: this.https,
+            port: this.port,
         };
         const key = JSON.stringify([credentials?.accessKeyId, credentials?.sessionToken, endpoint]);
         let clients = Zenko.awsClients.get(key);
@@ -994,10 +940,21 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         return this.currentAwsClients().backbeatRoutes;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async sendS3Command(command: any): Promise<void> {
-        this.setResult(await toCommand(this.s3.send(command)));
+    get bucketQuota(): BucketQuotaClient {
+        return this.currentAwsClients().bucketQuota;
     }
+
+    // Vault calls of the current identity on its own account
+    get vaultAccount(): VaultAccountClient {
+        const { accessKeyId, secretAccessKey, sessionToken } = Identity.getCurrentCredentials();
+        return new VaultAccountClient({
+            host: `iam.${Identity.getCurrentSubDomain() || this.parameters.subdomain}`,
+            port: Number(this.port),
+            https: this.https,
+            credentials: { accessKeyId, secretAccessKey, sessionToken },
+        });
+    }
+
 
     /**
      * @param {Method} method HTTP Method

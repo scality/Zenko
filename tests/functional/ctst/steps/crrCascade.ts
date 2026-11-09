@@ -12,7 +12,7 @@ import {
 } from '@aws-sdk/client-s3';
 import assert from 'assert';
 import { assertBudgetFitsStepTimeout, sleep, randomString } from 'common/utils';
-import { Identity, IdentityEnum, SuperAdmin } from 'cli-testing';
+import { Identity, IdentityEnum } from 'cli-testing';
 import Zenko from 'world/Zenko';
 
 const REPLICATE_STEP_TIMEOUT_MS = 300_000;
@@ -59,7 +59,7 @@ Given('the account of location {string} has access keys', async (location: strin
     assert(letter, `'${location}' is not a CRR location`);
     const accountName = process.env[`CRR_ACCOUNT_${letter}_NAME`] || `crr-account-${letter.toLowerCase()}`;
     Identity.useIdentity(IdentityEnum.ADMIN, Zenko.PRIMARY_SITE_NAME);
-    const keys = await SuperAdmin.generateAccountAccessKey({ accountName });
+    const keys = await Zenko.currentVaultAdmin().generateAccountAccessKey(accountName);
     Identity.addIdentity(IdentityEnum.ACCOUNT, location, keys, undefined, true, true);
     Identity.useIdentity(IdentityEnum.ACCOUNT, location);
 });

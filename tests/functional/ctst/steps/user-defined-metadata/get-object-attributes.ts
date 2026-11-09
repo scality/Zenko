@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
 import { GetObjectAttributesExtendedCommand, GetObjectAttributesExtendedInput } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
-import { safeJsonParse } from '../../common/utils';
+import { settle } from '../../common/result';
 
 async function getObjectAttributes(
     world: Zenko,
@@ -10,18 +10,16 @@ async function getObjectAttributes(
     attributes: string,
     versionId?: string,
 ) {
-    world.resetCommand();
-
     const bucketName = world.getSaved<string>('bucketName');
     const attributesList = attributes.split(',').map(attr => attr.trim()) as
         GetObjectAttributesExtendedInput['ObjectAttributes'];
 
-    await world.sendS3Command(new GetObjectAttributesExtendedCommand({
+    world.setResult(await settle(world.s3.send(new GetObjectAttributesExtendedCommand({
         Bucket: bucketName,
         Key: objectName,
         VersionId: versionId,
         ObjectAttributes: attributesList,
-    }));
+    }))));
 }
 
 When('the user calls GetObjectAttributes for {string} requesting {string}', async function (
@@ -46,9 +44,9 @@ Then('the GetObjectAttributes response should contain {string} with values {stri
     attributes: string,
     expectedValues: string,
 ) {
-    const result = this.getResult();
-    const parsed = safeJsonParse<Record<string, unknown>>(result.stdout);
-    assert(parsed.ok, `Failed to parse GetObjectAttributes response: ${parsed.error}`);
+    const { data: response, error } = this.getResult<Record<string, unknown>>();
+    assert.ifError(error);
+    assert(response, 'Expected a GetObjectAttributes response');
 
     const attributesList = attributes.split(',').map(attr => attr.trim());
     const valuesList = expectedValues.split(',').map(val => val.trim());
@@ -71,14 +69,14 @@ Then('the GetObjectAttributes response should contain {string} with values {stri
 
         if (!expected) {
             assert(
-                !(attr in parsed.result!),
-                `Expected attribute "${attr}" to be absent, but found value: ${parsed.result![attr]}`,
+                response[attr] === undefined,
+                `Expected attribute "${attr}" to be absent, but found value: ${response[attr]}`,
             );
             return;
         }
 
-        assert(attr in parsed.result!, `Expected attribute "${attr}" not found in response`);
-        const actual = String(parsed.result![attr]);
+        assert(response[attr] !== undefined, `Expected attribute "${attr}" not found in response`);
+        const actual: string = String(response[attr]);
         assert.strictEqual(
             actual, expected,
             `Attribute "${attr}": expected "${expected}" but got "${actual}"`,

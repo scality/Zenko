@@ -2,22 +2,29 @@ import assert from 'assert';
 import { Then, When } from '@cucumber/cucumber';
 import { ListObjectsV2ExtendedCommand, ListObjectsV2ExtendedInput } from '@scality/cloudserverclient';
 import Zenko from '../../world/Zenko';
-import { safeJsonParse } from '../../common/utils';
+import { settle } from '../../common/result';
+
+type ListedObject = Record<string, unknown>;
+
+function listedObjects(world: Zenko): ListedObject[] {
+    const { data, error } = world.getResult<{ Contents?: ListedObject[] }>();
+    assert.ifError(error);
+    assert(data?.Contents, 'Expected Contents in response');
+    return data.Contents;
+}
 
 async function listObjectsV2WithOptionalAttributes(
     world: Zenko,
     optionalAttributes: string,
 ) {
-    world.resetCommand();
-
     const bucketName = world.getSaved<string>('bucketName');
     const optionalAttrsList = optionalAttributes.split(',').map(attr => attr.trim()) as
         ListObjectsV2ExtendedInput['ObjectAttributes'];
 
-    await world.sendS3Command(new ListObjectsV2ExtendedCommand({
+    world.setResult(await settle(world.s3.send(new ListObjectsV2ExtendedCommand({
         Bucket: bucketName,
         ObjectAttributes: optionalAttrsList,
-    }));
+    }))));
 }
 
 When('the user calls ListObjectsV2 on the bucket with optional attributes {string}', async function (
@@ -31,16 +38,13 @@ Then('the ListObjectsV2 response should contain {string}', function (
     this: Zenko,
     attributes: string,
 ) {
-    const result = this.getResult();
-    const parsed = safeJsonParse<{ Contents: Record<string, unknown>[] }>(result.stdout);
-    assert(parsed.ok, `Failed to parse ListObjectsV2 response: ${parsed.error}`);
-    assert(parsed.result!.Contents, 'Expected Contents in response');
-    assert(parsed.result!.Contents!.length > 0, 'Expected at least one object in Contents');
+    const contents = listedObjects(this);
+    assert(contents.length > 0, 'Expected at least one object in Contents');
 
     const attributesList = attributes.split(',').map(attr => attr.trim());
-    for (const object of parsed.result!.Contents!) {
+    for (const object of contents) {
         for (const attr of attributesList) {
-            assert(attr in object, `Expected attribute "${attr}" not found in listed object`);
+            assert(object[attr] !== undefined, `Expected attribute "${attr}" not found in listed object`);
         }
     }
 });
@@ -49,14 +53,11 @@ Then('the ListObjectsV2 response should contain {int} objects', function (
     this: Zenko,
     expectedCount: number,
 ) {
-    const result = this.getResult();
-    const parsed = safeJsonParse<{ Contents: Record<string, unknown>[] }>(result.stdout);
-    assert(parsed.ok, `Failed to parse ListObjectsV2 response: ${parsed.error}`);
-    assert(parsed.result!.Contents, 'Expected Contents in response');
+    const contents = listedObjects(this);
     assert.strictEqual(
-        parsed.result!.Contents!.length,
+        contents.length,
         expectedCount,
-        `Expected ${expectedCount} objects but got ${parsed.result!.Contents!.length}`,
+        `Expected ${expectedCount} objects but got ${contents.length}`,
     );
 });
 
@@ -65,11 +66,8 @@ Then('the ListObjectsV2 response should contain {string} with values {string}', 
     attributes: string,
     expectedValues: string,
 ) {
-    const result = this.getResult();
-    const parsed = safeJsonParse<{ Contents: Record<string, unknown>[] }>(result.stdout);
-    assert(parsed.ok, `Failed to parse ListObjectsV2 response: ${parsed.error}`);
-    assert(parsed.result!.Contents, 'Expected Contents in response');
-    assert(parsed.result!.Contents!.length > 0, 'Expected at least one object in Contents');
+    const contents = listedObjects(this);
+    assert(contents.length > 0, 'Expected at least one object in Contents');
 
     const attributesList = attributes.split(',').map(attr => attr.trim());
     const valuesList = expectedValues.split(',').map(val => val.trim());
@@ -80,20 +78,20 @@ Then('the ListObjectsV2 response should contain {string} with values {string}', 
         `Mismatch: ${attributesList.length} attributes but ${valuesList.length} expected values`,
     );
 
-    for (const object of parsed.result!.Contents!) {
+    for (const object of contents) {
         for (let i = 0; i < attributesList.length; i++) {
             const attr = attributesList[i];
             const expected = valuesList[i];
 
             if (!expected) {
                 assert(
-                    !(attr in object),
+                    object[attr] === undefined,
                     `Expected attribute "${attr}" to be absent, but found value: ${object[attr]}`,
                 );
                 continue;
             }
 
-            assert(attr in object, `Expected attribute "${attr}" not found in listed object`);
+            assert(object[attr] !== undefined, `Expected attribute "${attr}" not found in listed object`);
             const actual = String(object[attr]);
             assert.strictEqual(
                 actual, expected,

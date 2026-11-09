@@ -8,7 +8,7 @@ import {
     ITestCaseHookParameter,
 } from '@cucumber/cucumber';
 import Zenko from '../world/Zenko';
-import { CacheHelper, Identity } from 'cli-testing';
+import { Identity } from 'cli-testing';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
@@ -164,9 +164,8 @@ Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
 );
 
 After(async function (this: Zenko, results) {
-    // Reset any configuration set on the endpoint (ssl, port)
-    CacheHelper.parameters.ssl = this.parameters.ssl;
-    CacheHelper.parameters.port = this.parameters.port;
+    // Clean up on the endpoint of the world parameters, whatever the scenario switched to
+    this.resetEndpoint();
     if (results.result?.status === 'FAILED') {
         this.logger.warn('bucket was not cleaned for test', {
             bucket: this.getSaved<string>('bucketName'),

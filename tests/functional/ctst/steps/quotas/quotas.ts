@@ -1,7 +1,7 @@
 import { Given, When, ITestCaseHookParameter } from '@cucumber/cucumber';
 import Zenko, { EntityType } from '../../world/Zenko';
-import { Command } from 'common/command';
-import { Scality } from 'cli-testing';
+import { DeleteBucketQuotaCommand, GetBucketQuotaCommand, UpdateBucketQuotaCommand } from '@scality/cloudserverclient';
+import { settle } from 'common/result';
 import { prepareMetricsScenarios, sleep } from '../../common/utils';
 import assert from 'assert';
 
@@ -31,23 +31,13 @@ export async function teardownQuotaScenarios(world: Zenko) {
     // hook to make sure it is executed first.
     await world.createAccount();
     await world.setupEntity(EntityType.STORAGE_MANAGER);
-    world.addCommandParameter({
-        bucket: world.getSaved<string>('bucketName'),
-    });
-    const resultBucket = await Scality.deleteBucketQuota(
-        world.parameters,
-        world.getCommandParameters());
-    world.logger?.debug('DeleteBucketQuota result', {
-        resultBucket,
-        parameters: world.getCommandParameters(),
-    });
-    const resultAccount = await Scality.deleteAccountQuota(world.parameters);
-
-    world.logger?.debug('DeleteAccountQuota result', {
-        resultAccount,
-        parameters: world.getCommandParameters(),
-    });
-    if (resultBucket.err || resultAccount.err) {
+    const resultBucket = await settle(world.bucketQuota.send(new DeleteBucketQuotaCommand({
+        Bucket: world.getSaved<string>('bucketName'),
+    })));
+    world.logger?.debug('DeleteBucketQuota result', { resultBucket });
+    const resultAccount = await settle(world.vaultAccount.deleteAccountQuota());
+    world.logger?.debug('DeleteAccountQuota result', { resultAccount });
+    if (resultBucket.error || resultAccount.error) {
         throw new Error('Unable to delete quotas');
     }
 }
@@ -56,60 +46,27 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
     if (quota === 0) {
         return;
     }
-    this.addCommandParameter({
-        quota: String(quota),
-    });
-    this.addCommandParameter({
-        bucket: this.getSaved<string>('bucketName'),
-    });
+    const bucket = this.getSaved<string>('bucketName');
     // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
-
-    this.logger.debug('UpdateBucketQuota result', {
-        result,
-    });
+    await this.bucketQuota.send(new UpdateBucketQuotaCommand({ Bucket: bucket, Quota: quota }));
 
     // Ensure the quota is set
-    const resultGet: Command = await Scality.getBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
-    this.logger.debug('GetBucketQuota result', {
-        resultGet,
-    });
-
-    assert(resultGet.stdout.includes(`${quota}`));
-
-    if (result.err) {
-        throw new Error(result.err);
-    }
+    const { Quota } = await this.bucketQuota.send(new GetBucketQuotaCommand({ Bucket: bucket }));
+    assert.strictEqual(Quota, quota);
 });
 
 Given('an account quota set to {int} B', async function (this: Zenko, quota: number) {
     if (quota === 0) {
         return;
     }
-    this.addCommandParameter({
-        quotaMax: String(quota),
-    });
     // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateAccountQuota(
-        this.parameters,
-        this.getCommandParameters());
-
-    this.logger.debug('UpdateAccountQuota result', {
-        result,
-    });
+    const result = await this.vaultAccount.updateAccountQuota(quota);
+    this.logger.debug('UpdateAccountQuota result', { result });
 
     // Ensure the quota is set
-    assert(JSON.parse(result.stdout).quota === String(quota));
-
-    if (result.err) {
-        throw new Error(result.err);
-    }
+    assert.strictEqual(result.quota, String(quota));
 });
 
 When('I wait {int} seconds', async (seconds: number) => {

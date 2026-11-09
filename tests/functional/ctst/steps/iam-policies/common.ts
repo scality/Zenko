@@ -1,8 +1,8 @@
 import { When, Then } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
 import Zenko from '../../world/Zenko';
-import { Command } from 'common/command';
-import { CacheHelper, Identity } from 'cli-testing';
+import { ApiError, failedWith, settle } from 'common/result';
+import { Identity } from 'cli-testing';
 import { VaultAuthClient } from 'clients/vault';
 import { runActionAgainstBucket } from 'steps/utils/utils';
 
@@ -27,8 +27,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
         throw new Error('Vault auth endpoint is not set. Make sure the `VaultAuthHost` world parameter is defined.');
     }
 
-    // Follows the HTTPS switch of the current scenario, set on cli-testing's parameters
-    const https = Boolean(CacheHelper.parameters?.ssl);
+    const { https } = this;
     const vaultAuthClient = new VaultAuthClient({
         host: this.parameters.VaultAuthHost,
         port: https ? 443 : 80,
@@ -38,13 +37,9 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 
     switch (action) {
     case 'GetAccountInfo':
-        try {
-            this.setResult(await vaultAuthClient.getAccountsByName([
-                lastIdentity.accountName || this.parameters.AccountName,
-            ]) as Command);
-        } catch (err) {
-            this.setResult(err as Command);
-        }
+        this.setResult(await settle(vaultAuthClient.getAccountsByName([
+            lastIdentity.accountName || this.parameters.AccountName,
+        ])));
         break;
     default:
         throw new Error(`Action ${action} is not supported`);
@@ -52,34 +47,24 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 });
 
 Then('the user should be able to perform successfully the {string} action', function (this: Zenko, action: string) {
-    switch (action) {
-    case 'MetadataSearch': {
-        assert.strictEqual(this.getResult().statusCode, 200);
-        break;
-    }
-    case 'GetAccountInfo': {
-        assert.strictEqual(this.getResult() instanceof Error, false);
-        break;
-    }
-    default: {
-        assert.strictEqual(this.getResult().err, null);
-    }
-
-    }
+    const { error } = this.getResult();
+    assert(!error, `${action} failed: ${error}`);
 });
 
 Then('the user should not be able to perform the {string} action', function (this: Zenko, action : string) {
+    const { error } = this.getResult();
     switch (action) {
     case 'GetAccountInfo': {
-        assert.strictEqual(this.getResult().code === 'AccessDenied', true);
+        // Vault errors carry their name in `code`
+        assert.strictEqual((error as ApiError & { code?: string } | undefined)?.code, 'AccessDenied');
         break;
     }
     default: {
-        assert.strictEqual(this.getResult().err, null);
+        assert.ifError(error);
     }
     }
 });
 
 Then('the user should receive {string} error', function (this: Zenko, error : string) {
-    assert.strictEqual(this.getResult().err!.includes(error), true);
+    assert.strictEqual(failedWith(this.getResult(), error), true);
 });
