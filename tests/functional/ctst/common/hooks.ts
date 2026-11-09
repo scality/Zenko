@@ -1,12 +1,15 @@
 import {
     Before,
     After,
+    AfterStep,
     AfterAll,
     BeforeAll,
     setParallelCanAssign,
     parallelCanAssignHelpers,
     ITestCaseHookParameter,
+    Status,
 } from '@cucumber/cucumber';
+import Werelogs from 'werelogs';
 import Zenko from '../world/Zenko';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
@@ -21,7 +24,27 @@ import {
 import { waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
-import 'cli-testing/hooks/Logger';
+type LogLevel = NonNullable<Parameters<typeof Werelogs.configure>[0]['level']>;
+Werelogs.configure({
+    level: (process.env.LOG_LEVEL || 'info') as LogLevel,
+    dump: (process.env.LOG_DUMP_LEVEL || 'error') as LogLevel,
+});
+
+// Defined first so its After hook runs last, once every other hook has logged
+Before(function (this: Zenko, { pickle }: ITestCaseHookParameter) {
+    this.logger.addDefaultFields({ scenario: pickle.name });
+});
+
+AfterStep(function (this: Zenko, { result }) {
+    if ([Status.FAILED, Status.UNDEFINED, Status.AMBIGUOUS, Status.UNKNOWN].includes(result.status)) {
+        this.logger.error('scenario failed', { status: result.status });
+    }
+});
+
+// Flushes the logs of the scenario, and dumps its buffered ones when it failed
+After(function (this: Zenko) {
+    this.logger.end();
+});
 
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';

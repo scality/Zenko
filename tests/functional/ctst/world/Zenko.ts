@@ -15,7 +15,6 @@ import { AssumeRoleCommand, AssumeRoleWithWebIdentityCommand, Credentials, STSCl
 import { aws4Interceptor } from 'aws4-axios';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import Werelogs from 'werelogs';
-import { Logger } from 'cli-testing';
 
 import { sleep, randomString, isAccessKeys } from '../common/utils';
 import constants from '../common/constants';
@@ -191,7 +190,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
      */
     constructor(options: IWorldOptions<ZenkoWorldParameters>) {
         super(options);
-        Logger.createLogger(this);
         // store service users credentials from world parameters
         if (this.parameters.ServiceUsersCredentials) {
             const serviceUserCredentials =
