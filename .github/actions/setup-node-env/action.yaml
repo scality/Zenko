@@ -1,19 +1,25 @@
 ---
 name: Setup Node environment
 description: >
-  Create a GitHub App token for private repo access, configure git,
-  set up Node.js with yarn cache, and install test dependencies.
+  Create a GitHub App token for private repo access and configure git when
+  private repositories are listed, set up Node.js with yarn cache, and install
+  test dependencies.
 
 inputs:
   app-id:
-    description: GitHub App ID
-    required: true
+    description: GitHub App ID, required with repositories
+    required: false
+    default: ''
   private-key:
-    description: GitHub App private key
-    required: true
+    description: GitHub App private key, required with repositories
+    required: false
+    default: ''
   repositories:
-    description: Newline-separated list of private repositories to grant access to
-    required: true
+    description: >
+      Newline-separated list of private repositories to grant access to.
+      Without any, no token is created and git is left as is.
+    required: false
+    default: ''
 
 outputs:
   token:
@@ -24,6 +30,7 @@ runs:
   using: composite
   steps:
     - name: Get token to access private repositories
+      if: inputs.repositories != ''
       uses: actions/create-github-app-token@v3
       id: app-token
       with:
@@ -32,6 +39,7 @@ runs:
         owner: ${{ github.repository_owner }}
         repositories: ${{ inputs.repositories }}
     - name: Configure GIT
+      if: inputs.repositories != ''
       shell: bash
       run: |
         git config --global url."https://x-access-token:${GIT_ACCESS_TOKEN}@github.com/".insteadOf "https://github.com/"

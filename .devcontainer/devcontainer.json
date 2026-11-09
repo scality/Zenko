@@ -25,11 +25,6 @@
     "customizations": {
         "codespaces": {
             "repositories": {
-                "scality/cli-testing": {
-                    "permissions": {
-                        "contents": "read"
-                    }
-                },
                 "scality/zenko-operator": {
                     "permissions": {
                         "contents": "read"
