@@ -22,7 +22,6 @@ FUNCTIONAL_TESTS_DIR="$(cd "$DIR/../../../tests/functional" && pwd)"
 cd "$FUNCTIONAL_TESTS_DIR"
 mkdir -p ctst/reports
 
-export SDK=true # Cli-testing also has a cli mode, not really used in practice
 yarn cucumber-js \
     --config ctst/cucumber.config.cjs \
     --tags "${TAGS}" \

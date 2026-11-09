@@ -146,7 +146,6 @@ fi
 # CTST setup runs by default; non-CTST callers must set SKIP_CTST=1.
 
 ZENKO_ROOT="$(cd "$_SETUP_DIR/../../.." && pwd)"
-export TARGET_VERSION=$(sed -n 's/^VERSION="\([^"]*\)"/\1/p' "${ZENKO_ROOT}/VERSION")
 
 if [ "${SKIP_CTST:-}" = "1" ]; then
     echo "SKIP_CTST=1 set, skipping CTST-specific setup"
