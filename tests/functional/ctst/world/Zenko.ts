@@ -24,6 +24,7 @@ import { extractPropertyFromResults, sleep, randomString, isAccessKeys } from '.
 import constants from '../common/constants';
 import AzureClient from 'clients/azure';
 import { BackbeatRoutesClient } from '@scality/cloudserverclient';
+import { KubernetesClient } from 'clients/k8s';
 import ZenkoDrctl from 'steps/dr/drctl';
 import assert from 'assert';
 
@@ -103,6 +104,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     UtilizationServiceHost: string;
     UtilizationServicePort: string;
     JaegerQueryEndpoint: string;
+    KubeconfigPath: string;
     [key: string]: unknown;
 }
 
@@ -134,6 +136,15 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             });
         }
         return this._azureClient;
+    }
+
+    private _kubernetesClient: KubernetesClient | null = null;
+
+    public get kubernetesClient(): KubernetesClient {
+        if (!this._kubernetesClient) {
+            this._kubernetesClient = new KubernetesClient(this.logger, this.parameters.KubeconfigPath);
+        }
+        return this._kubernetesClient;
     }
 
     static sites: {
