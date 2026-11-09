@@ -20,7 +20,7 @@ type InstallConfig = {
     kafkaPersistenceStorageClassName?: string;
     kafkaPersistenceAnnotations?: string;
     kafkaPersistenceSelector?: string;
-    locations?: string;
+    filterLocations?: string;
     s3Bucket?: string;
 
     prometheusExternalIps?: string;
