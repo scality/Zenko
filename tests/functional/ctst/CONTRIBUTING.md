@@ -7,10 +7,9 @@ contributor to the Zenko CTST test suite.
 
 ### Development Guidelines
 
-CTST pulls from the [cli-testing](https://github.com/scality/cli-testing) repo
-to provide APIs for AWS Standards, usable in the 'Steps' of the
-[Cucumber.js](https://cucumber.io/docs/installation/javascript/)
-test framework.
+CTST runs on the [Cucumber.js](https://cucumber.io/docs/installation/javascript/)
+test framework, and its steps call Zenko through the AWS SDK and the clients
+in `tests/functional/clients`.
 Beyond usual Cucumber.js practice of using worlds, steps and features, this
 test suite has some specifics to consider:
 

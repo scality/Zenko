@@ -1,6 +1,4 @@
-# CLI-testing
-
-## Steps folder
+# Steps folder
 
 Step definitions (`Given`, `When`, `Then`) are the glue between features written
 in Gherkin and the actual tests implementation.

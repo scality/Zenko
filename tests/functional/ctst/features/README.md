@@ -1,6 +1,4 @@
-# CLI-testing
-
-## Features folder
+# Features folder
 
 Tests are defined as english sentences under the features/* folder.
 Files with type `feature` are written in the `gherkin` format and define a set

@@ -28,7 +28,6 @@
     "async": "2.1.2",
     "aws4": "^1.11.0",
     "aws4-axios": "^3.3.8",
-    "cli-testing": "git+https://github.com/scality/cli-testing.git#v1.3.1",
     "eslint": "^10.8.0",
     "eslint-config-scality": "scality/Guidelines#8.3.0",
     "js-yaml": "^5.2.2",
