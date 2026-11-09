@@ -19,8 +19,21 @@ import {
     runActionAgainstBucket,
 } from 'steps/utils/utils';
 import assert from 'assert';
-import { IAM, Identity, S3 } from 'cli-testing';
-import { extractPropertyFromResults, randomString } from 'common/utils';
+import {
+    CreateMultipartUploadCommand,
+    PutBucketPolicyCommand,
+    PutObjectLegalHoldCommand,
+    PutObjectRetentionCommand,
+} from '@aws-sdk/client-s3';
+import {
+    AttachRolePolicyCommand,
+    AttachUserPolicyCommand,
+    CreatePolicyCommand,
+    DetachRolePolicyCommand,
+    DetachUserPolicyCommand,
+} from '@aws-sdk/client-iam';
+import { randomString } from 'common/utils';
+import { failedWith, succeededOrFailedWith } from 'common/result';
 
 Given('an action {string}', function (this: Zenko, apiName: string) {
     // dynamically know the config based on the action
@@ -79,7 +92,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -137,11 +150,10 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
             Resource: resources,
         });
     }
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const policyArn = (await this.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${randomString()}`,
+    }))).Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -150,24 +162,22 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     }
     if (identityType === EntityType.IAM_USER) {
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });
 
 Given('a policy granting full access to the objects and read access to the bucket', async function (this: Zenko) {
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration: AuthorizationConfiguration = {
         Identity: this.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
             || AuthorizationType.NO_RESOURCE,
@@ -200,11 +210,10 @@ Given('a policy granting full access to the objects and read access to the bucke
     basePolicy.Statement[1].Principal.AWS = [principal];
     basePolicy.Statement[1].Resource = [resources.object];
 
-    const result = await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(basePolicy),
-    });
-    assert.ifError(result.stderr || result.err);
+    await this.s3.send(new PutBucketPolicyCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Policy: JSON.stringify(basePolicy),
+    }));
     this.useSavedIdentity();
 });
 
@@ -231,8 +240,7 @@ Given('a condition for the bucket policy with {string} {string} {string} expecti
 Given('a retention date set to {string} days', function (this: Zenko, retentionDays: string) {
     const currentDate = new Date();
     const targetDate = new Date(currentDate.getTime() + (parseInt(retentionDays, 10) * 24 * 60 * 60 * 1000));
-    const retentionDate = targetDate.toISOString();
-    this.addToSaved('retention', `Mode=GOVERNANCE,RetainUntilDate=${retentionDate}`);
+    this.addToSaved('retention', { Mode: 'GOVERNANCE', RetainUntilDate: targetDate });
 });
 
 Given('an {string} S3 Bucket Policy that {string} with {string} effect for the current API', async function (
@@ -246,7 +254,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
         return;
     }
     // This step needs full access.
-    Identity.resetIdentity();
+    this.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
     let effect = AuthorizationType.DENY;
@@ -319,11 +327,10 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     if (conditionForPolicy) {
         basePolicy.Statement[0].Condition = conditionForPolicy;
     }
-    const result = await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(basePolicy),
-    });
-    assert.ifError(result.stderr || result.err);
+    await this.s3.send(new PutBucketPolicyCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Policy: JSON.stringify(basePolicy),
+    }));
     this.useSavedIdentity();
 });
 
@@ -334,7 +341,7 @@ Given('an environment setup for the API', async function (this: Zenko) {
     }
     // Create an IAM policy with full S3 permission on any bucket
     // and attach it to the current identity
-    Identity.resetIdentity();
+    this.resetIdentity();
     const basePolicy = {
         Version: '2012-10-17',
         Statement: [
@@ -345,11 +352,10 @@ Given('an environment setup for the API', async function (this: Zenko) {
             },
         ],
     };
-    const createdPolicy = await IAM.createPolicy({
-        policyDocument: JSON.stringify(basePolicy),
-        policyName: `policyforauthz-${randomString()}`,
-    });
-    const policyArn = extractPropertyFromResults<string>(createdPolicy, 'Policy', 'Arn');
+    const policyArn = (await this.iam.send(new CreatePolicyCommand({
+        PolicyDocument: JSON.stringify(basePolicy),
+        PolicyName: `policyforauthz-${randomString()}`,
+    }))).Policy?.Arn;
 
     if (!policyArn) {
         throw new Error('Policy creation failed: no policy ARN');
@@ -359,17 +365,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.attachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const result = await IAM.attachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new AttachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     // Perform actions as the current user: some APIs require strict checks on the
     // initiator, so we do that for all APIs to reduce code complexity.
@@ -379,12 +383,11 @@ Given('an environment setup for the API', async function (this: Zenko) {
     case 'AbortMultipartUpload':
     case 'UploadPart':
         const objectKey = `multipartUpload-${randomString()}`;
-        const initiateMPUResult = await S3.createMultipartUpload({
-            bucket: this.getSaved<string>('bucketName'),
-            key: objectKey,
-        });
-        assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResult, 'UploadId'));
+        const { UploadId } = await this.s3.send(new CreateMultipartUploadCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectKey,
+        }));
+        this.addToSaved('uploadId', UploadId);
         this.addToSaved('objectName', objectKey);
         break;
     case 'UploadPartCopy':
@@ -394,37 +397,30 @@ Given('an environment setup for the API', async function (this: Zenko) {
         this.addToSaved('objectName', copyObjectKey);
         // create an object for the MPU as copyObject
         const objectKeyCopy = `multipartUpload-${randomString()}`;
-        const initiateMPUResultCopy = await S3.createMultipartUpload({
-            bucket: this.getSaved<string>('bucketName'),
-            key: objectKeyCopy,
-        });
-        assert.ifError(initiateMPUResultCopy.stderr || initiateMPUResultCopy.err);
-        this.addToSaved('uploadId', extractPropertyFromResults<string>(initiateMPUResultCopy, 'UploadId'));
+        const { UploadId: copyUploadId } = await this.s3.send(new CreateMultipartUploadCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectKeyCopy,
+        }));
+        this.addToSaved('uploadId', copyUploadId);
         this.addToSaved('copyObject', objectKeyCopy);
         break;
     case 'GetObjectLegalHold':
-        const objectLegalHoldConfigResult = await S3.putObjectLegalHold({
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            legalHold: 'Status=ON',
-        });
-        assert.ifError(objectLegalHoldConfigResult.stderr || objectLegalHoldConfigResult.err);
+        await this.s3.send(new PutObjectLegalHoldCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: this.getSaved<string>('objectName'),
+            LegalHold: { Status: 'ON' },
+        }));
         break;
     case 'GetObjectRetention':
-        const objectRetentionResult = await S3.putObjectRetention({
-            bucket: this.getSaved<string>('bucketName'),
-            key: this.getSaved<string>('objectName'),
-            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
-            bypassGovernanceRetention: 'true',
-        });
-        assert.ifError(objectRetentionResult.stderr || objectRetentionResult.err);
-        break;
-    case 'PutObjectRetention':
-        this.addCommandParameter({ bypassGovernanceRetention: 'true' });
+        await this.s3.send(new PutObjectRetentionCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: this.getSaved<string>('objectName'),
+            Retention: { Mode: 'GOVERNANCE', RetainUntilDate: new Date('2080-01-01T00:00:00Z') },
+            BypassGovernanceRetention: true,
+        }));
         break;
     case 'CreateMultipartUpload':
         this.addToSaved('objectName', `objectforbptests-${randomString()}`);
-        this.addCommandParameter({ key: this.getSaved<string>('objectName') });
         break;
     default:
         break;
@@ -432,17 +428,15 @@ Given('an environment setup for the API', async function (this: Zenko) {
     if (identityType === EntityType.ASSUME_ROLE_USER
         || identityType === EntityType.ASSUME_ROLE_USER_CROSS_ACCOUNT
         || identityType === EntityType.DATA_CONSUMER) {
-        const result = await IAM.detachRolePolicy({
-            policyArn,
-            roleName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(result.stderr || result.err);
+        await this.iam.send(new DetachRolePolicyCommand({
+            PolicyArn: policyArn,
+            RoleName: this.getSavedIdentity().identityName,
+        }));
     } else if (identityType === EntityType.IAM_USER) { // accounts do not have any policy
-        const detachResult = await IAM.detachUserPolicy({
-            policyArn,
-            userName: this.getSavedIdentity().identityName,
-        });
-        assert.ifError(detachResult.stderr || detachResult.err);
+        await this.iam.send(new DetachUserPolicyCommand({
+            PolicyArn: policyArn,
+            UserName: this.getSavedIdentity().identityName,
+        }));
     }
     this.useSavedIdentity();
 });
@@ -492,27 +486,22 @@ Then('the authorization result is correct', function (this: Zenko) {
         // In this case, we only consider the Identity part.
         isAllowed = authI === AuthorizationType.ALLOW;
     }
+    const result = this.getResult<{ Errors?: { Code?: string }[] }>();
     if (!isAllowed) {
         // special case: DeleteObjects always returns code 200
         // if the API is allowed but additional checks are denied.
         if (action.subAuthorizationChecks) {
-            assert.strictEqual(this.getResult().stdout?.includes('AccessDenied') ||
-                this.getResult().err?.includes('AccessDenied'), true);
+            assert.strictEqual(failedWith(result, 'AccessDenied') ||
+                !!result.data?.Errors?.some(error => error.Code === 'AccessDenied'), true);
         } else if (action.action === 'HeadObject' || action.action === 'HeadBucket') {
-            assert.strictEqual(this.getResult().err?.includes('AccessDenied') ||
-                this.getResult().err?.includes('403')||
-                this.getResult().statusCode === 403, true);
+            // HEAD responses have no body, so the error is only known by its status
+            assert.strictEqual(result.error?.$metadata?.httpStatusCode, 403);
         } else {
-            assert.strictEqual(this.getResult().err?.includes('AccessDenied'), true);
+            assert.strictEqual(failedWith(result, 'AccessDenied'), true);
         }
+    } else if (action.expectedResultOnAllowTest) {
+        assert.strictEqual(succeededOrFailedWith(result, action.expectedResultOnAllowTest), true);
     } else {
-        if (action.expectedResultOnAllowTest) {
-            assert.strictEqual(
-                this.getResult().err?.includes(action.expectedResultOnAllowTest) ||
-                this.getResult().stdout?.includes(action.expectedResultOnAllowTest) ||
-                this.getResult().err === null, true);
-        } else {
-            assert.strictEqual(this.getResult().err === null || this.getResult().err === undefined, true);
-        }
+        assert.ifError(result.error);
     }
 });

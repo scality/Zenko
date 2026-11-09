@@ -1,14 +1,16 @@
 import {
     Before,
     After,
+    AfterStep,
     AfterAll,
     BeforeAll,
     setParallelCanAssign,
     parallelCanAssignHelpers,
     ITestCaseHookParameter,
+    Status,
 } from '@cucumber/cucumber';
+import Werelogs from 'werelogs';
 import Zenko from '../world/Zenko';
-import { CacheHelper, Identity } from 'cli-testing';
 import { runOnceAcrossWorkers } from 'common/WorkerCoordination';
 import { prepareQuotaScenarios, teardownQuotaScenarios } from 'steps/quotas/quotas';
 import { prepareUtilizationScenarios } from 'steps/utilization/utilizationAPI';
@@ -22,7 +24,27 @@ import {
 import { waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
-import 'cli-testing/hooks/Logger';
+type LogLevel = NonNullable<Parameters<typeof Werelogs.configure>[0]['level']>;
+Werelogs.configure({
+    level: (process.env.LOG_LEVEL || 'info') as LogLevel,
+    dump: (process.env.LOG_DUMP_LEVEL || 'error') as LogLevel,
+});
+
+// Defined first so its After hook runs last, once every other hook has logged
+Before(function (this: Zenko, { pickle }: ITestCaseHookParameter) {
+    this.logger.addDefaultFields({ scenario: pickle.name });
+});
+
+AfterStep(function (this: Zenko, { result }) {
+    if ([Status.FAILED, Status.UNDEFINED, Status.AMBIGUOUS, Status.UNKNOWN].includes(result.status)) {
+        this.logger.error('scenario failed', { status: result.status });
+    }
+});
+
+// Flushes the logs of the scenario, and dumps its buffered ones when it failed
+After(function (this: Zenko) {
+    this.logger.end();
+});
 
 // HTTPS should not cause any error for CTST
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -69,11 +91,10 @@ Before((scenario: ITestCaseHookParameter) => {
 
 Before(async function (this: Zenko, scenario: ITestCaseHookParameter) {
     this.resetSaved();
-    Identity.resetIdentity();
     // Store scenario tags for access in step definitions
     const scenarioTags = scenario.pickle.tags?.map(tag => tag.name) || [];
     this.addToSaved('scenarioTags', scenarioTags);
-    await Zenko.init(this.parameters);
+    await Zenko.init(this.parameters, this.logger);
 });
 
 Before({ tags: '@PRA' }, function () {
@@ -164,9 +185,8 @@ Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
 );
 
 After(async function (this: Zenko, results) {
-    // Reset any configuration set on the endpoint (ssl, port)
-    CacheHelper.parameters.ssl = this.parameters.ssl;
-    CacheHelper.parameters.port = this.parameters.port;
+    // Clean up on the endpoint of the world parameters, whatever the scenario switched to
+    this.resetEndpoint();
     if (results.result?.status === 'FAILED') {
         this.logger.warn('bucket was not cleaned for test', {
             bucket: this.getSaved<string>('bucketName'),

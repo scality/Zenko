@@ -1,9 +1,8 @@
 import Zenko from 'world/Zenko';
 import { Then, When } from '@cucumber/cucumber';
 import { strict as assert } from 'assert';
-import { CacheHelper, S3 } from 'cli-testing';
-import { randomString } from 'common/utils';
-import { deleteFile, saveAsFile } from './utils/utils';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { settle } from 'common/result';
 
 const validSystemXml = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -49,28 +48,19 @@ const veeamPrefix = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/';
 
 When('I PUT the {string} {string} XML file',
     async function (this: Zenko, isValidObject: string, objectKey: string) {
-        this.resetCommand();
-        CacheHelper.forceMode = 'cli';
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
         let objectBody;
         if (objectKey === 'system.xml') {
             objectBody = (isValidObject === 'valid') ? validSystemXml : invalidSystemXml;
         } else {
             objectBody = (isValidObject === 'valid') ? validCapacityXml : invalidCapacityXml;
         }
-        const tempFileName = `${randomString()}_${objectKey}`;
-        this.addToSaved('tempFileName', `/tmp/${tempFileName}`);
-        await saveAsFile(tempFileName, objectBody);
-        this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
-        this.setResult(await S3.putObject(this.getCommandParameters()));
-        CacheHelper.forceMode = null;
+        this.setResult(await settle(this.s3.send(new PutObjectCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: `${veeamPrefix}${objectKey}`,
+            Body: objectBody,
+        }))));
     });
 
-Then('the request should be {string}', async function (this: Zenko, result: string) {
-    this.resetCommand();
-    const decision = this.checkResults([this.getResult()]);
-    assert.strictEqual(decision, result === 'accepted');
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    await deleteFile(this.getSaved<string>('tempFileName'));
+Then('the request should be {string}', function (this: Zenko, result: string) {
+    assert.strictEqual(!this.getResult().error, result === 'accepted');
 });

@@ -1,18 +1,22 @@
 import { Given } from '@cucumber/cucumber';
-import { IAM, Identity } from 'cli-testing';
+import {
+    AttachGroupPolicyCommand,
+    AttachRolePolicyCommand,
+    AttachUserPolicyCommand,
+    CreatePolicyCommand,
+} from '@aws-sdk/client-iam';
 import constants from 'common/constants';
-import { extractPropertyFromResults, randomString } from '../../common/utils';
+import { randomString } from '../../common/utils';
 import Zenko from 'world/Zenko';
 
 Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
     async function (this: Zenko, entity: string, effect: string, service: string, action: string, resource: string) {
-        Identity.resetIdentity();
-        this.resetCommand();
+        this.resetIdentity();
         this.addToSaved('action', action);
         // create the IAM policy
-        this.addCommandParameter({ policyName: `${constants.POLICY_NAME_TEST}${randomString()}` });
-        this.addCommandParameter({
-            policyDocument: JSON.stringify({
+        const policyArn = (await this.iam.send(new CreatePolicyCommand({
+            PolicyName: `${constants.POLICY_NAME_TEST}${randomString()}`,
+            PolicyDocument: JSON.stringify({
                 Version: '2012-10-17',
                 Statement: [
                     {
@@ -22,22 +26,19 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
                     },
                 ],
             }),
-        });
-        this.addToSaved('policyArn',
-            extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'));
+        }))).Policy?.Arn;
+        this.addToSaved('policyArn', policyArn);
 
-        // attach the IAM policy to the user
-        this.resetCommand();
-        this.addCommandParameter({ policyArn: this.getSaved<string>('policyArn') });
+        // attach the IAM policy to the entity
         if (entity === 'user') {
-            this.addCommandParameter({ userName: this.getSaved<string>('userName') });
-            await IAM.attachUserPolicy(this.getCommandParameters());
+            await this.iam.send(new AttachUserPolicyCommand({
+                PolicyArn: policyArn, UserName: this.getSaved<string>('userName') }));
         } else if (entity === 'role') {
-            this.addCommandParameter({ roleName: this.getSaved<string>('roleName') });
-            await IAM.attachRolePolicy(this.getCommandParameters());
+            await this.iam.send(new AttachRolePolicyCommand({
+                PolicyArn: policyArn, RoleName: this.getSaved<string>('roleName') }));
         } else if (entity === 'group') {
-            this.addCommandParameter({ groupName: this.getSaved<string>('groupName') });
-            await IAM.attachGroupPolicy(this.getCommandParameters());
+            await this.iam.send(new AttachGroupPolicyCommand({
+                PolicyArn: policyArn, GroupName: this.getSaved<string>('groupName') }));
         }
         this.useSavedIdentity();
     });

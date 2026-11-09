@@ -3,7 +3,7 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import Zenko from '../../world/Zenko';
 import { putObject } from '../utils/utils';
 import { waitForZenkoToStabilize, waitForDataServicesToStabilize } from '../utils/kubernetes';
-import { S3 } from 'cli-testing';
+import { PutBucketPolicyCommand, PutBucketWebsiteCommand } from '@aws-sdk/client-s3';
 import { sleep, randomString } from 'common/utils';
 
 const pageMessage = randomString();
@@ -16,19 +16,13 @@ Given('an index html file', async function (this: Zenko) {
 });
 
 When('the user puts the bucket website configuration', async function (this: Zenko) {
-    const bucketWebSiteConfiguration = JSON.stringify({
-        IndexDocument: {
-            Suffix: 'index.html',
+    await this.s3.send(new PutBucketWebsiteCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        WebsiteConfiguration: {
+            IndexDocument: { Suffix: 'index.html' },
+            ErrorDocument: { Key: 'error.html' },
         },
-        ErrorDocument: {
-            Key: 'error.html',
-        },
-    });
-
-    await S3.putBucketWebsite({
-        bucket: this.getSaved<string>('bucketName'),
-        websiteConfiguration: bucketWebSiteConfiguration,
-    });
+    }));
 });
 
 When('the {string} endpoint is added to the overlay', { timeout: 15 * 60 * 1000 },
@@ -55,10 +49,10 @@ When('the user creates an S3 Bucket policy granting public read access', async f
             },
         ],
     };
-    await S3.putBucketPolicy({
-        bucket: this.getSaved<string>('bucketName'),
-        policy: JSON.stringify(policy),
-    });
+    await this.s3.send(new PutBucketPolicyCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Policy: JSON.stringify(policy),
+    }));
 });
 
 Then('the user should be able to load the index.html file from the {string} endpoint',

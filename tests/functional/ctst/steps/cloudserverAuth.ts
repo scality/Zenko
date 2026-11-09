@@ -1,87 +1,58 @@
 import { When, Then } from '@cucumber/cucumber';
+import {
+    CreateBucketCommand,
+    DeleteObjectsCommand,
+    DeleteObjectsCommandOutput,
+    PutObjectRetentionCommand,
+} from '@aws-sdk/client-s3';
 import Zenko from '../world/Zenko';
-import { S3 } from 'cli-testing';
 import { randomString } from 'common/utils';
 import constants from 'common/constants';
+import { settle } from 'common/result';
 import { strict as assert } from 'assert';
 
-interface DeleteObjectsResult {
-    Deleted?: {
-        Key: string;
-        DeleteMarker?: boolean;
-        DeleteMarkerVersionId?: string;
-    }[];
-    Errors?: {
-        Key: string;
-        VersionId?: string;
-        Code: string;
-        Message: string;
-    }[];
-}
-
 When('the user tries to perform DeleteObjects', async function (this: Zenko) {
-    this.resetCommand();
     this.useSavedIdentity();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    const objects = this.getCreatedObjects();
-    const param: { Objects: { Key: string }[] } = {
-        Objects: [],
-    };
-    for (const key of objects) {
-        param.Objects.push({ Key: key[0] });
-    }
-    this.addCommandParameter({ delete: JSON.stringify(param) });
-    this.setResult(await S3.deleteObjects(this.getCommandParameters()));
+    const objects = [...this.getCreatedObjects()].map(([key]) => ({ Key: key }));
+    this.setResult(await settle(this.s3.send(new DeleteObjectsCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Delete: { Objects: objects },
+    }))));
 });
 
 When('the user tries to perform CreateBucket', async function (this: Zenko) {
-    this.resetCommand();
     this.useSavedIdentity();
     const preName = this.getSaved<string>('accountName') ||
         this.parameters.AccountName || constants.ACCOUNT_NAME;
     const usedBucketName = `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
-    this.addCommandParameter({ bucket: usedBucketName });
-    // Empty strings are used to pass parameters that are used as a flag and do not require a value
-    this.addCommandParameter({ objectLockEnabledForBucket: ' ' });
-    this.setResult(await S3.createBucket(this.getCommandParameters()));
+    this.setResult(await settle(this.s3.send(new CreateBucketCommand({
+        Bucket: usedBucketName,
+        ObjectLockEnabledForBucket: true,
+    }))));
 });
 
 When('the user tries to perform PutObjectRetention {string} bypass', async function (this: Zenko, withBypass: string) {
-    this.resetCommand();
     this.useSavedIdentity();
-    this.addCommandParameter({ key: this.getSaved<string>('objectName') });
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
-    // Get the string representation in the desired format
-    const dateString = date.toISOString();
-    this.addCommandParameter({ retention: `Mode=COMPLIANCE,RetainUntilDate=${dateString}` });
-    if (withBypass === 'with') {
-        this.addCommandParameter({ bypassGovernanceRetention: ' ' });
-    }
-    this.setResult(await S3.putObjectRetention(this.getCommandParameters()));
+    this.setResult(await settle(this.s3.send(new PutObjectRetentionCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: this.getSaved<string>('objectName'),
+        Retention: { Mode: 'COMPLIANCE', RetainUntilDate: date },
+        BypassGovernanceRetention: withBypass === 'with' || undefined,
+    }))));
 });
 
 Then('it {string} pass Vault authentication', function (this: Zenko, should: string) {
-    let stdout;
+    // DeleteObjects reports the failures of each object in its response
+    const { data, error } = this.getResult<Partial<DeleteObjectsCommandOutput>>();
     if (should === 'should') {
-        assert.strictEqual(this.getResult().err, null);
-        if (this.getResult().stdout) {
-            stdout = JSON.parse(this.getResult().stdout) as DeleteObjectsResult;
-            if (stdout.Errors) {
-                throw new Error('Expected no error but got errors');
-            }
+        assert.ifError(error);
+        if (data?.Errors?.length) {
+            throw new Error('Expected no error but got errors');
         }
-    } else {
-        if (this.getResult().stdout) {
-            stdout = JSON.parse(this.getResult().stdout) as DeleteObjectsResult;
-            if (!stdout.Errors) {
-                throw new Error('Expected error but got none');
-            }
-        } else {
-            assert.notStrictEqual(this.getResult().err, null);
-        }
+    } else if (!error && !data?.Errors?.length) {
+        throw new Error('Expected error but got none');
     }
 });
-

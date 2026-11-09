@@ -1,10 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request, sleep } from '../common/utils';
 import { Given, Then, When } from '@cucumber/cucumber';
-import { S3 } from 'cli-testing';
-import constants from 'common/constants';
+import { GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { settle } from 'common/result';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
@@ -221,21 +219,13 @@ Then('manifest and tar containing object {string} should exist', async function 
 
 Then('object {string} should have the same data', async function (this: Zenko, objectName: string) {
     const objName = objectName ||  this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getLatestObjectVersion(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    const res = await S3.getObject(this.getCommandParameters());
-    assert.ifError(res.err);
-    const cliTestingPath = path.dirname(require.resolve('cli-testing'));
-    const objectPath = path.join(cliTestingPath, 'utils', 'api', constants.OUTFILE_NAME);
-    const objectBuffer = fs.readFileSync(objectPath);
-    fs.rmSync(objectPath);
-    const expectedContent = Buffer.alloc(Buffer.byteLength(objectBuffer), 'a');
-    assert.strictEqual(objectBuffer.toString(), expectedContent.toString());
+    const { Body } = await this.s3.send(new GetObjectCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objName,
+        VersionId: this.getLatestObjectVersion(objName) || undefined,
+    }));
+    const content = await Body!.transformToString();
+    assert.strictEqual(content, 'a'.repeat(content.length));
 });
 
 Then('manifest containing object {string} should {string} object {string}',
@@ -311,23 +301,17 @@ Then('restoration of object {string} failed and ends up in DLQ',
 Then('the storage class of object {string} must stay {string} for {int} seconds',
     async function (this: Zenko, objectName: string, storageClass: string, seconds: number) {
         const objName = objectName || this.getSaved<string>('objectName');
-        this.resetCommand();
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: objName });
-        const versionId = this.getLatestObjectVersion(objName);
-        if (versionId) {
-            this.addCommandParameter({ versionId });
-        }
+        const versionId = this.getLatestObjectVersion(objName) || undefined;
         let secondsPassed = 0;
         while (secondsPassed < seconds) {
-            const res = await S3.headObject(this.getCommandParameters());
-            if (res.err) {
+            const { data: head, error } = await settle(this.s3.send(new HeadObjectCommand({
+                Bucket: this.getSaved<string>('bucketName'),
+                Key: objName,
+                VersionId: versionId,
+            })));
+            if (error) {
                 break;
             }
-            assert(res.stdout);
-            const parsed = safeJsonParse(res.stdout);
-            assert(parsed.ok);
-            const head = parsed.result as { StorageClass: string | undefined };
             const expectedClass = storageClass !== '' ? storageClass : undefined;
             if (head?.StorageClass !== expectedClass) {
                 break;
@@ -366,22 +350,14 @@ When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this:
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
     const objName = objectName ||  this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getLatestObjectVersion(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    const res = await S3.headObject(this.getCommandParameters());
-    assert.ifError(res.err);
-    assert(res.stdout);
-    const parsed = safeJsonParse(res.stdout);
-    assert(parsed.ok);
-    const head = parsed.result as { Restore: string, LastModified: string };
-    const expireResDate = head.Restore.match(/expiry-date="+(.*)"/) || [];
+    const head = await this.s3.send(new HeadObjectCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objName,
+        VersionId: this.getLatestObjectVersion(objName) || undefined,
+    }));
+    const expireResDate = head.Restore!.match(/expiry-date="+(.*)"/) || [];
     const expiryDate = new Date(expireResDate[1]).getTime();
-    const lastModified = new Date(head.LastModified).getTime();
+    const lastModified = head.LastModified!.getTime();
     const diff = (expiryDate - lastModified) / 1000 / 86400;
     const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
     assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,

@@ -90,7 +90,7 @@ When('I put an object with an injected traceparent',
         assert.ok(bucketName, 'No bucketName saved from a previous step');
 
         const { traceparent, traceId } = generateTraceContext();
-        const client = this.createS3Client();
+        const client = this.s3;
         injectTraceparent(client, traceparent);
         await client.send(new PutObjectCommand({
             Bucket: bucketName,

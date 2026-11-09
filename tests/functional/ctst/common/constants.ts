@@ -11,8 +11,7 @@ export default {
     BUCKET_NAME_TEST: 'bucketForTest',
     K_CLIENT: 'zenko-ui',
     MAX_ACCOUNT_CHECK_RETRIES: 100,
-    // Must match the file name cli-testing's S3.getObject writes downloaded objects to
-    OUTFILE_NAME: 'out.loc',
+    STS_DURATION_SECONDS: 43200,
     assumeRolePolicy: JSON.stringify({
         Version: '2012-10-17',
         Statement: [

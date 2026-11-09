@@ -1,15 +1,32 @@
-import { Buffer } from 'buffer';
-import { promises as fsp } from 'fs';
-import { join } from 'path';
+import * as s3 from '@aws-sdk/client-s3';
 import {
-    CacheHelper,
-    Identity,
-    S3,
-    AWSVersionObject,
-    Command,
-} from 'cli-testing';
-import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse, sleep, randomString } from 'common/utils';
+    CompleteMultipartUploadCommand,
+    CopyObjectCommand,
+    CreateBucketCommand,
+    CreateMultipartUploadCommand,
+    DeleteMarkerEntry,
+    GetObjectCommand,
+    HeadObjectCommand,
+    ListObjectVersionsCommand,
+    ListObjectVersionsCommandOutput,
+    ObjectVersion,
+    PutBucketLifecycleConfigurationCommand,
+    PutBucketReplicationCommand,
+    PutBucketReplicationCommandInput,
+    PutBucketVersioningCommand,
+    PutObjectCommand,
+    PutObjectLockConfigurationCommand,
+    RestoreObjectCommand,
+    S3ServiceException,
+    StorageClass,
+    TransitionStorageClass,
+    UploadPartCommand,
+    LifecycleRule,
+    ObjectLockRetentionMode,
+} from '@aws-sdk/client-s3';
+import { sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
+import { ApiResult, settle } from 'common/result';
 import assert from 'assert';
 import constants from 'common/constants';
 import { pollDLQBuffer } from './kafka';
@@ -26,55 +43,115 @@ type AuthorizationConfiguration = {
     Resource: AuthorizationType,
 };
 
-export async function saveAsFile(name: string, content: string) {
-    return fsp.writeFile(join('/tmp', name), content);
+/**
+ * Body of an uploaded object: the given content, or the saved object size worth of data
+ */
+function objectBody(world: Zenko, content?: string, size?: number): string {
+    return content ?? 'a'.repeat((size ?? world.getSaved<number>('objectSize')) || 0);
 }
 
-export async function deleteFile(path: string) {
-    return fsp.unlink(path);
+// Inputs the policy matrix sends with an action, on top of its bucket, object, version and upload
+const actionInputs: Record<string, Record<string, unknown>> = {
+    RestoreObject: { RestoreRequest: { Days: 1 } },
+    PutObjectAcl: { ACL: 'public-read-write' },
+    PutBucketCors: { CORSConfiguration: { CORSRules: [{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }] } },
+    PutBucketTagging: {
+        Tagging: { TagSet: [{ Key: 'tag1', Value: 'value1' }, { Key: 'tag2', Value: 'value2' }] },
+    },
+    PutObjectTagging: { Tagging: { TagSet: [{ Key: 'string', Value: 'string' }] } },
+    PutBucketVersioning: { VersioningConfiguration: { Status: 'Enabled' } },
+    PutObjectLegalHold: { LegalHold: { Status: 'ON' } },
+    PutObjectRetention: {
+        Retention: { Mode: 'GOVERNANCE', RetainUntilDate: new Date('2080-01-01T00:00:00Z') },
+        BypassGovernanceRetention: true,
+    },
+    PutObjectLockConfiguration: {
+        ObjectLockConfiguration: {
+            ObjectLockEnabled: 'Enabled',
+            Rule: { DefaultRetention: { Mode: 'GOVERNANCE', Days: 50 } },
+        },
+    },
+    DeleteObjects: { Delete: { Objects: [{ Key: 'x'.repeat(10) }] } },
+    PutBucketLifecycleConfiguration: {
+        LifecycleConfiguration: {
+            Rules: [{
+                ID: 'ExampleRule',
+                Prefix: '',
+                Status: 'Enabled',
+                Transitions: [{ Days: 365, StorageClass: 'e2e-cold' }],
+                Expiration: { Days: 3650 },
+            }],
+        },
+    },
+    PutBucketReplication: {
+        ReplicationConfiguration: {
+            Role: 'arn:aws:iam::123456789012:role/s3-replication-role',
+            Rules: [{ Status: 'Enabled', Prefix: '', Destination: { Bucket: 'arn:aws:s3:::examplebucket' } }],
+        },
+    },
+};
+
+function nextPartNumber(world: Zenko): number {
+    const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
+    world.addToSaved('partNumber', partNumber);
+    return partNumber;
 }
 
-export async function uploadSetup(world: Zenko, action: string, body?: string, size?: number) {
-    if (action !== 'PutObject' && action !== 'UploadPart') {
-        return;
+function actionInput(world: Zenko, action: string): Record<string, unknown> {
+    const bucket = world.getSaved<string>('bucketName');
+    const objectName = world.getSaved<string>('objectName');
+    // The SDK only sends the members of each operation, the others are ignored
+    const input: Record<string, unknown> = {
+        Bucket: bucket,
+        Key: objectName || undefined,
+        VersionId: world.getSaved<string>('lastVersionId') || undefined,
+        UploadId: world.getSaved<string>('uploadId') || undefined,
+        ...actionInputs[action],
+    };
+    switch (action) {
+    case 'CopyObject':
+        input.CopySource = `${bucket}/${objectName}`;
+        input.Key = world.getSaved<string>('copyObject') || 'copyObject';
+        break;
+    case 'UploadPartCopy':
+        input.CopySource = `${bucket}/${objectName}`;
+        input.Key = world.getSaved<string>('copyObject') || 'copyObject';
+        input.UploadId ??= 'fakeId';
+        input.PartNumber = nextPartNumber(world);
+        break;
+    case 'UploadPart':
+        input.UploadId ??= 'fakeId';
+        input.PartNumber = nextPartNumber(world);
+        input.Body = objectBody(world);
+        break;
+    case 'PutObject':
+        input.Body = objectBody(world);
+        break;
+    case 'PutBucketPolicy':
+        input.Policy = JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [{
+                Effect: 'Allow',
+                Principal: '*',
+                Action: 's3:*',
+                Resource: `arn:aws:s3:::${bucket}/*`,
+            }],
+        });
+        break;
+    case 'PutObjectRetention':
+        input.Retention = world.getSaved('retention') ?? input.Retention;
+        break;
+    default:
+        break;
     }
-    const objectSize = (size ?? world.getSaved<number>('objectSize')) || 0;
-    if (body || objectSize > 0) {
-        const tempFileName = `${randomString()}_${world.getSaved<string>('objectName')}`;
-        world.addToSaved('tempFileName', `/tmp/${tempFileName}`);
-        const objectBody = body || 'a'.repeat(objectSize);
-        await saveAsFile(tempFileName, objectBody);
-        world.addCommandParameter({ body: world.getSaved<string>('tempFileName') });
-        const contentLength = body ? Buffer.byteLength(objectBody) : objectSize;
-        world.addCommandParameter({ contentLength: `${contentLength}` });
-    } else if (action === 'PutObject') {
-        world.addCommandParameter({ body: '' });
-        world.addCommandParameter({ contentLength: '0' });
-    }
+    return input;
 }
 
-export async function uploadTeardown(world: Zenko, action: string) {
-    if (action !== 'PutObject' && action !== 'UploadPart') {
-        return;
-    }
-    const objectSize = world.getSaved<number>('objectSize') || 0;
-    if (objectSize > 0) {
-        await deleteFile(world.getSaved<string>('tempFileName'));
-        world.deleteKeyFromCommand('body');
-        world.deleteKeyFromCommand('contentLength');
-    } else if (action === 'PutObject') {
-        world.deleteKeyFromCommand('body');
-        world.deleteKeyFromCommand('contentLength');
-    }
-}
+type S3Command = Parameters<s3.S3Client['send']>[0];
 
 async function runActionAgainstBucket(world: Zenko, action: string) {
     world.useSavedIdentity();
-    const userCredentials = Identity.getCurrentCredentials();
-    if (!userCredentials) {
-        throw new Error('User credentials not set. '
-            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
-    }
+    const userCredentials = world.credentials;
     switch (action) {
     case 'MetadataSearch': {
         world.setResult(await world.metadataSearchResponseCode(userCredentials,
@@ -87,83 +164,15 @@ async function runActionAgainstBucket(world: Zenko, action: string) {
         break;
     }
     default: {
-        world.resetCommand();
-        world.addToSaved('ifS3Standard', true);
-        world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-        if (world.getSaved<string>('lastVersionId')) {
-            world.addCommandParameter({ versionId: world.getSaved<string>('lastVersionId') });
+        const ActionCommand = (s3 as unknown as Record<string, (new (input: object) => S3Command) | undefined>)[
+            `${action}Command`];
+        if (!ActionCommand) {
+            throw new Error(`Action ${action} is not supported yet`);
         }
-        // if copy object, set copy source as the saved object name, and the key as a new object name
-        if (action === 'CopyObject') {
-            world.addCommandParameter({
-                copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
-            });
-            world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
-        } else if (world.getSaved<string>('objectName')) {
-            world.addCommandParameter({ key: world.getSaved<string>('objectName') });
-        }
-        if (action === 'PutBucketPolicy') {
-            world.addCommandParameter({
-                policy: JSON.stringify({
-                    Version: '2012-10-17',
-                    Statement: [{
-                        Effect: 'Allow',
-                        Principal: '*',
-                        Action: 's3:*',
-                        Resource: `arn:aws:s3:::${world.getSaved<string>('bucketName')}/*`,
-                    }],
-                }),
-            });
-        }
-        await uploadSetup(world, action);
-        if (action === 'UploadPart') {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
-            const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
-            world.addToSaved('partNumber', partNumber);
-            world.addCommandParameter({ partNumber: `${partNumber}` });
-        }
-        if (action === 'UploadPartCopy') {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
-            const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
-            world.addToSaved('partNumber', partNumber);
-            world.addCommandParameter({ partNumber: `${partNumber}` });
-            world.addCommandParameter({
-                copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
-            });
-            world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
-        }
-        if (action === 'PutBucketCors') {
-            CacheHelper.forceMode = 'cli';
-        }
-        if (world.getSaved<string>('uploadId')) {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') });
-        }
-        const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
-        const actionCall: (params: unknown) => Promise<Command> =
-        // @ts-expect-error the function is dynamically called
-            S3[usedAction] as (params: unknown) => Promise<Command>;
-
-        if (actionCall) {
-            if (usedAction in s3FunctionExtraParams) {
-                s3FunctionExtraParams[usedAction].forEach(param => {
-                    world.logger.debug('Adding parameter', { param });
-                    // Keys that are set in the scenarios take precedence over the
-                    // ones set in the extra params.
-                    const key = Object.keys(param)[0];
-                    if (!world.getSaved<string>(key)) {
-                        world.addCommandParameter(param);
-                    } else {
-                        world.addCommandParameter({ [key]: world.getSaved<string>(key) });
-                    }
-                });
-            }
-            world.setResult(await actionCall(world.getCommandParameters()));
-            await uploadTeardown(world, action);
-            CacheHelper.forceMode = null;
-        } else {
-            CacheHelper.forceMode = null;
-            throw new Error(`Action ${usedAction} is not supported yet`);
-        }
+        const result = await settle(world.s3.send(new ActionCommand(actionInput(world, action))));
+        // Release the connection of the object bodies, which are not read
+        (result.data as { Body?: { destroy?: () => void } } | undefined)?.Body?.destroy?.();
+        world.setResult(result);
         break;
     }
     }
@@ -175,91 +184,90 @@ async function createBucketWithConfiguration(
     withVersioning?: string,
     withObjectLock?: string,
     retentionMode?: string) {
-    world.resetCommand();
     const preName = world.getSaved<string>('accountName') ||
         world.parameters.AccountName || constants.ACCOUNT_NAME;
     const usedBucketName = bucketName
         || `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);
-    world.addCommandParameter({ bucket: usedBucketName });
-    if (withObjectLock === 'with') {
-        // Empty strings are used to pass parameters that are used as a flag and do not require a value
-        world.addCommandParameter({ objectLockEnabledForBucket: ' ' });
-    }
     world.logger.debug('Creating bucket',
         { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
-    await S3.createBucket(world.getCommandParameters());
+    try {
+        await world.s3.send(new CreateBucketCommand({
+            Bucket: usedBucketName,
+            ObjectLockEnabledForBucket: withObjectLock === 'with' || undefined,
+        }));
+    } catch (err) {
+        // Buckets with a fixed name are kept by the scenarios that ran before
+        if ((err as S3ServiceException).name !== 'BucketAlreadyOwnedByYou') {
+            throw err;
+        }
+    }
     if (withVersioning === 'with') {
-        world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
-        await S3.putBucketVersioning(world.getCommandParameters());
+        await world.s3.send(new PutBucketVersioningCommand({
+            Bucket: usedBucketName,
+            VersioningConfiguration: { Status: 'Enabled' },
+        }));
     }
     if (retentionMode === constants.governanceRetention || retentionMode === constants.complianceRetention) {
         world.addToSaved('objectLockMode', retentionMode);
-        world.resetCommand();
-        world.addCommandParameter({ bucket: usedBucketName });
-        world.addCommandParameter({
-            objectLockConfiguration: '{ ' +
-                '"ObjectLockEnabled": "Enabled",' +
-                '"Rule": {' +
-                '"DefaultRetention":' +
-                `{ "Mode": "${retentionMode}", "Days": 50 }}}`,
-        });
-        await S3.putObjectLockConfiguration(world.getCommandParameters());
+        await world.s3.send(new PutObjectLockConfigurationCommand({
+            Bucket: usedBucketName,
+            ObjectLockConfiguration: {
+                ObjectLockEnabled: 'Enabled',
+                Rule: { DefaultRetention: { Mode: retentionMode as ObjectLockRetentionMode, Days: 50 } },
+            },
+        }));
     }
+}
+
+/**
+ * Parses user metadata written as "key1=value1,key2=value2"
+ */
+function parseMetadata(metadata: string): Record<string, string> {
+    return Object.fromEntries(metadata.split(',').map(pair => {
+        const [key, ...value] = pair.split('=');
+        return [key, value.join('=')];
+    }));
+}
+
+function userMetadata(world: Zenko): Record<string, string> | undefined {
+    const metadata = world.getSaved<string>('userMetadata');
+    return metadata ? parseMetadata(metadata) : undefined;
 }
 
 async function putMpuObject(world: Zenko, parts: number = 2, objectName: string, content?: string) {
     const key = objectName || `${randomString()}`;
     const bucket = world.getSaved<string>('bucketName');
 
-    world.resetCommand();
     world.addToSaved('objectName', objectName);
     world.logger.debug('Adding mpu object', { objectName });
-    world.addCommandParameter({ key });
-    world.addCommandParameter({ bucket });
-    const userMetadata = world.getSaved<string>('userMetadata');
-    if (userMetadata) {
-        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
-    }
 
-    const initiateMPUResult = await S3.createMultipartUpload(world.getCommandParameters());
-    assert.ifError(initiateMPUResult.stderr || initiateMPUResult.err);
-    const uploadId = extractPropertyFromResults<string>(initiateMPUResult, 'UploadId');
+    const { UploadId } = await world.s3.send(new CreateMultipartUploadCommand({
+        Bucket: bucket,
+        Key: key,
+        Metadata: userMetadata(world),
+    }));
 
-    await uploadSetup(world, 'UploadPart', content);
-    const body = world.getSaved<string>('tempFileName');
-
+    const body = objectBody(world, content);
     const uploadedParts = [];
     for (let i = 0; i < parts; i++) {
-        world.resetCommand();
-        world.addCommandParameter({ key });
-        world.addCommandParameter({ bucket });
-        world.addCommandParameter({ partNumber: (i+1).toString() });
-        world.addCommandParameter({ uploadId });
-        if (body) {
-            world.addCommandParameter({ body });
-        }
-
-        const uploadPartResult = await S3.uploadPart(world.getCommandParameters());
-        assert.ifError(uploadPartResult.stderr || uploadPartResult.err);
-
-        uploadedParts.push({
-            ETag: extractPropertyFromResults<string>(uploadPartResult, 'ETag'),
-            PartNumber: (i+1).toString(),
-        });
+        const { ETag } = await world.s3.send(new UploadPartCommand({
+            Bucket: bucket,
+            Key: key,
+            PartNumber: i + 1,
+            UploadId,
+            Body: body,
+        }));
+        uploadedParts.push({ ETag, PartNumber: i + 1 });
     }
 
-    await uploadTeardown(world, 'UploadPart');
-
-    world.resetCommand();
-    world.addCommandParameter({ key });
-    world.addCommandParameter({ bucket });
-    world.addCommandParameter({ uploadId });
-    world.addCommandParameter({ multipartUpload: JSON.stringify({ Parts: uploadedParts }) });
-
-    const result = await S3.completeMultipartUpload(world.getCommandParameters());
-    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
-    world.saveCreatedObject(objectName, versionId || '');
+    const result = await settle(world.s3.send(new CompleteMultipartUploadCommand({
+        Bucket: bucket,
+        Key: key,
+        UploadId,
+        MultipartUpload: { Parts: uploadedParts },
+    })));
+    world.saveCreatedObject(objectName, result.data?.VersionId || '');
     world.setResult(result);
     return result;
 }
@@ -267,68 +275,65 @@ async function putMpuObject(world: Zenko, parts: number = 2, objectName: string,
 async function copyObject(world: Zenko, srcObjectName?: string, dstObjectName?: string) {
     const bucket = world.getSaved<string>('bucketName');
     const key = dstObjectName || world.getSaved<string>('objectName');
-    const copySource = `${bucket}/${srcObjectName || world.getSaved<string>('objectName')}`;
 
-    world.resetCommand();
-    world.addCommandParameter({ copySource });
-    world.addCommandParameter({ bucket });
-    world.addCommandParameter({ key });
-
-    const userMetadata = world.getSaved<string>('userMetadata');
-    if (userMetadata) {
-        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
-    }
-
-    const result = await S3.copyObject(world.getCommandParameters());
-    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
-    world.saveCreatedObject(key, versionId || '');
+    const result = await settle(world.s3.send(new CopyObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        CopySource: `${bucket}/${srcObjectName || world.getSaved<string>('objectName')}`,
+        Metadata: userMetadata(world),
+    })));
+    world.saveCreatedObject(key, result.data?.VersionId || '');
     world.setResult(result);
     return result;
 }
 
 async function putObject(world: Zenko, objectName?: string, content?: string, objectSize?: number) {
-    world.resetCommand();
-    let finalObjectName = objectName;
-    if (!finalObjectName) {
-        finalObjectName = `${randomString()}`;
-    }
+    const finalObjectName = objectName || `${randomString()}`;
     world.addToSaved('objectName', finalObjectName);
     world.logger.debug('Adding object', { objectName: finalObjectName });
-    await uploadSetup(world, 'PutObject', content, objectSize);
-    world.addCommandParameter({ key: finalObjectName });
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const userMetadata = world.getSaved<string>('userMetadata');
-    if (userMetadata) {
-        world.addCommandParameter({ metadata: JSON.stringify(userMetadata) });
+    const result = await settle(world.s3.send(new PutObjectCommand({
+        Bucket: world.getSaved<string>('bucketName'),
+        Key: finalObjectName,
+        Body: objectBody(world, content, objectSize),
+        Metadata: userMetadata(world),
+    })));
+    if (result.data?.ETag) {
+        world.addToSaved('objectETag', result.data.ETag);
     }
-    const result = await S3.putObject(world.getCommandParameters());
-    const versionId = extractPropertyFromResults<string>(result, 'VersionId');
-    const etag = extractPropertyFromResults<string>(result, 'ETag');
-    if (etag) {
-        world.addToSaved('objectETag', etag);
-    }
-    world.saveCreatedObject(finalObjectName, versionId || '');
-    await uploadTeardown(world, 'PutObject');
+    world.saveCreatedObject(finalObjectName, result.data?.VersionId || '');
     world.setResult(result);
     return result;
 }
 
-async function getObject(world: Zenko, objectKey: string, bucketName: string): Promise<Command> {
-    const result = await S3.getObject({
-        key: objectKey,
-        bucket: bucketName,
-    });
-
-    return result;
+/**
+ * Lists every version and delete marker of a bucket, over as many pages as needed
+ */
+async function listAllObjectVersions(world: Zenko, bucket: string, prefix?: string) {
+    const versions: ObjectVersion[] = [];
+    const deleteMarkers: DeleteMarkerEntry[] = [];
+    let page: ListObjectVersionsCommandOutput | undefined;
+    do {
+        page = await world.s3.send(new ListObjectVersionsCommand({
+            Bucket: bucket,
+            Prefix: prefix,
+            KeyMarker: page?.NextKeyMarker,
+            VersionIdMarker: page?.NextVersionIdMarker,
+        }));
+        versions.push(...page.Versions || []);
+        deleteMarkers.push(...page.DeleteMarkers || []);
+    } while (page.IsTruncated);
+    return { versions, deleteMarkers };
 }
 
-async function headObject(world: Zenko, objectKey: string, bucketName: string): Promise<Command> {
-    const result = await S3.headObject({
-        key: objectKey,
-        bucket: bucketName,
-    });
+async function getObject(world: Zenko, objectKey: string, bucketName: string) {
+    const response = await world.s3.send(new GetObjectCommand({ Bucket: bucketName, Key: objectKey }));
+    // Only the metadata is used, release the connection of the body
+    response.Body?.transformToWebStream().cancel().catch(() => {});
+    return response;
+}
 
-    return result;
+async function headObject(world: Zenko, objectKey: string, bucketName: string) {
+    return world.s3.send(new HeadObjectCommand({ Bucket: bucketName, Key: objectKey }));
 }
 
 function getAuthorizationConfiguration(world: Zenko): AuthorizationConfiguration {
@@ -340,50 +345,18 @@ function getAuthorizationConfiguration(world: Zenko): AuthorizationConfiguration
     };
 }
 
-async function emptyNonVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjects(world.getCommandParameters());
-    const objects = (JSON.parse(results.stdout || '{}') as { Contents?: AWSVersionObject[] })?.Contents || [];
-    await Promise.all(objects.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-}
-
-async function emptyVersionedBucket(world: Zenko) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    const results = await S3.listObjectVersions(world.getCommandParameters());
-    const parsedResults = JSON.parse(results.stdout || '{}') as Record<string, unknown>;
-    const versions = parsedResults.Versions as AWSVersionObject[] || [];
-    const deleteMarkers = parsedResults.DeleteMarkers as AWSVersionObject[] || [];
-    await Promise.all(deleteMarkers.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    await Promise.all(versions.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-}
-
-async function putBucketLifecycleConfigurationWithRetry(world: Zenko, rules: Record<string, unknown>[]) {
-    world.resetCommand();
-    world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-    world.addCommandParameter({
-        lifecycleConfiguration: JSON.stringify({ Rules: rules }),
-    });
-    const commandParameters = world.getCommandParameters();
-    let conditionOk = false;
-    while (!conditionOk) {
-        const res = await S3.putBucketLifecycleConfiguration(commandParameters);
-        conditionOk = res.err === null;
+async function putBucketLifecycleConfigurationWithRetry(world: Zenko, rules: LifecycleRule[]) {
+    let accepted = false;
+    while (!accepted) {
+        try {
+            await world.s3.send(new PutBucketLifecycleConfigurationCommand({
+                Bucket: world.getSaved<string>('bucketName'),
+                LifecycleConfiguration: { Rules: rules },
+            }));
+            accepted = true;
+        } catch (err) {
+            world.logger.debug('Lifecycle configuration not accepted yet', { err });
+        }
         // Wait for the configuration to be accepted because the deployment of the location's pods can take some time
         await sleep(5000);
     }
@@ -398,7 +371,8 @@ async function addTransitionWorkflow(this: Zenko, location: string, enabled = tr
             Transitions: [
                 {
                     Days: 0,
-                    StorageClass: location,
+                    // Zenko storage classes are location names
+                    StorageClass: location as TransitionStorageClass,
                 },
             ],
         },
@@ -406,7 +380,7 @@ async function addTransitionWorkflow(this: Zenko, location: string, enabled = tr
 }
 
 async function addExpirationWorkflow(this: Zenko, days: number, includeNoncurrentVersions = false) {
-    const rule: Record<string, unknown> = {
+    const rule: LifecycleRule = {
         Status: 'Enabled',
         Prefix: '',
         Expiration: {
@@ -427,13 +401,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
     objectTransitionStatus: string, storageClass: string) {
     const objName =
         getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getLatestObjectVersion(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
+    const versionId = this.getLatestObjectVersion(objName) || undefined;
 
     const op = objectTransitionStatus === 'restored' ? 'restore' : 'archive';
     const bucketName = this.getSaved<string>('bucketName');
@@ -454,26 +422,25 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
             );
         }
 
-        const res = await S3.headObject(this.getCommandParameters());
-        if (res.err?.includes('NotFound')) {
+        const { data: head, error } = await settle(this.s3.send(new HeadObjectCommand({
+            Bucket: bucketName,
+            Key: objName,
+            VersionId: versionId,
+        })));
+        if (error?.name === 'NotFound') {
             await sleep(1000);
             continue;
-        } else if (res.err) {
-            throw new Error(`HeadObject error for "${objName}": ${res.err}`);
+        } else if (error) {
+            throw new Error(`HeadObject error for "${objName}": ${error.name}: ${error.message}`);
         }
-        assert(res.stdout);
-        const parsed = safeJsonParse<{
-            StorageClass: string | undefined,
-            Restore: string | undefined,
-        }>(res.stdout);
-        assert(parsed.ok);
+        assert(head);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
-        let conditionOk = parsed.result?.StorageClass === expectedClass;
+        let conditionOk = head.StorageClass === expectedClass;
         if (objectTransitionStatus === 'restored') {
-            conditionOk = conditionOk && !!parsed.result?.Restore &&
-                parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
+            conditionOk = conditionOk && !!head.Restore &&
+                head.Restore.includes('ongoing-request="false", expiry-date=');
         } else if (objectTransitionStatus === 'cold') {
-            conditionOk = conditionOk && !parsed.result?.Restore;
+            conditionOk = conditionOk && !head.Restore;
         }
         if (conditionOk) return;
 
@@ -489,29 +456,23 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
 
 async function restoreObject(this: Zenko, objectName: string, days: number) {
     const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
-    this.resetCommand();
-    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-    this.addCommandParameter({ key: objName });
-    const versionId = this.getLatestObjectVersion(objName);
-    if (versionId) {
-        this.addCommandParameter({ versionId });
-    }
-    this.addCommandParameter({ restoreRequest: `Days=${days}` });
-    const result = await S3.restoreObject(this.getCommandParameters());
-    this.setResult(result);
+    this.setResult(await settle(this.s3.send(new RestoreObjectCommand({
+        Bucket: this.getSaved<string>('bucketName'),
+        Key: objName,
+        VersionId: this.getLatestObjectVersion(objName) || undefined,
+        RestoreRequest: { Days: days },
+    }))));
 }
 
 async function putBucketReplicationRaw(
     this: Zenko,
     srcBucket: string,
-    replicationConfiguration: object,
-): Promise<Command> {
-    this.resetCommand();
-    this.addCommandParameter({ bucket: srcBucket });
-    this.addCommandParameter({
-        replicationConfiguration: JSON.stringify(replicationConfiguration),
-    });
-    return S3.putBucketReplication(this.getCommandParameters());
+    replicationConfiguration: PutBucketReplicationCommandInput['ReplicationConfiguration'],
+): Promise<ApiResult> {
+    return settle(this.s3.send(new PutBucketReplicationCommand({
+        Bucket: srcBucket,
+        ReplicationConfiguration: replicationConfiguration,
+    })));
 }
 
 async function putBucketReplication(
@@ -535,19 +496,19 @@ async function putBucketReplication(
                 ...keyFilter,
                 Destination: {
                     Bucket: `arn:aws:s3:::${srcBucket}`,
-                    StorageClass: replicationLocation,
+                    StorageClass: replicationLocation as StorageClass,
                 },
                 Status: 'Enabled',
             },
         ],
     });
-    if (res.err) {
+    if (res.error) {
         this.logger.error('Failed to put bucket replication', {
             srcBucket,
             replicationLocation,
-            error: res.err,
+            error: res.error,
         });
-        throw new Error(`Failed to put bucket replication, err : ${res.err}`);
+        throw new Error(`Failed to put bucket replication, err : ${res.error}`);
     }
 }
 
@@ -582,6 +543,7 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
 
 export {
     AuthorizationType,
+    parseMetadata,
     AuthorizationConfiguration,
     runActionAgainstBucket,
     createBucketWithConfiguration,
@@ -591,8 +553,7 @@ export {
     putObject,
     getObject,
     headObject,
-    emptyNonVersionedBucket,
-    emptyVersionedBucket,
+    listAllObjectVersions,
     verifyObjectLocation,
     getObjectNameWithBackendFlakiness,
     restoreObject,

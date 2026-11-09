@@ -1,6 +1,4 @@
-# CLI-testing
-
-## Worlds folder
+# Worlds folder
 
 World, or sometimes context, is an isolated scope for each scenario, exposed to
 the steps and most hooks as this. It allows you to set variables in one step and

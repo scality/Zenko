@@ -305,10 +305,6 @@ jobs:
           persist-credentials: false
       - name: Setup Node environment
         uses: ./.github/actions/setup-node-env
-        with:
-          app-id: ${{ vars.ACTIONS_APP_ID }}
-          private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          repositories: cli-testing
       - name: Build cucumber typescript
         working-directory: tests/functional
         run: yarn build:cucumber
@@ -346,7 +342,6 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: |
-            cli-testing
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
@@ -416,7 +411,6 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: |
-            cli-testing
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
@@ -485,7 +479,6 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: |
-            cli-testing
             zenko-operator
             metadata
       - name: Deploy Zenko
@@ -544,7 +537,6 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: |
-            cli-testing
             zenko-operator
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
