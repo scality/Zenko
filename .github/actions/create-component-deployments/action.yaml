@@ -83,7 +83,7 @@ runs:
 
     - name: Parse component repos from deps.yaml
       id: parse
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -115,7 +115,7 @@ runs:
 
     - name: Create or update deployments
       if: steps.parse.outputs.components != ''
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         COMPONENTS: ${{ steps.parse.outputs.components }}
       with:

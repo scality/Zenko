@@ -406,7 +406,7 @@ test.each([
             } : {}),
             'trigger-release': [{
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'actions/github-script@v7',
+                uses: 'actions/github-script@v8',
                 mockWith: {
                     with: {
                         'github-token': "my-token",
@@ -433,7 +433,7 @@ test.each([
                 },
             }, {
                 // Need to explicitely pass token, the GITHUB_TOKEN does not seem to be set
-                uses: 'actions/github-script@v7',
+                uses: 'actions/github-script@v8',
                 mockWith: {
                     with: {
                         'github-token': "my-token",

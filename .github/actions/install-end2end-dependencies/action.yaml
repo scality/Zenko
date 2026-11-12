@@ -32,7 +32,7 @@ runs:
         install_only: true
 
     - name: Install helm
-      uses: azure/setup-helm@v4
+      uses: azure/setup-helm@v5
       with:
         version: ${{ inputs.helm-version }}
 
