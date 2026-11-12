@@ -30,4 +30,7 @@ ZOOKEEPER_TAG=$(yq eval '.zookeeper.tag' deps.yaml)
 ZOOKEEPER_BUILD_TREE_HASH=$(git rev-parse HEAD:solution/zookeeper)
 ZK_VERSION=$(yq eval '.zookeeper.tag | split("-").[0]' deps.yaml)
 ZK_OPERATOR_VERSION=$(yq eval '.zookeeper.tag | sub("^[^-]*-"; "")' deps.yaml)
+LOGROTATE_IMAGE=$(get_image_from_deps logrotate)
+LOGROTATE_TAG=$(yq eval '.logrotate.tag' deps.yaml)
+LOGROTATE_BUILD_TREE_HASH=$(git rev-parse HEAD:solution/logrotate)
 EOF
