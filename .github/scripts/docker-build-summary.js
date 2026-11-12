@@ -20,8 +20,13 @@ function readBuilds(dir) {
         .map(line => JSON.parse(line));
 }
 
-function formatSizes(sizes) {
-    return sizes.map(({ platform, size }) => `${Math.round(size / 1e6)} MB ${platform}`).join('<br>') || '-';
+function formatSize(sizes, platform) {
+    const image = sizes.find(size => size.platform === platform);
+    return image ? `${Math.round(image.size / 1e6)} MB` : '-';
+}
+
+function row(cells) {
+    return `| ${cells.join(' | ')} |`;
 }
 
 function sum(values) {
@@ -50,29 +55,42 @@ function totalSizes(builds) {
         .sort((a, b) => a.platform.localeCompare(b.platform));
 }
 
-function formatBuild(build) {
+function formatBuild(build, platforms) {
     const icon = STATUS_ICONS[build.status] || '❔';
     const cached = build.total > 0 ? Math.round(build.cached * 100 / build.total) : 0;
     const record = build.url ? `[${build.record}](${build.url})` : '-';
-    return `| \`${build.build}\` | ${icon} ${build.status} | ${cached}% | ${Math.round(build.duration / 1e9)}s `
-        + `| ${formatSizes(imageSizes(build))} | ${record} |`;
+    const sizes = imageSizes(build);
+    return row([
+        `\`${build.build}\``,
+        `${icon} ${build.status}`,
+        `${cached}%`,
+        `${Math.round(build.duration / 1e9)}s`,
+        ...platforms.map(platform => formatSize(sizes, platform)),
+        record,
+    ]);
 }
 
 function renderSummary(builds) {
+    const totals = totalSizes(builds);
+    const platforms = totals.map(total => total.platform);
+
     const rows = [...builds]
         .sort((a, b) => a.build.localeCompare(b.build))
-        .map(formatBuild);
+        .map(build => formatBuild(build, platforms));
 
-    const totals = totalSizes(builds);
     if (totals.length > 0) {
-        rows.push(`| **Total** (shared layers counted once) | | | | ${formatSizes(totals)} | |`);
+        rows.push(row([
+            '**Total** (shared layers counted once)', '', '', '',
+            ...platforms.map(platform => formatSize(totals, platform)),
+            '',
+        ]));
     }
 
     return [
         '### Docker builds',
         '',
-        '| Build | Status | Cached | Duration | Size | Build record |',
-        '|:------|:-------|-------:|---------:|-----:|:-------------|',
+        row(['Build', 'Status', 'Cached', 'Duration', ...platforms, 'Build record']),
+        row([':--', ':--', '--:', '--:', ...platforms.map(() => '--:'), ':--']),
         ...rows,
         '',
         "Build records can be imported in Docker Desktop's Builds view.",

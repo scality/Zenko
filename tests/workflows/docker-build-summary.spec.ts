@@ -28,7 +28,8 @@ function build(overrides: object = {}) {
 }
 
 function tableRows(summary: string) {
-    return summary.split('\n').filter(line => line.startsWith('| ') && !line.startsWith('| Build |'));
+    return summary.split('\n')
+        .filter(line => line.startsWith('| ') && !line.startsWith('| Build |') && !line.startsWith('| :--'));
 }
 
 describe('totalSizes', () => {
@@ -58,7 +59,7 @@ describe('renderSummary', () => {
     it('lists each build', () => {
         const rows = tableRows(renderSummary([build()]));
 
-        expect(rows[0]).toBe('| `solution/kafka` | ✅ completed | 75% | 83s | 5 MB linux/amd64 '
+        expect(rows[0]).toBe('| `solution/kafka` | ✅ completed | 75% | 83s | 5 MB '
             + '| [kafka.dockerbuild](https://github.com/scality/Zenko/actions/runs/1/artifacts/42) |');
     });
 
@@ -72,12 +73,16 @@ describe('renderSummary', () => {
         expect(rows[1]).toContain('`solution/zookeeper`');
     });
 
-    it('shows the size of each platform', () => {
-        const rows = tableRows(renderSummary([build({
-            images: [image('linux/amd64', [['amd', 5e6]]), image('linux/arm64', [['arm', 4e6]])],
-        })]));
+    it('shows the size in one column per platform', () => {
+        const summary = renderSummary([
+            build({ build: 'a', images: [image('linux/amd64', [['amd', 5e6]]), image('linux/arm64', [['arm', 4e6]])] }),
+            build({ build: 'b', images: [image('linux/amd64', [['b', 3e6]])] }),
+        ]);
+        const rows = tableRows(summary);
 
-        expect(rows[0]).toContain('| 5 MB linux/amd64<br>4 MB linux/arm64 |');
+        expect(summary).toContain('| Build | Status | Cached | Duration | linux/amd64 | linux/arm64 | Build record |');
+        expect(rows[0]).toContain('| 5 MB | 4 MB |');
+        expect(rows[1]).toContain('| 3 MB | - |');
     });
 
     it('handles failed builds, without image nor build record', () => {
@@ -85,7 +90,7 @@ describe('renderSummary', () => {
             build({ status: 'failed', cached: 0, total: 0, images: [], url: '' }),
         ]));
 
-        expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - | - |');
+        expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - |');
     });
 
     it('adds the total size', () => {
@@ -95,7 +100,7 @@ describe('renderSummary', () => {
         ]));
 
         expect(rows).toHaveLength(3);
-        expect(rows[2]).toBe('| **Total** (shared layers counted once) | | | | 6 MB linux/amd64 | |');
+        expect(rows[2]).toBe('| **Total** (shared layers counted once) |  |  |  | 6 MB |  |');
     });
 
     it('does not add the total size without any image', () => {
