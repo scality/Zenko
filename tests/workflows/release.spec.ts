@@ -513,6 +513,7 @@ test.each([
             null,
             2,
         );
+        // eslint-disable-next-line no-console
         console.error(`expected Main ${stepName}, got ${result[lastResult].name}\nresult:\n${steps}`);
     }
 
