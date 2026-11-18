@@ -475,7 +475,9 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         } else if (objectTransitionStatus === 'cold') {
             conditionOk = conditionOk && !parsed.result?.Restore;
         }
-        if (conditionOk) return;
+        if (conditionOk) {
+            return;
+        }
 
         await sleep(1000);
     }

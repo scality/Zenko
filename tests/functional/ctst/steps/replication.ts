@@ -577,7 +577,9 @@ Given(/^an? (valid|invalid) multi-destination replication configuration with rul
             assert(!res.err, `expected putBucketReplication to succeed, got: ${res.err}`);
             const enabled = new Set<string>();
             for (const r of rows) {
-                if ((r.status || 'Enabled') !== 'Enabled') continue;
+                if ((r.status || 'Enabled') !== 'Enabled') {
+                    continue;
+                }
                 for (const loc of r.location.split(',').map(s => s.trim())) {
                     enabled.add(loc);
                 }
@@ -674,7 +676,9 @@ Then('getBucketReplication should return a {string} configuration with {int} rul
         const srcBucket = this.getSaved<string>('bucketName');
         const result = await getBucketReplicationConfig.call(this, srcBucket);
         assert(result.ok, 'getBucketReplication failed');
-        if (!result.ok) return;
+        if (!result.ok) {
+            return;
+        }
         const rules = (result.config.Rules as Array<Record<string, unknown>>) ?? [];
         assert.strictEqual(
             rules.length, expectedCount,
@@ -710,7 +714,9 @@ Then('getBucketReplication rule {int} should have StorageClass {string}',
         const srcBucket = this.getSaved<string>('bucketName');
         const result = await getBucketReplicationConfig.call(this, srcBucket);
         assert(result.ok, 'getBucketReplication failed');
-        if (!result.ok) return;
+        if (!result.ok) {
+            return;
+        }
         const rules = (result.config.Rules as Array<{ Destination?: { StorageClass?: string } }>) ?? [];
         assert.strictEqual(rules[ruleIndex]?.Destination?.StorageClass, expectedStorageClass);
     });

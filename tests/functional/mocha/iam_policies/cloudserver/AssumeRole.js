@@ -175,10 +175,14 @@ testAPIs.forEach(testAPI => {
                 await iamAccount1Client.send(new DeletePolicyCommand({ PolicyArn: policyArn }));
                 await iamAccount1Client.send(new DeleteRoleCommand({ RoleName: roleName }));
             } catch (cleanupErr) {
-                if (err) throw err;
+                if (err) {
+                    throw err;
+                }
                 throw cleanupErr;
             }
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
         }
 
         const tests = [
