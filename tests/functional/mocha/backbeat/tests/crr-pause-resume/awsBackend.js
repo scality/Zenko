@@ -18,7 +18,6 @@ const hex = crypto.createHash('md5')
 const keyPrefix = `${srcBucket}/${hex}`;
 const key = `${keyPrefix}/object-to-replicate-${Date.now()}`;
 const key2 = `${key}-2`;
-// eslint-disable-next-line
 const REPLICATION_TIMEOUT = 300000;
 
 // NOTE: A setTimeout of 5 seconds is added after each pauseReplication and

@@ -114,7 +114,6 @@ class ReplicationUtility {
             const options = { includeMetadata: true };
             const iter = client.listBlobsFlat(options).byPage({ maxPageSize: 20 });
 
-            // eslint-disable-next-line no-restricted-syntax
             for await (const response of iter) {
                 const { blobItems } = response.segment;
                 const filteredEntries = blobItems.filter(blobItem => blobItem.name.startsWith(keyPrefix));
@@ -474,7 +473,6 @@ class ReplicationUtility {
             .then(async (data) => {
                 if (data.Body) {
                     const chunks = [];
-                    // eslint-disable-next-line no-restricted-syntax
                     for await (const chunk of data.Body) {
                         chunks.push(chunk);
                     }

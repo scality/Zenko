@@ -18,7 +18,6 @@ const https = require('https');
 
 async function _deleteAttachedUserPolicies(iamClient, userName) {
     const paginator = paginateListAttachedUserPolicies({ client: iamClient }, { UserName: userName });
-    // eslint-disable-next-line no-restricted-syntax
     for await (const page of paginator) {
         if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
             await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachUserPolicyCommand({
@@ -31,7 +30,6 @@ async function _deleteAttachedUserPolicies(iamClient, userName) {
 
 async function _deleteAttachedRolePolicies(iamClient, roleName) {
     const paginator = paginateListAttachedRolePolicies({ client: iamClient }, { RoleName: roleName });
-    // eslint-disable-next-line no-restricted-syntax
     for await (const page of paginator) {
         if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
             await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachRolePolicyCommand({
@@ -44,7 +42,6 @@ async function _deleteAttachedRolePolicies(iamClient, roleName) {
 
 async function _deleteUsers(iamClient) {
     const paginator = paginateListUsers({ client: iamClient }, {});
-    // eslint-disable-next-line no-restricted-syntax
     for await (const page of paginator) {
         if (page.Users && page.Users.length > 0) {
             await Promise.all(page.Users.map(async user => {
@@ -57,7 +54,6 @@ async function _deleteUsers(iamClient) {
 
 async function _deleteRoles(iamClient) {
     const paginator = paginateListRoles({ client: iamClient }, {});
-    // eslint-disable-next-line no-restricted-syntax
     for await (const page of paginator) {
         if (page.Roles && page.Roles.length > 0) {
             await Promise.all(page.Roles.map(async role => {
@@ -70,7 +66,6 @@ async function _deleteRoles(iamClient) {
 
 async function _deletePolicies(iamClient) {
     const paginator = paginateListPolicies({ client: iamClient }, { Scope: 'Local' });
-    // eslint-disable-next-line no-restricted-syntax
     for await (const page of paginator) {
         if (page.Policies && page.Policies.length > 0) {
             await Promise.all(page.Policies.map(policy => iamClient.send(

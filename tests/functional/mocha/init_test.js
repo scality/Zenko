@@ -37,7 +37,6 @@ describe('Test Configuration', () => {
             { Bucket: bucket, Key: key },
         ));
         const chunks = [];
-        // eslint-disable-next-line no-restricted-syntax
         for await (const chunk of getObjectRes.Body) {
             chunks.push(chunk);
         }
