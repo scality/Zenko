@@ -1,20 +1,11 @@
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import { defineConfig, includeIgnoreFile } from 'eslint/config';
+import scality from 'eslint-config-scality';
+import { mocha } from 'eslint-config-scality/testing';
 import tseslint from 'typescript-eslint';
-import { includeIgnoreFile } from '@eslint/compat';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const gitignorePath = path.resolve(__dirname, '.gitignore');
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
-
-export default tseslint.config(
-    includeIgnoreFile(gitignorePath),
+export default defineConfig(
+    includeIgnoreFile(fileURLToPath(new URL('.gitignore', import.meta.url))),
     {
         ignores: [
             'configuration_setup/**',
@@ -24,14 +15,12 @@ export default tseslint.config(
             'ctst/build/**',
         ],
     },
+    ...scality,
 
     // TypeScript files (ctst)
     {
         files: ['ctst/**/*.ts'],
-        extends: [
-            ...compat.extends('scality'),
-            ...tseslint.configs.recommended,
-        ],
+        extends: [tseslint.configs.recommended],
         rules: {
             // CucumberJS steps start with an uppercase
             'new-cap': 'off',
@@ -41,10 +30,7 @@ export default tseslint.config(
     // TypeScript files (shared clients)
     {
         files: ['clients/**/*.ts'],
-        extends: [
-            ...compat.extends('scality'),
-            ...tseslint.configs.recommended,
-        ],
+        extends: [tseslint.configs.recommended],
         rules: {
             // CLI setup scripts report progress to the console
             'no-console': 'off',
@@ -54,9 +40,6 @@ export default tseslint.config(
     // JavaScript files (mocha)
     {
         files: ['mocha/**/*.js'],
-        extends: [
-            ...compat.extends('scality'),
-        ],
         rules: {
             'prefer-spread': 'off',
             'no-bitwise': 'off',
@@ -71,4 +54,5 @@ export default tseslint.config(
             'camelcase': ['error', { 'properties': 'never' }],
         },
     },
+    mocha(['mocha/**/*.js']),
 );
