@@ -122,7 +122,7 @@ describe('Replication with GCP backend', function () {
         ),
     );
 
-    it.skip('should delete the destination object when putting a delete marker on ' + 'the source object', done =>
+    it.skip('should delete the destination object when putting a delete marker on the source object', done =>
         series(
             [
                 next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),

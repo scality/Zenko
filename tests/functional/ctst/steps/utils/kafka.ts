@@ -102,6 +102,6 @@ export async function waitForDLQMessage(
         await sleep(500);
     }
     throw new Error(
-        `DLQ: no "${op}" message for object "${objectName}" in bucket "${bucketName}" ` + `within ${timeoutMs / 1000}s`,
+        `DLQ: no "${op}" message for object "${objectName}" in bucket "${bucketName}" within ${timeoutMs / 1000}s`,
     );
 }

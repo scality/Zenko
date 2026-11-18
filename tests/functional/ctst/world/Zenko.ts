@@ -600,7 +600,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Creating a policy to allow it to AssumeRole
         this.resetCommand();
         this.addCommandParameter({
-            policyName: `${accountToBeAssumedFrom}` + `${constants.POLICY_NAME_TEST}` + `${randomString()}`,
+            policyName: `${accountToBeAssumedFrom}${constants.POLICY_NAME_TEST}${randomString()}`,
         });
         this.addCommandParameter({ policyDocument: constants.assumeRolePolicy });
         const assumeRolePolicyArn = extractPropertyFromResults(

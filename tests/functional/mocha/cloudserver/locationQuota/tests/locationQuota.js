@@ -17,7 +17,7 @@ describe('Location storage quota', () => {
         async.series(
             [next => scalityS3.createQuotaBucket(bucket, next), next => scalityS3.fillBucket(bucket, next)],
             err => {
-                assert.ifError(err, 'Error creating and filling quota bucket' + `${err}`);
+                assert.ifError(err, `Error creating and filling quota bucket${err}`);
                 done();
             },
         );

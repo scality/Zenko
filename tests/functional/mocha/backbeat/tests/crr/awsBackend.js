@@ -154,7 +154,7 @@ describe('Replication with AWS backend', function () {
             done,
         ));
 
-    it('should put delete marker on destination bucket when deleting the ' + 'source object', done =>
+    it('should put delete marker on destination bucket when deleting the source object', done =>
         series(
             [
                 next => scalityUtils.putObject(srcBucket, key, Buffer.alloc(1), next),
@@ -283,7 +283,7 @@ describe('Replication with AWS backend', function () {
     // COMPLETED replication status may be set before tags are
     // replicated, so skip it for now
     it.skip(
-        'should replicate object tags of an MPU version when tagging is ' + 'put before replication is complete',
+        'should replicate object tags of an MPU version when tagging is put before replication is complete',
         done =>
             series(
                 [

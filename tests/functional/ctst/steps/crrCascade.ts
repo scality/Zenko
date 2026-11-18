@@ -253,7 +253,7 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
         const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
         if (res.ReplicationStatus !== expectedStatus) {
             return (
-                `Expected ReplicationStatus '${expectedStatus}' at '${location}', ` + `got '${res.ReplicationStatus}'`
+                `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`
             );
         }
 
