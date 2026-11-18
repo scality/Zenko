@@ -2,6 +2,7 @@
 
 set -e
 set -u
+[ "${GITHUB_ACTIONS:-}" = true ] && set -x
 
 if  [ "$(uname -s)" = "Darwin" ]; then
     for cmd in gsed gstat gtar ; do
@@ -319,7 +320,6 @@ function validate_registry()
 function build_registry_config()
 {
     docker run \
-        --name static-oci-registry \
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
