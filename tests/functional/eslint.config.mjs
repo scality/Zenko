@@ -18,9 +18,9 @@ export default defineConfig(
         },
     },
 
-    // TypeScript files (shared clients)
+    // TypeScript files (shared clients and test resources setup)
     {
-        files: ['clients/**/*.ts'],
+        files: ['clients/**/*.ts', 'testResourcesSetup/**/*.ts'],
         extends: [tseslint.configs.recommended],
         rules: {
             // CLI setup scripts report progress to the console
