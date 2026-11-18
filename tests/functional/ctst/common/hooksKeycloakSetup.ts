@@ -2,7 +2,7 @@ import { BeforeAll, HookTarget } from '@cucumber/cucumber';
 import * as Werelogs from 'werelogs';
 import Keycloak from 'steps/utils/keycloak';
 
-BeforeAll({ name: 'keycloak setup', on: HookTarget.COORDINATOR }, async function (this) {
+BeforeAll({ name: 'keycloak setup', on: HookTarget.COORDINATOR }, async () => {
     const logger = new Werelogs.Logger('KeycloakSetup').newRequestLogger();
 
     if (process.env.SEED_KEYCLOAK_DEFAULT_ROLES !== 'true') {

@@ -42,7 +42,7 @@ const noParallelRun = atMostOnePicklePerTag([
 
 setParallelCanAssign(noParallelRun);
 
-BeforeAll(async function () {
+BeforeAll(async () => {
     const kafkaHosts = process.env['KAFKA_HOST_PORT'];
     const dlqTopic = process.env['KAFKA_DEAD_LETTER_TOPIC'];
     if (kafkaHosts && dlqTopic) {
@@ -50,7 +50,7 @@ BeforeAll(async function () {
     }
 });
 
-AfterAll(async function () {
+AfterAll(async () => {
     await stopDLQConsumer();
 });
 
