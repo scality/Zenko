@@ -31,6 +31,9 @@ export default defineConfig(
     // JavaScript files (mocha)
     {
         files: ['mocha/**/*.js'],
+        languageOptions: {
+            sourceType: 'commonjs',
+        },
         rules: {
             'no-param-reassign': 'off',
             'camelcase': ['error', { 'properties': 'never' }],
