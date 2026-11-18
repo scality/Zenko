@@ -37,8 +37,7 @@ When('the user tries to perform DeleteObjects', async function (this: Zenko) {
 When('the user tries to perform CreateBucket', async function (this: Zenko) {
     this.resetCommand();
     this.useSavedIdentity();
-    const preName = this.getSaved<string>('accountName') ||
-        this.parameters.AccountName || constants.ACCOUNT_NAME;
+    const preName = this.getSaved<string>('accountName') || this.parameters.AccountName || constants.ACCOUNT_NAME;
     const usedBucketName = `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     this.addToSaved('bucketName', usedBucketName);
     this.addCommandParameter({ bucket: usedBucketName });
@@ -84,4 +83,3 @@ Then('it {string} pass Vault authentication', function (this: Zenko, should: str
         }
     }
 });
-

@@ -10,9 +10,7 @@ const utils = new ReplicationUtility(scalityS3Client, undefined, gcpStorage);
 const destBucket = process.env.GCP_CRR_BUCKET_NAME;
 const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
 const srcBucket = `source-bucket-${Date.now()}`;
-const hex = crypto.createHash('md5')
-    .update(Math.random().toString())
-    .digest('hex');
+const hex = crypto.createHash('md5').update(Math.random().toString()).digest('hex');
 const filePrefix = `${srcBucket}/${hex}`;
 const file = `${filePrefix}/object-to-replicate-${Date.now()}`;
 const copyFile = `${file}-copy`;
@@ -29,164 +27,168 @@ describe('Replication with GCP backend', function () {
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';
 
-    beforeEach(done => series([
-        next => utils.createVersionedBucket(srcBucket, next),
-        next => utils.putBucketReplication(
-            srcBucket,
-            destBucket,
-            roleArn,
-            destGCPLocation,
-            next,
+    beforeEach(done =>
+        series(
+            [
+                next => utils.createVersionedBucket(srcBucket, next),
+                next => utils.putBucketReplication(srcBucket, destBucket, roleArn, destGCPLocation, next),
+            ],
+            done,
         ),
-    ], done));
+    );
 
-    afterEach(done => series([
-        next => utils.deleteVersionedBucket(srcBucket, next),
-        next => utils.deleteAllFiles(destBucket, filePrefix, next),
-    ], done));
+    afterEach(done =>
+        series(
+            [
+                next => utils.deleteVersionedBucket(srcBucket, next),
+                next => utils.deleteAllFiles(destBucket, filePrefix, next),
+            ],
+            done,
+        ),
+    );
 
-    it('should replicate an object', done => series([
-        next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-    ], done));
+    it('should replicate an object', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
 
-    it.skip('should replicate an object with UTF-8 encoding', done => series([
-        next => utils.putObject(srcBucket, fileutf8, Buffer.alloc(1), next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, fileutf8, next),
-    ], done));
+    it.skip('should replicate an object with UTF-8 encoding', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, fileutf8, Buffer.alloc(1), next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, fileutf8, next),
+            ],
+            done,
+        ));
 
-    it('should replicate a copied object', done => series([
-        next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
-        next => utils.copyObject(srcBucket, copySource, copyFile, next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, copyFile, next),
-        next => utils.waitUntilReplicated(srcBucket, file, undefined, next),
-    ], done));
+    it('should replicate a copied object', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.copyObject(srcBucket, copySource, copyFile, next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, copyFile, next),
+                next => utils.waitUntilReplicated(srcBucket, file, undefined, next),
+            ],
+            done,
+        ));
 
-    it('should replicate a MPU object: 2 parts', done => series([
-        next => utils.completeMPUGCP(srcBucket, file, 2, next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-    ], done));
+    it('should replicate a MPU object: 2 parts', done =>
+        series(
+            [
+                next => utils.completeMPUGCP(srcBucket, file, 2, next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
 
-    it('should replicate a MPU object: 10 parts', done => series([
-        next => utils.completeMPUGCP(srcBucket, file, 10, next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-    ], done));
+    it('should replicate a MPU object: 10 parts', done =>
+        series(
+            [
+                next => utils.completeMPUGCP(srcBucket, file, 10, next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
 
     // GCP MPUs are limited to 1024 parts, so check that we can still replicate
     // and source MPU that is greater than 1024 parts.
-    it.skip('should replicate a MPU object: 1025 parts', done => series([
-        next => utils.completeMPUGCP(srcBucket, file, 1025, next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-    ], done));
+    it.skip('should replicate a MPU object: 1025 parts', done =>
+        series(
+            [
+                next => utils.completeMPUGCP(srcBucket, file, 1025, next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
 
-    [undefined,
-        `0-${1024 * 1024 * 5}`,
-        `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range => it('should replicate a MPU with parts copied '
-        + 'from another MPU with '
-        + `byte range '${range}' for each part`, done => series([
-        next => utils.completeMPUGCP(srcBucket, file, 2, next),
-        next => utils.completeMPUWithPartCopy(
-            srcBucket,
-            copyFile,
-            copySource,
-            range,
-            2,
-            next,
+    [undefined, `0-${1024 * 1024 * 5}`, `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
+        it(
+            'should replicate a MPU with parts copied ' +
+                'from another MPU with ' +
+                `byte range '${range}' for each part`,
+            done =>
+                series(
+                    [
+                        next => utils.completeMPUGCP(srcBucket, file, 2, next),
+                        next => utils.completeMPUWithPartCopy(srcBucket, copyFile, copySource, range, 2, next),
+                        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+                    ],
+                    done,
+                ),
         ),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-    ], done)));
-
-    it.skip('should delete the destination object when putting a delete marker on '
-    + 'the source object', done => series([
-        next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-        next => utils.deleteObject(srcBucket, file, null, next),
-        next => utils.waitUntilDeleted(destBucket, file, 'gcp', next),
-        next => utils.getMetadata(destBucket, `${srcBucket}/${file}`, err => {
-            assert.strictEqual(
-                err.message,
-                `No such object: ${destBucket}/${srcBucket}/${file}`,
-            );
-            return next();
-        }),
-    ], done));
-
-    it('should replicate object tags of the latest version', done => series([
-        next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
-        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-        next => utils.putObjectTagging(srcBucket, file, undefined, next),
-        next => utils.compareObjectTagsGCP(
-            srcBucket,
-            destBucket,
-            file,
-            undefined,
-            next,
-        ),
-    ], done));
-
-    it(
-        'should replicate deleting object tags of the latest version',
-        done => series([
-            next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
-            next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-            next => utils.putObjectTagging(srcBucket, file, undefined, next),
-            next => utils.compareObjectTagsGCP(
-                srcBucket,
-                destBucket,
-                file,
-                undefined,
-                next,
-            ),
-            next => utils.deleteObjectTagging(srcBucket, file, undefined, next),
-            next => utils.compareObjectTagsGCP(
-                srcBucket,
-                destBucket,
-                file,
-                undefined,
-                next,
-            ),
-        ], done),
     );
 
-    it('should replicate an object with properties', done => series([
-        next => utils.putObjectWithProperties(
-            srcBucket,
-            file,
-            Buffer.alloc(1),
-            next,
+    it.skip('should delete the destination object when putting a delete marker on ' + 'the source object', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+                next => utils.deleteObject(srcBucket, file, null, next),
+                next => utils.waitUntilDeleted(destBucket, file, 'gcp', next),
+                next =>
+                    utils.getMetadata(destBucket, `${srcBucket}/${file}`, err => {
+                        assert.strictEqual(err.message, `No such object: ${destBucket}/${srcBucket}/${file}`);
+                        return next();
+                    }),
+            ],
+            done,
         ),
-        next => utils.compareGCPObjectProperties(
-            srcBucket,
-            destBucket,
-            file,
-            next,
-        ),
-    ], done));
+    );
 
-    it('should replicate a copied object with properties', done => series([
-        next => utils.putObjectWithProperties(
-            srcBucket,
-            file,
-            Buffer.alloc(1),
-            next,
-        ),
-        next => utils.copyObject(srcBucket, copySource, copyFile, next),
-        next => utils.compareGCPObjectProperties(
-            srcBucket,
-            destBucket,
-            copyFile,
-            next,
-        ),
-        next => utils.waitUntilReplicated(srcBucket, file, undefined, next),
-    ], done));
+    it('should replicate object tags of the latest version', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+                next => utils.putObjectTagging(srcBucket, file, undefined, next),
+                next => utils.compareObjectTagsGCP(srcBucket, destBucket, file, undefined, next),
+            ],
+            done,
+        ));
 
-    it('should replicate a MPU object with properties', done => series([
-        next => utils.completeMPUGCPWithProperties(srcBucket, file, 2, next),
-        next => utils.compareGCPObjectProperties(
-            srcBucket,
-            destBucket,
-            file,
-            next,
-        ),
-    ], done));
+    it('should replicate deleting object tags of the latest version', done =>
+        series(
+            [
+                next => utils.putObject(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+                next => utils.putObjectTagging(srcBucket, file, undefined, next),
+                next => utils.compareObjectTagsGCP(srcBucket, destBucket, file, undefined, next),
+                next => utils.deleteObjectTagging(srcBucket, file, undefined, next),
+                next => utils.compareObjectTagsGCP(srcBucket, destBucket, file, undefined, next),
+            ],
+            done,
+        ));
+
+    it('should replicate an object with properties', done =>
+        series(
+            [
+                next => utils.putObjectWithProperties(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.compareGCPObjectProperties(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
+
+    it('should replicate a copied object with properties', done =>
+        series(
+            [
+                next => utils.putObjectWithProperties(srcBucket, file, Buffer.alloc(1), next),
+                next => utils.copyObject(srcBucket, copySource, copyFile, next),
+                next => utils.compareGCPObjectProperties(srcBucket, destBucket, copyFile, next),
+                next => utils.waitUntilReplicated(srcBucket, file, undefined, next),
+            ],
+            done,
+        ));
+
+    it('should replicate a MPU object with properties', done =>
+        series(
+            [
+                next => utils.completeMPUGCPWithProperties(srcBucket, file, 2, next),
+                next => utils.compareGCPObjectProperties(srcBucket, destBucket, file, next),
+            ],
+            done,
+        ));
 });

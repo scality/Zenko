@@ -25,7 +25,7 @@ jobs:
           target-branch: ${{ inputs.target-branch }}
           environment: zenko/development/2.11
           status: in_progress
-          transient: "true"
+          transient: 'true'
           production: ${{ inputs.production }}
           log-url: https://github.com/scality/zenko/actions/runs/1
           description: Zenko CI running

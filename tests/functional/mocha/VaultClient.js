@@ -20,10 +20,16 @@ async function _deleteAttachedUserPolicies(iamClient, userName) {
     const paginator = paginateListAttachedUserPolicies({ client: iamClient }, { UserName: userName });
     for await (const page of paginator) {
         if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
-            await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachUserPolicyCommand({
-                PolicyArn: policy.PolicyArn,
-                UserName: userName,
-            }))));
+            await Promise.all(
+                page.AttachedPolicies.map(policy =>
+                    iamClient.send(
+                        new DetachUserPolicyCommand({
+                            PolicyArn: policy.PolicyArn,
+                            UserName: userName,
+                        }),
+                    ),
+                ),
+            );
         }
     }
 }
@@ -32,10 +38,16 @@ async function _deleteAttachedRolePolicies(iamClient, roleName) {
     const paginator = paginateListAttachedRolePolicies({ client: iamClient }, { RoleName: roleName });
     for await (const page of paginator) {
         if (page.AttachedPolicies && page.AttachedPolicies.length > 0) {
-            await Promise.all(page.AttachedPolicies.map(policy => iamClient.send(new DetachRolePolicyCommand({
-                PolicyArn: policy.PolicyArn,
-                RoleName: roleName,
-            }))));
+            await Promise.all(
+                page.AttachedPolicies.map(policy =>
+                    iamClient.send(
+                        new DetachRolePolicyCommand({
+                            PolicyArn: policy.PolicyArn,
+                            RoleName: roleName,
+                        }),
+                    ),
+                ),
+            );
         }
     }
 }
@@ -44,10 +56,12 @@ async function _deleteUsers(iamClient) {
     const paginator = paginateListUsers({ client: iamClient }, {});
     for await (const page of paginator) {
         if (page.Users && page.Users.length > 0) {
-            await Promise.all(page.Users.map(async user => {
-                await _deleteAttachedUserPolicies(iamClient, user.UserName);
-                await iamClient.send(new DeleteUserCommand({ UserName: user.UserName }));
-            }));
+            await Promise.all(
+                page.Users.map(async user => {
+                    await _deleteAttachedUserPolicies(iamClient, user.UserName);
+                    await iamClient.send(new DeleteUserCommand({ UserName: user.UserName }));
+                }),
+            );
         }
     }
 }
@@ -56,10 +70,12 @@ async function _deleteRoles(iamClient) {
     const paginator = paginateListRoles({ client: iamClient }, {});
     for await (const page of paginator) {
         if (page.Roles && page.Roles.length > 0) {
-            await Promise.all(page.Roles.map(async role => {
-                await _deleteAttachedRolePolicies(iamClient, role.RoleName);
-                await iamClient.send(new DeleteRoleCommand({ RoleName: role.RoleName }));
-            }));
+            await Promise.all(
+                page.Roles.map(async role => {
+                    await _deleteAttachedRolePolicies(iamClient, role.RoleName);
+                    await iamClient.send(new DeleteRoleCommand({ RoleName: role.RoleName }));
+                }),
+            );
         }
     }
 }
@@ -68,15 +84,14 @@ async function _deletePolicies(iamClient) {
     const paginator = paginateListPolicies({ client: iamClient }, { Scope: 'Local' });
     for await (const page of paginator) {
         if (page.Policies && page.Policies.length > 0) {
-            await Promise.all(page.Policies.map(policy => iamClient.send(
-                new DeletePolicyCommand({ PolicyArn: policy.Arn }),
-            )));
+            await Promise.all(
+                page.Policies.map(policy => iamClient.send(new DeletePolicyCommand({ PolicyArn: policy.Arn }))),
+            );
         }
     }
 }
 
 class VaultClient {
-
     /**
      * Returns an AWS IAM client
      *
@@ -86,8 +101,7 @@ class VaultClient {
      * @returns {object} - returns an IAM client
      */
     static getIamClient(accessKey, secretKey, sessionToken) {
-        const endpoint = process.env.VAULT_ENDPOINT
-        || 'http://localhost:8600';
+        const endpoint = process.env.VAULT_ENDPOINT || 'http://localhost:8600';
         const info = {
             endpoint,
             region: 'us-east-1',
@@ -100,10 +114,7 @@ class VaultClient {
         };
 
         if (endpoint.startsWith('https://')) {
-            const ca = fs.readFileSync(
-                process.env.VAULT_SSL_CA || '/conf/ca.crt',
-                'ascii',
-            );
+            const ca = fs.readFileSync(process.env.VAULT_SSL_CA || '/conf/ca.crt', 'ascii');
             info.requestHandler = new NodeHttpHandler({
                 httpsAgent: new https.Agent({
                     ca: [ca],
@@ -130,25 +141,14 @@ class VaultClient {
         let cert;
         let key;
         if (process.env.VAULT_ENDPOINT) {
-            const res = /^https?:\/\/([^:]*)(:[0-9]+)?\/?$/.exec(
-                process.env.VAULT_ENDPOINT,
-            );
+            const res = /^https?:\/\/([^:]*)(:[0-9]+)?\/?$/.exec(process.env.VAULT_ENDPOINT);
             [host, port] = res.slice(1);
             port = port ? parseInt(port.substring(1), 10) : 80;
             const https = process.env.VAULT_ENDPOINT.startsWith('https://');
             if (https) {
-                ca = fs.readFileSync(
-                    process.env.VAULT_SSL_CA || '/conf/ca.crt',
-                    'ascii',
-                );
-                cert = fs.readFileSync(
-                    process.env.VAULT_SSL_CERT || '/conf/test.crt',
-                    'ascii',
-                );
-                key = fs.readFileSync(
-                    process.env.VAULT_SSL_KEY || '/conf/test.key',
-                    'ascii',
-                );
+                ca = fs.readFileSync(process.env.VAULT_SSL_CA || '/conf/ca.crt', 'ascii');
+                cert = fs.readFileSync(process.env.VAULT_SSL_CERT || '/conf/test.crt', 'ascii');
+                key = fs.readFileSync(process.env.VAULT_SSL_KEY || '/conf/test.key', 'ascii');
             }
         }
         return {

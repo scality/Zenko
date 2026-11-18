@@ -6,45 +6,55 @@ const { scalityS3Client, awsS3Client } = require('../../../s3SDK');
 const LifecycleUtility = require('../../LifecycleUtility');
 
 function compareTransitionedData(sourceClient, destinationClient, versionId, cb) {
-    return series([
-        next => sourceClient.getObject(versionId, next),
-        next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
-        next => sourceClient.waitUntilTransitioned(versionId, next),
-        next => destinationClient.getObjectDataFromLocation(next),
-        next => sourceClient.getObject(versionId, next),
-    ], (err, data) => {
-        if (err) {
-            return cb(err);
-        }
-        // check data stored on the target cloud
-        sourceClient._compareObjectBody(data[0].Body, data[3]);
-        // check that object is still readable from Zenko
-        sourceClient._compareObjectBody(data[0].Body, data[4].Body);
-        return cb();
-    });
+    return series(
+        [
+            next => sourceClient.getObject(versionId, next),
+            next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
+            next => sourceClient.waitUntilTransitioned(versionId, next),
+            next => destinationClient.getObjectDataFromLocation(next),
+            next => sourceClient.getObject(versionId, next),
+        ],
+        (err, data) => {
+            if (err) {
+                return cb(err);
+            }
+            // check data stored on the target cloud
+            sourceClient._compareObjectBody(data[0].Body, data[3]);
+            // check that object is still readable from Zenko
+            sourceClient._compareObjectBody(data[0].Body, data[4].Body);
+            return cb();
+        },
+    );
 }
 
 function compareTransitionedColdData(sourceClient, versionId, cb) {
-    return series([
-        next => sourceClient.getObject(versionId, next),
-        next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
-        next => sourceClient.waitUntilTransitioned(versionId, next),
-    ], cb);
+    return series(
+        [
+            next => sourceClient.getObject(versionId, next),
+            next => sourceClient.putBucketLifecycleConfiguration(new Date(new Date().setUTCHours(0, 0, 0, 0)), next),
+            next => sourceClient.waitUntilTransitioned(versionId, next),
+        ],
+        cb,
+    );
 }
 
 function checkRestoration(destination, sourceClient, versionId, cb) {
     if (!destination.supportsRestore) {
         return process.nextTick(cb);
     }
-    return series([
-        next => sourceClient.getObject(versionId, err => {
-            assert.strictEqual(err.Code, 'InvalidObjectState');
-            assert.strictEqual(err.$metadata?.httpStatusCode, 403);
-            return next();
-        }),
-        next => sourceClient.putRestoreObject(versionId, next),
-        next => sourceClient.waitUntilRestored(versionId, next),
-    ], cb);
+    return series(
+        [
+            next =>
+                sourceClient.getObject(versionId, err => {
+                    assert.strictEqual(err.Code, 'InvalidObjectState');
+                    assert.strictEqual(err.$metadata?.httpStatusCode, 403);
+                    return next();
+                }),
+            next => sourceClient.putRestoreObject(versionId, next),
+            next => sourceClient.waitUntilRestored(versionId, next),
+        ],
+        cb,
+    );
 }
 
 function checkTransition(destination, sourceClient, destinationClient, versionId, cb) {
@@ -79,21 +89,22 @@ const locationParams = {
 };
 
 // TODO: ZENKO-4233 enable AZURE/GCP as destination and AWS/AZURE/GCP as source
-const testsToRun = [{
-    from: 'LocalStorage',
-    to: 'AWS',
-}, {
-    from: 'LocalStorage',
-    to: 'DMF',
-}];
+const testsToRun = [
+    {
+        from: 'LocalStorage',
+        to: 'AWS',
+    },
+    {
+        from: 'LocalStorage',
+        to: 'DMF',
+    },
+];
 
 testsToRun.forEach(test => {
     describe(`Lifecycle transition from ${test.from} to ${test.to}`, function () {
         const srcBucket = `transition-${uuid()}`;
         const keyPrefix = uuid();
-        const cloudServer = new LifecycleUtility(scalityS3Client)
-            .setBucket(srcBucket)
-            .setKeyPrefix(keyPrefix);
+        const cloudServer = new LifecycleUtility(scalityS3Client).setBucket(srcBucket).setKeyPrefix(keyPrefix);
         const cloud = new LifecycleUtility(awsS3Client).setKeyPrefix(keyPrefix);
         const fromLoc = locationParams[test.from];
         const toLoc = locationParams[test.to];
@@ -116,23 +127,26 @@ testsToRun.forEach(test => {
         });
 
         afterEach(function (done) {
-            series([
-                next => cloudServer.deleteVersionedBucket(srcBucket, next),
-                next => {
-                    if (toLoc.isCold) {
-                        return next();
+            series(
+                [
+                    next => cloudServer.deleteVersionedBucket(srcBucket, next),
+                    next => {
+                        if (toLoc.isCold) {
+                            return next();
+                        }
+                        return cloud.clearBucket(next);
+                    },
+                ],
+                err => {
+                    if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
+                        const testName = this.currentTest.fullTitle();
+                        const retry = this.currentTest.currentRetry();
+                        // eslint-disable-next-line no-console
+                        console.log(`   FAILED ${testName} [retry #${retry}] : ${srcBucket}`);
                     }
-                    return cloud.clearBucket(next);
+                    done(err);
                 },
-            ], err => {
-                if (err || (!this.currentTest.isPending() && !this.currentTest.isPassed())) {
-                    const testName = this.currentTest.fullTitle();
-                    const retry = this.currentTest.currentRetry();
-                    // eslint-disable-next-line no-console
-                    console.log(`   FAILED ${testName} [retry #${retry}] : ${srcBucket}`);
-                }
-                done(err);
-            });
+            );
         });
 
         describe('without versioning', () => {
@@ -143,33 +157,42 @@ testsToRun.forEach(test => {
 
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putObject(Buffer.from(''), next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
+                series(
+                    [
+                        next => cloudServer.putObject(Buffer.from(''), next),
+                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                        next => checkRestoration(toLoc, cloudServer, null, next),
+                    ],
+                    done,
+                );
             }).retries(3);
 
             it('should transition an object', done => {
                 const key = `${prefix}nover-object`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putObject(Buffer.from(key), next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
+                series(
+                    [
+                        next => cloudServer.putObject(Buffer.from(key), next),
+                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                        next => checkRestoration(toLoc, cloudServer, null, next),
+                    ],
+                    done,
+                );
             });
 
             it('should transition a MPU object', done => {
                 const key = `${prefix}nover-mpu`;
                 cloudServer.setKey(key);
                 cloud.setKey(`${srcBucket}/${key}`);
-                series([
-                    next => cloudServer.putMPU(10, next),
-                    next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                    next => checkRestoration(toLoc, cloudServer, null, next),
-                ], done);
+                series(
+                    [
+                        next => cloudServer.putMPU(10, next),
+                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                        next => checkRestoration(toLoc, cloudServer, null, next),
+                    ],
+                    done,
+                );
             });
         });
 
@@ -182,16 +205,20 @@ testsToRun.forEach(test => {
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     let versionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(key), (err, data) => {
-                            if (data) {
-                                versionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
-                        next => checkRestoration(toLoc, cloudServer, versionId, next),
-                    ], done);
+                    series(
+                        [
+                            next =>
+                                cloudServer.putObject(Buffer.from(key), (err, data) => {
+                                    if (data) {
+                                        versionId = data.VersionId;
+                                    }
+                                    next(err);
+                                }),
+                            next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+                            next => checkRestoration(toLoc, cloudServer, versionId, next),
+                        ],
+                        done,
+                    );
                 });
 
                 it('should transition the master version', done => {
@@ -199,18 +226,22 @@ testsToRun.forEach(test => {
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     let versionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(`${key}-1`), next),
-                        next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putObject(Buffer.from(`${key}-3`), (err, data) => {
-                            if (data) {
-                                versionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
-                        next => checkRestoration(toLoc, cloudServer, versionId, next),
-                    ], done);
+                    series(
+                        [
+                            next => cloudServer.putObject(Buffer.from(`${key}-1`), next),
+                            next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
+                            next =>
+                                cloudServer.putObject(Buffer.from(`${key}-3`), (err, data) => {
+                                    if (data) {
+                                        versionId = data.VersionId;
+                                    }
+                                    next(err);
+                                }),
+                            next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+                            next => checkRestoration(toLoc, cloudServer, versionId, next),
+                        ],
+                        done,
+                    );
                 });
 
                 it('should transition non current version', done => {
@@ -218,18 +249,22 @@ testsToRun.forEach(test => {
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     let nonCurrentVersionId = null;
-                    series([
-                        next => cloudServer.putObject(Buffer.from(`${key}-1`), (err, data) => {
-                            if (data) {
-                                nonCurrentVersionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
-                        next => cloudServer.putBucketNCVTLifecycleConfiguration(next),
-                        next => cloudServer.waitUntilTransitioned(nonCurrentVersionId, next),
-                        next => checkRestoration(toLoc, cloudServer, nonCurrentVersionId, next),
-                    ], done);
+                    series(
+                        [
+                            next =>
+                                cloudServer.putObject(Buffer.from(`${key}-1`), (err, data) => {
+                                    if (data) {
+                                        nonCurrentVersionId = data.VersionId;
+                                    }
+                                    next(err);
+                                }),
+                            next => cloudServer.putObject(Buffer.from(`${key}-2`), next),
+                            next => cloudServer.putBucketNCVTLifecycleConfiguration(next),
+                            next => cloudServer.waitUntilTransitioned(nonCurrentVersionId, next),
+                            next => checkRestoration(toLoc, cloudServer, nonCurrentVersionId, next),
+                        ],
+                        done,
+                    );
                 });
             });
 
@@ -241,29 +276,36 @@ testsToRun.forEach(test => {
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
                     let versionId = null;
-                    series([
-                        next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
-                        next => cloudServer.putObject(Buffer.from(key), (err, data) => {
-                            if (data) {
-                                versionId = data.VersionId;
-                            }
-                            next(err);
-                        }),
-                        next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
-                        next => checkRestoration(toLoc, cloudServer, versionId, next),
-                    ], done);
+                    series(
+                        [
+                            next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
+                            next =>
+                                cloudServer.putObject(Buffer.from(key), (err, data) => {
+                                    if (data) {
+                                        versionId = data.VersionId;
+                                    }
+                                    next(err);
+                                }),
+                            next => checkTransition(toLoc, cloudServer, cloud, versionId, next),
+                            next => checkRestoration(toLoc, cloudServer, versionId, next),
+                        ],
+                        done,
+                    );
                 });
 
                 it('should transition non-versioned object', done => {
                     const key = `${prefix}ver-suspended-master`;
                     cloudServer.setKey(key);
                     cloud.setKey(`${srcBucket}/${key}`);
-                    series([
-                        next => cloudServer.putObject(Buffer.from(key), next),
-                        next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
-                        next => checkTransition(toLoc, cloudServer, cloud, null, next),
-                        next => checkRestoration(toLoc, cloudServer, null, next),
-                    ], done);
+                    series(
+                        [
+                            next => cloudServer.putObject(Buffer.from(key), next),
+                            next => cloudServer.putBucketVersioningConfiguration('Suspended', next),
+                            next => checkTransition(toLoc, cloudServer, cloud, null, next),
+                            next => checkRestoration(toLoc, cloudServer, null, next),
+                        ],
+                        done,
+                    );
                 });
             });
         }

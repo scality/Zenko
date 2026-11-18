@@ -53,10 +53,7 @@ export default class AzureClient {
     }
 
     async deleteBlob(container: string, blob: string): Promise<boolean> {
-        const res = await this.blobClient
-            .getContainerClient(container)
-            .getBlockBlobClient(blob)
-            .deleteIfExists();
+        const res = await this.blobClient.getContainerClient(container).getBlockBlobClient(blob).deleteIfExists();
         return res.succeeded;
     }
 

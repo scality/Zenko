@@ -46,7 +46,7 @@ export class PensieveClient {
         if (!response.ok) {
             throw new Error(`Failed to fetch swagger spec: ${response.status} ${response.statusText}`);
         }
-        const spec = await response.json() as SwaggerSpec;
+        const spec = (await response.json()) as SwaggerSpec;
         const basePath = (spec.basePath ?? '').replace(/\/$/, '');
         for (const [path, pathItem] of Object.entries(spec.paths)) {
             for (const [method, operation] of Object.entries(pathItem)) {
@@ -63,10 +63,7 @@ export class PensieveClient {
         if (!op) {
             throw new Error(`Unknown swagger operation: ${operationId}`);
         }
-        const resolvedPath = Object.entries(pathParams).reduce(
-            (p, [k, v]) => p.replace(`{${k}}`, v),
-            op.path,
-        );
+        const resolvedPath = Object.entries(pathParams).reduce((p, [k, v]) => p.replace(`{${k}}`, v), op.path);
         return { url: `${this.endpoint}${resolvedPath}`, method: op.method.toUpperCase() };
     }
 
@@ -84,8 +81,8 @@ export class PensieveClient {
             const text = await response.text();
             throw new Error(
                 `${operationId} failed [${response.status} ${response.statusText}]\n` +
-                `  URL: ${method} ${url}\n` +
-                `  Response: ${text || '(empty)'}`
+                    `  URL: ${method} ${url}\n` +
+                    `  Response: ${text || '(empty)'}`,
             );
         }
         const text = await response.text();

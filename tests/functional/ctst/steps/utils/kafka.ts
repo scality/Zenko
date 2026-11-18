@@ -1,4 +1,3 @@
-
 import { Consumer, stringDeserializers } from '@platformatic/kafka';
 import { sleep, randomString } from 'common/utils';
 
@@ -26,7 +25,8 @@ let dlqConsumerCleanup: (() => Promise<void>) | undefined;
  * passed to `onMessage` — the caller owns the buffer. Call once from BeforeAll.
  */
 export async function startDLQConsumer(
-    kafkaHosts: string, topic: string,
+    kafkaHosts: string,
+    topic: string,
     onMessage: (msg: DLQMessage) => void,
 ): Promise<void> {
     const consumer = new Consumer({
@@ -39,9 +39,15 @@ export async function startDLQConsumer(
     void (async () => {
         try {
             for await (const msg of stream) {
-                try { onMessage(JSON.parse(msg.value) as DLQMessage); } catch { /* ignore malformed messages */ }
+                try {
+                    onMessage(JSON.parse(msg.value) as DLQMessage);
+                } catch {
+                    /* ignore malformed messages */
+                }
             }
-        } catch { /* consumer disconnected — stop silently */ }
+        } catch {
+            /* consumer disconnected — stop silently */
+        }
     })();
     dlqConsumerCleanup = async () => {
         await stream.close().catch(() => {});
@@ -66,11 +72,12 @@ export async function stopDLQConsumer(): Promise<void> {
  */
 export function pollDLQBuffer(
     buffer: Map<string, DLQMessage[]>,
-    op: string, objectName: string, bucketName: string,
+    op: string,
+    objectName: string,
+    bucketName: string,
     seenMessages: Set<string>,
 ): DLQMessage | undefined {
-    return buffer.get(dlqKey(op, bucketName, objectName))
-        ?.find(m => !seenMessages.has(m.requestId));
+    return buffer.get(dlqKey(op, bucketName, objectName))?.find(m => !seenMessages.has(m.requestId));
 }
 
 /**
@@ -79,8 +86,11 @@ export function pollDLQBuffer(
  */
 export async function waitForDLQMessage(
     buffer: Map<string, DLQMessage[]>,
-    op: string, objectName: string, bucketName: string,
-    seenMessages: Set<string>, timeoutMs: number,
+    op: string,
+    objectName: string,
+    bucketName: string,
+    seenMessages: Set<string>,
+    timeoutMs: number,
 ): Promise<DLQMessage> {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
@@ -92,7 +102,6 @@ export async function waitForDLQMessage(
         await sleep(500);
     }
     throw new Error(
-        `DLQ: no "${op}" message for object "${objectName}" in bucket "${bucketName}" ` +
-        `within ${timeoutMs / 1000}s`,
+        `DLQ: no "${op}" message for object "${objectName}" in bucket "${bucketName}" ` + `within ${timeoutMs / 1000}s`,
     );
 }

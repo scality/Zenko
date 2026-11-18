@@ -30,7 +30,10 @@ type SourceObjectReplicationMeta = {
     Metadata?: Record<string, string>;
 };
 
-async function getReplicationLocationConfig(world: Zenko, location: string): Promise<{
+async function getReplicationLocationConfig(
+    world: Zenko,
+    location: string,
+): Promise<{
     destinationBucket: string;
     locationType: string;
     bucketMatch: boolean;
@@ -75,10 +78,7 @@ async function getBucketReplicationConfig(
     return { ok: true, config: parsed.result?.ReplicationConfiguration ?? {} };
 }
 
-function readPerBackendStatuses(
-    md: Record<string, string>,
-    locations: string[],
-): Record<string, string | undefined> {
+function readPerBackendStatuses(md: Record<string, string>, locations: string[]): Record<string, string | undefined> {
     const out: Record<string, string | undefined> = {};
     for (const loc of locations) {
         out[loc] = md[`${loc}-replication-status`];
@@ -116,39 +116,39 @@ async function pollReplicationOutcome(
         const perBackendValues = Object.values(perBackend);
 
         switch (top) {
-        case 'PENDING':
-        case 'PROCESSING':
-            assert.notStrictEqual(
-                expected, 'never happen',
-                `replication status is ${top}, but expected to never happen`,
-            );
-            continue;
-        case 'COMPLETED':
-            assert.strictEqual(
-                expected, 'succeed',
-                `replication is completed, but expected outcome was '${expected}'`,
-            );
-            if (locations.length > 0) {
-                assert(
-                    perBackendValues.every(s => s === 'COMPLETED'),
-                    `top-level COMPLETED but per-backend statuses are ${JSON.stringify(perBackend)}`,
+            case 'PENDING':
+            case 'PROCESSING':
+                assert.notStrictEqual(
+                    expected,
+                    'never happen',
+                    `replication status is ${top}, but expected to never happen`,
                 );
-            }
-            return;
-        case 'FAILED':
-            assert.strictEqual(
-                expected, 'fail',
-                `replication is failed, but expected outcome was '${expected}'`,
-            );
-            return;
-        case undefined:
-            assert.strictEqual(
-                expected, 'never happen',
-                `got undefined replication status for expected outcome '${expected}'`,
-            );
-            continue;
-        default:
-            throw new Error(`Unexpected replication status: ${top}`);
+                continue;
+            case 'COMPLETED':
+                assert.strictEqual(
+                    expected,
+                    'succeed',
+                    `replication is completed, but expected outcome was '${expected}'`,
+                );
+                if (locations.length > 0) {
+                    assert(
+                        perBackendValues.every(s => s === 'COMPLETED'),
+                        `top-level COMPLETED but per-backend statuses are ${JSON.stringify(perBackend)}`,
+                    );
+                }
+                return;
+            case 'FAILED':
+                assert.strictEqual(expected, 'fail', `replication is failed, but expected outcome was '${expected}'`);
+                return;
+            case undefined:
+                assert.strictEqual(
+                    expected,
+                    'never happen',
+                    `got undefined replication status for expected outcome '${expected}'`,
+                );
+                continue;
+            default:
+                throw new Error(`Unexpected replication status: ${top}`);
         }
     }
     if (expected === 'never happen') {
@@ -201,36 +201,26 @@ async function assertReplicaMatchesSource(world: Zenko, location: string): Promi
         : await getReplicationLocationConfig(world, location);
 
     const key = bucketMatch ? objectName : `${bucketSource}/${objectName}`;
-    const replicaObj = await awsS3Client.send(new GetObjectCommand({
-        Bucket: destinationBucket,
-        Key: key,
-    }));
+    const replicaObj = await awsS3Client.send(
+        new GetObjectCommand({
+            Bucket: destinationBucket,
+            Key: key,
+        }),
+    );
 
     const sourceResponse = await getObject(world, objectName, bucketSource);
-    assert.strictEqual(
-        sourceResponse.statusCode, 200,
-        `failed to getObject, ${sourceResponse.statusCode}`,
-    );
+    assert.strictEqual(sourceResponse.statusCode, 200, `failed to getObject, ${sourceResponse.statusCode}`);
     const sourceObj = safeJsonParse<SourceObjectReplicationMeta>(sourceResponse.stdout || '{}');
     assert(sourceObj.ok);
     assert.strictEqual(sourceObj.result?.ContentLength, replicaObj.ContentLength);
     // CRR loopback only writes the per-destination status; cloud backends
     // also stamp version-id / scal-version-id.
     if (!crrCtx) {
-        assert.strictEqual(
-            sourceObj.result?.Metadata?.[`${location}-version-id`],
-            replicaObj.VersionId,
-        );
-        assert.strictEqual(
-            sourceObj.result?.VersionId,
-            replicaObj.Metadata?.['scal-version-id'],
-        );
+        assert.strictEqual(sourceObj.result?.Metadata?.[`${location}-version-id`], replicaObj.VersionId);
+        assert.strictEqual(sourceObj.result?.VersionId, replicaObj.Metadata?.['scal-version-id']);
         assert.strictEqual(replicaObj.Metadata?.['scal-replication-status'], 'REPLICA');
     }
-    assert.strictEqual(
-        sourceObj.result?.Metadata?.[`${location}-replication-status`],
-        'COMPLETED',
-    );
+    assert.strictEqual(sourceObj.result?.Metadata?.[`${location}-replication-status`], 'COMPLETED');
 }
 
 type RuleRow = {
@@ -263,16 +253,14 @@ function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): 
     // source,destination role — each rule's Destination.Account substitutes
     // the account-id portion of the destination role at runtime (ARSN-571).
     const hasCRR = rows.some(r => cascadeInfoByLocation?.[r.location]);
-    const role = hasCRR && cascadeRoleName
-        ? `${DEFAULT_ROLE},arn:aws:iam::000000000000:role/${cascadeRoleName}`
-        : DEFAULT_ROLE;
+    const role =
+        hasCRR && cascadeRoleName ? `${DEFAULT_ROLE},arn:aws:iam::000000000000:role/${cascadeRoleName}` : DEFAULT_ROLE;
     const Rules = rows.map((row, i) => {
         const crrInfo = cascadeInfoByLocation?.[row.location];
         // For CRR cascade destinations, the destination bucket was
         // pre-created on the cascade account's side; use that bucket name.
-        const destBucket = crrInfo && cascadeBuckets?.[row.location]
-            ? cascadeBuckets[row.location]
-            : (row.bucket ?? srcBucket);
+        const destBucket =
+            crrInfo && cascadeBuckets?.[row.location] ? cascadeBuckets[row.location] : (row.bucket ?? srcBucket);
         const Destination: Record<string, unknown> = {
             Bucket: `arn:aws:s3:::${destBucket}`,
             StorageClass: row.location,
@@ -303,7 +291,8 @@ function buildConfigFromRows(world: Zenko, srcBucket: string, rows: RuleRow[]): 
     return { Role: role, Rules };
 }
 
-When(/^the job to replicate existing objects with status "([^"]*)" is executed(?: for site "([^"]*)")?$/,
+When(
+    /^the job to replicate existing objects with status "([^"]*)" is executed(?: for site "([^"]*)")?$/,
     { timeout: 600000 },
     async function (this: Zenko, targetStatus: string, site?: string) {
         const bucket = this.getSaved<string>('bucketName');
@@ -313,8 +302,10 @@ When(/^the job to replicate existing objects with status "([^"]*)" is executed(?
         const s3utilsVersion = zenkoVersion.spec.versions.s3utils;
         const credentials = Identity.getCredentialsForIdentity(IdentityEnum.ACCOUNT, accountName);
         assert(credentials?.accessKeyId, `no credentials for account '${accountName}'`);
-        assert(!credentials.sessionToken,
-            `crrExistingObjects.js needs access keys, '${accountName}' has session credentials`);
+        assert(
+            !credentials.sessionToken,
+            `crrExistingObjects.js needs access keys, '${accountName}' has session credentials`,
+        );
         const subDomain = credentials.subDomain || this.parameters.subdomain || constants.DEFAULT_SUBDOMAIN;
 
         const env = [
@@ -341,8 +332,8 @@ When(/^the job to replicate existing objects with status "([^"]*)" is executed(?
                 namespace: 'default',
                 labels: {
                     app: 's3utils',
-                    script: 'crrExistingObjects.js'
-                }
+                    script: 'crrExistingObjects.js',
+                },
             },
             spec: {
                 restartPolicy: 'Never',
@@ -354,20 +345,23 @@ When(/^the job to replicate existing objects with status "([^"]*)" is executed(?
                         args: ['crrExistingObjects.js', bucket],
                         env,
                         volumeMounts: [{ name: 'location-config', mountPath: LOCATION_CONFIG_MOUNT, readOnly: true }],
-                    }
-                ],
-                volumes: [{
-                    name: 'location-config',
-                    secret: {
-                        secretName: await getLocationConfigSecretName(this),
-                        items: [{ key: 'locationConfig.json', path: 'locationConfig.json' }],
                     },
-                }],
-            }
+                ],
+                volumes: [
+                    {
+                        name: 'location-config',
+                        secret: {
+                            secretName: await getLocationConfigSecretName(this),
+                            items: [{ key: 'locationConfig.json', path: 'locationConfig.json' }],
+                        },
+                    },
+                ],
+            },
         };
 
         await this.kubernetesClient.createAndRunPod(podManifest);
-    });
+    },
+);
 
 function findBackend(info: ReplicationInfo | undefined, site: string): Backend | undefined {
     return info?.backends?.find(b => b.site === site);
@@ -390,11 +384,13 @@ function replicationInfoShape(info: ReplicationInfo | undefined) {
 
 When('the replication info of the object is saved', async function (this: Zenko) {
     const objectName = this.getSaved<string>('objectName');
-    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
-        Bucket: this.getSaved<string>('bucketName'),
-        Key: objectName,
-        VersionId: this.getLatestObjectVersion(objectName),
-    }));
+    const { Body } = await this.createBackbeatRoutesClient().send(
+        new GetMetadataCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectName,
+            VersionId: this.getLatestObjectVersion(objectName),
+        }),
+    );
     const md = JSON.parse(Body!) as ObjectMDData;
     this.addToSaved('savedReplicationInfo', md.replicationInfo);
 });
@@ -402,7 +398,8 @@ When('the replication info of the object is saved', async function (this: Zenko)
 // Rewrites the object metadata the way cloudserver/backbeat wrote it before
 // Zenko 2.16 (S3C 9.5 format): top-level destination/role/storageClass/
 // storageType, backends with site/status/dataStoreVersionId only.
-Given('the object replication info is rewritten in the pre-2.16 format with status {string}',
+Given(
+    'the object replication info is rewritten in the pre-2.16 format with status {string}',
     async function (this: Zenko, status: string) {
         const bucket = this.getSaved<string>('bucketName');
         const objectName = this.getSaved<string>('objectName');
@@ -412,21 +409,25 @@ Given('the object replication info is rewritten in the pre-2.16 format with stat
 
         const backbeatRoutes = this.createBackbeatRoutesClient();
         const versionId = this.getLatestObjectVersion(objectName);
-        const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
-            Bucket: bucket,
-            Key: objectName,
-            VersionId: versionId,
-        }));
+        const { Body } = await backbeatRoutes.send(
+            new GetMetadataCommand({
+                Bucket: bucket,
+                Key: objectName,
+                VersionId: versionId,
+            }),
+        );
         const md = JSON.parse(Body!) as ObjectMDData;
         const current = md.replicationInfo;
         md.replicationInfo = {
             status,
-            backends: [{
-                site,
-                status,
-                dataStoreVersionId: status === 'COMPLETED'
-                    ? (findBackend(current, site)?.dataStoreVersionId ?? '') : '',
-            }],
+            backends: [
+                {
+                    site,
+                    status,
+                    dataStoreVersionId:
+                        status === 'COMPLETED' ? (findBackend(current, site)?.dataStoreVersionId ?? '') : '',
+                },
+            ],
             content: current?.content ?? ['DATA', 'METADATA'],
             destination: `arn:aws:s3:::${bucket}`,
             storageClass: site,
@@ -434,61 +435,74 @@ Given('the object replication info is rewritten in the pre-2.16 format with stat
             storageType: 'aws_s3',
             dataStoreVersionId: '',
         };
-        await backbeatRoutes.send(new PutMetadataCommand({
-            Bucket: bucket,
-            Key: objectName,
-            VersionId: versionId,
-            Body: Buffer.from(JSON.stringify(md)),
-        }));
-    });
+        await backbeatRoutes.send(
+            new PutMetadataCommand({
+                Bucket: bucket,
+                Key: objectName,
+                VersionId: versionId,
+                Body: Buffer.from(JSON.stringify(md)),
+            }),
+        );
+    },
+);
 
-Then('the object replication info should match what cloudserver writes for a new object',
+Then(
+    'the object replication info should match what cloudserver writes for a new object',
     { timeout: REPLICATION_OUTCOME_STEP_TIMEOUT_MS },
     async function (this: Zenko) {
         const bucket = this.getSaved<string>('bucketName');
         const objectName = this.getSaved<string>('objectName');
         const locations = this.getSaved<string[]>('replicationLocations');
         const backbeatRoutes = this.createBackbeatRoutesClient();
-        const { Body } = await backbeatRoutes.send(new GetMetadataCommand({
-            Bucket: bucket,
-            Key: objectName,
-            VersionId: this.getLatestObjectVersion(objectName),
-        }));
+        const { Body } = await backbeatRoutes.send(
+            new GetMetadataCommand({
+                Bucket: bucket,
+                Key: objectName,
+                VersionId: this.getLatestObjectVersion(objectName),
+            }),
+        );
         const md = JSON.parse(Body!) as ObjectMDData;
 
         // Same bucket, same rules, same size: only the writer differs.
         const referenceName = `${objectName}-reference`;
-        const { VersionId: referenceVersionId } = await this.createS3Client().send(new PutObjectCommand({
-            Bucket: bucket,
-            Key: referenceName,
-            Body: Buffer.alloc(md['content-length'] ?? 0),
-        }));
+        const { VersionId: referenceVersionId } = await this.createS3Client().send(
+            new PutObjectCommand({
+                Bucket: bucket,
+                Key: referenceName,
+                Body: Buffer.alloc(md['content-length'] ?? 0),
+            }),
+        );
         await pollReplicationOutcome(this, referenceName, bucket, 'succeed', 300_000, locations);
-        const { Body: referenceBody } = await backbeatRoutes.send(new GetMetadataCommand({
-            Bucket: bucket,
-            Key: referenceName,
-            VersionId: referenceVersionId,
-        }));
+        const { Body: referenceBody } = await backbeatRoutes.send(
+            new GetMetadataCommand({
+                Bucket: bucket,
+                Key: referenceName,
+                VersionId: referenceVersionId,
+            }),
+        );
         const referenceMD = JSON.parse(referenceBody!) as ObjectMDData;
 
         assert.deepStrictEqual(
             replicationInfoShape(md.replicationInfo),
             replicationInfoShape(referenceMD.replicationInfo),
-            'replicationInfo written by crrExistingObjects differs from the one cloudserver writes on a PUT.\n'
-            + `crrExistingObjects: ${JSON.stringify(md.replicationInfo)}\n`
-            + `cloudserver: ${JSON.stringify(referenceMD.replicationInfo)}`,
+            'replicationInfo written by crrExistingObjects differs from the one cloudserver writes on a PUT.\n' +
+                `crrExistingObjects: ${JSON.stringify(md.replicationInfo)}\n` +
+                `cloudserver: ${JSON.stringify(referenceMD.replicationInfo)}`,
         );
-    });
+    },
+);
 
 Then('the {string} backend of the object should be unchanged', async function (this: Zenko, site: string) {
     const saved = findBackend(this.getSaved<ReplicationInfo>('savedReplicationInfo'), site);
     assert(saved, `no '${site}' backend saved before the job`);
     const objectName = this.getSaved<string>('objectName');
-    const { Body } = await this.createBackbeatRoutesClient().send(new GetMetadataCommand({
-        Bucket: this.getSaved<string>('bucketName'),
-        Key: objectName,
-        VersionId: this.getLatestObjectVersion(objectName),
-    }));
+    const { Body } = await this.createBackbeatRoutesClient().send(
+        new GetMetadataCommand({
+            Bucket: this.getSaved<string>('bucketName'),
+            Key: objectName,
+            VersionId: this.getLatestObjectVersion(objectName),
+        }),
+    );
     const md = JSON.parse(Body!) as ObjectMDData;
     const current = findBackend(md.replicationInfo, site);
     assert.deepStrictEqual(
@@ -504,16 +518,17 @@ Given('a deleted destination bucket on that location', async function (this: Zen
     const lockTag = `@Lock${replicationLocation}`;
     const hasTestLock = scenarioTags.includes(lockTag);
     assert.strictEqual(
-        hasTestLock, true,
-        'This step can only be run when the tag @Lock$replicationLocation is configured'
+        hasTestLock,
+        true,
+        'This step can only be run when the tag @Lock$replicationLocation is configured',
     );
     assert.strictEqual(
-        true, replicationLockTags.includes(lockTag),
-        `The tag ${lockTag} must be added to the replicationLockTags array in common/hooks.ts`
+        true,
+        replicationLockTags.includes(lockTag),
+        `The tag ${lockTag} must be added to the replicationLockTags array in common/hooks.ts`,
     );
 
-    const { destinationBucket, awsS3Client } =
-        await getReplicationLocationConfig(this, replicationLocation);
+    const { destinationBucket, awsS3Client } = await getReplicationLocationConfig(this, replicationLocation);
     const command = new DeleteBucketCommand({
         Bucket: destinationBucket,
     });
@@ -521,8 +536,10 @@ Given('a deleted destination bucket on that location', async function (this: Zen
 });
 
 When('the destination bucket on the location is created again', async function (this: Zenko) {
-    const { destinationBucket, awsS3Client } =
-        await getReplicationLocationConfig(this, this.getSaved<string[]>('replicationLocations')[0]);
+    const { destinationBucket, awsS3Client } = await getReplicationLocationConfig(
+        this,
+        this.getSaved<string[]>('replicationLocations')[0],
+    );
     const command = new CreateBucketCommand({
         Bucket: destinationBucket,
     });
@@ -566,7 +583,8 @@ Given('CRR replication accounts are registered', function (this: Zenko) {
     this.addToSaved('cascadeBuckets', {} as Record<string, string>);
 });
 
-Given(/^an? (valid|invalid) multi-destination replication configuration with rules:$/,
+Given(
+    /^an? (valid|invalid) multi-destination replication configuration with rules:$/,
     async function (this: Zenko, validity: 'valid' | 'invalid', dataTable: DataTable) {
         const rows = dataTable.hashes() as RuleRow[];
         const srcBucket = this.getSaved<string>('bucketName');
@@ -588,40 +606,45 @@ Given(/^an? (valid|invalid) multi-destination replication configuration with rul
         } else {
             this.addToSaved('lastPutReplicationError', res.err || '');
         }
-    });
+    },
+);
 
-Given('a legacy comma-StorageClass replication configuration to locations {string}',
+Given(
+    'a legacy comma-StorageClass replication configuration to locations {string}',
     async function (this: Zenko, locationsCsv: string) {
         const srcBucket = this.getSaved<string>('bucketName');
         const locations = locationsCsv.split(',').map(s => s.trim());
         this.addToSaved('replicationLocations', locations);
         const config = {
             Role: DEFAULT_ROLE,
-            Rules: [{
-                ID: 'legacy-multi',
-                Prefix: '',
-                Status: 'Enabled',
-                Destination: {
-                    Bucket: `arn:aws:s3:::${srcBucket}`,
-                    StorageClass: locationsCsv,
+            Rules: [
+                {
+                    ID: 'legacy-multi',
+                    Prefix: '',
+                    Status: 'Enabled',
+                    Destination: {
+                        Bucket: `arn:aws:s3:::${srcBucket}`,
+                        StorageClass: locationsCsv,
+                    },
                 },
-            }],
+            ],
         };
         this.addToSaved('lastReplicationConfig', config);
         const res = await putBucketReplicationRaw.call(this, srcBucket, config);
         assert(!res.err, `expected putBucketReplication to succeed, got: ${res.err}`);
-    });
+    },
+);
 
-Then('the replication configuration request should be rejected with {string}',
+Then(
+    'the replication configuration request should be rejected with {string}',
     function (this: Zenko, errorCode: string) {
         const err = this.getSaved<string>('lastPutReplicationError') ?? '';
-        assert(
-            err.includes(errorCode),
-            `expected putBucketReplication error to contain '${errorCode}', got: ${err}`,
-        );
-    });
+        assert(err.includes(errorCode), `expected putBucketReplication error to contain '${errorCode}', got: ${err}`);
+    },
+);
 
-Then('the object replication should {string} within {int} seconds',
+Then(
+    'the object replication should {string} within {int} seconds',
     { timeout: REPLICATION_OUTCOME_STEP_TIMEOUT_MS },
     async function (this: Zenko, expectedOutcome: 'succeed' | 'fail' | 'never happen', timeoutSec: number) {
         assertBudgetFitsStepTimeout(timeoutSec, REPLICATION_OUTCOME_STEP_TIMEOUT_MS);
@@ -629,49 +652,38 @@ Then('the object replication should {string} within {int} seconds',
         const srcBucket = this.getSaved<string>('bucketName');
         const locations = this.getSaved<string[]>('replicationLocations') || [];
         assert(locations.length > 0, 'no replicationLocations saved on the scenario world');
-        await pollReplicationOutcome(
-            this,
-            objectName,
-            srcBucket,
-            expectedOutcome,
-            timeoutSec * 1000,
-            locations,
-        );
-    });
+        await pollReplicationOutcome(this, objectName, srcBucket, expectedOutcome, timeoutSec * 1000, locations);
+    },
+);
 
-Then('the replicated object on {string} should match the source',
-    async function (this: Zenko, location: string) {
+Then('the replicated object on {string} should match the source', async function (this: Zenko, location: string) {
+    await assertReplicaMatchesSource(this, location);
+});
+
+Then('the replicated object should match the source on every configured destination', async function (this: Zenko) {
+    const locations = this.getSaved<string[]>('replicationLocations') || [];
+    assert(locations.length > 0, 'no replicationLocations saved on the scenario world');
+    for (const location of locations) {
         await assertReplicaMatchesSource(this, location);
-    });
+    }
+});
 
-Then('the replicated object should match the source on every configured destination',
-    async function (this: Zenko) {
-        const locations = this.getSaved<string[]>('replicationLocations') || [];
-        assert(locations.length > 0, 'no replicationLocations saved on the scenario world');
-        for (const location of locations) {
-            await assertReplicaMatchesSource(this, location);
-        }
-    });
+Then('the object should not be replicated to {string}', async function (this: Zenko, location: string) {
+    // Caller is expected to have first waited for the enabled destinations
+    // to complete, so backbeat has had its chance. We then assert that the
+    // disabled destination has no per-backend metadata stamp at all.
+    const objectName = this.getSaved<string>('objectName');
+    const srcBucket = this.getSaved<string>('bucketName');
+    const res = await headObject(this, objectName, srcBucket);
+    assert.strictEqual(res.statusCode, 200, `failed to headObject, ${res.statusCode}`);
+    const parsed = safeJsonParse<SourceObjectReplicationMeta>(res.stdout || '{}');
+    assert(parsed.ok);
+    const status = parsed.result?.Metadata?.[`${location}-replication-status`];
+    assert.strictEqual(status, undefined, `object was unexpectedly replicated to '${location}', status=${status}`);
+});
 
-Then('the object should not be replicated to {string}',
-    async function (this: Zenko, location: string) {
-        // Caller is expected to have first waited for the enabled destinations
-        // to complete, so backbeat has had its chance. We then assert that the
-        // disabled destination has no per-backend metadata stamp at all.
-        const objectName = this.getSaved<string>('objectName');
-        const srcBucket = this.getSaved<string>('bucketName');
-        const res = await headObject(this, objectName, srcBucket);
-        assert.strictEqual(res.statusCode, 200, `failed to headObject, ${res.statusCode}`);
-        const parsed = safeJsonParse<SourceObjectReplicationMeta>(res.stdout || '{}');
-        assert(parsed.ok);
-        const status = parsed.result?.Metadata?.[`${location}-replication-status`];
-        assert.strictEqual(
-            status, undefined,
-            `object was unexpectedly replicated to '${location}', status=${status}`,
-        );
-    });
-
-Then('getBucketReplication should return a {string} configuration with {int} rules',
+Then(
+    'getBucketReplication should return a {string} configuration with {int} rules',
     async function (this: Zenko, format: string, expectedCount: number) {
         const srcBucket = this.getSaved<string>('bucketName');
         const result = await getBucketReplicationConfig.call(this, srcBucket);
@@ -680,36 +692,23 @@ Then('getBucketReplication should return a {string} configuration with {int} rul
             return;
         }
         const rules = (result.config.Rules as Array<Record<string, unknown>>) ?? [];
-        assert.strictEqual(
-            rules.length, expectedCount,
-            `expected ${expectedCount} rule(s), got ${rules.length}`,
-        );
+        assert.strictEqual(rules.length, expectedCount, `expected ${expectedCount} rule(s), got ${rules.length}`);
         for (const rule of rules) {
             if (format === 'V2') {
-                assert(
-                    rule.Filter !== undefined,
-                    `expected V2 rule to have Filter: ${JSON.stringify(rule)}`,
-                );
-                assert(
-                    rule.Prefix === undefined,
-                    `V2 rule should not carry top-level Prefix: ${JSON.stringify(rule)}`,
-                );
+                assert(rule.Filter !== undefined, `expected V2 rule to have Filter: ${JSON.stringify(rule)}`);
+                assert(rule.Prefix === undefined, `V2 rule should not carry top-level Prefix: ${JSON.stringify(rule)}`);
             } else if (format === 'V1') {
-                assert(
-                    rule.Prefix !== undefined,
-                    `expected V1 rule to have top-level Prefix: ${JSON.stringify(rule)}`,
-                );
-                assert(
-                    rule.Filter === undefined,
-                    `V1 rule should not have Filter: ${JSON.stringify(rule)}`,
-                );
+                assert(rule.Prefix !== undefined, `expected V1 rule to have top-level Prefix: ${JSON.stringify(rule)}`);
+                assert(rule.Filter === undefined, `V1 rule should not have Filter: ${JSON.stringify(rule)}`);
             } else {
                 assert.fail(`unsupported format '${format}', expected 'V1' or 'V2'`);
             }
         }
-    });
+    },
+);
 
-Then('getBucketReplication rule {int} should have StorageClass {string}',
+Then(
+    'getBucketReplication rule {int} should have StorageClass {string}',
     async function (this: Zenko, ruleIndex: number, expectedStorageClass: string) {
         const srcBucket = this.getSaved<string>('bucketName');
         const result = await getBucketReplicationConfig.call(this, srcBucket);
@@ -719,4 +718,5 @@ Then('getBucketReplication rule {int} should have StorageClass {string}',
         }
         const rules = (result.config.Rules as Array<{ Destination?: { StorageClass?: string } }>) ?? [];
         assert.strictEqual(rules[ruleIndex]?.Destination?.StorageClass, expectedStorageClass);
-    });
+    },
+);

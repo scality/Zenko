@@ -37,22 +37,28 @@ const ownerInfo = {};
 
 async function putObjectVersions(objName, vFormat) {
     for (let i = 0; i < 3; i++) {
-        const result = await s3.send(new PutObjectCommand({
-            Bucket: BUCKET_NAME[vFormat],
-            Key: objName,
-            Body: '',
-            ContentLength: 0,
-        }));
+        const result = await s3.send(
+            new PutObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: objName,
+                Body: '',
+                ContentLength: 0,
+            }),
+        );
         versionIds[vFormat][objName].push(result.VersionId);
     }
 }
 
 async function deleteObjectVersions(objName, vFormat) {
-    const promises = Array.from({ length: 3 }, (_, i) => s3.send(new DeleteObjectCommand({
-        Bucket: BUCKET_NAME[vFormat],
-        Key: objName,
-        VersionId: versionIds[vFormat][objName][i],
-    })));
+    const promises = Array.from({ length: 3 }, (_, i) =>
+        s3.send(
+            new DeleteObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: objName,
+                VersionId: versionIds[vFormat][objName][i],
+            }),
+        ),
+    );
     await Promise.all(promises);
 }
 
@@ -206,26 +212,32 @@ describe('Cloudserver : keyFormatVersion : versioned bucket', () => {
         });
 
         it(`Should delete specified version ${vFormat}`, async () => {
-            const res = await s3.send(new PutObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                Body: '',
-                ContentLength: 0,
-            }));
+            const res = await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: 'first-key',
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
             const tmpVersionId = res.VersionId;
 
-            await s3.send(new DeleteObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                VersionId: tmpVersionId,
-            }));
-
-            try {
-                await s3.send(new GetObjectCommand({
+            await s3.send(
+                new DeleteObjectCommand({
                     Bucket: BUCKET_NAME[vFormat],
                     Key: 'first-key',
                     VersionId: tmpVersionId,
-                }));
+                }),
+            );
+
+            try {
+                await s3.send(
+                    new GetObjectCommand({
+                        Bucket: BUCKET_NAME[vFormat],
+                        Key: 'first-key',
+                        VersionId: tmpVersionId,
+                    }),
+                );
                 throw new Error('Expected NoSuchVersion error');
             } catch (err) {
                 assert.strictEqual(err.name, 'NoSuchVersion');
@@ -233,9 +245,9 @@ describe('Cloudserver : keyFormatVersion : versioned bucket', () => {
         });
 
         it(`Should create a delete marker ${vFormat}`, async () => {
-            const deleteData = await s3.send(new DeleteObjectCommand(
-                { Bucket: BUCKET_NAME[vFormat], Key: 'first-key' },
-            ));
+            const deleteData = await s3.send(
+                new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key' }),
+            );
             assert(deleteData.DeleteMarker);
             const deleteMarkerVersionId = deleteData.VersionId;
 
@@ -251,11 +263,13 @@ describe('Cloudserver : keyFormatVersion : versioned bucket', () => {
             assert.strictEqual(listData.DeleteMarkers[0].Key, 'first-key');
             assert.strictEqual(listData.DeleteMarkers[0].VersionId, deleteMarkerVersionId);
 
-            await s3.send(new DeleteObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                VersionId: deleteMarkerVersionId,
-            }));
+            await s3.send(
+                new DeleteObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: 'first-key',
+                    VersionId: deleteMarkerVersionId,
+                }),
+            );
         });
     });
 });

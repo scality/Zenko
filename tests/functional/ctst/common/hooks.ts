@@ -16,9 +16,7 @@ import { prepareMetricsScenarios } from './utils';
 import { cleanS3Bucket } from './common';
 import { cleanAzureContainer, cleanZenkoLocation } from 'steps/azureArchive';
 import { displayDebuggingInformation, preparePRA } from 'steps/pra';
-import {
-    cleanupAccount,
-} from './utils';
+import { cleanupAccount } from './utils';
 import { waitForZenkoToStabilize } from 'steps/utils/kubernetes';
 import { startDLQConsumer, stopDLQConsumer } from 'steps/utils/kafka';
 
@@ -29,15 +27,13 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const { atMostOnePicklePerTag } = parallelCanAssignHelpers;
 
-export const replicationLockTags = [
-    '@Lockawsbackendreplicationctstfail',
-];
+export const replicationLockTags = ['@Lockawsbackendreplicationctstfail'];
 const noParallelRun = atMostOnePicklePerTag([
     '@AfterAll',
     '@PRA',
     '@ColdStorage',
     '@ServerSideEncryption',
-    ...replicationLockTags
+    ...replicationLockTags,
 ]);
 
 setParallelCanAssign(noParallelRun);
@@ -61,8 +57,8 @@ const ctstStartMs = Date.now();
 Before((scenario: ITestCaseHookParameter) => {
     if (Date.now() > ctstStartMs + ctstMaxRuntimeMs) {
         throw new Error(
-            `CTST global time budget (${ctstMaxRuntimeMs / 60000} min) exceeded; failing scenario `
-            + `"${scenario.pickle.name}" (started too late to run within the budget)`,
+            `CTST global time budget (${ctstMaxRuntimeMs / 60000} min) exceeded; failing scenario ` +
+                `"${scenario.pickle.name}" (started too late to run within the budget)`,
         );
     }
 });
@@ -104,62 +100,62 @@ Before({ tags: '@PrepareStorageUsageReportingScenarios', timeout: 1200000 }, asy
     });
 });
 
-Before({ tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
+Before(
+    { tags: '@ServerSideEncryptionKmip', timeout: 15 * 60 * 1000 },
     // Patch the Zenko CR with KMIP configuration before running any KMIP-related tests
     async function (this: Zenko) {
         const lockName = `kmip-cr-patch-${process.ppid}`;
-        await runOnceAcrossWorkers(
-            { lockName, logger: this.logger },
-            async () => {
-                const namespace = 'default';
-                const zenkoName = 'end2end';
-                const client = this.kubernetesClient.customObjects;
-                const cr = await client.getNamespacedCustomObject({
-                    group: 'zenko.io',
-                    version: 'v1alpha2',
-                    namespace,
-                    plural: 'zenkos',
-                    name: zenkoName,
-                }) as {
-                    spec?: {
-                        kms?: {
-                            kmip?: {
-                                providerName?: string;
-                                tlsAuth?: { tlsSecretName?: string };
-                                endpoints?: { host?: string; port?: number }[];
-                            };
+        await runOnceAcrossWorkers({ lockName, logger: this.logger }, async () => {
+            const namespace = 'default';
+            const zenkoName = 'end2end';
+            const client = this.kubernetesClient.customObjects;
+            const cr = (await client.getNamespacedCustomObject({
+                group: 'zenko.io',
+                version: 'v1alpha2',
+                namespace,
+                plural: 'zenkos',
+                name: zenkoName,
+            })) as {
+                spec?: {
+                    kms?: {
+                        kmip?: {
+                            providerName?: string;
+                            tlsAuth?: { tlsSecretName?: string };
+                            endpoints?: { host?: string; port?: number }[];
                         };
                     };
                 };
-                const alreadyConfigured =
-                    cr?.spec?.kms?.kmip?.providerName === 'pykmip'
-                    && cr?.spec?.kms?.kmip?.endpoints?.some(
-                        ep => ep.host === `pykmip.${namespace}.svc.cluster.local` && ep.port === 5696,
-                    );
-                if (alreadyConfigured) {
-                    return;
-                }
+            };
+            const alreadyConfigured =
+                cr?.spec?.kms?.kmip?.providerName === 'pykmip' &&
+                cr?.spec?.kms?.kmip?.endpoints?.some(
+                    ep => ep.host === `pykmip.${namespace}.svc.cluster.local` && ep.port === 5696,
+                );
+            if (alreadyConfigured) {
+                return;
+            }
 
-                const kmipValue = {
-                    providerName: 'pykmip',
-                    tlsAuth: { tlsSecretName: `${zenkoName}-kmip-certs` },
-                    endpoints: [{
+            const kmipValue = {
+                providerName: 'pykmip',
+                tlsAuth: { tlsSecretName: `${zenkoName}-kmip-certs` },
+                endpoints: [
+                    {
                         host: `pykmip.${namespace}.svc.cluster.local`,
                         port: 5696,
-                    }],
-                };
+                    },
+                ],
+            };
 
-                await client.patchNamespacedCustomObject({
-                    group: 'zenko.io',
-                    version: 'v1alpha2',
-                    namespace,
-                    plural: 'zenkos',
-                    name: zenkoName,
-                    body: [{ op: 'add', path: '/spec/kms', value: { kmip: kmipValue } }],
-                });
-                await waitForZenkoToStabilize(this, true);
-            },
-        );
+            await client.patchNamespacedCustomObject({
+                group: 'zenko.io',
+                version: 'v1alpha2',
+                namespace,
+                plural: 'zenkos',
+                name: zenkoName,
+                body: [{ op: 'add', path: '/spec/kms', value: { kmip: kmipValue } }],
+            });
+            await waitForZenkoToStabilize(this, true);
+        });
     },
 );
 
@@ -182,10 +178,7 @@ After(async function (this: Zenko, results) {
         // Also my opinion is good idempotent tests should work without cleanups
         return;
     }
-    await cleanS3Bucket(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
+    await cleanS3Bucket(this, this.getSaved<string>('bucketName'));
 });
 
 After({ tags: '@Quotas' }, async function (this: Zenko, results) {
@@ -199,17 +192,11 @@ After({ tags: '@Quotas' }, async function (this: Zenko, results) {
 });
 
 After({ tags: '@AzureArchive' }, async function (this: Zenko) {
-    await cleanZenkoLocation(
-        this,
-        this.getSaved<string>('locationName'),
-    );
-    await cleanAzureContainer(
-        this,
-        this.getSaved<string>('bucketName'),
-    );
+    await cleanZenkoLocation(this, this.getSaved<string>('locationName'));
+    await cleanAzureContainer(this, this.getSaved<string>('bucketName'));
 });
 
-After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT'}, async function (this: Zenko, results) {
+After({ tags: '@BP-ASSUME_ROLE_USER_CROSS_ACCOUNT' }, async function (this: Zenko, results) {
     const crossAccountName = this.getSaved<string>('crossAccountName');
 
     if (results.result?.status === 'FAILED' || !crossAccountName) {

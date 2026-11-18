@@ -1,13 +1,7 @@
 import { Buffer } from 'buffer';
 import { promises as fsp } from 'fs';
 import { join } from 'path';
-import {
-    CacheHelper,
-    Identity,
-    S3,
-    AWSVersionObject,
-    Command,
-} from 'cli-testing';
+import { CacheHelper, Identity, S3, AWSVersionObject, Command } from 'cli-testing';
 import { extractPropertyFromResults, s3FunctionExtraParams, safeJsonParse, sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
 import assert from 'assert';
@@ -18,12 +12,12 @@ enum AuthorizationType {
     ALLOW = 'Allow',
     DENY = 'Deny',
     IMPLICIT_DENY = 'ImplicitDeny',
-    NO_RESOURCE = 'NoResource'
+    NO_RESOURCE = 'NoResource',
 }
 
 type AuthorizationConfiguration = {
-    Identity: AuthorizationType,
-    Resource: AuthorizationType,
+    Identity: AuthorizationType;
+    Resource: AuthorizationType;
 };
 
 export async function saveAsFile(name: string, content: string) {
@@ -72,100 +66,110 @@ async function runActionAgainstBucket(world: Zenko, action: string) {
     world.useSavedIdentity();
     const userCredentials = Identity.getCurrentCredentials();
     if (!userCredentials) {
-        throw new Error('User credentials not set. '
-            + 'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.');
+        throw new Error(
+            'User credentials not set. ' +
+                'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.',
+        );
     }
     switch (action) {
-    case 'MetadataSearch': {
-        world.setResult(await world.metadataSearchResponseCode(userCredentials,
-            world.getSaved<string>('bucketName')));
-        break;
-    }
-    case 'PutObjectVersion': {
-        world.setResult(await world.putObjectVersionResponseCode(userCredentials,
-            world.getSaved<string>('bucketName'), world.getSaved<string>('objectName')));
-        break;
-    }
-    default: {
-        world.resetCommand();
-        world.addToSaved('ifS3Standard', true);
-        world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
-        if (world.getSaved<string>('lastVersionId')) {
-            world.addCommandParameter({ versionId: world.getSaved<string>('lastVersionId') });
+        case 'MetadataSearch': {
+            world.setResult(
+                await world.metadataSearchResponseCode(userCredentials, world.getSaved<string>('bucketName')),
+            );
+            break;
         }
-        // if copy object, set copy source as the saved object name, and the key as a new object name
-        if (action === 'CopyObject') {
-            world.addCommandParameter({
-                copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
-            });
-            world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
-        } else if (world.getSaved<string>('objectName')) {
-            world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+        case 'PutObjectVersion': {
+            world.setResult(
+                await world.putObjectVersionResponseCode(
+                    userCredentials,
+                    world.getSaved<string>('bucketName'),
+                    world.getSaved<string>('objectName'),
+                ),
+            );
+            break;
         }
-        if (action === 'PutBucketPolicy') {
-            world.addCommandParameter({
-                policy: JSON.stringify({
-                    Version: '2012-10-17',
-                    Statement: [{
-                        Effect: 'Allow',
-                        Principal: '*',
-                        Action: 's3:*',
-                        Resource: `arn:aws:s3:::${world.getSaved<string>('bucketName')}/*`,
-                    }],
-                }),
-            });
-        }
-        await uploadSetup(world, action);
-        if (action === 'UploadPart') {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
-            const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
-            world.addToSaved('partNumber', partNumber);
-            world.addCommandParameter({ partNumber: `${partNumber}` });
-        }
-        if (action === 'UploadPartCopy') {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
-            const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
-            world.addToSaved('partNumber', partNumber);
-            world.addCommandParameter({ partNumber: `${partNumber}` });
-            world.addCommandParameter({
-                copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
-            });
-            world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
-        }
-        if (action === 'PutBucketCors') {
-            CacheHelper.forceMode = 'cli';
-        }
-        if (world.getSaved<string>('uploadId')) {
-            world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') });
-        }
-        const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
-        const actionCall: (params: unknown) => Promise<Command> =
-        // @ts-expect-error the function is dynamically called
-            S3[usedAction] as (params: unknown) => Promise<Command>;
-
-        if (actionCall) {
-            if (usedAction in s3FunctionExtraParams) {
-                s3FunctionExtraParams[usedAction].forEach(param => {
-                    world.logger.debug('Adding parameter', { param });
-                    // Keys that are set in the scenarios take precedence over the
-                    // ones set in the extra params.
-                    const key = Object.keys(param)[0];
-                    if (!world.getSaved<string>(key)) {
-                        world.addCommandParameter(param);
-                    } else {
-                        world.addCommandParameter({ [key]: world.getSaved<string>(key) });
-                    }
+        default: {
+            world.resetCommand();
+            world.addToSaved('ifS3Standard', true);
+            world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
+            if (world.getSaved<string>('lastVersionId')) {
+                world.addCommandParameter({ versionId: world.getSaved<string>('lastVersionId') });
+            }
+            // if copy object, set copy source as the saved object name, and the key as a new object name
+            if (action === 'CopyObject') {
+                world.addCommandParameter({
+                    copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
+                });
+                world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
+            } else if (world.getSaved<string>('objectName')) {
+                world.addCommandParameter({ key: world.getSaved<string>('objectName') });
+            }
+            if (action === 'PutBucketPolicy') {
+                world.addCommandParameter({
+                    policy: JSON.stringify({
+                        Version: '2012-10-17',
+                        Statement: [
+                            {
+                                Effect: 'Allow',
+                                Principal: '*',
+                                Action: 's3:*',
+                                Resource: `arn:aws:s3:::${world.getSaved<string>('bucketName')}/*`,
+                            },
+                        ],
+                    }),
                 });
             }
-            world.setResult(await actionCall(world.getCommandParameters()));
-            await uploadTeardown(world, action);
-            CacheHelper.forceMode = null;
-        } else {
-            CacheHelper.forceMode = null;
-            throw new Error(`Action ${usedAction} is not supported yet`);
+            await uploadSetup(world, action);
+            if (action === 'UploadPart') {
+                world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
+                const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
+                world.addToSaved('partNumber', partNumber);
+                world.addCommandParameter({ partNumber: `${partNumber}` });
+            }
+            if (action === 'UploadPartCopy') {
+                world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') || 'fakeId' });
+                const partNumber = world.getSaved<number>('partNumber') + 1 || 1;
+                world.addToSaved('partNumber', partNumber);
+                world.addCommandParameter({ partNumber: `${partNumber}` });
+                world.addCommandParameter({
+                    copySource: `${world.getSaved<string>('bucketName')}/${world.getSaved<string>('objectName')}`,
+                });
+                world.addCommandParameter({ key: world.getSaved<string>('copyObject') || 'copyObject' });
+            }
+            if (action === 'PutBucketCors') {
+                CacheHelper.forceMode = 'cli';
+            }
+            if (world.getSaved<string>('uploadId')) {
+                world.addCommandParameter({ uploadId: world.getSaved<string>('uploadId') });
+            }
+            const usedAction = action.charAt(0).toLowerCase() + action.slice(1);
+            const actionCall: (params: unknown) => Promise<Command> =
+                // @ts-expect-error the function is dynamically called
+                S3[usedAction] as (params: unknown) => Promise<Command>;
+
+            if (actionCall) {
+                if (usedAction in s3FunctionExtraParams) {
+                    s3FunctionExtraParams[usedAction].forEach(param => {
+                        world.logger.debug('Adding parameter', { param });
+                        // Keys that are set in the scenarios take precedence over the
+                        // ones set in the extra params.
+                        const key = Object.keys(param)[0];
+                        if (!world.getSaved<string>(key)) {
+                            world.addCommandParameter(param);
+                        } else {
+                            world.addCommandParameter({ [key]: world.getSaved<string>(key) });
+                        }
+                    });
+                }
+                world.setResult(await actionCall(world.getCommandParameters()));
+                await uploadTeardown(world, action);
+                CacheHelper.forceMode = null;
+            } else {
+                CacheHelper.forceMode = null;
+                throw new Error(`Action ${usedAction} is not supported yet`);
+            }
+            break;
         }
-        break;
-    }
     }
 }
 
@@ -174,20 +178,18 @@ async function createBucketWithConfiguration(
     bucketName: string,
     withVersioning?: string,
     withObjectLock?: string,
-    retentionMode?: string) {
+    retentionMode?: string,
+) {
     world.resetCommand();
-    const preName = world.getSaved<string>('accountName') ||
-        world.parameters.AccountName || constants.ACCOUNT_NAME;
-    const usedBucketName = bucketName
-        || `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
+    const preName = world.getSaved<string>('accountName') || world.parameters.AccountName || constants.ACCOUNT_NAME;
+    const usedBucketName = bucketName || `${preName}${constants.BUCKET_NAME_TEST}${randomString()}`.toLocaleLowerCase();
     world.addToSaved('bucketName', usedBucketName);
     world.addCommandParameter({ bucket: usedBucketName });
     if (withObjectLock === 'with') {
         // Empty strings are used to pass parameters that are used as a flag and do not require a value
         world.addCommandParameter({ objectLockEnabledForBucket: ' ' });
     }
-    world.logger.debug('Creating bucket',
-        { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
+    world.logger.debug('Creating bucket', { bucket: usedBucketName, withObjectLock, retentionMode, withVersioning });
     await S3.createBucket(world.getCommandParameters());
     if (withVersioning === 'with') {
         world.addCommandParameter({ versioningConfiguration: 'Status=Enabled' });
@@ -198,7 +200,8 @@ async function createBucketWithConfiguration(
         world.resetCommand();
         world.addCommandParameter({ bucket: usedBucketName });
         world.addCommandParameter({
-            objectLockConfiguration: '{ ' +
+            objectLockConfiguration:
+                '{ ' +
                 '"ObjectLockEnabled": "Enabled",' +
                 '"Rule": {' +
                 '"DefaultRetention":' +
@@ -234,7 +237,7 @@ async function putMpuObject(world: Zenko, parts: number = 2, objectName: string,
         world.resetCommand();
         world.addCommandParameter({ key });
         world.addCommandParameter({ bucket });
-        world.addCommandParameter({ partNumber: (i+1).toString() });
+        world.addCommandParameter({ partNumber: (i + 1).toString() });
         world.addCommandParameter({ uploadId });
         if (body) {
             world.addCommandParameter({ body });
@@ -245,7 +248,7 @@ async function putMpuObject(world: Zenko, parts: number = 2, objectName: string,
 
         uploadedParts.push({
             ETag: extractPropertyFromResults<string>(uploadPartResult, 'ETag'),
-            PartNumber: (i+1).toString(),
+            PartNumber: (i + 1).toString(),
         });
     }
 
@@ -333,10 +336,10 @@ async function headObject(world: Zenko, objectKey: string, bucketName: string): 
 
 function getAuthorizationConfiguration(world: Zenko): AuthorizationConfiguration {
     return {
-        Identity: world.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity
-            || AuthorizationType.NO_RESOURCE,
-        Resource: world.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource
-            || AuthorizationType.NO_RESOURCE,
+        Identity:
+            world.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Identity || AuthorizationType.NO_RESOURCE,
+        Resource:
+            world.getSaved<AuthorizationConfiguration>('authzConfiguration')?.Resource || AuthorizationType.NO_RESOURCE,
     };
 }
 
@@ -345,11 +348,13 @@ async function emptyNonVersionedBucket(world: Zenko) {
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
     const results = await S3.listObjects(world.getCommandParameters());
     const objects = (JSON.parse(results.stdout || '{}') as { Contents?: AWSVersionObject[] })?.Contents || [];
-    await Promise.all(objects.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
+    await Promise.all(
+        objects.map(obj => {
+            world.deleteKeyFromCommand('key');
+            world.addCommandParameter({ key: obj.Key });
+            return S3.deleteObject(world.getCommandParameters());
+        }),
+    );
 }
 
 async function emptyVersionedBucket(world: Zenko) {
@@ -357,20 +362,24 @@ async function emptyVersionedBucket(world: Zenko) {
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
     const results = await S3.listObjectVersions(world.getCommandParameters());
     const parsedResults = JSON.parse(results.stdout || '{}') as Record<string, unknown>;
-    const versions = parsedResults.Versions as AWSVersionObject[] || [];
-    const deleteMarkers = parsedResults.DeleteMarkers as AWSVersionObject[] || [];
-    await Promise.all(deleteMarkers.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
-    await Promise.all(versions.map(obj => {
-        world.deleteKeyFromCommand('key');
-        world.addCommandParameter({ key: obj.Key });
-        world.addCommandParameter({ versionId: obj.VersionId });
-        return S3.deleteObject(world.getCommandParameters());
-    }));
+    const versions = (parsedResults.Versions as AWSVersionObject[]) || [];
+    const deleteMarkers = (parsedResults.DeleteMarkers as AWSVersionObject[]) || [];
+    await Promise.all(
+        deleteMarkers.map(obj => {
+            world.deleteKeyFromCommand('key');
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }),
+    );
+    await Promise.all(
+        versions.map(obj => {
+            world.deleteKeyFromCommand('key');
+            world.addCommandParameter({ key: obj.Key });
+            world.addCommandParameter({ versionId: obj.VersionId });
+            return S3.deleteObject(world.getCommandParameters());
+        }),
+    );
 }
 
 async function putBucketLifecycleConfigurationWithRetry(world: Zenko, rules: Record<string, unknown>[]) {
@@ -423,10 +432,13 @@ async function addExpirationWorkflow(this: Zenko, days: number, includeNoncurren
 
 // Polls for transition status and checks the DLQ buffer on every iteration for early failure.
 // Relies on bucket names being randomized so a DLQ entry from a previous run cannot match.
-async function verifyObjectLocation(this: Zenko, objectName: string,
-    objectTransitionStatus: string, storageClass: string) {
-    const objName =
-        getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
+async function verifyObjectLocation(
+    this: Zenko,
+    objectName: string,
+    objectTransitionStatus: string,
+    storageClass: string,
+) {
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -450,7 +462,7 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
             this.logger.error('Found failure in dead letter queue', { dlqMsg });
             throw new Error(
                 `Transition failed for object "${objName}" in bucket "${bucketName}":` +
-                ` found in dead letter queue (op: ${dlqMsg.op}, reason: ${dlqMsg.reason})`,
+                    ` found in dead letter queue (op: ${dlqMsg.op}, reason: ${dlqMsg.reason})`,
             );
         }
 
@@ -463,14 +475,16 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
         }
         assert(res.stdout);
         const parsed = safeJsonParse<{
-            StorageClass: string | undefined,
-            Restore: string | undefined,
+            StorageClass: string | undefined;
+            Restore: string | undefined;
         }>(res.stdout);
         assert(parsed.ok);
         const expectedClass = storageClass !== '' ? storageClass : undefined;
         let conditionOk = parsed.result?.StorageClass === expectedClass;
         if (objectTransitionStatus === 'restored') {
-            conditionOk = conditionOk && !!parsed.result?.Restore &&
+            conditionOk =
+                conditionOk &&
+                !!parsed.result?.Restore &&
                 parsed.result.Restore.includes('ongoing-request="false", expiry-date=');
         } else if (objectTransitionStatus === 'cold') {
             conditionOk = conditionOk && !parsed.result?.Restore;
@@ -484,13 +498,13 @@ async function verifyObjectLocation(this: Zenko, objectName: string,
 
     throw new Error(
         `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
-        `waiting for object "${objName}" to reach "${objectTransitionStatus}" ` +
-        `with storage class "${storageClass}"`,
+            `waiting for object "${objName}" to reach "${objectTransitionStatus}" ` +
+            `with storage class "${storageClass}"`,
     );
 }
 
 async function restoreObject(this: Zenko, objectName: string, days: number) {
-    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) ||  this.getSaved<string>('objectName');
+    const objName = getObjectNameWithBackendFlakiness.call(this, objectName) || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -522,14 +536,15 @@ async function putBucketReplication(
     replicationLocation: string,
     format: 'V1' | 'V2' = 'V1',
 ) {
-    const keyFilter = format === 'V2'
-        ? {
-            Filter: { Prefix: '' },
-            Priority: 1,
-        }
-        : {
-            Prefix: '',
-        };
+    const keyFilter =
+        format === 'V2'
+            ? {
+                  Filter: { Prefix: '' },
+                  Priority: 1,
+              }
+            : {
+                  Prefix: '',
+              };
     const res = await putBucketReplicationRaw.call(this, srcBucket, {
         Role: 'arn:aws:iam::root:role/s3-replication-role',
         Rules: [
@@ -568,16 +583,16 @@ function getObjectNameWithBackendFlakiness(this: Zenko, objectName: string) {
     }
 
     switch (backendFlakiness) {
-    case 'command':
-        objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
-        break;
-    case 'archive':
-    case 'restore':
-        objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
-        break;
-    default:
-        this.logger.debug('Unknown backend flakyness', { backendFlakiness });
-        return objectName;
+        case 'command':
+            objectNameFinal = `${objectName}.scal-retry-command-${backendFlakinessRetryNumber}`;
+            break;
+        case 'archive':
+        case 'restore':
+            objectNameFinal = `${objectName}.scal-retry-${backendFlakiness}-job-${backendFlakinessRetryNumber}`;
+            break;
+        default:
+            this.logger.debug('Unknown backend flakyness', { backendFlakiness });
+            return objectName;
     }
     return objectNameFinal;
 }

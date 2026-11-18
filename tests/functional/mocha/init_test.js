@@ -18,24 +18,26 @@ const body = 'testbody';
 
 describe('Test Configuration', () => {
     it('should create a bucket and upload an object', async () => {
-        await s3.send(new CreateBucketCommand({
-            Bucket: bucket,
-            CreateBucketConfiguration: {
-                LocationConstraint: 'us-east-1',
-            },
-        }));
+        await s3.send(
+            new CreateBucketCommand({
+                Bucket: bucket,
+                CreateBucketConfiguration: {
+                    LocationConstraint: 'us-east-1',
+                },
+            }),
+        );
         const listBucketsRes = await s3.send(new ListBucketsCommand({}));
         assert.strictEqual(listBucketsRes.Buckets.length, 1);
         assert.strictEqual(listBucketsRes.Buckets[0].Name, bucket);
-        await s3.send(new PutObjectCommand({
-            Bucket: bucket,
-            Key: key,
-            Body: body,
-            ContentLength: Buffer.byteLength(body),
-        }));
-        const getObjectRes = await s3.send(new GetObjectCommand(
-            { Bucket: bucket, Key: key },
-        ));
+        await s3.send(
+            new PutObjectCommand({
+                Bucket: bucket,
+                Key: key,
+                Body: body,
+                ContentLength: Buffer.byteLength(body),
+            }),
+        );
+        const getObjectRes = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
         const chunks = [];
         for await (const chunk of getObjectRes.Body) {
             chunks.push(chunk);

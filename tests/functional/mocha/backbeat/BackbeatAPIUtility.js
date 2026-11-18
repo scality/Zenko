@@ -32,7 +32,7 @@ class BackbeatAPIUtility {
     resumeReplication(locationName, schedule, hoursScheduled, cb) {
         let path = '/_/backbeat/api/crr/resume';
         let requestBody;
-        if (locationName && (schedule === false)) {
+        if (locationName && schedule === false) {
             path = `${path}/${locationName}`;
         } else if (locationName && hoursScheduled) {
             path = `${path}/${locationName}/schedule`;
@@ -71,16 +71,21 @@ class BackbeatAPIUtility {
     resumeIngestion(locationName, schedule, hoursScheduled, cb) {
         let path = '/_/backbeat/api/ingestion/resume';
         let requestBody;
-        if (locationName && (schedule === false)) {
+        if (locationName && schedule === false) {
             path = `${path}/${locationName}`;
         } else if (locationName && hoursScheduled) {
             path = `${path}/${locationName}/schedule`;
             requestBody = JSON.stringify({ hours: hoursScheduled });
         }
-        return makeUpdateRequest(path, (err, res) => {
-            assert.ifError(err);
-            return getResponseBody(res, cb);
-        }, undefined, requestBody);
+        return makeUpdateRequest(
+            path,
+            (err, res) => {
+                assert.ifError(err);
+                return getResponseBody(res, cb);
+            },
+            undefined,
+            requestBody,
+        );
     }
 }
 

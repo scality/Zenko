@@ -12,27 +12,27 @@ import { waitForDataServicesToStabilize, waitForZenkoToStabilize } from './utils
 import { waitForDLQMessage } from './utils/kafka';
 
 type manifestEntry = {
-    'archive-id': string,
-    'archive-version': number,
-    'ns-id': string,
-    'archive-offset': number,
+    'archive-id': string;
+    'archive-version': number;
+    'ns-id': string;
+    'archive-offset': number;
     'origin': {
-        'bucket': string,
-        'object-key': string,
-        'version-id': string,
-        'etag': string,
-    },
+        'bucket': string;
+        'object-key': string;
+        'version-id': string;
+        'etag': string;
+    };
     'metadata': {
-        'content-length': number,
-    },
+        'content-length': number;
+    };
 };
 
 type manifest = {
-    'pack-id': string,
-    'upload-date': string,
-    'pack-size': number,
-    'entries': manifestEntry[],
-}
+    'pack-id': string;
+    'upload-date': string;
+    'pack-size': number;
+    'entries': manifestEntry[];
+};
 
 /**
  * Verify that an object has well been rehydrated in azure
@@ -74,11 +74,9 @@ async function findObjectPackAndManifest(
     world: Zenko,
     bucketName: string,
     objectName: string,
-): Promise<{ manifestName?:string, manifest?:manifest, tarName?:string }> {
+): Promise<{ manifestName?: string; manifest?: manifest; tarName?: string }> {
     // lisintg all blobs in the container
-    const blobs = await world.azureClient.listBlobs(
-        world.parameters.AzureArchiveContainer,
-    );
+    const blobs = await world.azureClient.listBlobs(world.parameters.AzureArchiveContainer);
     // filtering the list of blobs only leaving the manifests
     const manifests = blobs.filter(blob => blob.name.includes('.json.'));
     for (let i = 0; i < manifests.length; i++) {
@@ -93,9 +91,8 @@ async function findObjectPackAndManifest(
         }
         const manifestJson = result as manifest;
         // checking if target object is in the manifest
-        const found = manifestJson.entries.find(entry =>
-            entry.origin.bucket === bucketName &&
-            entry.origin['object-key'] === objectName,
+        const found = manifestJson.entries.find(
+            entry => entry.origin.bucket === bucketName && entry.origin['object-key'] === objectName,
         );
         if (found) {
             return {
@@ -114,10 +111,7 @@ async function findObjectPackAndManifest(
  * @param {string} locationName location name
  * @returns {void}
  */
-export async function cleanZenkoLocation(
-    world: Zenko,
-    locationName: string,
-): Promise<void> {
+export async function cleanZenkoLocation(world: Zenko, locationName: string): Promise<void> {
     if (!locationName) {
         return;
     }
@@ -133,10 +127,7 @@ export async function cleanZenkoLocation(
  * @param {string} bucketName bucket name
  * @returns {void}
  */
-export async function cleanAzureContainer(
-    world: Zenko,
-    bucketName: string,
-): Promise<void> {
+export async function cleanAzureContainer(world: Zenko, bucketName: string): Promise<void> {
     const createdObjects = world.getCreatedObjects();
     if (!createdObjects) {
         return;
@@ -144,42 +135,24 @@ export async function cleanAzureContainer(
     const iterator = createdObjects?.keys();
     let currentKey = iterator.next();
     while (currentKey.value) {
-        const {
-            tarName,
-            manifestName,
-        } = await findObjectPackAndManifest(
+        const { tarName, manifestName } = await findObjectPackAndManifest(
             world,
             bucketName,
             currentKey.value as string,
         );
         if (tarName) {
-            await world.azureClient.deleteBlob(
-                world.parameters.AzureArchiveContainer,
-                tarName,
-            );
-            await world.azureClient.deleteBlob(
-                world.parameters.AzureArchiveContainer,
-                `rehydrate/${tarName}`,
-            );
+            await world.azureClient.deleteBlob(world.parameters.AzureArchiveContainer, tarName);
+            await world.azureClient.deleteBlob(world.parameters.AzureArchiveContainer, `rehydrate/${tarName}`);
         }
         if (manifestName) {
-            await world.azureClient.deleteBlob(
-                world.parameters.AzureArchiveContainer,
-                manifestName,
-            );
+            await world.azureClient.deleteBlob(world.parameters.AzureArchiveContainer, manifestName);
         }
         currentKey = iterator.next();
     }
 }
 
 Then('manifest access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
-    const {
-        manifestName,
-    } = await findObjectPackAndManifest(
-        this,
-        this.getSaved<string>('bucketName'),
-        objectName,
-    );
+    const { manifestName } = await findObjectPackAndManifest(this, this.getSaved<string>('bucketName'), objectName);
     assert(manifestName);
     // manifest access tier
     const manifestProperties = await this.azureClient.getBlobProperties(
@@ -190,27 +163,15 @@ Then('manifest access tier should be valid for object {string}', async function 
 });
 
 Then('tar access tier should be valid for object {string}', async function (this: Zenko, objectName: string) {
-    const {
-        tarName,
-    } = await findObjectPackAndManifest(
-        this,
-        this.getSaved<string>('bucketName'),
-        objectName,
-    );
+    const { tarName } = await findObjectPackAndManifest(this, this.getSaved<string>('bucketName'), objectName);
     assert(tarName);
     // manifest access tier
-    const packProperties = await this.azureClient.getBlobProperties(
-        this.parameters.AzureArchiveContainer,
-        tarName,
-    );
+    const packProperties = await this.azureClient.getBlobProperties(this.parameters.AzureArchiveContainer, tarName);
     assert.strictEqual(packProperties.accessTier, this.parameters.AzureArchiveAccessTier);
 });
 
 Then('manifest and tar containing object {string} should exist', async function (this: Zenko, objectName: string) {
-    const {
-        manifestName,
-        tarName,
-    } = await findObjectPackAndManifest(
+    const { manifestName, tarName } = await findObjectPackAndManifest(
         this,
         this.getSaved<string>('bucketName'),
         objectName || this.getSaved<string>('objectName'),
@@ -220,7 +181,7 @@ Then('manifest and tar containing object {string} should exist', async function 
 });
 
 Then('object {string} should have the same data', async function (this: Zenko, objectName: string) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = objectName || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -238,31 +199,24 @@ Then('object {string} should have the same data', async function (this: Zenko, o
     assert.strictEqual(objectBuffer.toString(), expectedContent.toString());
 });
 
-Then('manifest containing object {string} should {string} object {string}',
+Then(
+    'manifest containing object {string} should {string} object {string}',
     async function (this: Zenko, objectName1: string, condition: string, objectName2: string) {
-        const {
-            manifest,
-        } = await findObjectPackAndManifest(
-            this,
-            this.getSaved<string>('bucketName'),
-            objectName1,
-        );
+        const { manifest } = await findObjectPackAndManifest(this, this.getSaved<string>('bucketName'), objectName1);
         assert(manifest);
-        const found = manifest.entries.find((entry:manifestEntry) =>
-            entry?.origin['object-key'] === objectName2,
-        );
+        const found = manifest.entries.find((entry: manifestEntry) => entry?.origin['object-key'] === objectName2);
         if (condition === 'contain') {
             assert(found);
         } else {
             assert.deepStrictEqual(found, undefined);
         }
-    });
+    },
+);
 
-Then('manifest containing object {string} should contain {int} objects',
+Then(
+    'manifest containing object {string} should contain {int} objects',
     async function (this: Zenko, objectName: string, objectCount: number) {
-        const {
-            manifest,
-        } = await findObjectPackAndManifest(
+        const { manifest } = await findObjectPackAndManifest(
             this,
             this.getSaved<string>('bucketName'),
             objectName || this.getSaved<string>('objectName'),
@@ -270,45 +224,46 @@ Then('manifest containing object {string} should contain {int} objects',
         assert(manifest);
         const count = manifest.entries.length;
         assert.strictEqual(count, objectCount);
+    },
+);
+
+Then('blob for object {string} must be rehydrated', async function (this: Zenko, objectName: string) {
+    const tarName = await isObjectRehydrated(this, objectName);
+    assert(tarName);
+    await this.azureClient.sendBlobCreatedEventToQueue(
+        this.parameters.AzureArchiveQueue,
+        this.parameters.AzureArchiveContainer,
+        `rehydrate/${tarName}`,
+    );
+});
+
+Then('restoration of object {string} failed and ends up in DLQ', async function (this: Zenko, objectName: string) {
+    const tarName = await isObjectRehydrated(this, objectName);
+    assert(tarName);
+    // Skipping sending BlobCreatedEvent to queue,
+    // which fails the restore and eventually ends up in DLQ
+
+    const objName = objectName || this.getSaved<string>('objectName');
+    const bucketName = this.getSaved<string>('bucketName');
+
+    // wait for restore to fail and end up in dead letter queue
+    const restoreTimeoutMs = parseInt(this.parameters.SorbetdRestoreTimeout) * 1000;
+    if (isNaN(restoreTimeoutMs)) {
+        throw new Error('SorbetdRestoreTimeout world parameter is missing or not a valid integer');
+    }
+    const timeoutMs = restoreTimeoutMs + 30_000 + 1_000;
+
+    const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
+    this.addToSaved('seenDLQMessages', seenDLQ);
+    const dlqMsg = await waitForDLQMessage(Zenko.dlqBuffer, 'restore', objName, bucketName, seenDLQ, timeoutMs);
+    this.logger.info('Found rehydration failure in DLQ', {
+        objectName: objName,
+        reason: dlqMsg.reason,
     });
+});
 
-Then('blob for object {string} must be rehydrated',
-    async function (this: Zenko, objectName: string) {
-        const tarName = await isObjectRehydrated(this, objectName);
-        assert(tarName);
-        await this.azureClient.sendBlobCreatedEventToQueue(
-            this.parameters.AzureArchiveQueue,
-            this.parameters.AzureArchiveContainer,
-            `rehydrate/${tarName}`,
-        );
-    });
-
-Then('restoration of object {string} failed and ends up in DLQ',
-    async function (this: Zenko, objectName: string) {
-        const tarName = await isObjectRehydrated(this, objectName);
-        assert(tarName);
-        // Skipping sending BlobCreatedEvent to queue,
-        // which fails the restore and eventually ends up in DLQ
-
-        const objName = objectName || this.getSaved<string>('objectName');
-        const bucketName = this.getSaved<string>('bucketName');
-
-        // wait for restore to fail and end up in dead letter queue
-        const restoreTimeoutMs = parseInt(this.parameters.SorbetdRestoreTimeout) * 1000;
-        if (isNaN(restoreTimeoutMs)) {
-            throw new Error('SorbetdRestoreTimeout world parameter is missing or not a valid integer');
-        }
-        const timeoutMs = restoreTimeoutMs + 30_000 + 1_000;
-
-        const seenDLQ = this.getSaved<Set<string>>('seenDLQMessages') ?? new Set<string>();
-        this.addToSaved('seenDLQMessages', seenDLQ);
-        const dlqMsg = await waitForDLQMessage(Zenko.dlqBuffer, 'restore', objName, bucketName, seenDLQ, timeoutMs);
-        this.logger.info('Found rehydration failure in DLQ', {
-            objectName: objName, reason: dlqMsg.reason,
-        });
-    });
-
-Then('the storage class of object {string} must stay {string} for {int} seconds',
+Then(
+    'the storage class of object {string} must stay {string} for {int} seconds',
     async function (this: Zenko, objectName: string, storageClass: string, seconds: number) {
         const objName = objectName || this.getSaved<string>('objectName');
         this.resetCommand();
@@ -336,10 +291,13 @@ Then('the storage class of object {string} must stay {string} for {int} seconds'
             secondsPassed++;
         }
         assert(secondsPassed === seconds);
-    });
+    },
+);
 
-When('i run sorbetctl to retry failed restore for {string} location',
-    { timeout: 10 * 60 * 1000 }, async function (this: Zenko, location: string) {
+When(
+    'i run sorbetctl to retry failed restore for {string} location',
+    { timeout: 10 * 60 * 1000 },
+    async function (this: Zenko, location: string) {
         const command = `./ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
             --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
@@ -356,16 +314,18 @@ When('i run sorbetctl to retry failed restore for {string} location',
         } catch (err) {
             assert.ifError(err);
         }
-    });
+    },
+);
 
 When('i wait for {int} days', { timeout: 10 * 60 * 1000 }, async function (this: Zenko, days: number) {
-    const realTimeDay = days * 24 * 60 * 60 * 1000 /
+    const realTimeDay =
+        (days * 24 * 60 * 60 * 1000) /
         (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
     await sleep(realTimeDay);
 });
 
 Then('object {string} should expire in {int} days', async function (this: Zenko, objectName: string, days: number) {
-    const objName = objectName ||  this.getSaved<string>('objectName');
+    const objName = objectName || this.getSaved<string>('objectName');
     this.resetCommand();
     this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
     this.addCommandParameter({ key: objName });
@@ -378,17 +338,20 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     assert(res.stdout);
     const parsed = safeJsonParse(res.stdout);
     assert(parsed.ok);
-    const head = parsed.result as { Restore: string, LastModified: string };
+    const head = parsed.result as { Restore: string; LastModified: string };
     const expireResDate = head.Restore.match(/expiry-date="+(.*)"/) || [];
     const expiryDate = new Date(expireResDate[1]).getTime();
     const lastModified = new Date(head.LastModified).getTime();
     const diff = (expiryDate - lastModified) / 1000 / 86400;
     const realTimeDays = days / (this.parameters.TimeProgressionFactor > 1 ? this.parameters.TimeProgressionFactor : 1);
-    assert.ok(diff >= realTimeDays && diff < realTimeDays + 0.005,
-        `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`);
+    assert.ok(
+        diff >= realTimeDays && diff < realTimeDays + 0.005,
+        `Expected ${realTimeDays} but got ${diff} ; ${this.parameters.TimeProgressionFactor}`,
+    );
 });
 
-Given('that lifecycle is {string} for the {string} location',
+Given(
+    'that lifecycle is {string} for the {string} location',
     async function (this: Zenko, status: string, location: string) {
         let path: string;
         if (status === 'paused') {
@@ -403,9 +366,12 @@ Given('that lifecycle is {string} for the {string} location',
             path,
         };
         await request(options, undefined);
-    });
+    },
+);
 
-Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
+Given(
+    'an azure archive location {string}',
+    { timeout: 15 * 60 * 1000 },
     async function (this: Zenko, locationName: string) {
         const locationConfig = {
             name: locationName,
@@ -425,15 +391,22 @@ Given('an azure archive location {string}', { timeout: 15 * 60 * 1000 },
                 },
             },
         };
-        const result = await this.managementAPIRequest('POST', `/config/${this.parameters.InstanceID}/location`, {},
-            locationConfig);
+        const result = await this.managementAPIRequest(
+            'POST',
+            `/config/${this.parameters.InstanceID}/location`,
+            {},
+            locationConfig,
+        );
         assert.strictEqual(result.statusCode, 201);
         this.addToSaved('locationName', locationName);
         await waitForZenkoToStabilize(this, true);
         await waitForDataServicesToStabilize(this);
-    });
+    },
+);
 
-When('i change azure archive location {string} container target', { timeout: 15 * 60 * 1000 },
+When(
+    'i change azure archive location {string} container target',
+    { timeout: 15 * 60 * 1000 },
     async function (this: Zenko, locationName: string) {
         const result = await this.managementAPIRequest('GET', `/config/overlay/view/${this.parameters.InstanceID}`);
         if ('err' in result) {
@@ -442,22 +415,27 @@ When('i change azure archive location {string} container target', { timeout: 15 
             const { locations } = result.data as { locations: Record<string, unknown> };
             assert(locations[locationName]);
             const locationConfig = locations[locationName] as Record<string, unknown>;
-            const details = locationConfig.details as { bucketName: string, auth: { accountKey: string } };
+            const details = locationConfig.details as { bucketName: string; auth: { accountKey: string } };
             const auth = details.auth;
             details.bucketName = this.parameters.AzureArchiveContainer2;
             auth.accountKey = this.parameters.AzureAccountKey;
-            const putResult = await this.managementAPIRequest('PUT',
+            const putResult = await this.managementAPIRequest(
+                'PUT',
                 `/config/${this.parameters.InstanceID}/location/${locationName}`,
                 {},
-                locationConfig);
+                locationConfig,
+            );
             if ('err' in putResult) {
                 assert.ifError(putResult.err);
             } else {
-                assert.strictEqual((putResult.data as { details: { bucketName: string } }).details.bucketName,
-                    this.parameters.AzureArchiveContainer2);
+                assert.strictEqual(
+                    (putResult.data as { details: { bucketName: string } }).details.bucketName,
+                    this.parameters.AzureArchiveContainer2,
+                );
                 assert.strictEqual(putResult.statusCode, 200);
             }
         }
         await waitForZenkoToStabilize(this, true);
         await waitForDataServicesToStabilize(this);
-    });
+    },
+);

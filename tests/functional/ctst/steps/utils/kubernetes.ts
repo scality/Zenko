@@ -2,18 +2,14 @@ import fs from 'fs';
 import * as path from 'path';
 import { sleep, randomString } from 'common/utils';
 import Zenko from 'world/Zenko';
-import {
-    V1Job,
-    V1ObjectMeta,
-    V1Deployment,
-} from '@kubernetes/client-node';
+import { V1Job, V1ObjectMeta, V1Deployment } from '@kubernetes/client-node';
 
 type ZenkoStatusValue = {
-    lastTransitionTime: string,
-    message: string,
-    status: 'True' | 'False',
-    reason?: string,
-    type: 'DeploymentFailure' | 'DeploymentInProgress' | 'Available',
+    lastTransitionTime: string;
+    message: string;
+    status: 'True' | 'False';
+    reason?: string;
+    type: 'DeploymentFailure' | 'DeploymentInProgress' | 'Available';
 };
 
 type ZenkoStatus = ZenkoStatusValue[];
@@ -36,11 +32,7 @@ type ZenkoVersionSpec = {
     };
 };
 
-export async function createJobAndWaitForCompletion(
-    world: Zenko,
-    jobName: string,
-    customMetadata?: string
-) {
+export async function createJobAndWaitForCompletion(world: Zenko, jobName: string, customMetadata?: string) {
     const batchClient = world.kubernetesClient.batchV1;
     const watchClient = world.kubernetesClient.watch;
 
@@ -86,8 +78,8 @@ export async function createJobAndWaitForCompletion(
                 const podName = pod.metadata?.name;
                 const containerStatuses = pod.status?.containerStatuses || [];
                 const restarted = containerStatuses.some(s => (s.restartCount || 0) > 0);
-                const crashed = restarted
-                    || containerStatuses.some(s => s.state?.terminated || s.lastState?.terminated);
+                const crashed =
+                    restarted || containerStatuses.some(s => s.state?.terminated || s.lastState?.terminated);
                 world.logger.warn('cronjob pod status', {
                     jobName,
                     reason,
@@ -103,7 +95,7 @@ export async function createJobAndWaitForCompletion(
                 });
                 if ((forceLogs || (crashed && !dumpedPodLogs)) && podName) {
                     dumpedPodLogs = true;
-                    for (const previous of (restarted ? [true, false] : [false])) {
+                    for (const previous of restarted ? [true, false] : [false]) {
                         try {
                             const log = await coreClient.readNamespacedPodLog({
                                 name: podName,
@@ -135,7 +127,7 @@ export async function createJobAndWaitForCompletion(
         } catch {
             world.logger.debug(`Failed to acquire lock for job: ${jobName}`, {
                 tries,
-            });            
+            });
         }
         tries--;
         if (!lockAquired) {
@@ -151,8 +143,8 @@ export async function createJobAndWaitForCompletion(
 
     if (!lockAquired) {
         throw new Error(
-            `Failed to acquire lock for job ${jobName} after `
-            + `${Math.round((Date.now() - lockStart) / 1000)}s; another worker may be stuck running it`,
+            `Failed to acquire lock for job ${jobName} after ` +
+                `${Math.round((Date.now() - lockStart) / 1000)}s; another worker may be stuck running it`,
         );
     }
     world.logger.info('Acquired lock for job', {
@@ -199,10 +191,7 @@ export async function createJobAndWaitForCompletion(
                 '/apis/batch/v1/namespaces/default/jobs',
                 {},
                 (type: string, apiObj, watchObj) => {
-                    if (
-                        expectedJobName &&
-                        (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)
-                    ) {
+                    if (expectedJobName && (watchObj.object?.metadata?.name as string)?.startsWith?.(expectedJobName)) {
                         if (watchObj.object?.status?.succeeded) {
                             if (heartbeat) {
                                 clearInterval(heartbeat);
@@ -221,7 +210,7 @@ export async function createJobAndWaitForCompletion(
                         }
                     }
                 },
-                reject
+                reject,
             );
         });
     } catch (err: unknown) {
@@ -240,7 +229,11 @@ export async function createJobAndWaitForCompletion(
 }
 
 export async function waitForZenkoToStabilize(
-    world: Zenko, needsReconciliation = false, timeout = 15 * 60 * 1000, namespace = 'default') {
+    world: Zenko,
+    needsReconciliation = false,
+    timeout = 15 * 60 * 1000,
+    namespace = 'default',
+) {
     // ZKOP pulls the overlay configuration from Pensieve every 5 seconds
     // So the status might not be updated immediately after the overlay is applied.
     // So, this function will first wait till we detect a reconciliation
@@ -273,29 +266,34 @@ export async function waitForZenkoToStabilize(
     const zenkoClient = world.kubernetesClient.customObjects;
 
     while (Date.now() - startTime < timeout) {
-        const zenkoCR = await zenkoClient.getNamespacedCustomObject({
-            group: 'zenko.io',
-            version: 'v1alpha2',
-            namespace,
-            plural: 'zenkos',
-            name: 'end2end',
-        }).catch(err => {
-            world.logger.error('Error getting Zenko CR', {
-                err: err as unknown,
+        const zenkoCR = await zenkoClient
+            .getNamespacedCustomObject({
+                group: 'zenko.io',
+                version: 'v1alpha2',
+                namespace,
+                plural: 'zenkos',
+                name: 'end2end',
+            })
+            .catch(err => {
+                world.logger.error('Error getting Zenko CR', {
+                    err: err as unknown,
+                });
+                return null;
             });
-            return null;
-        });
 
         if (!zenkoCR) {
             await sleep(1000);
             continue;
         }
 
-        const conditions: ZenkoStatus = (zenkoCR as {
-            status: {
-                conditions: ZenkoStatus,
-            },
-        })?.status?.conditions || [];
+        const conditions: ZenkoStatus =
+            (
+                zenkoCR as {
+                    status: {
+                        conditions: ZenkoStatus;
+                    };
+                }
+            )?.status?.conditions || [];
 
         conditions.forEach(condition => {
             if (condition.type === 'DeploymentFailure') {
@@ -314,7 +312,8 @@ export async function waitForZenkoToStabilize(
             available,
         });
 
-        if (!reconciliationDetected &&
+        if (
+            !reconciliationDetected &&
             deploymentInProgress.status === 'True' &&
             deploymentInProgress.reason === 'Reconciling'
         ) {
@@ -322,7 +321,8 @@ export async function waitForZenkoToStabilize(
             continue;
         }
 
-        if (reconciliationDetected &&
+        if (
+            reconciliationDetected &&
             deploymentFailure.status === 'False' &&
             deploymentInProgress.status === 'False' &&
             available.status === 'True'
@@ -371,8 +371,10 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
                 throw new Error('Deployment name not found');
             }
 
-            const deploymentStatus = await appsClient
-                .readNamespacedDeploymentStatus({ name: deploymentName, namespace });
+            const deploymentStatus = await appsClient.readNamespacedDeploymentStatus({
+                name: deploymentName,
+                namespace,
+            });
             const replicas = deploymentStatus.status?.replicas;
             const readyReplicas = deploymentStatus.status?.readyReplicas;
             const updatedReplicas = deploymentStatus.status?.updatedReplicas;
@@ -408,18 +410,20 @@ export async function waitForDataServicesToStabilize(world: Zenko, timeout = 15 
 export async function displayCRStatus(world: Zenko, namespace = 'default') {
     const zenkoClient = world.kubernetesClient.customObjects;
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
-        group: 'zenko.io',
-        version: 'v1alpha2',
-        namespace,
-        plural: 'zenkos',
-        name: 'end2end',
-    }).catch(err => {
-        world.logger.error('Error getting Zenko CR', {
-            err: err as unknown,
+    const zenkoCR = await zenkoClient
+        .getNamespacedCustomObject({
+            group: 'zenko.io',
+            version: 'v1alpha2',
+            namespace,
+            plural: 'zenkos',
+            name: 'end2end',
+        })
+        .catch(err => {
+            world.logger.error('Error getting Zenko CR', {
+                err: err as unknown,
+            });
+            return null;
         });
-        return null;
-    });
 
     if (!zenkoCR) {
         return;
@@ -433,17 +437,19 @@ export async function displayCRStatus(world: Zenko, namespace = 'default') {
 export async function getDRSource(world: Zenko, namespace = 'default') {
     const zenkoClient = world.kubernetesClient.customObjects;
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
-        group: 'zenko.io',
-        version: 'v1alpha1',
-        namespace,
-        plural: 'zenkodrsources',
-        name: 'end2end-source',
-    }).catch(err => {
-        world.logger.debug('Error getting Zenko CR', {
-            err: err as unknown,
+    const zenkoCR = await zenkoClient
+        .getNamespacedCustomObject({
+            group: 'zenko.io',
+            version: 'v1alpha1',
+            namespace,
+            plural: 'zenkodrsources',
+            name: 'end2end-source',
+        })
+        .catch(err => {
+            world.logger.debug('Error getting Zenko CR', {
+                err: err as unknown,
+            });
         });
-    });
 
     return zenkoCR;
 }
@@ -451,18 +457,20 @@ export async function getDRSource(world: Zenko, namespace = 'default') {
 export async function getDRSink(world: Zenko, namespace = 'default') {
     const zenkoClient = world.kubernetesClient.customObjects;
 
-    const zenkoCR = await zenkoClient.getNamespacedCustomObject({
-        group: 'zenko.io',
-        version: 'v1alpha1',
-        namespace,
-        plural: 'zenkodrsinks',
-        name: 'end2end-pra-sink',
-    }).catch(err => {
-        world.logger.debug('Error getting Zenko CR', {
-            err: err as unknown,
+    const zenkoCR = await zenkoClient
+        .getNamespacedCustomObject({
+            group: 'zenko.io',
+            version: 'v1alpha1',
+            namespace,
+            plural: 'zenkodrsinks',
+            name: 'end2end-pra-sink',
+        })
+        .catch(err => {
+            world.logger.debug('Error getting Zenko CR', {
+                err: err as unknown,
+            });
         });
-    });
-    
+
     return zenkoCR;
 }
 
@@ -489,7 +497,7 @@ export async function getLocationConfigSecretName(world: Zenko, namespace = 'def
 export async function getLocationConfigs(
     world: Zenko,
     namespace = 'default',
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
     try {
         // Get location configurations from connector-cloudserver-config secret
@@ -507,10 +515,7 @@ export async function getLocationConfigs(
     }
 }
 
-export async function getZenkoVersion(
-    world: Zenko,
-    namespace = 'default',
-): Promise<ZenkoVersion> {
+export async function getZenkoVersion(world: Zenko, namespace = 'default'): Promise<ZenkoVersion> {
     const customObjectClient = world.kubernetesClient.customObjects;
     try {
         const zenkoVersionList = await customObjectClient.listNamespacedCustomObject({
