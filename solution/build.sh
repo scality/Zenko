@@ -389,16 +389,31 @@ function download_tools()
     done
 }
 
-# run everything in order
+# Fetching is mostly network-bound and independent, so run it all concurrently.
+# The first failing job fails the build.
+# Jobs get their own process group (set -m), so that leaving the function, on
+# success or error, kills whatever they still have running (skopeo, curl...).
+function fetch_content()
+(
+    set -m
+    trap 'for pgid in $(jobs -p) ; do kill -- -"${pgid}" 2>/dev/null || true ; done' EXIT
+
+    download_tools &
+    { flatten_source_images | copy_docker_images ; } &
+    get_dashboards &
+    copy_iam_policies &
+    copy_config &
+    gen_manifest_yaml
+    copy_yamls
+    # wait -n fails either on a failed job (pid set) or once no job is left
+    while wait -n -p pid ; do : ; done
+    [ -z "${pid:-}" ]
+)
+
 clean
 mkdirs
-download_tools
-gen_manifest_yaml
-copy_yamls
-flatten_source_images | copy_docker_images
-get_dashboards
-copy_iam_policies
-copy_config
+fetch_content
+
 validate_registry
 dedupe
 build_registry_config
