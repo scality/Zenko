@@ -209,9 +209,9 @@ test.each([
     ['Check if tag matches the branch name', Fail, 'release', '', withBranch('q/2.3')],
     ['Check if tag has not already been created', Fail, 'release', '', withRacingTag('2.3.7')],
 ])('%s should %s when making %s %s%s', async (stepName, status, type, tag, ...configs) => {
-    for (var c of configs.filter(c => !!c)) {
-        assert(typeof c === 'function');
-        await c();
+    for (const config of configs.filter(c => !!c)) {
+        assert(typeof config === 'function');
+        await config();
     }
 
     act.setInput('type', type as string);
@@ -229,7 +229,7 @@ test.each([
         logFile: process.env.ACT_LOG
             ? `act-release-${expect.getState().currentTestName!.replace(/[^\w.-]/g, '_')}.log`
             : undefined,
-        verbose: process.env.ACT_VERBOSE ? true : false,
+        verbose: !!process.env.ACT_VERBOSE,
         mockApi: [
             // Mock artifact upload (stub build-iso PUTs a placeholder file)
             mockapi.mock.artifacts.root.upload().reply({ status: 200, data: 'OK' }),
@@ -491,8 +491,8 @@ test.each([
     // act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
     // act-js's OutputParser splits into a named "Run" entry followed by an unnamed status entry.
     // So the real status of result[i] lives on result[i + 1]; unnamed entries have status set.
-    var lastResult = result.length - 2;
-    var postSteps: number[] = [];
+    let lastResult = result.length - 2;
+    const postSteps: number[] = [];
 
     // action-artifacts keep executing Post step, need to skip it...
     for (let i = result.length - 1; i >= 0; i--) {
