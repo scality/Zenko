@@ -19,9 +19,6 @@ BUILD_HOST=$(hostname)
 GIT_REVISION=$(git describe --long --always --tags --dirty)
 ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 
-DOCKER=docker
-DOCKER_OPTS=
-DOCKER_SOCKET=${DOCKER_SOCKET:-unix:///var/run/docker.sock}
 HARDLINK=hardlink
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
@@ -203,9 +200,16 @@ function copy_docker_image()
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
-        --format v2s2 --dest-compress \
+        --format v2s2 --dest-compress --retry-times 3 \
         docker://${1} \
         dir:${FULL_PATH}
+}
+
+function copy_docker_images()
+{
+    export -f copy_docker_image
+    export SKOPEO SKOPEO_OPTS IMAGES_ROOT
+    xargs -P "${COPY_PARALLELISM:-4}" -I{} bash -c 'copy_docker_image "$1"' _ {}
 }
 
 function dedupe()
@@ -261,11 +265,7 @@ mongodb_sharded_yamls
 gen_manifest_yaml
 
 if  [ $MANIFEST_ONLY = 'false' ]; then
-    flatten_source_images | while read img ; do
-        # only pull if the image isnt already local
-        ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} ${DOCKER_OPTS} pull ${img}
-        copy_docker_image ${img}
-    done
+    flatten_source_images | copy_docker_images
     dedupe
     build_registry_config
     build_iso

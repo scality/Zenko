@@ -38,7 +38,6 @@ ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 HARDLINK=hardlink
 command -v $HARDLINK >/dev/null 2>&1 || HARDLINK="$(brew --prefix util-linux)/bin/hardlink"
 
-DOCKER=docker
 DOCKER_OPTS="--platform linux/amd64"
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --override-arch amd64 --insecure-policy"
@@ -142,14 +141,21 @@ function copy_yamls()
 function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
-    IMAGE_TRANSPORT=${2:-docker-daemon:}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
-        --format v2s2 --dest-compress \
-        --src-daemon-host ${DOCKER_SOCKET:-unix:///var/run/docker.sock} \
-        ${IMAGE_TRANSPORT}${1} \
+        --format v2s2 --dest-compress --retry-times 3 \
+        docker://${1} \
         dir:${FULL_PATH}
+}
+
+# Copy straight from the registries, a few images at a time: going through the
+# docker daemon means unpacking then re-compressing every layer.
+function copy_docker_images()
+{
+    export -f copy_docker_image
+    export SKOPEO SKOPEO_OPTS IMAGES_ROOT
+    xargs -P "${COPY_PARALLELISM:-4}" -I{} bash -c 'copy_docker_image "$1"' _ {}
 }
 
 function copy_oci_image()
@@ -389,11 +395,7 @@ mkdirs
 download_tools
 gen_manifest_yaml
 copy_yamls
-flatten_source_images | while read img ; do
-    # only pull if the image isnt already local
-    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} pull ${DOCKER_OPTS} ${img}
-    copy_docker_image ${img}
-done
+flatten_source_images | copy_docker_images
 get_dashboards
 copy_iam_policies
 copy_config
