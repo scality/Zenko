@@ -21,20 +21,24 @@ function createJUnitReport(
     skipped: number = 0,
 ): string {
     const testcases = [];
-    for (let i = 0; i < tests - failures - errors - skipped; i++)
+    for (let i = 0; i < tests - failures - errors - skipped; i++) {
         testcases.push(`    <testcase name="test_pass_${i}" classname="${name}" time="0.1" />`);
-    for (let i = 0; i < failures; i++)
+    }
+    for (let i = 0; i < failures; i++) {
         testcases.push(
             `    <testcase name="test_fail_${i}" classname="${name}" time="0.2">\n      <failure message="assertion">expected</failure>\n    </testcase>`,
         );
-    for (let i = 0; i < errors; i++)
+    }
+    for (let i = 0; i < errors; i++) {
         testcases.push(
             `    <testcase name="test_error_${i}" classname="${name}" time="0.15">\n      <error message="runtime">bang</error>\n    </testcase>`,
         );
-    for (let i = 0; i < skipped; i++)
+    }
+    for (let i = 0; i < skipped; i++) {
         testcases.push(
             `    <testcase name="test_skip_${i}" classname="${name}" time="0">\n      <skipped />\n    </testcase>`,
         );
+    }
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="${tests}" failures="${failures}" errors="${errors}" skipped="${skipped}">
