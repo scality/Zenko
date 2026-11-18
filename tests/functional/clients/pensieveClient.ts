@@ -103,9 +103,7 @@ export class PensieveClient {
     }
 
     async createLocation(uuid: string, location: LocationV1): Promise<void> {
-        if (!location.details.bootstrapList) {
-            location.details.bootstrapList = [];
-        }
-        await this.call<unknown>('createConfigurationOverlayLocation', { uuid }, location);
+        const details = { ...location.details, bootstrapList: location.details.bootstrapList ?? [] };
+        await this.call<unknown>('createConfigurationOverlayLocation', { uuid }, { ...location, details });
     }
 }
