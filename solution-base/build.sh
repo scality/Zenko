@@ -224,8 +224,8 @@ function build_registry_config()
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
-        docker.io/nicolast/static-container-registry:latest \
-            python3 static-container-registry.py \
+        ghcr.io/scality/static-container-registry:1.0.0 \
+            python3 static_container_registry.py \
             --name-prefix '{{ repository }}' \
             --server-root '{{ registry_root }}' \
             --omit-constants \
