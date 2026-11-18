@@ -60,10 +60,16 @@ jobs:
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Build ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        id: build
+        run: |-
+          PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+          echo "iso=$(realpath _build/*.iso)" >> "$GITHUB_OUTPUT"
         working-directory: ./solution
       - name: Build base ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+        id: build-base
+        run: |-
+          PATH="/usr/local/bin:$PATH" bash -x ./build.sh
+          echo "iso=$(realpath _build/*.iso)" >> "$GITHUB_OUTPUT"
         working-directory: ./solution-base
       - name: Upload ISO
         id: upload
@@ -73,7 +79,7 @@ jobs:
           url: https://artifacts.scality.net
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution/_build"
+          source: ${{ steps.build.outputs.iso }}
       - name: Upload base ISO
         uses: scality/action-artifacts@v4
         with:
@@ -81,4 +87,4 @@ jobs:
           url: https://artifacts.scality.net
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution-base/_build"
+          source: ${{ steps.build-base.outputs.iso }}
