@@ -6,15 +6,6 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
     includeIgnoreFile(fileURLToPath(new URL('.gitignore', import.meta.url))),
-    {
-        ignores: [
-            'configuration_setup/**',
-            'ctst/sorbetctl',
-            'ctst/zenko-drctl',
-            'ctst/reports/**',
-            'ctst/build/**',
-        ],
-    },
     ...scality,
 
     // TypeScript files (ctst)
