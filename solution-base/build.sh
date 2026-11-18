@@ -209,7 +209,7 @@ function copy_docker_images()
 {
     export -f copy_docker_image
     export SKOPEO SKOPEO_OPTS IMAGES_ROOT
-    xargs -P "${COPY_PARALLELISM:-4}" -I{} bash -c 'copy_docker_image "$1"' _ {}
+    xargs -P "${COPY_PARALLELISM:-8}" -I{} bash -c 'copy_docker_image "$1"' _ {}
 }
 
 function dedupe()
