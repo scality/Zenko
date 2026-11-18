@@ -473,7 +473,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
             return (result.data as { access_token: string }).access_token;
         }
         catch (error) {
-            throw new Error(`Error when trying to get a WebIdentity token: ${(error as Error).message}`);
+            throw new Error(`Error when trying to get a WebIdentity token: ${(error as Error).message}`, {
+                cause: error,
+            });
         }
     }
 
