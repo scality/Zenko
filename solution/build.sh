@@ -176,6 +176,13 @@ function copy_oci_image()
     mv ${FULL_PATH}/new_manifest.json ${FULL_PATH}/manifest.json
 }
 
+function copy_oci_images()
+{
+    export -f copy_oci_image
+    export SKOPEO SKOPEO_OPTS IMAGES_ROOT
+    xargs -P "${COPY_PARALLELISM:-8}" -I{} bash -ec 'copy_oci_image "$1"' _ {}
+}
+
 # $1 : destination folder
 # $2 : mime-type of the file
 # $3 : optionally, name of the file
@@ -239,13 +246,7 @@ function get_local_dashboards()
 
 function get_component_dashboards()
 {
-    components=$(yq eval '.* | select(.dashboard) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
-
-    for dashboard in ${components}
-    do
-        echo "copy dashboards/alerts for ${dashboard}"
-        copy_oci_image ${dashboard}
-    done
+    yq eval '.* | select(.dashboard) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function get_dashboards()
@@ -256,26 +257,12 @@ function get_dashboards()
 
 function copy_iam_policies()
 {
-    components=$(yq eval '.* | select(.policy) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
-
-    for policy in ${components}
-    do
-        echo "copy iam policies for ${policy}"
-        copy_oci_image ${policy}
-    done
-
+    yq eval '.* | select(.policy) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function copy_config()
 {
-    components=$(yq eval '.* | select(.config) | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml)
-
-    for config in ${components}
-    do
-        echo "copy configs for ${config}"
-        copy_oci_image ${config}
-    done
-
+    yq eval '.* | select(.config) | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function dedupe()
