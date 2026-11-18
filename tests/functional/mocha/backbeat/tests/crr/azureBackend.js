@@ -136,8 +136,7 @@ describe('Replication with Azure backend', function () {
                     }),
             ],
             done,
-        ),
-    );
+        ));
 
     it('should replicate object tags of the latest version', done =>
         series(

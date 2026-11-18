@@ -136,8 +136,7 @@ describe('Replication with GCP backend', function () {
                     }),
             ],
             done,
-        ),
-    );
+        ));
 
     it('should replicate object tags of the latest version', done =>
         series(
