@@ -27,6 +27,8 @@ jobs:
           fetch-depth: 0
       - name: Install tooling
         uses: ./.github/actions/install-end2end-dependencies
+        with:
+          tools: helm kustomize
       - name: Install ISO build dependencies
         shell: bash
         run: |-
