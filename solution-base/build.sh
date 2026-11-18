@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eu
+[ "${GITHUB_ACTIONS:-}" = true ] && set -x
 
 SCRIPT_FULL_PATH=$(readlink -f "$0")
 REPOSITORY_DIR=$(dirname "$SCRIPT_FULL_PATH")/..
@@ -220,7 +221,6 @@ function dedupe()
 function build_registry_config()
 {
     docker run \
-        --name static-oci-registry \
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
