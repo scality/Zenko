@@ -12,6 +12,20 @@ busybox:
   image: busybox
   tag: 1.38.0
   envsubst: BUSYBOX_TAG
+clickhouse:
+  # Must belong to the ClickHouse release the clickhouse-schema-manager
+  # release below supports (`clickhouse-schema clickhouse-version`): its schema
+  # Job refuses any other. 26.8 also carries the TTL GROUP BY fix
+  # (ClickHouse#109410), which the analytics downsampling needs.
+  sourceRegistry: clickhouse
+  image: clickhouse-server
+  tag: 26.8.19.9
+  envsubst: CLICKHOUSE_TAG
+clickhouse-schema-manager:
+  sourceRegistry: ghcr.io/scality
+  image: clickhouse-schema-manager
+  tag: v1.0.0
+  envsubst: CLICKHOUSE_SCHEMA_MANAGER_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
@@ -24,6 +38,11 @@ drctl:
   tag: v1.1.0-preview.3
   envsubst: DRCTL_TAG
   toolName: zenko-drctl
+fluent-bit:
+  sourceRegistry: fluent
+  image: fluent-bit
+  tag: 4.0.14
+  envsubst: FLUENT_BIT_TAG
 fubectl:
   tag: 6abf81a4d275d49351127458d4dd8f6468f0366a
   envsubst: FUBECTL_VERSION
