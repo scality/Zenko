@@ -680,7 +680,8 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         // Getting the role to assume
         this.addCommandParameter({ roleName });
         if (internal) {
-            roleArnToAssume = `arn:aws:iam::${constants.INTERNAL_SERVICES_ACCOUNT_ID}:role/scality-internal/${roleName}`;
+            const accountId = constants.INTERNAL_SERVICES_ACCOUNT_ID;
+            roleArnToAssume = `arn:aws:iam::${accountId}:role/scality-internal/${roleName}`;
         } else {
             const role = await IAM.getRole(this.getCommandParameters());
             if (role.err) {

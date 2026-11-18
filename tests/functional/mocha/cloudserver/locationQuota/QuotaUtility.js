@@ -58,8 +58,7 @@ class QuotaUtility {
     }
 
     getQuotaError() {
-        const errorString = `AccessDenied: The assigned storage space limit for location ${quotaLocation} will be exceeded`;
-        return errorString;
+        return `AccessDenied: The assigned storage space limit for location ${quotaLocation} will be exceeded`;
     }
 
     /**
