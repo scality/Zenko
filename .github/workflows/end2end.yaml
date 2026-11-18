@@ -196,6 +196,8 @@ jobs:
           cache-dependency-path: tests/workflows/yarn.lock
       - name: Install dependencies
         run: yarn --cwd tests/workflows install --frozen-lockfile
+      - name: Check the formatting of the workflows tests
+        run: yarn --cwd tests/workflows prettier:check
       - name: Run workflows tests
         run: ACT_LOG=true yarn --cwd tests/workflows test
       - name: Collect logs
@@ -327,6 +329,9 @@ jobs:
       - name: Lint all tests
         working-directory: tests/functional
         run: yarn lint --max-warnings 0
+      - name: Check the formatting of all tests
+        working-directory: tests/functional
+        run: yarn prettier:check
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
