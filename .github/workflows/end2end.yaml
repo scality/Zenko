@@ -326,7 +326,7 @@ jobs:
         run: yarn build:cucumber
       - name: Lint all tests
         working-directory: tests/functional
-        run: yarn lint
+        run: yarn lint --max-warnings 0
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
