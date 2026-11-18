@@ -67,14 +67,15 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
                 stderr: '',
             };
             this.setResult(command);
-        } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        } catch (err) {
+            const { message } = err as Error;
             this.logger.debug('Error retrieving utilization metrics', {
-                err: err.message,
+                err: message,
             });
             this.setResult({
-                err: err.message,
+                err: message,
                 stdout: '',
-                stderr: err.message,
+                stderr: message,
             });
         }
     });
