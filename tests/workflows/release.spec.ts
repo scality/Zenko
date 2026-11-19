@@ -15,21 +15,21 @@ let moctokit: Moctokit;
 let act: Act;
 
 async function getCommitHash(repo: string = 'zenko') {
-    const { stdout } = await exec('git -C ' + github.repo.getPath(repo) + ' rev-parse HEAD');
+    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse HEAD`);
     return stdout.trim();
 }
 
 async function currentBranch(repo: string = 'zenko') {
-    const { stdout } = await exec('git -C ' + github.repo.getPath(repo) + ' rev-parse --symbolic-full-name HEAD');
+    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse --symbolic-full-name HEAD`);
     return stdout.trim();
 }
 
 function withBranch(branchName: string, repo: string = 'zenko') {
     const f = async () => {
-        await exec('git -C ' + github.repo.getPath(repo) + ' checkout -B ' + branchName);
-        act.setEnv('GITHUB_REF', 'refs/heads/' + branchName);
+        await exec(`git -C ${  github.repo.getPath(repo)  } checkout -B ${  branchName}`);
+        act.setEnv('GITHUB_REF', `refs/heads/${  branchName}`);
     };
-    f.toString = () => ' and branch ' + branchName;
+    f.toString = () => ` and branch ${  branchName}`;
     return f;
 }
 
@@ -43,7 +43,7 @@ function withRacingTag(tag: string) {
     const f = () => {
         racingTag = tag;
     };
-    f.toString = () => ' and tag ' + tag + ' is created concurrently';
+    f.toString = () => ` and tag ${  tag  } is created concurrently`;
     return f;
 }
 
@@ -85,7 +85,7 @@ beforeEach(async () => {
 
     // Seed tags so version.sh can compute predictable next versions:
     //   on development/2.3 with 2.3.6 tag, --release -> 2.3.7
-    await exec('git -C ' + github.repo.getPath('zenko') + ' tag --no-sign -m test 2.3.6');
+    await exec(`git -C ${  github.repo.getPath('zenko')  } tag --no-sign -m test 2.3.6`);
 
     mockapi = new Mockapi({
         artifacts: {
@@ -209,7 +209,7 @@ test.each([
     ['Check if tag matches the branch name', Fail, 'release', '', withBranch('q/2.3')],
     ['Check if tag has not already been created', Fail, 'release', '', withRacingTag('2.3.7')],
 ])('%s should %s when making %s %s%s', async (stepName, status, type, tag, ...configs) => {
-    for (var c of configs.filter(c => !!c)) {
+    for (const c of configs.filter(c => !!c)) {
         assert(typeof c === 'function');
         await c();
     }
@@ -227,9 +227,9 @@ test.each([
 
     const result = await act.runEvent('workflow_dispatch', {
         logFile: process.env.ACT_LOG
-            ? 'act-release-' + expect.getState().currentTestName!.replace(/[^\w.-]/g, '_') + '.log'
+            ? `act-release-${  expect.getState().currentTestName!.replace(/[^\w.-]/g, '_')  }.log`
             : undefined,
-        verbose: process.env.ACT_VERBOSE ? true : false,
+        verbose: !!process.env.ACT_VERBOSE,
         mockApi: [
             // Mock artifact upload (stub build-iso PUTs a placeholder file)
             mockapi.mock.artifacts.root.upload().reply({ status: 200, data: 'OK' }),
@@ -415,7 +415,7 @@ test.each([
                               after: 'Compute version',
                               mockWith: {
                                   name: 'Concurrent release creates the tag',
-                                  run: 'git tag --no-sign ' + racingTag,
+                                  run: `git tag --no-sign ${  racingTag}`,
                               },
                           },
                       ],
@@ -491,8 +491,8 @@ test.each([
     // act >=0.2.81 appends a timing suffix to success/failure lines ("Main foo [40ms]"), which
     // act-js's OutputParser splits into a named "Run" entry followed by an unnamed status entry.
     // So the real status of result[i] lives on result[i + 1]; unnamed entries have status set.
-    var lastResult = result.length - 2;
-    var postSteps: number[] = [];
+    let lastResult = result.length - 2;
+    const postSteps: number[] = [];
 
     // action-artifacts keep executing Post step, need to skip it...
     for (let i = result.length - 1; i >= 0; i--) {
@@ -507,23 +507,23 @@ test.each([
     postSteps.pop(); // last pushed entry is the matched step's own status, not a post-step
 
     // Dump the whole result list on failure so CI failures can be debugged from the log.
-    if (!result[lastResult].name.startsWith('Main ' + stepName)) {
+    if (!result[lastResult].name.startsWith(`Main ${  stepName}`)) {
         // eslint-disable-next-line no-console
         console.error(
-            'expected Main ' +
-                stepName +
-                ', got ' +
-                result[lastResult].name +
-                '\nresult:\n' +
+            `expected Main ${ 
+                stepName 
+                }, got ${ 
+                result[lastResult].name 
+                }\nresult:\n${ 
                 JSON.stringify(
                     result.map(r => ({ name: r.name, status: r.status })),
                     null,
                     2,
-                ),
+                )}`,
         );
     }
 
-    expect(result[lastResult].name.startsWith('Main ' + stepName)).toBe(true);
+    expect(result[lastResult].name.startsWith(`Main ${  stepName}`)).toBe(true);
     expect(result[lastResult + 1].status).toStrictEqual(status.value());
     postSteps.forEach(s => expect(s).toStrictEqual(Pass.value()));
 });

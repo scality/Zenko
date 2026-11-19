@@ -22,31 +22,31 @@ function createJUnitReport(
 ): string {
     const testcases = [];
     for (let i = 0; i < tests - failures - errors - skipped; i++)
-        testcases.push(`    <testcase name="test_pass_${i}" classname="${name}" time="0.1" />`);
+        {testcases.push(`    <testcase name="test_pass_${i}" classname="${name}" time="0.1" />`);}
     for (let i = 0; i < failures; i++)
-        testcases.push(
+        {testcases.push(
             [
                 `    <testcase name="test_fail_${i}" classname="${name}" time="0.2">`,
                 '      <failure message="assertion">expected</failure>',
                 '    </testcase>',
             ].join('\n'),
-        );
+        );}
     for (let i = 0; i < errors; i++)
-        testcases.push(
+        {testcases.push(
             [
                 `    <testcase name="test_error_${i}" classname="${name}" time="0.15">`,
                 '      <error message="runtime">bang</error>',
                 '    </testcase>',
             ].join('\n'),
-        );
+        );}
     for (let i = 0; i < skipped; i++)
-        testcases.push(
+        {testcases.push(
             [
                 `    <testcase name="test_skip_${i}" classname="${name}" time="0">`,
                 '      <skipped />',
                 '    </testcase>',
             ].join('\n'),
-        );
+        );}
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="${tests}" failures="${failures}" errors="${errors}" skipped="${skipped}">
@@ -59,7 +59,7 @@ ${testcases.join('\n')}
 }
 
 async function getCommitHash(repo: string = 'zenko') {
-    const { stdout } = await exec('git -C ' + github.repo.getPath(repo) + ' rev-parse HEAD');
+    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse HEAD`);
     return stdout.trim();
 }
 
