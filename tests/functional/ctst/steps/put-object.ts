@@ -65,11 +65,8 @@ Then(
         });
         const res = safeJsonParse<ListObjectsV2Output>(results.stdout);
         assert.ok(res.ok, `Failed to list objects in bucket ${bucketName}: ${res.error}`);
-        assert.equal(
-            res.result?.Contents?.length,
-            1,
-            `Expected 1 object with prefix ${objectName} in bucket ${bucketName}, found ${res.result?.Contents?.length}`,
-        );
+        const count = res.result?.Contents?.length;
+        assert.equal(count, 1, `Expected 1 object with prefix ${objectName} in bucket ${bucketName}, found ${count}`);
 
         const object = res.result!.Contents![0];
         assert.ok(object.Key, `Object in bucket ${bucketName} has no Key: ${JSON.stringify(object)}`);

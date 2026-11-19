@@ -168,7 +168,9 @@ targetFiles.forEach(file => {
     const endIndex = fileContent.length;
 
     if (startIndex !== -1 && endIndex !== -1) {
-        const newContent = `${fileContent.substring(0, startIndexNextLine)}\n${output}\n${fileContent.substring(endIndex)}`;
+        const head = fileContent.substring(0, startIndexNextLine);
+        const tail = fileContent.substring(endIndex);
+        const newContent = `${head}\n${output}\n${tail}`;
         fs.writeFileSync(filePath, newContent, 'utf-8');
         // eslint-disable-next-line no-console
         console.log(`Content in ${file} replaced.`);
