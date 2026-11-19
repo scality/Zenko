@@ -15,21 +15,21 @@ let moctokit: Moctokit;
 let act: Act;
 
 async function getCommitHash(repo: string = 'zenko') {
-    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse HEAD`);
+    const { stdout } = await exec(`git -C ${github.repo.getPath(repo)} rev-parse HEAD`);
     return stdout.trim();
 }
 
 async function currentBranch(repo: string = 'zenko') {
-    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse --symbolic-full-name HEAD`);
+    const { stdout } = await exec(`git -C ${github.repo.getPath(repo)} rev-parse --symbolic-full-name HEAD`);
     return stdout.trim();
 }
 
 function withBranch(branchName: string, repo: string = 'zenko') {
     const f = async () => {
-        await exec(`git -C ${  github.repo.getPath(repo)  } checkout -B ${  branchName}`);
-        act.setEnv('GITHUB_REF', `refs/heads/${  branchName}`);
+        await exec(`git -C ${github.repo.getPath(repo)} checkout -B ${branchName}`);
+        act.setEnv('GITHUB_REF', `refs/heads/${branchName}`);
     };
-    f.toString = () => ` and branch ${  branchName}`;
+    f.toString = () => ` and branch ${branchName}`;
     return f;
 }
 
@@ -43,7 +43,7 @@ function withRacingTag(tag: string) {
     const f = () => {
         racingTag = tag;
     };
-    f.toString = () => ` and tag ${  tag  } is created concurrently`;
+    f.toString = () => ` and tag ${tag} is created concurrently`;
     return f;
 }
 
@@ -85,7 +85,7 @@ beforeEach(async () => {
 
     // Seed tags so version.sh can compute predictable next versions:
     //   on development/2.3 with 2.3.6 tag, --release -> 2.3.7
-    await exec(`git -C ${  github.repo.getPath('zenko')  } tag --no-sign -m test 2.3.6`);
+    await exec(`git -C ${github.repo.getPath('zenko')} tag --no-sign -m test 2.3.6`);
 
     mockapi = new Mockapi({
         artifacts: {
@@ -227,7 +227,7 @@ test.each([
 
     const result = await act.runEvent('workflow_dispatch', {
         logFile: process.env.ACT_LOG
-            ? `act-release-${  expect.getState().currentTestName!.replace(/[^\w.-]/g, '_')  }.log`
+            ? `act-release-${expect.getState().currentTestName!.replace(/[^\w.-]/g, '_')}.log`
             : undefined,
         verbose: !!process.env.ACT_VERBOSE,
         mockApi: [
@@ -415,7 +415,7 @@ test.each([
                               after: 'Compute version',
                               mockWith: {
                                   name: 'Concurrent release creates the tag',
-                                  run: `git tag --no-sign ${  racingTag}`,
+                                  run: `git tag --no-sign ${racingTag}`,
                               },
                           },
                       ],
@@ -507,23 +507,18 @@ test.each([
     postSteps.pop(); // last pushed entry is the matched step's own status, not a post-step
 
     // Dump the whole result list on failure so CI failures can be debugged from the log.
-    if (!result[lastResult].name.startsWith(`Main ${  stepName}`)) {
+    if (!result[lastResult].name.startsWith(`Main ${stepName}`)) {
         // eslint-disable-next-line no-console
         console.error(
-            `expected Main ${ 
-                stepName 
-                }, got ${ 
-                result[lastResult].name 
-                }\nresult:\n${ 
-                JSON.stringify(
-                    result.map(r => ({ name: r.name, status: r.status })),
-                    null,
-                    2,
-                )}`,
+            `expected Main ${stepName}, got ${result[lastResult].name}\nresult:\n${JSON.stringify(
+                result.map(r => ({ name: r.name, status: r.status })),
+                null,
+                2,
+            )}`,
         );
     }
 
-    expect(result[lastResult].name.startsWith(`Main ${  stepName}`)).toBe(true);
+    expect(result[lastResult].name.startsWith(`Main ${stepName}`)).toBe(true);
     expect(result[lastResult + 1].status).toStrictEqual(status.value());
     postSteps.forEach(s => expect(s).toStrictEqual(Pass.value()));
 });
