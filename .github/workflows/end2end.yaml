@@ -327,6 +327,9 @@ jobs:
       - name: Lint all tests
         working-directory: tests/functional
         run: yarn lint
+      - name: Check the formatting of the tests
+        working-directory: tests/functional
+        run: yarn prettier:check
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
