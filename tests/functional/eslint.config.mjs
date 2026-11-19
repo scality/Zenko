@@ -11,6 +11,19 @@ const gitignorePath = path.resolve(__dirname, '.gitignore');
 export default tseslint.config(
     includeIgnoreFile(gitignorePath),
     ...scality,
+    {
+        files: ['**/*.js'],
+        languageOptions: {
+            sourceType: 'commonjs',
+        },
+    },
+    {
+        // Generates the resource policies features, run as an ES module
+        files: ['ctst/features/resource-policies/regen.js'],
+        languageOptions: {
+            sourceType: 'module',
+        },
+    },
 
     // TypeScript files (ctst)
     {
