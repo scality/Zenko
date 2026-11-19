@@ -8,7 +8,7 @@ const { parseDeps, stripDigest } = require('../../.github/actions/create-compone
 
 /** Convert a YAML file to a temporary JSON file (mirrors the yq step in action.yaml). */
 function yamlToJson(yamlPath: string): string {
-    const jsonPath = fs.mkdtempSync(path.join(os.tmpdir(), 'deps-')) + '/deps.json';
+    const jsonPath = `${fs.mkdtempSync(path.join(os.tmpdir(), 'deps-'))  }/deps.json`;
     fs.writeFileSync(jsonPath, JSON.stringify(yaml.load(fs.readFileSync(yamlPath, 'utf8'))));
     return jsonPath;
 }
