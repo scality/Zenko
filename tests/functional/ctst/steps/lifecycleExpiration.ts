@@ -38,8 +38,7 @@ Then(
             await sleep(2000);
         } while (Date.now() < deadline);
         assert.fail(
-            `Bucket ${bucketName} has ${count} versions/delete markers, ` +
-                `expected ${expectedCount} after ${seconds}s`,
+            `Bucket ${bucketName} has ${count} versions/delete markers, expected ${expectedCount} after ${seconds}s`,
         );
     },
 );

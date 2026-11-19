@@ -105,9 +105,7 @@ describe('Replication with Azure backend', function () {
 
     [undefined, `0-${1024 * 1024 * 5}`, `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
         it(
-            'should replicate a MPU with parts copied ' +
-                'from another MPU with ' +
-                `byte range '${range}' for each part`,
+            `should replicate a MPU with parts copied from another MPU with byte range '${range}' for each part`,
             done =>
                 series(
                     [

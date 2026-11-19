@@ -315,9 +315,8 @@ testAPIs.forEach(testAPI => {
             },
             {
                 name:
-                    `should not be able to perform ${testAPI.API} on the buckets ` +
-                    `which is explicitly denied ${testAPI.API} policy ` +
-                    `although there is an allow ${testAPI.API} permission on all buckets`,
+                    `should not be able to perform ${testAPI.API} on the buckets which is explicitly denied ` +
+                    `${testAPI.API} policy although there is an allow ${testAPI.API} permission on all buckets`,
                 policy: {
                     Version: '2012-10-17',
                     Statement: [

@@ -376,8 +376,7 @@ Then('kafka consumed messages should not take too much place on disk', { timeout
         while (true) {
             assert(
                 Date.now() < deadline,
-                'Kafka cleaner did not clean topics within the expected time. ' +
-                    `Remaining: ${remainingTopics.join(', ')}`,
+                `Kafka cleaner did not clean topics within the expected time. Remaining: ${remainingTopics.join(', ')}`,
             );
 
             const newOffsets = await getTopicsOffsets(remainingTopics, kafkaAdmin);

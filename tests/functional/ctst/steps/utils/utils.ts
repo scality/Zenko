@@ -496,9 +496,8 @@ async function verifyObjectLocation(
     }
 
     throw new Error(
-        `verifyObjectLocation timed out after ${timeoutMs / 1000}s ` +
-            `waiting for object "${objName}" to reach "${objectTransitionStatus}" ` +
-            `with storage class "${storageClass}"`,
+        `verifyObjectLocation timed out after ${timeoutMs / 1000}s waiting for object ` +
+            `"${objName}" to reach "${objectTransitionStatus}" with storage class "${storageClass}"`,
     );
 }
 
