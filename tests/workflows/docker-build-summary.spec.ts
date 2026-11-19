@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { readBuilds, renderSummary, totalSizes, writeSummary } = require('../../.github/scripts/docker-build-summary');
 
 function image(platform: string, layers: [string, number][]) {

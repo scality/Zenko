@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const {
     findOrCreateDeployment,
     resolveRef,
@@ -7,6 +8,7 @@ const {
     createDeployments,
     resolveFromManifest,
 } = require('../../.github/actions/create-component-deployments/create-deployments');
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 function makeMockCore() {
     return {

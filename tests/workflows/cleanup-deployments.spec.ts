@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { cleanupDeployments } = require('../../.github/actions/create-component-deployments/cleanup-deployments');
 
 function makeMockCore() {
