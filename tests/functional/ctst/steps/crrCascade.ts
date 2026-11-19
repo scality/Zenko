@@ -252,9 +252,7 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
 
         const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
         if (res.ReplicationStatus !== expectedStatus) {
-            return (
-                `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`
-            );
+            return `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`;
         }
 
         const pendingBackends = Object.entries(res.Metadata ?? {}).filter(
