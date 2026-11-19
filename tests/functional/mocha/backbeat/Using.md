@@ -39,7 +39,7 @@
 6. Navigate to `Zenko/tests/node_tests/backbeat`.
 7. Install node modules: `npm i`.
 
-### Tests for CRR to AWS:
+### Tests for CRR to AWS
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -93,7 +93,7 @@
 
 9. Run the test suite: `npm run test_crr`.
 
-### Tests for Backbeat API and CRR Pause Resume:
+### Tests for Backbeat API and CRR Pause Resume
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -137,17 +137,17 @@
 3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
-```
-export AWS_ACCESS_KEY=<aws-access-key>
-export AWS_SECRET_KEY=<aws-secret-key>
-export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
-export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
-```
+    ```
+    export AWS_ACCESS_KEY=<aws-access-key>
+    export AWS_SECRET_KEY=<aws-secret-key>
+    export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
+    export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
+    ```
 
 4. If using `*.env` files, source the files:
 
-```
-source .env && source .secrets.env
-```
+    ```
+    source .env && source .secrets.env
+    ```
 
 5. Run the test suite: `npm run test_retry`.
