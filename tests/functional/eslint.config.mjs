@@ -1,17 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import scality from '@scality/eslint-config-scality';
+import { mocha } from '@scality/eslint-config-scality/testing';
 import tseslint from 'typescript-eslint';
 import { includeIgnoreFile } from '@eslint/compat';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const gitignorePath = path.resolve(__dirname, '.gitignore');
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
 
 export default tseslint.config(
     includeIgnoreFile(gitignorePath),
@@ -24,12 +19,12 @@ export default tseslint.config(
             'ctst/build/**',
         ],
     },
+    ...scality,
 
     // TypeScript files (ctst)
     {
         files: ['ctst/**/*.ts'],
         extends: [
-            ...compat.extends('scality'),
             ...tseslint.configs.recommended,
         ],
         rules: {
@@ -42,7 +37,6 @@ export default tseslint.config(
     {
         files: ['clients/**/*.ts'],
         extends: [
-            ...compat.extends('scality'),
             ...tseslint.configs.recommended,
         ],
         rules: {
@@ -54,9 +48,6 @@ export default tseslint.config(
     // JavaScript files (mocha)
     {
         files: ['mocha/**/*.js'],
-        extends: [
-            ...compat.extends('scality'),
-        ],
         rules: {
             'prefer-spread': 'off',
             'no-bitwise': 'off',
@@ -71,4 +62,5 @@ export default tseslint.config(
             'camelcase': ['error', { 'properties': 'never' }],
         },
     },
+    mocha(['mocha/**/*.js']),
 );
