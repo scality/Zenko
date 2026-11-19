@@ -37,9 +37,9 @@ export default tseslint.config(
         },
     },
 
-    // TypeScript files (shared clients)
+    // TypeScript files (shared clients and test resources setup)
     {
-        files: ['clients/**/*.ts'],
+        files: ['clients/**/*.ts', 'testResourcesSetup/**/*.ts'],
         extends: [
             ...tseslint.configs.recommended,
         ],
