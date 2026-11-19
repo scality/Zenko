@@ -31,10 +31,13 @@ async function cleanupDeployments({ github, core, components, environmentPrefix,
             const [owner, repoName] = resolved.repo.split('/');
 
             const { data: deployments } = await github.rest.repos.listDeployments({
-                owner, repo: repoName, ref: resolved.ref, per_page: 100,
+                owner,
+                repo: repoName,
+                ref: resolved.ref,
+                per_page: 100,
             });
-            const matches = deployments.filter(
-                (/** @type {{environment: string}} */ d) => d.environment.startsWith(environmentPrefix),
+            const matches = deployments.filter((/** @type {{environment: string}} */ d) =>
+                d.environment.startsWith(environmentPrefix),
             );
 
             if (matches.length === 0) {
@@ -45,7 +48,9 @@ async function cleanupDeployments({ github, core, components, environmentPrefix,
 
             for (const d of matches) {
                 await github.rest.repos.createDeploymentStatus({
-                    owner, repo: repoName, deployment_id: d.id,
+                    owner,
+                    repo: repoName,
+                    deployment_id: d.id,
                     state: 'inactive',
                     description: 'Superseded',
                 });

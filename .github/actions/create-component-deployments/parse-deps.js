@@ -54,9 +54,7 @@ function parseDeps(depsFile, selfRepo) {
     }
 
     // Unique repo short names (without org/) for token scoping
-    const repos = [...new Set(
-        components.map(c => c.repo.split('/')[1]).filter(Boolean),
-    )];
+    const repos = [...new Set(components.map(c => c.repo.split('/')[1]).filter(Boolean))];
 
     return { components, repos };
 }
