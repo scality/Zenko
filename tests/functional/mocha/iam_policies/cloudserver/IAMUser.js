@@ -128,7 +128,7 @@ testAPIs.forEach(testAPI => {
         });
 
         it(
-            `should be able to ${testAPI.API} with the permission s3:${testAPI.API} allowed` +
+            `should be able to ${testAPI.API} with the permission s3:${testAPI.API} allowed ` +
                 'on specific bucket but not on others',
             async () => {
                 const policyArns = [];
