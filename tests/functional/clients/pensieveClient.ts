@@ -104,6 +104,7 @@ export class PensieveClient {
 
     async createLocation(uuid: string, location: LocationV1): Promise<void> {
         if (!location.details.bootstrapList) {
+            // eslint-disable-next-line no-param-reassign
             location.details.bootstrapList = [];
         }
         await this.call<unknown>('createConfigurationOverlayLocation', { uuid }, location);
