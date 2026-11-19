@@ -133,7 +133,7 @@ describe('Bucket policies', () => {
             );
         });
 
-        it(`should not ${allow} because bucket owner action: ` + 'DeleteBucketPolicy', async () => {
+        it(`should not ${allow} because bucket owner action: DeleteBucketPolicy`, async () => {
             const params = getPolicyParams([{ key: 'Action', value: 's3:DeleteBucketPolicy' }]);
             await scalityS3Client.send(new PutBucketPolicyCommand(params));
             try {
