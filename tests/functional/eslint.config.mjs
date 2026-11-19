@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'eslint/config';
 import scality from '@scality/eslint-config-scality';
 import { mocha } from '@scality/eslint-config-scality/testing';
 import tseslint from 'typescript-eslint';
@@ -8,7 +9,7 @@ import { includeIgnoreFile } from '@eslint/compat';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const gitignorePath = path.resolve(__dirname, '.gitignore');
 
-export default tseslint.config(
+export default defineConfig(
     includeIgnoreFile(gitignorePath),
     ...scality,
     {
@@ -24,13 +25,14 @@ export default tseslint.config(
             sourceType: 'module',
         },
     },
+    {
+        files: [tseslint.globs.ts],
+        extends: [tseslint.configs.recommended],
+    },
 
     // TypeScript files (ctst)
     {
         files: ['ctst/**/*.ts'],
-        extends: [
-            ...tseslint.configs.recommended,
-        ],
         rules: {
             // CucumberJS steps start with an uppercase
             'new-cap': 'off',
@@ -40,9 +42,6 @@ export default tseslint.config(
     // TypeScript files (shared clients and test resources setup)
     {
         files: ['clients/**/*.ts', 'testResourcesSetup/**/*.ts'],
-        extends: [
-            ...tseslint.configs.recommended,
-        ],
         rules: {
             // CLI setup scripts report progress to the console
             'no-console': 'off',
