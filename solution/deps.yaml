@@ -24,7 +24,7 @@ clickhouse:
 clickhouse-schema-manager:
   sourceRegistry: ghcr.io/scality
   image: clickhouse-schema-manager
-  tag: v1.0.0
+  tag: 51426fd3c559c76db0e11a46f9af5a8883da32da
   envsubst: CLICKHOUSE_SCHEMA_MANAGER_TAG
 cloudserver:
   sourceRegistry: ghcr.io/scality
