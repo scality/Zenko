@@ -87,10 +87,9 @@ describe('Backbeat object monitor CRR metrics', function () {
                         `/progress/${srcBucket}/${key}?versionId=${data.VersionId}`;
                     const expectedBody = {
                         description:
-                            'Number of bytes to be replicated (pending), ' +
-                            'number of bytes transferred to the destination ' +
-                            '(completed), and percentage of the object that has ' +
-                            'completed replication (progress)',
+                            'Number of bytes to be replicated (pending), number of bytes ' +
+                            'transferred to the destination (completed), and percentage ' +
+                            'of the object that has completed replication (progress)',
                         pending: 0,
                         completed: 1,
                         progress: '100%',

@@ -143,9 +143,8 @@ describe('Backbeat replication metrics data', function dF() {
                     const expectedBody = {
                         backlog: {
                             description:
-                                'Number of incomplete replication ' +
-                                'operations (count) and number of incomplete bytes ' +
-                                'transferred (size)',
+                                'Number of incomplete replication operations (count) ' +
+                                'and number of incomplete bytes transferred (size)',
                             results: { count: 0, size: 0 },
                         },
                     };
@@ -168,9 +167,8 @@ describe('Backbeat replication metrics data', function dF() {
                     const expectedBody = {
                         completions: {
                             description:
-                                'Number of completed replication ' +
-                                'operations (count) and number of bytes transferred ' +
-                                '(size) in the last 900 seconds',
+                                'Number of completed replication operations (count) and ' +
+                                'number of bytes transferred (size) in the last 900 seconds',
                             results: {
                                 count: prevCompletions.count + 2,
                                 size: prevCompletions.size + 200,
@@ -185,9 +183,8 @@ describe('Backbeat replication metrics data', function dF() {
                     const expectedBody = {
                         throughput: {
                             description:
-                                'Current throughput for replication ' +
-                                'operations in ops/sec (count) and bytes/sec (size) ' +
-                                'in the last 900 seconds',
+                                'Current throughput for replication operations in ops/sec ' +
+                                '(count) and bytes/sec (size) in the last 900 seconds',
                             results: {
                                 count: (parseFloat(prevThroughput.count) + 2 / 900).toFixed(2),
                                 size: (parseFloat(prevThroughput.size) + 200 / 900).toFixed(2),

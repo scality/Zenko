@@ -67,8 +67,7 @@ async function runActionAgainstBucket(world: Zenko, action: string) {
     const userCredentials = Identity.getCurrentCredentials();
     if (!userCredentials) {
         throw new Error(
-            'User credentials not set. ' +
-                'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.',
+            'User credentials not set. Make sure the `IAMSession` and `AssumedSession` world parameter are defined.',
         );
     }
     switch (action) {

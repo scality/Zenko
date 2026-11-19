@@ -18,8 +18,7 @@ When('the user tries to perform vault auth {string}', async function (this: Zenk
 
     if (!userCredentials) {
         throw new Error(
-            'User credentials not set. ' +
-                'Make sure the `IAMSession` and `AssumedSession` world parameter are defined.',
+            'User credentials not set. Make sure the `IAMSession` and `AssumedSession` world parameter are defined.',
         );
     }
 
