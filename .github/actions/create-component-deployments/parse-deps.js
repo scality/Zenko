@@ -24,7 +24,7 @@ function parseDeps(depsFile, selfRepo) {
     const normalizedSelfRepo = (selfRepo || '').toLowerCase();
 
     for (const [, entry] of Object.entries(deps)) {
-        const registry = (entry.sourceRegistry || '') + '/';
+        const registry = `${entry.sourceRegistry || ''  }/`;
         if (!registry.startsWith('ghcr.io/scality/') || !entry.image || !entry.tag) {
             continue;
         }
