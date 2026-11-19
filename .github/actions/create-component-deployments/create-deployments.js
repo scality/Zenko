@@ -2,9 +2,21 @@
 
 /**
  * @typedef {import('@octokit/rest').Octokit} Octokit
- * @typedef {{ info: (msg: string) => void, warning: (msg: string) => void, startGroup: (name: string) => void, endGroup: () => void }} Core
+ * @typedef {{
+ *     info: (msg: string) => void,
+ *     warning: (msg: string) => void,
+ *     startGroup: (name: string) => void,
+ *     endGroup: () => void,
+ * }} Core
  * @typedef {{ repo: string, ref: string, image: string }} Component
- * @typedef {{ token: string, environment: string, description: string, transient: boolean, production: boolean, createOnly: boolean }} DeploymentParams
+ * @typedef {{
+ *     token: string,
+ *     environment: string,
+ *     description: string,
+ *     transient: boolean,
+ *     production: boolean,
+ *     createOnly: boolean,
+ * }} DeploymentParams
  */
 
 const GHCR_REGISTRY = 'https://ghcr.io';
