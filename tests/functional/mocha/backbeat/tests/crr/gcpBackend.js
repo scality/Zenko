@@ -107,18 +107,15 @@ describe('Replication with GCP backend', function () {
         ));
 
     [undefined, `0-${1024 * 1024 * 5}`, `${1024 * 1024 * 2}-${1024 * 1024 * 7}`].forEach(range =>
-        it(
-            `should replicate a MPU with parts copied from another MPU with byte range '${range}' for each part`,
-            done =>
-                series(
-                    [
-                        next => utils.completeMPUGCP(srcBucket, file, 2, next),
-                        next => utils.completeMPUWithPartCopy(srcBucket, copyFile, copySource, range, 2, next),
-                        next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
-                    ],
-                    done,
-                ),
-        ),
+        it(`should replicate a MPU with parts copied from another MPU with byte range '${range}' for each part`, done =>
+            series(
+                [
+                    next => utils.completeMPUGCP(srcBucket, file, 2, next),
+                    next => utils.completeMPUWithPartCopy(srcBucket, copyFile, copySource, range, 2, next),
+                    next => utils.compareObjectsGCP(srcBucket, destBucket, file, next),
+                ],
+                done,
+            )),
     );
 
     it.skip('should delete the destination object when putting a delete marker on the source object', done =>
