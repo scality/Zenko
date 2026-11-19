@@ -145,9 +145,7 @@ describe('Backbeat API pending metrics', function () {
                 if (err) {
                     return next(err);
                 }
-                const { ReplicationStatus, Metadata, VersionId } = data;
-                // eslint-disable-next-line
-                versionId = VersionId;
+                const { ReplicationStatus, Metadata } = data;
                 assert.strictEqual(ReplicationStatus, 'FAILED');
                 assert.strictEqual(
                     Metadata[`${destFailLocation}-replication-status`],

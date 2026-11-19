@@ -69,9 +69,7 @@ function performRetries(keys, done) {
                     if (err) {
                         return cb(err);
                     }
-                    const { ReplicationStatus, Metadata, VersionId } = data;
-                    // eslint-disable-next-line
-                    versionId = VersionId;
+                    const { ReplicationStatus, Metadata } = data;
                     assert.strictEqual(ReplicationStatus, 'FAILED');
                     assert.strictEqual(
                         Metadata[`${destFailLocation}-replication-status`],
@@ -151,10 +149,6 @@ describe('Backbeat replication retry', function () {
 
     [1, 2, 128].forEach(N => {
         it(`should retry ${N} failed object(s)`, done => {
-            // eslint-disable-next-line
-            let versionId;
-            // eslint-disable-next-line
-            let postBody;
             const keys = [];
             for (let i = 0; i < N; i++) {
                 keys.push(`${key}-${i}`);

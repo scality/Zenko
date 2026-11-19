@@ -32,8 +32,6 @@ const srcLocation = process.env.AWS_BACKEND_SOURCE_LOCATION;
 const destAWSLocation = process.env.AWS_BACKEND_DESTINATION_LOCATION;
 const destAzureLocation = process.env.AZURE_BACKEND_DESTINATION_LOCATION;
 const destGCPLocation = process.env.GCP_BACKEND_DESTINATION_LOCATION;
-// eslint-disable-next-line
-const REPLICATION_TIMEOUT = 10000;
 
 class ReplicationUtility {
     constructor(s3, azure, gcpStorage) {
