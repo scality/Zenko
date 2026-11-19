@@ -13,7 +13,7 @@ let moctokit: Moctokit;
 let act: Act;
 
 async function getCommitHash(repo: string = 'zenko') {
-    const { stdout } = await exec(`git -C ${  github.repo.getPath(repo)  } rev-parse HEAD`);
+    const { stdout } = await exec(`git -C ${github.repo.getPath(repo)} rev-parse HEAD`);
     return stdout.trim();
 }
 
