@@ -120,7 +120,7 @@ describe('Bucket GET V2 api', () => {
         assert.deepStrictEqual(keyList, expectedKeyList(5, 9));
     });
 
-    it('should ignore startAfter value if both startAfter and ' + 'continuationToken are included', async () => {
+    it('should ignore startAfter value if both startAfter and continuationToken are included', async () => {
         const objList = await s3.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 5 }));
         const objList2 = await s3.send(
             new ListObjectsV2Command({

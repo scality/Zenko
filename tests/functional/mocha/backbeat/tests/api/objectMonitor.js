@@ -181,7 +181,7 @@ describe('Backbeat object monitor CRR metrics', function () {
                         `/throughput/${srcBucket}/${throughputKey}` +
                         `?versionId=${data.VersionId}`;
                     const expectedBody = {
-                        description: 'Current throughput for object replication ' + 'in bytes/sec (throughput)',
+                        description: 'Current throughput for object replication in bytes/sec (throughput)',
                         throughput: '0.01',
                     };
                     return getAndCheckResponse(path, expectedBody, next);

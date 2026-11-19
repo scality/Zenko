@@ -35,7 +35,7 @@ function getAndCheckResponse(path, expectedResults, cb) {
                         JSON.stringify(body) !==
                         JSON.stringify({
                             pending: {
-                                description: 'Number of pending replication ' + 'operations (count) and bytes (size)',
+                                description: 'Number of pending replication operations (count) and bytes (size)',
                                 results: expectedResults,
                             },
                         });

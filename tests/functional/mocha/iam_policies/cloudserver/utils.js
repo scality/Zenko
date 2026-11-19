@@ -101,7 +101,7 @@ function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName)
 function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'PUT',
-        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">' + '</AccessControlPolicy>',
+        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></AccessControlPolicy>',
         userCredentials,
         `/${bucketName}/${fileName}?acl`,
         cb,
@@ -111,7 +111,7 @@ function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
 function putObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'PUT',
-        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">' + '</AccessControlPolicy>',
+        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></AccessControlPolicy>',
         userCredentials,
         `/${bucketName}/${fileName}?acl&versionId=0`,
         cb,

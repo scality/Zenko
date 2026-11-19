@@ -122,7 +122,7 @@ describe('Replication with Azure backend', function () {
         ),
     );
 
-    it('should delete the destination object when putting a delete marker on ' + 'the source object', done =>
+    it('should delete the destination object when putting a delete marker on the source object', done =>
         series(
             [
                 next => utils.putObject(srcBucket, key, Buffer.alloc(1), next),
