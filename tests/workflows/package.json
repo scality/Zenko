@@ -5,7 +5,7 @@
     "scripts": {
         "postinstall": "yarn --cwd node_modules/@kie/act-js node scripts/postinstall.js 0.2.84",
         "test": "jest",
-        "lint": "eslint --max-warnings 0 .",
+        "lint": "cd ../.. && eslint --max-warnings 0 -c tests/workflows/eslint.config.mjs tests/workflows .github",
         "prettier:check": "cd ../.. && prettier --config tests/workflows/prettier.config.cjs --ignore-path tests/workflows/.gitignore --check tests/workflows '.github/**/*.js'"
     },
     "license": "Apache-2.0",

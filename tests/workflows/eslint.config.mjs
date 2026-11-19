@@ -4,7 +4,7 @@ import { jest } from '@scality/eslint-config-scality/testing';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-    globalIgnores(['repo/']),
+    globalIgnores(['**/repo/']),
     ...scality,
     {
         files: ['**/*.js'],
