@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { cleanupDeployments } = require('../../.github/actions/create-component-deployments/cleanup-deployments');
 
 function makeMockCore() {
@@ -32,15 +33,14 @@ describe('cleanupDeployments', () => {
     it('inactivates deployments whose environment matches the prefix', async () => {
         const github = makeMockGithub({
             listDeployments: sinon.stub().resolves({
-                data: [
-                    { id: 1, environment: 'zenko/improvement/ZKOP-534@2.14' },
-                ],
+                data: [{ id: 1, environment: 'zenko/improvement/ZKOP-534@2.14' }],
             }),
         });
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
         });
@@ -48,13 +48,18 @@ describe('cleanupDeployments', () => {
         expect(github.rest.repos.listDeployments.calledOnce).toBe(true);
         const listCall = github.rest.repos.listDeployments.firstCall.args[0];
         expect(listCall).toMatchObject({
-            owner: 'scality', repo: 'sorbet', ref: 'v1.2.2',
+            owner: 'scality',
+            repo: 'sorbet',
+            ref: 'v1.2.2',
         });
 
         expect(github.rest.repos.createDeploymentStatus.calledOnce).toBe(true);
         const statusCall = github.rest.repos.createDeploymentStatus.firstCall.args[0];
         expect(statusCall).toMatchObject({
-            owner: 'scality', repo: 'sorbet', deployment_id: 1, state: 'inactive',
+            owner: 'scality',
+            repo: 'sorbet',
+            deployment_id: 1,
+            state: 'inactive',
         });
     });
 
@@ -70,7 +75,8 @@ describe('cleanupDeployments', () => {
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
         });
@@ -90,7 +96,8 @@ describe('cleanupDeployments', () => {
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
         });
@@ -110,7 +117,8 @@ describe('cleanupDeployments', () => {
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
         });
@@ -120,14 +128,18 @@ describe('cleanupDeployments', () => {
 
     it('processes multiple components independently', async () => {
         const github = makeMockGithub({
-            listDeployments: sinon.stub()
-                .onFirstCall().resolves({ data: [{ id: 11, environment: 'zenko/improvement/ZKOP-534@2.14' }] })
-                .onSecondCall().resolves({ data: [{ id: 22, environment: 'zenko/improvement/ZKOP-534@2.14' }] }),
+            listDeployments: sinon
+                .stub()
+                .onFirstCall()
+                .resolves({ data: [{ id: 11, environment: 'zenko/improvement/ZKOP-534@2.14' }] })
+                .onSecondCall()
+                .resolves({ data: [{ id: 22, environment: 'zenko/improvement/ZKOP-534@2.14' }] }),
         });
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [
                 { repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' },
                 { repo: 'scality/backbeat', ref: '9.3.0', image: 'scality/backbeat' },
@@ -143,14 +155,18 @@ describe('cleanupDeployments', () => {
 
     it('continues on per-component failure', async () => {
         const github = makeMockGithub({
-            listDeployments: sinon.stub()
-                .onFirstCall().rejects(new Error('boom'))
-                .onSecondCall().resolves({ data: [{ id: 22, environment: 'zenko/improvement/ZKOP-534@2.14' }] }),
+            listDeployments: sinon
+                .stub()
+                .onFirstCall()
+                .rejects(new Error('boom'))
+                .onSecondCall()
+                .resolves({ data: [{ id: 22, environment: 'zenko/improvement/ZKOP-534@2.14' }] }),
         });
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [
                 { repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' },
                 { repo: 'scality/backbeat', ref: '9.3.0', image: 'scality/backbeat' },
@@ -170,7 +186,8 @@ describe('cleanupDeployments', () => {
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
         });
@@ -186,14 +203,17 @@ describe('cleanupDeployments', () => {
         const core = makeMockCore();
 
         await cleanupDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/backbeat', ref: '9.6.3-dev.2.sha-13bbb8b', image: 'scality/backbeat' }],
             ...baseParams,
         });
 
         expect(github.rest.repos.getCommit.firstCall.args[0].ref).toBe('13bbb8b');
         expect(github.rest.repos.listDeployments.firstCall.args[0]).toMatchObject({
-            owner: 'scality', repo: 'backbeat', ref: '13bbb8b13ea055fdc35df2df9c230b14f278988e',
+            owner: 'scality',
+            repo: 'backbeat',
+            ref: '13bbb8b13ea055fdc35df2df9c230b14f278988e',
         });
     });
 });

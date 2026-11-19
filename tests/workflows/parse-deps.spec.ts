@@ -1,12 +1,14 @@
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import yaml from 'js-yaml';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { parseDeps, stripDigest } = require('../../.github/actions/create-component-deployments/parse-deps');
 
 /** Convert a YAML file to a temporary JSON file (mirrors the yq step in action.yaml). */
 function yamlToJson(yamlPath: string): string {
-    const jsonPath = fs.mkdtempSync(path.join(require('os').tmpdir(), 'deps-')) + '/deps.json';
+    const jsonPath = `${fs.mkdtempSync(path.join(os.tmpdir(), 'deps-'))}/deps.json`;
     fs.writeFileSync(jsonPath, JSON.stringify(yaml.load(fs.readFileSync(yamlPath, 'utf8'))));
     return jsonPath;
 }

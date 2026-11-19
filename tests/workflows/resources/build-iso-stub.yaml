@@ -32,7 +32,7 @@ jobs:
           url: https://artifacts.scality.net
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "_build"
+          source: '_build'
           # Explicit token so the post-step (setDefaultIndex) can construct an
           # octokit client — in act, github.token isn't reliably populated.
           token: my-token

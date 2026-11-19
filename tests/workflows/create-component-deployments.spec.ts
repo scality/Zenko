@@ -1,10 +1,10 @@
-import { Act } from "@kie/act-js";
-import { MockGithub, Moctokit } from "@kie/mock-github";
-import nock from "nock";
-import path from "path";
-import { exec as execCb } from "node:child_process";
-import { promisify } from "node:util";
-import { TEST_PRIVATE_KEY } from "./fixtures/test-private-key";
+import { Act } from '@kie/act-js';
+import { MockGithub, Moctokit } from '@kie/mock-github';
+import nock from 'nock';
+import path from 'path';
+import { exec as execCb } from 'node:child_process';
+import { promisify } from 'node:util';
+import { TEST_PRIVATE_KEY } from './fixtures/test-private-key';
 
 const exec = promisify(execCb);
 
@@ -12,8 +12,8 @@ let github: MockGithub;
 let moctokit: Moctokit;
 let act: Act;
 
-async function getCommitHash(repo: string = "zenko") {
-    const { stdout } = await exec("git -C " + github.repo.getPath(repo) + " rev-parse HEAD");
+async function getCommitHash(repo: string = 'zenko') {
+    const { stdout } = await exec(`git -C ${github.repo.getPath(repo)} rev-parse HEAD`);
     return stdout.trim();
 }
 
@@ -30,8 +30,8 @@ function findStep(result: { name: string; status: number }[], nameFragment: stri
 
 // Common deployment parameters expected for all components
 const commonDeploymentParams = {
-    environment: "zenko/development/2.11",
-    description: "Zenko CI running",
+    environment: 'zenko/development/2.11',
+    description: 'Zenko CI running',
     auto_merge: false,
     required_contexts: [],
     transient_environment: true,
@@ -44,19 +44,19 @@ beforeEach(async () => {
     github = new MockGithub({
         repo: {
             zenko: {
-                pushedBranches: ["development/2.11"],
+                pushedBranches: ['development/2.11'],
                 files: [
                     {
-                        src: path.resolve(__dirname, "../..", ".github"),
-                        dest: ".github",
+                        src: path.resolve(__dirname, '../..', '.github'),
+                        dest: '.github',
                     },
                     {
-                        src: path.resolve(__dirname, "fixtures/test-deps-base.yaml"),
-                        dest: "solution/deps.yaml",
+                        src: path.resolve(__dirname, 'fixtures/test-deps-base.yaml'),
+                        dest: 'solution/deps.yaml',
                     },
                     {
-                        src: path.resolve(__dirname, "fixtures/test-create-component-deployments.yaml"),
-                        dest: ".github/workflows/test-create-component-deployments.yaml",
+                        src: path.resolve(__dirname, 'fixtures/test-create-component-deployments.yaml'),
+                        dest: '.github/workflows/test-create-component-deployments.yaml',
                     },
                 ],
             },
@@ -65,28 +65,28 @@ beforeEach(async () => {
     await github.setup();
 
     // Create feature branch with updated deps (sorbet v1.2.1 -> v1.2.2)
-    const repoPath = github.repo.getPath("zenko");
-    const depsUpdate = path.resolve(__dirname, "fixtures/test-deps.yaml");
+    const repoPath = github.repo.getPath('zenko');
+    const depsUpdate = path.resolve(__dirname, 'fixtures/test-deps.yaml');
     await exec(`git -C ${repoPath} checkout -b improvement/ZENKO-5210`);
     await exec(`cp ${depsUpdate} ${repoPath}/solution/deps.yaml`);
     await exec(`git -C ${repoPath} add solution/deps.yaml && git -C ${repoPath} commit --no-sign -m "bump sorbet"`);
     await exec(`git -C ${repoPath} push origin improvement/ZENKO-5210`);
 
-    moctokit = new Moctokit("http://api.github.com");
+    moctokit = new Moctokit('http://api.github.com');
 
-    act = new Act(github.repo.getPath("zenko"));
-    act.setWorkflowFile(".github/workflows/test-create-component-deployments.yaml");
+    act = new Act(github.repo.getPath('zenko'));
+    act.setWorkflowFile('.github/workflows/test-create-component-deployments.yaml');
 
-    act.setEnv("GITHUB_JOB", "test-deployments");
-    act.setEnv("GITHUB_SHA", await getCommitHash());
-    act.setEnv("GITHUB_REPOSITORY", "scality/zenko");
-    act.setEnv("GITHUB_API_URL", "http://api.github.com");
-    act.setEnv("GITHUB_RUN_ID", "1");
-    act.setEnv("GITHUB_TOKEN", "fake-token");
+    act.setEnv('GITHUB_JOB', 'test-deployments');
+    act.setEnv('GITHUB_SHA', await getCommitHash());
+    act.setEnv('GITHUB_REPOSITORY', 'scality/zenko');
+    act.setEnv('GITHUB_API_URL', 'http://api.github.com');
+    act.setEnv('GITHUB_RUN_ID', '1');
+    act.setEnv('GITHUB_TOKEN', 'fake-token');
 
-    act.setSecret("APP_PRIVATE_KEY", TEST_PRIVATE_KEY);
+    act.setSecret('APP_PRIVATE_KEY', TEST_PRIVATE_KEY);
 
-    act.setPlatforms("ubuntu-24.04", "ghcr.io/catthehacker/ubuntu:act-24.04");
+    act.setPlatforms('ubuntu-24.04', 'ghcr.io/catthehacker/ubuntu:act-24.04');
 });
 
 afterEach(async () => {
@@ -94,23 +94,23 @@ afterEach(async () => {
     await github.teardown();
 });
 
-describe("create-component-deployments action", () => {
-    it("should parse deps.yaml and create deployments on component repos", async () => {
+describe('create-component-deployments action', () => {
+    it('should parse deps.yaml and create deployments on component repos', async () => {
         // Post-step: token revocation (DELETE /installation/token, not in Moctokit)
-        nock("http://api.github.com").delete("/installation/token").reply(204).persist();
+        nock('http://api.github.com').delete('/installation/token').reply(204).persist();
 
-        const result = await act.runEvent("workflow_dispatch", {
-            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-deployments.log") : undefined,
+        const result = await act.runEvent('workflow_dispatch', {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-deployments.log') : undefined,
             mockApi: [
                 // Mock create-github-app-token: get installation then create token
                 moctokit.rest.apps.getRepoInstallation().reply({
                     status: 200,
-                    data: { id: 1, app_id: 12345, app_slug: "test-app" },
+                    data: { id: 1, app_id: 12345, app_slug: 'test-app' },
                     repeat: 5,
                 }),
                 moctokit.rest.apps.createInstallationAccessToken().reply({
                     status: 201,
-                    data: { token: "ghs_fake_token" },
+                    data: { token: 'ghs_fake_token' },
                     repeat: 5,
                 }),
 
@@ -119,191 +119,215 @@ describe("create-component-deployments action", () => {
                 // playground-sandbox has empty repo, manifest resolution will fail (non-fatal)
 
                 // Sorbet: createDeployment + createDeploymentStatus
-                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+                moctokit.rest.repos
+                    .getCommit({ owner: 'scality', repo: 'sorbet', ref: 'v1.2.2' } as any)
+                    .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
 
-                moctokit.rest.repos.createDeployment({
-                    owner: "scality",
-                    repo: "sorbet",
-                    ref: "v1.2.2",
-                    ...commonDeploymentParams,
-                }).reply({ status: 201, data: { id: 101 } }),
+                moctokit.rest.repos
+                    .createDeployment({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        ref: 'v1.2.2',
+                        ...commonDeploymentParams,
+                    })
+                    .reply({ status: 201, data: { id: 101 } }),
 
-                moctokit.rest.repos.createDeploymentStatus({
-                    owner: "scality",
-                    repo: "sorbet",
-                    deployment_id: 101,
-                    state: "in_progress",
-                    log_url: "https://github.com/scality/zenko/actions/runs/1",
-                    description: "Zenko CI running",
-                }).reply({ status: 201, data: { id: 1 } }),
+                moctokit.rest.repos
+                    .createDeploymentStatus({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        deployment_id: 101,
+                        state: 'in_progress',
+                        log_url: 'https://github.com/scality/zenko/actions/runs/1',
+                        description: 'Zenko CI running',
+                    })
+                    .reply({ status: 201, data: { id: 1 } }),
 
                 // Backbeat: createDeployment + createDeploymentStatus
-                moctokit.rest.repos.getCommit({ owner: "scality", repo: "backbeat", ref: "9.3.0" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+                moctokit.rest.repos
+                    .getCommit({ owner: 'scality', repo: 'backbeat', ref: '9.3.0' } as any)
+                    .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
 
-                moctokit.rest.repos.createDeployment({
-                    owner: "scality",
-                    repo: "backbeat",
-                    ref: "9.3.0",
-                    ...commonDeploymentParams,
-                }).reply({ status: 201, data: { id: 102 } }),
+                moctokit.rest.repos
+                    .createDeployment({
+                        owner: 'scality',
+                        repo: 'backbeat',
+                        ref: '9.3.0',
+                        ...commonDeploymentParams,
+                    })
+                    .reply({ status: 201, data: { id: 102 } }),
 
-                moctokit.rest.repos.createDeploymentStatus({
-                    owner: "scality",
-                    repo: "backbeat",
-                    deployment_id: 102,
-                    state: "in_progress",
-                    log_url: "https://github.com/scality/zenko/actions/runs/1",
-                    description: "Zenko CI running",
-                }).reply({ status: 201, data: { id: 2 } }),
+                moctokit.rest.repos
+                    .createDeploymentStatus({
+                        owner: 'scality',
+                        repo: 'backbeat',
+                        deployment_id: 102,
+                        state: 'in_progress',
+                        log_url: 'https://github.com/scality/zenko/actions/runs/1',
+                        description: 'Zenko CI running',
+                    })
+                    .reply({ status: 201, data: { id: 2 } }),
             ],
             bind: true,
         });
 
-        const parseStep = findStep(result, "Parse component repos");
+        const parseStep = findStep(result, 'Parse component repos');
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
-        const deployStep = findStep(result, "Create or update deployments");
+        const deployStep = findStep(result, 'Create or update deployments');
         expect(deployStep).toBeDefined();
         expect(deployStep?.status).toBe(0);
     });
 
-    it("should only deploy changed components when target-branch is set", async () => {
-        nock("http://api.github.com").delete("/installation/token").reply(204).persist();
-        act.setInput("target-branch", "development/2.11");
+    it('should only deploy changed components when target-branch is set', async () => {
+        nock('http://api.github.com').delete('/installation/token').reply(204).persist();
+        act.setInput('target-branch', 'development/2.11');
 
-        const result = await act.runEvent("workflow_dispatch", {
-            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-delta.log") : undefined,
+        const result = await act.runEvent('workflow_dispatch', {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-delta.log') : undefined,
             mockApi: [
                 moctokit.rest.apps.getRepoInstallation().reply({
                     status: 200,
-                    data: { id: 1, app_id: 12345, app_slug: "test-app" },
+                    data: { id: 1, app_id: 12345, app_slug: 'test-app' },
                     repeat: 5,
                 }),
                 moctokit.rest.apps.createInstallationAccessToken().reply({
                     status: 201,
-                    data: { token: "ghs_fake_token" },
+                    data: { token: 'ghs_fake_token' },
                     repeat: 5,
                 }),
 
                 // Only sorbet should be deployed (tag changed v1.2.1 -> v1.2.2)
-                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+                moctokit.rest.repos
+                    .getCommit({ owner: 'scality', repo: 'sorbet', ref: 'v1.2.2' } as any)
+                    .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
 
-                moctokit.rest.repos.createDeployment({
-                    owner: "scality",
-                    repo: "sorbet",
-                    ref: "v1.2.2",
-                    ...commonDeploymentParams,
-                }).reply({ status: 201, data: { id: 101 } }),
+                moctokit.rest.repos
+                    .createDeployment({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        ref: 'v1.2.2',
+                        ...commonDeploymentParams,
+                    })
+                    .reply({ status: 201, data: { id: 101 } }),
 
-                moctokit.rest.repos.createDeploymentStatus({
-                    owner: "scality",
-                    repo: "sorbet",
-                    deployment_id: 101,
-                    state: "in_progress",
-                    log_url: "https://github.com/scality/zenko/actions/runs/1",
-                    description: "Zenko CI running",
-                }).reply({ status: 201, data: { id: 1 } }),
+                moctokit.rest.repos
+                    .createDeploymentStatus({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        deployment_id: 101,
+                        state: 'in_progress',
+                        log_url: 'https://github.com/scality/zenko/actions/runs/1',
+                        description: 'Zenko CI running',
+                    })
+                    .reply({ status: 201, data: { id: 1 } }),
 
                 // No backbeat mocks — it should NOT be called
             ],
             bind: true,
         });
 
-        const filterStep = findStep(result, "Filter to changed dependencies");
+        const filterStep = findStep(result, 'Filter to changed dependencies');
         expect(filterStep).toBeDefined();
         expect(filterStep?.status).toBe(0);
 
-        const parseStep = findStep(result, "Parse component repos");
+        const parseStep = findStep(result, 'Parse component repos');
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
-        const deployStep = findStep(result, "Create or update deployments");
+        const deployStep = findStep(result, 'Create or update deployments');
         expect(deployStep).toBeDefined();
         expect(deployStep?.status).toBe(0);
     });
 
-    it("should ignore deps advanced on target branch after the feature branch was created", async () => {
+    it('should ignore deps advanced on target branch after the feature branch was created', async () => {
         // Simulate a stale feature branch: target branch moves on (backbeat bumped)
         // while the feature branch only touches sorbet. Diff should be vs the
         // merge-base, not the target tip, so backbeat must not be deployed.
-        nock("http://api.github.com").delete("/installation/token").reply(204).persist();
+        nock('http://api.github.com').delete('/installation/token').reply(204).persist();
 
-        const repoPath = github.repo.getPath("zenko");
+        const repoPath = github.repo.getPath('zenko');
         await exec(`git -C ${repoPath} checkout development/2.11`);
         await exec(`yq -i '.backbeat.tag = "9.3.5"' ${repoPath}/solution/deps.yaml`);
         await exec(`git -C ${repoPath} commit --no-sign -m "bump backbeat on target" -- solution/deps.yaml`);
         await exec(`git -C ${repoPath} push origin development/2.11`);
         await exec(`git -C ${repoPath} checkout improvement/ZENKO-5210`);
 
-        act.setEnv("GITHUB_SHA", await getCommitHash());
-        act.setInput("target-branch", "development/2.11");
+        act.setEnv('GITHUB_SHA', await getCommitHash());
+        act.setInput('target-branch', 'development/2.11');
 
-        const result = await act.runEvent("workflow_dispatch", {
-            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-delta-stale.log") : undefined,
+        const result = await act.runEvent('workflow_dispatch', {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-delta-stale.log') : undefined,
             mockApi: [
                 moctokit.rest.apps.getRepoInstallation().reply({
                     status: 200,
-                    data: { id: 1, app_id: 12345, app_slug: "test-app" },
+                    data: { id: 1, app_id: 12345, app_slug: 'test-app' },
                     repeat: 5,
                 }),
                 moctokit.rest.apps.createInstallationAccessToken().reply({
                     status: 201,
-                    data: { token: "ghs_fake_token" },
+                    data: { token: 'ghs_fake_token' },
                     repeat: 5,
                 }),
 
                 // Only sorbet should be deployed (merge-base diff). Backbeat
                 // differs vs target tip but was not touched by the feature
                 // branch, so no mock for it.
-                moctokit.rest.repos.getCommit({ owner: "scality", repo: "sorbet", ref: "v1.2.2" } as any).reply({ status: 200, data: { sha: "0123456789abcdef0123456789abcdef01234567" } as any }),
+                moctokit.rest.repos
+                    .getCommit({ owner: 'scality', repo: 'sorbet', ref: 'v1.2.2' } as any)
+                    .reply({ status: 200, data: { sha: '0123456789abcdef0123456789abcdef01234567' } as any }),
 
-                moctokit.rest.repos.createDeployment({
-                    owner: "scality",
-                    repo: "sorbet",
-                    ref: "v1.2.2",
-                    ...commonDeploymentParams,
-                }).reply({ status: 201, data: { id: 101 } }),
+                moctokit.rest.repos
+                    .createDeployment({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        ref: 'v1.2.2',
+                        ...commonDeploymentParams,
+                    })
+                    .reply({ status: 201, data: { id: 101 } }),
 
-                moctokit.rest.repos.createDeploymentStatus({
-                    owner: "scality",
-                    repo: "sorbet",
-                    deployment_id: 101,
-                    state: "in_progress",
-                    log_url: "https://github.com/scality/zenko/actions/runs/1",
-                    description: "Zenko CI running",
-                }).reply({ status: 201, data: { id: 1 } }),
+                moctokit.rest.repos
+                    .createDeploymentStatus({
+                        owner: 'scality',
+                        repo: 'sorbet',
+                        deployment_id: 101,
+                        state: 'in_progress',
+                        log_url: 'https://github.com/scality/zenko/actions/runs/1',
+                        description: 'Zenko CI running',
+                    })
+                    .reply({ status: 201, data: { id: 1 } }),
             ],
             bind: true,
         });
 
-        expect(findStep(result, "Filter to changed dependencies")?.status).toBe(0);
-        expect(findStep(result, "Create or update deployments")?.status).toBe(0);
+        expect(findStep(result, 'Filter to changed dependencies')?.status).toBe(0);
+        expect(findStep(result, 'Create or update deployments')?.status).toBe(0);
     });
 
-    it("should skip deployments when no deps changed", async () => {
+    it('should skip deployments when no deps changed', async () => {
         // Point to the same branch — no diff, so no components
-        act.setInput("target-branch", "improvement/ZENKO-5210");
+        act.setInput('target-branch', 'improvement/ZENKO-5210');
 
-        const result = await act.runEvent("workflow_dispatch", {
-            logFile: process.env.ACT_LOG ? path.join(__dirname, "act-delta-noop.log") : undefined,
+        const result = await act.runEvent('workflow_dispatch', {
+            logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-delta-noop.log') : undefined,
             mockApi: [],
             bind: true,
         });
 
-        const filterStep = findStep(result, "Filter to changed dependencies");
+        const filterStep = findStep(result, 'Filter to changed dependencies');
         expect(filterStep).toBeDefined();
         expect(filterStep?.status).toBe(0);
 
-        const parseStep = findStep(result, "Parse component repos");
+        const parseStep = findStep(result, 'Parse component repos');
         expect(parseStep).toBeDefined();
         expect(parseStep?.status).toBe(0);
 
         // No deployments should be created — token and deploy steps should be skipped
-        const tokenStep = findStep(result, "Generate scoped token");
+        const tokenStep = findStep(result, 'Generate scoped token');
         expect(tokenStep).toBeUndefined();
 
-        const deployStep = findStep(result, "Create or update deployments");
+        const deployStep = findStep(result, 'Create or update deployments');
         expect(deployStep).toBeUndefined();
     });
 });
