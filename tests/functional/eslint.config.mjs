@@ -40,16 +40,7 @@ export default tseslint.config(
     {
         files: ['mocha/**/*.js'],
         rules: {
-            'prefer-spread': 'off',
-            'no-bitwise': 'off',
-            'class-methods-use-this': 'off',
-            'global-require': 'off',
             'no-param-reassign': 'off',
-            'no-loop-func': 'off',
-            'padded-blocks': 'off',
-            'no-plusplus': 'off',
-            'no-underscore-dangle': 'off',
-            'func-names': 'off',
             'camelcase': ['error', { 'properties': 'never' }],
         },
     },
