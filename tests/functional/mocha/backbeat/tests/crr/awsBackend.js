@@ -164,8 +164,7 @@ describe('Replication with AWS backend', function () {
                 next => awsUtils.assertNoObject(destBucket, key, next),
             ],
             done,
-        ),
-    );
+        ));
 
     it('should replicate object tags of the latest version', done =>
         series(
@@ -282,19 +281,16 @@ describe('Replication with AWS backend', function () {
     // implementation it's racy since there's a possibility that the
     // COMPLETED replication status may be set before tags are
     // replicated, so skip it for now
-    it.skip(
-        'should replicate object tags of an MPU version when tagging is put before replication is complete',
-        done =>
-            series(
-                [
-                    next => scalityUtils.completeMPUAWS(srcBucket, key, 5, next),
-                    next => scalityUtils.putObjectTagging(srcBucket, key, undefined, next),
-                    next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key, undefined, next),
-                    next => scalityUtils.compareObjectTagsAWS(srcBucket, destBucket, key, undefined, undefined, next),
-                ],
-                done,
-            ),
-    );
+    it.skip('should replicate object tags of an MPU version when tagging is put before replication is complete', done =>
+        series(
+            [
+                next => scalityUtils.completeMPUAWS(srcBucket, key, 5, next),
+                next => scalityUtils.putObjectTagging(srcBucket, key, undefined, next),
+                next => scalityUtils.compareObjectsAWS(srcBucket, destBucket, key, undefined, next),
+                next => scalityUtils.compareObjectTagsAWS(srcBucket, destBucket, key, undefined, undefined, next),
+            ],
+            done,
+        ));
 
     it.skip('should replicate object tags of a previous MPU version', done => {
         let firstVersionScality = null;
