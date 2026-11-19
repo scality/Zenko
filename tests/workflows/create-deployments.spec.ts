@@ -1,6 +1,12 @@
 import sinon from 'sinon';
 
-const { findOrCreateDeployment, resolveRef, resolveDeployment, createDeployments, resolveFromManifest } = require('../../.github/actions/create-component-deployments/create-deployments');
+const {
+    findOrCreateDeployment,
+    resolveRef,
+    resolveDeployment,
+    createDeployments,
+    resolveFromManifest,
+} = require('../../.github/actions/create-component-deployments/create-deployments');
 
 function makeMockCore() {
     return {
@@ -45,12 +51,12 @@ const baseParams = {
 
 describe('resolveDeployment', () => {
     const deployParams = {
-      token: 'fake-token',
-      environment: 'zenko/dev',
-      description: 'test',
-      transient: true,
-      production: false,
-      createOnly: true,
+        token: 'fake-token',
+        environment: 'zenko/dev',
+        description: 'test',
+        transient: true,
+        production: false,
+        createOnly: true,
     };
     const component = { repo: 'scality/sorbet', ref: 'sha-abc1234', image: 'scality/sorbet' };
 
@@ -70,12 +76,19 @@ describe('resolveDeployment', () => {
         const core = makeMockCore();
         const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'deadbeef' });
 
-        const result = await resolveDeployment(github, core, resolve,
+        const result = await resolveDeployment(
+            github,
+            core,
+            resolve,
             { repo: '', ref: 'some-tag', image: 'scality/playground/sandbox' },
             deployParams,
         );
 
-        expect(result.component).toEqual({ repo: 'scality/sorbet', ref: 'deadbeef', image: 'scality/playground/sandbox' });
+        expect(result.component).toEqual({
+            repo: 'scality/sorbet',
+            ref: 'deadbeef',
+            image: 'scality/playground/sandbox',
+        });
         expect(result.deploymentId).toBe(42);
         expect(resolve.calledOnce).toBe(true);
         const call = github.rest.repos.createDeployment.firstCall.args[0];
@@ -90,7 +103,13 @@ describe('resolveDeployment', () => {
         const resolve = sinon.stub().resolves(null);
 
         await expect(
-           resolveDeployment(github, core, resolve, { repo: '', ref: 'tag', image: 'scality/playground/x' }, deployParams)
+            resolveDeployment(
+                github,
+                core,
+                resolve,
+                { repo: '', ref: 'tag', image: 'scality/playground/x' },
+                deployParams,
+            ),
         ).rejects.toThrow('Could not resolve ref');
     });
 
@@ -113,7 +132,10 @@ describe('resolveDeployment', () => {
         const core = makeMockCore();
         const resolve = sinon.stub().resolves({ repo: 'scality/sorbet', ref: 'abc1234' });
 
-        const result = await resolveDeployment(github, core, resolve,
+        const result = await resolveDeployment(
+            github,
+            core,
+            resolve,
             { repo: 'scality/sorbet', ref: 'v1.0.0', image: 'scality/sorbet' },
             deployParams,
         );
@@ -130,79 +152,82 @@ describe('resolveDeployment', () => {
         const core = makeMockCore();
         const resolve = sinon.stub();
 
-        await expect(
-           resolveDeployment(github, core, resolve, component, deployParams)
-        ).rejects.toMatchObject({ status: 500 });
+        await expect(resolveDeployment(github, core, resolve, component, deployParams)).rejects.toMatchObject({
+            status: 500,
+        });
         expect(resolve.called).toBe(false);
     });
-  });
+});
 
-  describe('findOrCreateDeployment', () => {
-      it('creates directly when createOnly is true', async () => {
-          const github = makeMockGithub();
+describe('findOrCreateDeployment', () => {
+    it('creates directly when createOnly is true', async () => {
+        const github = makeMockGithub();
 
-          const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: true });
+        const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: true });
 
-          expect(id).toBe(42);
-          expect(github.rest.repos.listDeployments.called).toBe(false);
-          expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
-          const call = github.rest.repos.createDeployment.firstCall.args[0];
-          expect(call).toMatchObject({
-              owner: 'scality',
-              repo: 'sorbet',
-              ref: 'v1.2.2',
-              environment: 'zenko/development/2.11',
-              transient_environment: true,
-              auto_merge: false,
-              required_contexts: [],
-              production_environment: false,
-          });
-      });
+        expect(id).toBe(42);
+        expect(github.rest.repos.listDeployments.called).toBe(false);
+        expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
+        const call = github.rest.repos.createDeployment.firstCall.args[0];
+        expect(call).toMatchObject({
+            owner: 'scality',
+            repo: 'sorbet',
+            ref: 'v1.2.2',
+            environment: 'zenko/development/2.11',
+            transient_environment: true,
+            auto_merge: false,
+            required_contexts: [],
+            production_environment: false,
+        });
+    });
 
-      it('returns existing deployment when found', async () => {
-          const github = makeMockGithub({
+    it('returns existing deployment when found', async () => {
+        const github = makeMockGithub({
             listDeployments: sinon.stub().resolves({ data: [{ id: 99 }] }),
-          });
+        });
 
-          const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: false });
+        const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: false });
 
-          expect(id).toBe(99);
-          expect(github.rest.repos.createDeployment.called).toBe(false);
-      });
+        expect(id).toBe(99);
+        expect(github.rest.repos.createDeployment.called).toBe(false);
+    });
 
-      it('creates when no existing deployment found', async () => {
-          const github = makeMockGithub({
-              listDeployments: sinon.stub().resolves({ data: [] }),
-              createDeployment: sinon.stub().resolves({ data: { id: 77 } }),
-          });
+    it('creates when no existing deployment found', async () => {
+        const github = makeMockGithub({
+            listDeployments: sinon.stub().resolves({ data: [] }),
+            createDeployment: sinon.stub().resolves({ data: { id: 77 } }),
+        });
 
-          const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: false });
+        const id = await findOrCreateDeployment(github, { ...deploymentParams, createOnly: false });
 
-          expect(id).toBe(77);
-          expect(github.rest.repos.listDeployments.calledOnce).toBe(true);
-          expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
-      });
+        expect(id).toBe(77);
+        expect(github.rest.repos.listDeployments.calledOnce).toBe(true);
+        expect(github.rest.repos.createDeployment.calledOnce).toBe(true);
+    });
 
-      it('passes transient_environment: false for permanent deployments', async () => {
-          const github = makeMockGithub();
+    it('passes transient_environment: false for permanent deployments', async () => {
+        const github = makeMockGithub();
 
-          await findOrCreateDeployment(github, { ...deploymentParams, transient: false, createOnly: true });
+        await findOrCreateDeployment(github, { ...deploymentParams, transient: false, createOnly: true });
 
-          const call = github.rest.repos.createDeployment.firstCall.args[0];
-          expect(call.transient_environment).toBe(false);
-      });
+        const call = github.rest.repos.createDeployment.firstCall.args[0];
+        expect(call.transient_environment).toBe(false);
+    });
 
-      it('passes production_environment: true for production deployments', async () => {
-          const github = makeMockGithub();
+    it('passes production_environment: true for production deployments', async () => {
+        const github = makeMockGithub();
 
-          await findOrCreateDeployment(github, {
-              ...deploymentParams, transient: false, production: true, createOnly: true,
-          });
+        await findOrCreateDeployment(github, {
+            ...deploymentParams,
+            transient: false,
+            production: true,
+            createOnly: true,
+        });
 
-          const call = github.rest.repos.createDeployment.firstCall.args[0];
-          expect(call.production_environment).toBe(true);
-          expect(call.transient_environment).toBe(false);
-      });
+        const call = github.rest.repos.createDeployment.firstCall.args[0];
+        expect(call.production_environment).toBe(true);
+        expect(call.transient_environment).toBe(false);
+    });
 });
 
 describe('resolveRef', () => {
@@ -216,7 +241,11 @@ describe('resolveRef', () => {
 
         expect(ref).toBe('9.3.0');
         expect(github.rest.repos.getCommit.calledOnce).toBe(true);
-        expect(github.rest.repos.getCommit.firstCall.args[0]).toEqual({ owner: 'scality', repo: 'backbeat', ref: '9.3.0' });
+        expect(github.rest.repos.getCommit.firstCall.args[0]).toEqual({
+            owner: 'scality',
+            repo: 'backbeat',
+            ref: '9.3.0',
+        });
         expect(resolve.called).toBe(false);
     });
 
@@ -236,7 +265,14 @@ describe('resolveRef', () => {
         const github = makeMockGithub({ getCommit });
         const resolve = sinon.stub();
 
-        const { ref } = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+        const { ref } = await resolveRef(
+            github,
+            'scality/backbeat',
+            '9.6.3-dev.2.sha-13bbb8b',
+            'scality/backbeat',
+            'tok',
+            resolve,
+        );
 
         expect(ref).toBe('13bbb8b13ea055fdc35df2df9c230b14f278988e');
         expect(getCommit.calledOnce).toBe(true);
@@ -281,7 +317,14 @@ describe('resolveRef', () => {
         const github = makeMockGithub({ getCommit: sinon.stub().rejects(notFound()) });
         const resolve = sinon.stub().resolves({ repo: '', ref: 'abc1234' });
 
-        const { ref } = await resolveRef(github, 'scality/backbeat', '9.6.3-dev.2.sha-13bbb8b', 'scality/backbeat', 'tok', resolve);
+        const { ref } = await resolveRef(
+            github,
+            'scality/backbeat',
+            '9.6.3-dev.2.sha-13bbb8b',
+            'scality/backbeat',
+            'tok',
+            resolve,
+        );
 
         expect(ref).toBe('abc1234');
         expect(github.rest.repos.getCommit.calledOnce).toBe(true);
@@ -322,7 +365,8 @@ describe('createDeployments', () => {
         const core = makeMockCore();
 
         await createDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' }],
             ...baseParams,
             status: 'in_progress',
@@ -344,7 +388,8 @@ describe('createDeployments', () => {
         const core = makeMockCore();
 
         await createDeployments({
-            github, core,
+            github,
+            core,
             components: [{ repo: 'scality/backbeat', ref: '9.6.3-dev.2.sha-13bbb8b', image: 'scality/backbeat' }],
             ...baseParams,
             status: 'in_progress',
@@ -352,7 +397,9 @@ describe('createDeployments', () => {
 
         expect(github.rest.repos.getCommit.firstCall.args[0].ref).toBe('13bbb8b');
         expect(github.rest.repos.createDeployment.firstCall.args[0]).toMatchObject({
-            owner: 'scality', repo: 'backbeat', ref: '13bbb8b13ea055fdc35df2df9c230b14f278988e',
+            owner: 'scality',
+            repo: 'backbeat',
+            ref: '13bbb8b13ea055fdc35df2df9c230b14f278988e',
         });
     });
 
@@ -361,7 +408,8 @@ describe('createDeployments', () => {
         const core = makeMockCore();
 
         await createDeployments({
-            github, core,
+            github,
+            core,
             components: [
                 { repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' },
                 { repo: 'scality/backbeat', ref: '9.3.0', image: 'scality/backbeat' },
@@ -381,19 +429,20 @@ describe('createDeployments', () => {
         createDeployment.onSecondCall().resolves({ data: { id: 42 } });
 
         const github = makeMockGithub({
-          createDeployment,
-          createDeploymentStatus: sinon.stub().resolves({}),
+            createDeployment,
+            createDeploymentStatus: sinon.stub().resolves({}),
         });
         const core = makeMockCore();
 
         const errors = await createDeployments({
-          github, core,
-          components: [
-            { repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' },
-            { repo: 'scality/backbeat', ref: '9.3.0', image: 'scality/backbeat' },
-          ],
-          ...baseParams,
-          status: 'in_progress',
+            github,
+            core,
+            components: [
+                { repo: 'scality/sorbet', ref: 'v1.2.2', image: 'scality/sorbet' },
+                { repo: 'scality/backbeat', ref: '9.3.0', image: 'scality/backbeat' },
+            ],
+            ...baseParams,
+            status: 'in_progress',
         });
 
         expect(errors).toBe(1);
@@ -413,7 +462,7 @@ describe('resolveFromManifest', () => {
     }
 
     beforeEach(() => {
-       fetchStub = sinon.stub(globalThis as any, 'fetch');
+        fetchStub = sinon.stub(globalThis as any, 'fetch');
     });
 
     afterEach(() => {
@@ -441,12 +490,14 @@ describe('resolveFromManifest', () => {
 
     it('resolves from OCI manifest annotations', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            annotations: {
-                'org.opencontainers.image.revision': 'abc1234',
-                'org.opencontainers.image.source': 'https://github.com/scality/sorbet',
-            },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                annotations: {
+                    'org.opencontainers.image.revision': 'abc1234',
+                    'org.opencontainers.image.source': 'https://github.com/scality/sorbet',
+                },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/sorbet', 'v1.0.0', 'gh-token');
 
@@ -456,17 +507,21 @@ describe('resolveFromManifest', () => {
 
     it('falls back to config blob when manifest has no annotations', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            config: { digest: 'sha256:deadbeef' },
-        }));
-        fetchStub.onThirdCall().resolves(mockOk({
-            config: {
-                Labels: {
-                    'org.opencontainers.image.revision': 'deadbeef',
-                    'org.opencontainers.image.source': 'https://github.com/scality/cloudserver',
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                config: { digest: 'sha256:deadbeef' },
+            }),
+        );
+        fetchStub.onThirdCall().resolves(
+            mockOk({
+                config: {
+                    Labels: {
+                        'org.opencontainers.image.revision': 'deadbeef',
+                        'org.opencontainers.image.source': 'https://github.com/scality/cloudserver',
+                    },
                 },
-            },
-        }));
+            }),
+        );
 
         const result = await resolveFromManifest('scality/cloudserver', 'latest', 'gh-token');
 
@@ -476,12 +531,16 @@ describe('resolveFromManifest', () => {
 
     it('returns null when no revision found in manifest or blob', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            config: { digest: 'sha256:deadbeef' },
-        }));
-        fetchStub.onThirdCall().resolves(mockOk({
-            config: { Labels: {} },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                config: { digest: 'sha256:deadbeef' },
+            }),
+        );
+        fetchStub.onThirdCall().resolves(
+            mockOk({
+                config: { Labels: {} },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/sorbet', 'v1.0.0', 'gh-token');
 
@@ -490,12 +549,14 @@ describe('resolveFromManifest', () => {
 
     it('strips .git suffix from source annotation', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            annotations: {
-                'org.opencontainers.image.revision': 'abc1234',
-                'org.opencontainers.image.source': 'https://github.com/scality/backbeat.git',
-            },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                annotations: {
+                    'org.opencontainers.image.revision': 'abc1234',
+                    'org.opencontainers.image.source': 'https://github.com/scality/backbeat.git',
+                },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', 'v9.0.0', 'gh-token');
 
@@ -504,11 +565,13 @@ describe('resolveFromManifest', () => {
 
     it('returns empty repo when source annotation is missing', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            annotations: {
-                'org.opencontainers.image.revision': 'abc1234',
-            },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                annotations: {
+                    'org.opencontainers.image.revision': 'abc1234',
+                },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/sorbet', 'v1.0.0', 'gh-token');
 
@@ -517,9 +580,11 @@ describe('resolveFromManifest', () => {
 
     it('uses Basic auth with x-access-token for the token request', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-           annotations: { 'org.opencontainers.image.revision': 'abc1234' },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+            }),
+        );
 
         await resolveFromManifest('scality/sorbet', 'v1.0.0', 'my-secret-token');
 
@@ -531,9 +596,11 @@ describe('resolveFromManifest', () => {
 
     it('uses registry token as Bearer for manifest and blob fetches', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'scoped-reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-          annotations: { 'org.opencontainers.image.revision': 'abc1234' },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+            }),
+        );
 
         await resolveFromManifest('scality/sorbet', 'v1.0.0', 'gh-token');
 
@@ -543,21 +610,25 @@ describe('resolveFromManifest', () => {
 
     it('follows an image index to the image manifest, skipping attestations', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            manifests: [
-                {
-                    digest: 'sha256:attestation',
-                    annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                manifests: [
+                    {
+                        digest: 'sha256:attestation',
+                        annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+                    },
+                    { digest: 'sha256:image' },
+                ],
+            }),
+        );
+        fetchStub.onThirdCall().resolves(
+            mockOk({
+                annotations: {
+                    'org.opencontainers.image.revision': 'abc1234',
+                    'org.opencontainers.image.source': 'https://github.com/scality/backbeat',
                 },
-                { digest: 'sha256:image' },
-            ],
-        }));
-        fetchStub.onThirdCall().resolves(mockOk({
-            annotations: {
-                'org.opencontainers.image.revision': 'abc1234',
-                'org.opencontainers.image.source': 'https://github.com/scality/backbeat',
-            },
-        }));
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', '9.6.3-dev.2.sha-abc1234', 'gh-token');
 
@@ -568,10 +639,12 @@ describe('resolveFromManifest', () => {
 
     it('resolves from image index annotations', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            manifests: [{ digest: 'sha256:image' }],
-            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                manifests: [{ digest: 'sha256:image' }],
+                annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
 
@@ -581,14 +654,18 @@ describe('resolveFromManifest', () => {
 
     it('tries each image of an index until one has a revision', async () => {
         fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onCall(1).resolves(mockOk({
-            manifests: [{ digest: 'sha256:image1' }, { digest: 'sha256:image2' }],
-        }));
+        fetchStub.onCall(1).resolves(
+            mockOk({
+                manifests: [{ digest: 'sha256:image1' }, { digest: 'sha256:image2' }],
+            }),
+        );
         fetchStub.onCall(2).resolves(mockOk({ config: { digest: 'sha256:config1' } }));
         fetchStub.onCall(3).resolves(mockOk({ config: { Labels: {} } }));
-        fetchStub.onCall(4).resolves(mockOk({
-            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
-        }));
+        fetchStub.onCall(4).resolves(
+            mockOk({
+                annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
 
@@ -600,9 +677,11 @@ describe('resolveFromManifest', () => {
         fetchStub.onCall(0).resolves(mockOk({ token: 'reg-token' }));
         fetchStub.onCall(1).resolves(mockOk({ manifests: [{ digest: 'sha256:index' }] }));
         fetchStub.onCall(2).resolves(mockOk({ manifests: [{ digest: 'sha256:image' }] }));
-        fetchStub.onCall(3).resolves(mockOk({
-            annotations: { 'org.opencontainers.image.revision': 'abc1234' },
-        }));
+        fetchStub.onCall(3).resolves(
+            mockOk({
+                annotations: { 'org.opencontainers.image.revision': 'abc1234' },
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
 
@@ -611,12 +690,16 @@ describe('resolveFromManifest', () => {
 
     it('returns null when an image index has only attestations', async () => {
         fetchStub.onFirstCall().resolves(mockOk({ token: 'reg-token' }));
-        fetchStub.onSecondCall().resolves(mockOk({
-            manifests: [{
-                digest: 'sha256:attestation',
-                annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
-            }],
-        }));
+        fetchStub.onSecondCall().resolves(
+            mockOk({
+                manifests: [
+                    {
+                        digest: 'sha256:attestation',
+                        annotations: { 'vnd.docker.reference.type': 'attestation-manifest' },
+                    },
+                ],
+            }),
+        );
 
         const result = await resolveFromManifest('scality/backbeat', 'v1.0.0', 'gh-token');
 
