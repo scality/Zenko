@@ -2,6 +2,7 @@
 
 set -e
 set -u
+[ "${GITHUB_ACTIONS:-}" = true ] && set -x
 
 if  [ "$(uname -s)" = "Darwin" ]; then
     for cmd in gsed gstat gtar ; do
@@ -38,7 +39,6 @@ ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 HARDLINK=hardlink
 command -v $HARDLINK >/dev/null 2>&1 || HARDLINK="$(brew --prefix util-linux)/bin/hardlink"
 
-DOCKER=docker
 DOCKER_OPTS="--platform linux/amd64"
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --override-arch amd64 --insecure-policy"
@@ -142,14 +142,21 @@ function copy_yamls()
 function copy_docker_image()
 {
     IMAGE_NAME=${1##*/}
-    IMAGE_TRANSPORT=${2:-docker-daemon:}
     FULL_PATH=${IMAGES_ROOT}/${IMAGE_NAME/:/\/}
     mkdir -p ${FULL_PATH}
     ${SKOPEO} ${SKOPEO_OPTS} copy \
-        --format v2s2 --dest-compress \
-        --src-daemon-host ${DOCKER_SOCKET:-unix:///var/run/docker.sock} \
-        ${IMAGE_TRANSPORT}${1} \
+        --format v2s2 --dest-compress --retry-times 3 \
+        docker://${1} \
         dir:${FULL_PATH}
+}
+
+# Copy straight from the registries, a few images at a time: going through the
+# docker daemon means unpacking then re-compressing every layer.
+function copy_docker_images()
+{
+    export -f copy_docker_image
+    export SKOPEO SKOPEO_OPTS IMAGES_ROOT
+    xargs -P "${COPY_PARALLELISM:-8}" -I{} bash -c 'copy_docker_image "$1"' _ {}
 }
 
 function copy_oci_image()
@@ -167,6 +174,13 @@ function copy_oci_image()
         '{schemaVersion, config, mediaType: "application/vnd.oci.image.manifest.v1+json", layers}' \
         ${FULL_PATH}/manifest.json > ${FULL_PATH}/new_manifest.json
     mv ${FULL_PATH}/new_manifest.json ${FULL_PATH}/manifest.json
+}
+
+function copy_oci_images()
+{
+    export -f copy_oci_image
+    export SKOPEO SKOPEO_OPTS IMAGES_ROOT
+    xargs -P "${COPY_PARALLELISM:-8}" -I{} bash -ec 'copy_oci_image "$1"' _ {}
 }
 
 # $1 : destination folder
@@ -232,13 +246,7 @@ function get_local_dashboards()
 
 function get_component_dashboards()
 {
-    components=$(yq eval '.* | select(.dashboard) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml)
-
-    for dashboard in ${components}
-    do
-        echo "copy dashboards/alerts for ${dashboard}"
-        copy_oci_image ${dashboard}
-    done
+    yq eval '.* | select(.dashboard) | .sourceRegistry + "/" + .dashboard + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function get_dashboards()
@@ -249,26 +257,12 @@ function get_dashboards()
 
 function copy_iam_policies()
 {
-    components=$(yq eval '.* | select(.policy) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml)
-
-    for policy in ${components}
-    do
-        echo "copy iam policies for ${policy}"
-        copy_oci_image ${policy}
-    done
-
+    yq eval '.* | select(.policy) | .sourceRegistry + "/" + .policy + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function copy_config()
 {
-    components=$(yq eval '.* | select(.config) | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml)
-
-    for config in ${components}
-    do
-        echo "copy configs for ${config}"
-        copy_oci_image ${config}
-    done
-
+    yq eval '.* | select(.config) | .sourceRegistry + "/" + .config + ":" + .tag' deps.yaml | copy_oci_images
 }
 
 function dedupe()
@@ -313,7 +307,6 @@ function validate_registry()
 function build_registry_config()
 {
     docker run \
-        --name static-oci-registry \
         --mount type=bind,source=${ISO_ROOT}/images,destination=/var/lib/images \
         --mount type=bind,source=${ISO_ROOT},destination=/var/run \
         --rm \
@@ -383,20 +376,31 @@ function download_tools()
     done
 }
 
-# run everything in order
+# Fetching is mostly network-bound and independent, so run it all concurrently.
+# The first failing job fails the build.
+# Jobs get their own process group (set -m), so that leaving the function, on
+# success or error, kills whatever they still have running (skopeo, curl...).
+function fetch_content()
+(
+    set -m
+    trap 'for pgid in $(jobs -p) ; do kill -- -"${pgid}" 2>/dev/null || true ; done' EXIT
+
+    download_tools &
+    { flatten_source_images | copy_docker_images ; } &
+    get_dashboards &
+    copy_iam_policies &
+    copy_config &
+    gen_manifest_yaml
+    copy_yamls
+    # wait -n fails either on a failed job (pid set) or once no job is left
+    while wait -n -p pid ; do : ; done
+    [ -z "${pid:-}" ]
+)
+
 clean
 mkdirs
-download_tools
-gen_manifest_yaml
-copy_yamls
-flatten_source_images | while read img ; do
-    # only pull if the image isnt already local
-    ${DOCKER} image inspect ${img} > /dev/null 2>&1 || ${DOCKER} pull ${DOCKER_OPTS} ${img}
-    copy_docker_image ${img}
-done
-get_dashboards
-copy_iam_policies
-copy_config
+fetch_content
+
 validate_registry
 dedupe
 build_registry_config

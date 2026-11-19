@@ -27,6 +27,8 @@ jobs:
           fetch-depth: 0
       - name: Install tooling
         uses: ./.github/actions/install-end2end-dependencies
+        with:
+          tools: helm kustomize
       - name: Install ISO build dependencies
         shell: bash
         run: |-
@@ -59,13 +61,16 @@ jobs:
         run: git config --global url."https://git:${{ env.GIT_ACCESS_TOKEN }}@github.com/".insteadOf "https://github.com/"
         env:
           GIT_ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
-      - name: Build ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
-        working-directory: ./solution
-      - name: Build base ISO
-        run: PATH="/usr/local/bin:$PATH" bash -x ./build.sh
-        working-directory: ./solution-base
-      - name: Upload ISO
+      - name: Build ISOs
+        env:
+          PS4: '+ \D{%T}.${EPOCHREALTIME:11:3} '
+        run: |-
+          export PATH="/usr/local/bin:$PATH"
+          parallel --halt now,fail=1 'cd {} && ./build.sh' ::: solution solution-base
+
+          mkdir -p _build
+          ln solution/_build/*.iso solution-base/_build/*.iso _build/
+      - name: Upload ISOs
         id: upload
         uses: scality/action-artifacts@v4
         with:
@@ -73,12 +78,4 @@ jobs:
           url: https://artifacts.scality.net
           user: ${{ secrets.ARTIFACTS_USER }}
           password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution/_build"
-      - name: Upload base ISO
-        uses: scality/action-artifacts@v4
-        with:
-          method: upload
-          url: https://artifacts.scality.net
-          user: ${{ secrets.ARTIFACTS_USER }}
-          password: ${{ secrets.ARTIFACTS_PASSWORD }}
-          source: "solution-base/_build"
+          source: _build
