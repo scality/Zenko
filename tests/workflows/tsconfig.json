@@ -1,28 +1,24 @@
 {
     "compilerOptions": {
-      "target": "ES2019",
-      "module": "commonjs",
-      "allowJs": false,
-      "sourceMap": true,
-      "outDir": "./build",
-      "noEmit": true,
-      "strict": true,
-      "noImplicitAny": true,
-      "noImplicitThis": true,
-      "noImplicitReturns": true,
-      "noFallthroughCasesInSwitch": true,
-      "resolveJsonModule": true,
-      "baseUrl": "./",
-      "paths": {
-        "cli-testing": [
-          "./"
-        ],
-      },
-      "typeRoots": ["./node_modules/@types"],
-      "types": ["jest", "node"],
-      "esModuleInterop": true,
+        "target": "ES2019",
+        "module": "commonjs",
+        "allowJs": false,
+        "sourceMap": true,
+        "outDir": "./build",
+        "noEmit": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+        "paths": {
+            "cli-testing": ["./"]
+        },
+        "typeRoots": ["./node_modules/@types"],
+        "types": ["jest", "node"],
+        "esModuleInterop": true
     },
-    "exclude": [
-        "./node_modules"
-    ]
-  }
+    "exclude": ["./node_modules"]
+}

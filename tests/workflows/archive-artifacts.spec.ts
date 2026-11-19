@@ -1,10 +1,10 @@
-import { Act, Mockapi } from "@kie/act-js";
-import { MockGithub, Moctokit } from "@kie/mock-github";
-import path from "path";
-import { exec as execCb } from "node:child_process";
-import { promisify } from "node:util";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { Act, Mockapi } from '@kie/act-js';
+import { MockGithub, Moctokit } from '@kie/mock-github';
+import path from 'path';
+import { exec as execCb } from 'node:child_process';
+import { promisify } from 'node:util';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 const exec = promisify(execCb);
 
@@ -24,23 +24,29 @@ function createJUnitReport(
     for (let i = 0; i < tests - failures - errors - skipped; i++)
         testcases.push(`    <testcase name="test_pass_${i}" classname="${name}" time="0.1" />`);
     for (let i = 0; i < failures; i++)
-        testcases.push(`    <testcase name="test_fail_${i}" classname="${name}" time="0.2">\n      <failure message="assertion">expected</failure>\n    </testcase>`);
+        testcases.push(
+            `    <testcase name="test_fail_${i}" classname="${name}" time="0.2">\n      <failure message="assertion">expected</failure>\n    </testcase>`,
+        );
     for (let i = 0; i < errors; i++)
-        testcases.push(`    <testcase name="test_error_${i}" classname="${name}" time="0.15">\n      <error message="runtime">bang</error>\n    </testcase>`);
+        testcases.push(
+            `    <testcase name="test_error_${i}" classname="${name}" time="0.15">\n      <error message="runtime">bang</error>\n    </testcase>`,
+        );
     for (let i = 0; i < skipped; i++)
-        testcases.push(`    <testcase name="test_skip_${i}" classname="${name}" time="0">\n      <skipped />\n    </testcase>`);
+        testcases.push(
+            `    <testcase name="test_skip_${i}" classname="${name}" time="0">\n      <skipped />\n    </testcase>`,
+        );
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <testsuites tests="${tests}" failures="${failures}" errors="${errors}" skipped="${skipped}">
   <testsuite name="${name}" package="pkg" tests="${tests}" failures="${failures}" errors="${errors}" skipped="${skipped}">
-${testcases.join("\n")}
+${testcases.join('\n')}
   </testsuite>
 </testsuites>
 `;
 }
 
-async function getCommitHash(repo: string = "zenko") {
-    const { stdout } = await exec("git -C " + github.repo.getPath(repo) + " rev-parse HEAD");
+async function getCommitHash(repo: string = 'zenko') {
+    const { stdout } = await exec('git -C ' + github.repo.getPath(repo) + ' rev-parse HEAD');
     return stdout.trim();
 }
 
@@ -48,15 +54,15 @@ beforeEach(async () => {
     github = new MockGithub({
         repo: {
             zenko: {
-                currentBranch: "development/2.14",
+                currentBranch: 'development/2.14',
                 files: [
                     {
-                        src: path.resolve(__dirname, "../..", ".github"),
-                        dest: ".github",
+                        src: path.resolve(__dirname, '../..', '.github'),
+                        dest: '.github',
                     },
                     {
-                        src: path.resolve(__dirname, "fixtures/test-archive-artifacts.yaml"),
-                        dest: ".github/workflows/test-archive-artifacts.yaml",
+                        src: path.resolve(__dirname, 'fixtures/test-archive-artifacts.yaml'),
+                        dest: '.github/workflows/test-archive-artifacts.yaml',
                     },
                 ],
             },
@@ -66,60 +72,60 @@ beforeEach(async () => {
 
     mockapi = new Mockapi({
         artifacts: {
-            baseUrl: "https://artifacts.scality.net",
+            baseUrl: 'https://artifacts.scality.net',
             endpoints: {
                 root: {
                     listReports: {
-                        path: "/builds/{artifact}/data/test-archive.{attempt}/reports/?format=txt",
-                        method: "get",
+                        path: '/builds/{artifact}/data/test-archive.{attempt}/reports/?format=txt',
+                        method: 'get',
                         parameters: {
                             query: [],
-                            path: ["artifact", "attempt"],
+                            path: ['artifact', 'attempt'],
                             body: [],
                         },
                     },
                     downloadReport: {
-                        path: "/builds/{artifact}/data/test-archive.{attempt}/reports/{filename}",
-                        method: "get",
+                        path: '/builds/{artifact}/data/test-archive.{attempt}/reports/{filename}',
+                        method: 'get',
                         parameters: {
                             query: [],
-                            path: ["artifact", "attempt", "filename"],
+                            path: ['artifact', 'attempt', 'filename'],
                             body: [],
                         },
                     },
                     uploadReport: {
-                        path: "/upload/{artifact}/data/test-archive.{attempt}/reports/{report}",
-                        method: "put",
+                        path: '/upload/{artifact}/data/test-archive.{attempt}/reports/{report}',
+                        method: 'put',
                         parameters: {
                             query: [],
-                            path: ["artifact", "attempt", "report"],
+                            path: ['artifact', 'attempt', 'report'],
                             body: [],
                         },
                     },
                     uploadMergedReport: {
-                        path: "/upload/{artifact}/data/test-archive.{attempt}/junit-merged.xml",
-                        method: "put",
+                        path: '/upload/{artifact}/data/test-archive.{attempt}/junit-merged.xml',
+                        method: 'put',
                         parameters: {
                             query: [],
-                            path: ["artifact", "attempt"],
+                            path: ['artifact', 'attempt'],
                             body: [],
                         },
                     },
                     uploadKindLogs: {
-                        path: "/upload/{artifact}/data/test-archive.{attempt}/kind-logs/{file}",
-                        method: "put",
+                        path: '/upload/{artifact}/data/test-archive.{attempt}/kind-logs/{file}',
+                        method: 'put',
                         parameters: {
                             query: [],
-                            path: ["artifact", "attempt", "file"],
+                            path: ['artifact', 'attempt', 'file'],
                             body: [],
                         },
                     },
                     uploadLogsArchive: {
-                        path: "/upload/{artifact}/{file}",
-                        method: "put",
+                        path: '/upload/{artifact}/{file}',
+                        method: 'put',
                         parameters: {
                             query: [],
-                            path: ["artifact", "file"],
+                            path: ['artifact', 'file'],
                             body: [],
                         },
                     },
@@ -128,31 +134,31 @@ beforeEach(async () => {
                     // means "unsupported", so the action falls back to the direct
                     // PUT /upload/... path mocked above.
                     presignUpload: {
-                        path: "/presign-upload/{name}/{file}",
-                        method: "get",
+                        path: '/presign-upload/{name}/{file}',
+                        method: 'get',
                         parameters: {
                             query: [],
-                            path: ["name", "file"],
+                            path: ['name', 'file'],
                             body: [],
                         },
                     },
                     presignUploadPart: {
-                        path: "/presign-upload-part/{name}/{file}",
-                        method: "get",
+                        path: '/presign-upload-part/{name}/{file}',
+                        method: 'get',
                         parameters: {
                             query: [],
-                            path: ["name", "file"],
+                            path: ['name', 'file'],
                             body: [],
                         },
                     },
                     // action-artifacts@v4 GETs /version/2/{name}/{file} before uploading
                     // when run_attempt != 1; response body must end with 'PASSED\n'.
                     versionFile: {
-                        path: "/version/2/{artifact}/{file}",
-                        method: "get",
+                        path: '/version/2/{artifact}/{file}',
+                        method: 'get',
                         parameters: {
                             query: [],
-                            path: ["artifact", "file"],
+                            path: ['artifact', 'file'],
                             body: [],
                         },
                     },
@@ -161,19 +167,19 @@ beforeEach(async () => {
         },
     });
 
-    moctokit = new Moctokit("http://api.github.com");
+    moctokit = new Moctokit('http://api.github.com');
 
-    act = new Act(github.repo.getPath("zenko"));
-    act.setWorkflowFile(".github/workflows/test-archive-artifacts.yaml");
+    act = new Act(github.repo.getPath('zenko'));
+    act.setWorkflowFile('.github/workflows/test-archive-artifacts.yaml');
 
-    act.setEnv("GITHUB_JOB", "test-archive");
-    act.setEnv("GITHUB_RUN_ATTEMPT", "1");
-    act.setEnv("GITHUB_SHA", await getCommitHash());
-    act.setEnv("GITHUB_REPOSITORY", "scality/zenko");
-    act.setEnv("GITHUB_API_URL", "http://api.github.com");
-    act.setEnv("GITHUB_RUN_ID", "1");
+    act.setEnv('GITHUB_JOB', 'test-archive');
+    act.setEnv('GITHUB_RUN_ATTEMPT', '1');
+    act.setEnv('GITHUB_SHA', await getCommitHash());
+    act.setEnv('GITHUB_REPOSITORY', 'scality/zenko');
+    act.setEnv('GITHUB_API_URL', 'http://api.github.com');
+    act.setEnv('GITHUB_RUN_ID', '1');
 
-    act.setPlatforms("ubuntu-24.04", "ghcr.io/catthehacker/ubuntu:act-24.04");
+    act.setPlatforms('ubuntu-24.04', 'ghcr.io/catthehacker/ubuntu:act-24.04');
 });
 
 afterEach(async () => {
@@ -190,7 +196,13 @@ function commonMockApi(...extraMocks: any[]) {
         // GitHub Actions run API used by mikepenz/action-junit-report
         moctokit.rest.actions.getWorkflowRun().reply({
             status: 200,
-            data: { id: 1, status: "completed", conclusion: "success", head_sha: "abc", html_url: "https://github.com" },
+            data: {
+                id: 1,
+                status: 'completed',
+                conclusion: 'success',
+                head_sha: 'abc',
+                html_url: 'https://github.com',
+            },
             repeat: 10,
         }),
         mockapi.mock.artifacts.root.uploadKindLogs().reply({ status: 200, data: {}, repeat: 10 }),
@@ -224,146 +236,141 @@ function findStep(result: { name: string; status: number }[], nameFragment: stri
     return { name: result[idx].name, status: result[idx + 1]?.status };
 }
 
-describe("archive-artifacts action", () => {
-    describe("reporting logic", () => {
-        it("should merge a single test report", async () => {
-            const repoPath = github.repo.getPath("zenko")!;
-            mkdirSync(path.join(repoPath, "artifacts/data/reports"), { recursive: true });
-            writeFileSync(path.join(repoPath, "artifacts/data/reports/test.xml"), createJUnitReport("Suite", 5));
+describe('archive-artifacts action', () => {
+    describe('reporting logic', () => {
+        it('should merge a single test report', async () => {
+            const repoPath = github.repo.getPath('zenko')!;
+            mkdirSync(path.join(repoPath, 'artifacts/data/reports'), { recursive: true });
+            writeFileSync(path.join(repoPath, 'artifacts/data/reports/test.xml'), createJUnitReport('Suite', 5));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-single.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-single.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "test.xml" }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'test.xml' }).reply({ status: 200, data: {} }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(0);
         });
 
-        it("should merge multiple test reports", async () => {
-            const repoPath = github.repo.getPath("zenko")!;
-            const dir = path.join(repoPath, "artifacts/data/reports");
+        it('should merge multiple test reports', async () => {
+            const repoPath = github.repo.getPath('zenko')!;
+            const dir = path.join(repoPath, 'artifacts/data/reports');
             mkdirSync(dir, { recursive: true });
-            writeFileSync(path.join(dir, "a.xml"), createJUnitReport("SuiteA", 5, 1));
-            writeFileSync(path.join(dir, "b.xml"), createJUnitReport("SuiteB", 3, 0, 1));
+            writeFileSync(path.join(dir, 'a.xml'), createJUnitReport('SuiteA', 5, 1));
+            writeFileSync(path.join(dir, 'b.xml'), createJUnitReport('SuiteB', 3, 0, 1));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-multiple.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-multiple.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "a.xml" }).reply({ status: 200, data: {} }),
-                    mockapi.mock.artifacts.root.uploadReport({ report: "b.xml" }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'a.xml' }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'b.xml' }).reply({ status: 200, data: {} }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(1);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(1);
         });
 
-        it("should report failures", async () => {
-            const repoPath = github.repo.getPath("zenko")!;
-            mkdirSync(path.join(repoPath, "artifacts/data/reports"), { recursive: true });
-            writeFileSync(
-                path.join(repoPath, "artifacts/data/reports/test.xml"),
-                createJUnitReport("Suite", 10, 2),
-            );
+        it('should report failures', async () => {
+            const repoPath = github.repo.getPath('zenko')!;
+            mkdirSync(path.join(repoPath, 'artifacts/data/reports'), { recursive: true });
+            writeFileSync(path.join(repoPath, 'artifacts/data/reports/test.xml'), createJUnitReport('Suite', 10, 2));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-failures.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-failures.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "test.xml" }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'test.xml' }).reply({ status: 200, data: {} }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(1);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(1);
         });
 
-        it("should download reports from previous attempt", async () => {
-            act.setEnv("GITHUB_RUN_ATTEMPT", "2");
+        it('should download reports from previous attempt', async () => {
+            act.setEnv('GITHUB_RUN_ATTEMPT', '2');
 
-            const repoPath = github.repo.getPath("zenko")!;
-            mkdirSync(path.join(repoPath, "artifacts/data/reports"), { recursive: true });
-            writeFileSync(
-                path.join(repoPath, "artifacts/data/reports/current.xml"),
-                createJUnitReport("Suite", 3),
-            );
+            const repoPath = github.repo.getPath('zenko')!;
+            mkdirSync(path.join(repoPath, 'artifacts/data/reports'), { recursive: true });
+            writeFileSync(path.join(repoPath, 'artifacts/data/reports/current.xml'), createJUnitReport('Suite', 3));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-retry.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-retry.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.listReports({ attempt: 1 }).reply({ status: 200, data: "prev.xml" }),
-                    mockapi.mock.artifacts.root.downloadReport({ attempt: 1 }).reply({ status: 200, data: createJUnitReport("Suite", 5, 2) }),
-                    mockapi.mock.artifacts.root.uploadReport({ report: "current.xml" }).reply({ status: 200, data: {} }),
-                    mockapi.mock.artifacts.root.versionFile().reply({ status: 200, data: "PASSED\n", repeat: 20 }),
+                    mockapi.mock.artifacts.root.listReports({ attempt: 1 }).reply({ status: 200, data: 'prev.xml' }),
+                    mockapi.mock.artifacts.root
+                        .downloadReport({ attempt: 1 })
+                        .reply({ status: 200, data: createJUnitReport('Suite', 5, 2) }),
+                    mockapi.mock.artifacts.root
+                        .uploadReport({ report: 'current.xml' })
+                        .reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.versionFile().reply({ status: 200, data: 'PASSED\n', repeat: 20 }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Download previous JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+            expect(findStep(result, 'Main Download previous JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(0);
         });
 
-        it("should report errors", async () => {
-            const repoPath = github.repo.getPath("zenko")!;
-            mkdirSync(path.join(repoPath, "artifacts/data/reports"), { recursive: true });
-            writeFileSync(
-                path.join(repoPath, "artifacts/data/reports/test.xml"),
-                createJUnitReport("Suite", 8, 0, 2),
-            );
+        it('should report errors', async () => {
+            const repoPath = github.repo.getPath('zenko')!;
+            mkdirSync(path.join(repoPath, 'artifacts/data/reports'), { recursive: true });
+            writeFileSync(path.join(repoPath, 'artifacts/data/reports/test.xml'), createJUnitReport('Suite', 8, 0, 2));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-errors.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-errors.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "test.xml" }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'test.xml' }).reply({ status: 200, data: {} }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(1);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(1);
         });
 
-        it("should handle skipped tests", async () => {
-            const repoPath = github.repo.getPath("zenko")!;
-            const dir = path.join(repoPath, "artifacts/data/reports");
+        it('should handle skipped tests', async () => {
+            const repoPath = github.repo.getPath('zenko')!;
+            const dir = path.join(repoPath, 'artifacts/data/reports');
             mkdirSync(dir, { recursive: true });
-            writeFileSync(path.join(dir, "a.xml"), createJUnitReport("Suite", 5, 0, 0, 1));
-            writeFileSync(path.join(dir, "b.xml"), createJUnitReport("Suite", 4, 0, 0, 2));
+            writeFileSync(path.join(dir, 'a.xml'), createJUnitReport('Suite', 5, 0, 0, 1));
+            writeFileSync(path.join(dir, 'b.xml'), createJUnitReport('Suite', 4, 0, 0, 2));
 
-            const result = await act.runEvent("workflow_dispatch", {
-                logFile: process.env.ACT_LOG ? path.join(__dirname, "act-archive-skipped.log") : undefined,
+            const result = await act.runEvent('workflow_dispatch', {
+                logFile: process.env.ACT_LOG ? path.join(__dirname, 'act-archive-skipped.log') : undefined,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "a.xml" }).reply({ status: 200, data: {} }),
-                    mockapi.mock.artifacts.root.uploadReport({ report: "b.xml" }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'a.xml' }).reply({ status: 200, data: {} }),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'b.xml' }).reply({ status: 200, data: {} }),
                 ),
                 bind: true,
             });
 
-            expect(findStep(result, "Main Merge JUnit reports")?.status).toBe(0);
-            expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+            expect(findStep(result, 'Main Merge JUnit reports')?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(0);
         });
     });
 
-    describe("cucumber report links", () => {
+    describe('cucumber report links', () => {
         function writeReports(failures: number, cucumber: boolean) {
-            const dir = path.join(github.repo.getPath("zenko")!, "artifacts/data/reports");
+            const dir = path.join(github.repo.getPath('zenko')!, 'artifacts/data/reports');
             mkdirSync(dir, { recursive: true });
-            writeFileSync(path.join(dir, "report.xml"), createJUnitReport("Suite", 5, failures));
+            writeFileSync(path.join(dir, 'report.xml'), createJUnitReport('Suite', 5, failures));
             if (cucumber) {
-                writeFileSync(path.join(dir, "report.ndjson"), "{}\n");
+                writeFileSync(path.join(dir, 'report.ndjson'), '{}\n');
             }
         }
 
         // Last step of the action: it is directly followed by the action's own result, which does
         // not match the layout findStep() expects
         function findLinkStep(result: { name: string; status: number; output: string }[]) {
-            const idx = result.findIndex(r => r.name?.includes("Main Add dashboard link to job summary"));
+            const idx = result.findIndex(r => r.name?.includes('Main Add dashboard link to job summary'));
             return idx < 0 ? undefined : { status: result[idx + 1]?.status, output: result[idx + 1]?.output };
         }
 
@@ -371,55 +378,59 @@ describe("archive-artifacts action", () => {
         async function runAct(logName: string, cucumber: boolean) {
             const logFile = process.env.ACT_LOG
                 ? path.join(__dirname, `act-archive-${logName}.log`)
-                : path.join(mkdtempSync(path.join(tmpdir(), "act-")), "act.log");
-            const result = await act.runEvent("workflow_dispatch", {
+                : path.join(mkdtempSync(path.join(tmpdir(), 'act-')), 'act.log');
+            const result = await act.runEvent('workflow_dispatch', {
                 logFile,
                 mockApi: commonMockApi(
-                    mockapi.mock.artifacts.root.uploadReport({ report: "report.xml" }).reply({ status: 200, data: {} }),
-                    ...(cucumber ? [
-                        mockapi.mock.artifacts.root.uploadReport({ report: "report.ndjson" }).reply({ status: 200, data: {} }),
-                    ] : []),
+                    mockapi.mock.artifacts.root.uploadReport({ report: 'report.xml' }).reply({ status: 200, data: {} }),
+                    ...(cucumber
+                        ? [
+                              mockapi.mock.artifacts.root
+                                  .uploadReport({ report: 'report.ndjson' })
+                                  .reply({ status: 200, data: {} }),
+                          ]
+                        : []),
                 ),
                 bind: true,
             });
-            return { result, log: readFileSync(logFile, "utf8") };
+            return { result, log: readFileSync(logFile, 'utf8') };
         }
 
-        it("should link cucumber reports in log and summary when tests failed", async () => {
+        it('should link cucumber reports in log and summary when tests failed', async () => {
             writeReports(1, true);
 
-            const { result, log } = await runAct("cucumber-failed", true);
+            const { result, log } = await runAct('cucumber-failed', true);
 
             const step = findLinkStep(result);
             expect(step?.status).toBe(0);
-            expect(step?.output).toContain("/data/test-archive.1/reports/ctst-dashboard.html");
-            expect(step?.output).toContain("/data/test-archive.1/reports/report.html");
-            expect(log).toContain("### Test Reports");
+            expect(step?.output).toContain('/data/test-archive.1/reports/ctst-dashboard.html');
+            expect(step?.output).toContain('/data/test-archive.1/reports/report.html');
+            expect(log).toContain('### Test Reports');
         });
 
-        it("should link cucumber reports only in log when tests passed", async () => {
+        it('should link cucumber reports only in log when tests passed', async () => {
             writeReports(0, true);
 
-            const { result, log } = await runAct("cucumber-passed", true);
+            const { result, log } = await runAct('cucumber-passed', true);
 
-            expect(findStep(result, "Main Compute build success")?.status).toBe(0);
+            expect(findStep(result, 'Main Compute build success')?.status).toBe(0);
             const step = findLinkStep(result);
             expect(step?.status).toBe(0);
-            expect(step?.output).toContain("/data/test-archive.1/reports/ctst-dashboard.html");
-            expect(step?.output).toContain("/data/test-archive.1/reports/report.html");
-            expect(log).not.toContain("### Test Reports");
+            expect(step?.output).toContain('/data/test-archive.1/reports/ctst-dashboard.html');
+            expect(step?.output).toContain('/data/test-archive.1/reports/report.html');
+            expect(log).not.toContain('### Test Reports');
         });
 
-        it("should not link cucumber reports for non-cucumber tests", async () => {
+        it('should not link cucumber reports for non-cucumber tests', async () => {
             writeReports(1, false);
 
-            const { result, log } = await runAct("not-cucumber", false);
+            const { result, log } = await runAct('not-cucumber', false);
 
             const step = findLinkStep(result);
             expect(step?.status).toBe(0);
-            expect(step?.output).toContain("No cucumber report found");
-            expect(step?.output).not.toContain("ctst-dashboard.html");
-            expect(log).not.toContain("### Test Reports");
+            expect(step?.output).toContain('No cucumber report found');
+            expect(step?.output).not.toContain('ctst-dashboard.html');
+            expect(log).not.toContain('### Test Reports');
         });
     });
 });

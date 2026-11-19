@@ -2,12 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-const {
-    readBuilds,
-    renderSummary,
-    totalSizes,
-    writeSummary,
-} = require('../../.github/scripts/docker-build-summary');
+const { readBuilds, renderSummary, totalSizes, writeSummary } = require('../../.github/scripts/docker-build-summary');
 
 function image(platform: string, layers: [string, number][]) {
     return { platform, layers: layers.map(([digest, size]) => ({ digest, size })) };
@@ -20,7 +15,12 @@ function build(overrides: object = {}) {
         duration: 83.4e9,
         cached: 3,
         total: 4,
-        images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])],
+        images: [
+            image('linux/amd64', [
+                ['base', 2e6],
+                ['kafka', 3e6],
+            ]),
+        ],
         record: 'kafka.dockerbuild',
         url: 'https://github.com/scality/Zenko/actions/runs/1/artifacts/42',
         ...overrides,
@@ -28,15 +28,31 @@ function build(overrides: object = {}) {
 }
 
 function tableRows(summary: string) {
-    return summary.split('\n')
+    return summary
+        .split('\n')
         .filter(line => line.startsWith('| ') && !line.startsWith('| Build |') && !line.startsWith('| :--'));
 }
 
 describe('totalSizes', () => {
     it('counts layers shared between images once', () => {
         const totals = totalSizes([
-            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
-            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6], ['connect', 1e6]])] }),
+            build({
+                images: [
+                    image('linux/amd64', [
+                        ['base', 2e6],
+                        ['kafka', 3e6],
+                    ]),
+                ],
+            }),
+            build({
+                images: [
+                    image('linux/amd64', [
+                        ['base', 2e6],
+                        ['kafka', 3e6],
+                        ['connect', 1e6],
+                    ]),
+                ],
+            }),
         ]);
 
         expect(totals).toEqual([{ platform: 'linux/amd64', size: 6e6 }]);
@@ -45,7 +61,14 @@ describe('totalSizes', () => {
     it('computes the total for each platform', () => {
         const totals = totalSizes([
             build({ images: [image('linux/arm64', [['base-arm', 1e6]]), image('linux/amd64', [['base', 2e6]])] }),
-            build({ images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
+            build({
+                images: [
+                    image('linux/amd64', [
+                        ['base', 2e6],
+                        ['kafka', 3e6],
+                    ]),
+                ],
+            }),
         ]);
 
         expect(totals).toEqual([
@@ -59,15 +82,16 @@ describe('renderSummary', () => {
     it('lists each build', () => {
         const rows = tableRows(renderSummary([build()]));
 
-        expect(rows[0]).toBe('| `solution/kafka` | ✅ completed | 75% | 83s | 5 MB '
-            + '| [kafka.dockerbuild](https://github.com/scality/Zenko/actions/runs/1/artifacts/42) |');
+        expect(rows[0]).toBe(
+            '| `solution/kafka` | ✅ completed | 75% | 83s | 5 MB ' +
+                '| [kafka.dockerbuild](https://github.com/scality/Zenko/actions/runs/1/artifacts/42) |',
+        );
     });
 
     it('sorts builds by name', () => {
-        const rows = tableRows(renderSummary([
-            build({ build: 'solution/zookeeper' }),
-            build({ build: 'solution/cruise-control' }),
-        ]));
+        const rows = tableRows(
+            renderSummary([build({ build: 'solution/zookeeper' }), build({ build: 'solution/cruise-control' })]),
+        );
 
         expect(rows[0]).toContain('`solution/cruise-control`');
         expect(rows[1]).toContain('`solution/zookeeper`');
@@ -86,18 +110,34 @@ describe('renderSummary', () => {
     });
 
     it('handles failed builds, without image nor build record', () => {
-        const rows = tableRows(renderSummary([
-            build({ status: 'failed', cached: 0, total: 0, images: [], url: '' }),
-        ]));
+        const rows = tableRows(renderSummary([build({ status: 'failed', cached: 0, total: 0, images: [], url: '' })]));
 
         expect(rows[0]).toBe('| `solution/kafka` | ❌ failed | 0% | 83s | - |');
     });
 
     it('adds the total size', () => {
-        const rows = tableRows(renderSummary([
-            build({ build: 'solution/kafka', images: [image('linux/amd64', [['base', 2e6], ['kafka', 3e6]])] }),
-            build({ build: 'solution/zookeeper', images: [image('linux/amd64', [['base', 2e6], ['zk', 1e6]])] }),
-        ]));
+        const rows = tableRows(
+            renderSummary([
+                build({
+                    build: 'solution/kafka',
+                    images: [
+                        image('linux/amd64', [
+                            ['base', 2e6],
+                            ['kafka', 3e6],
+                        ]),
+                    ],
+                }),
+                build({
+                    build: 'solution/zookeeper',
+                    images: [
+                        image('linux/amd64', [
+                            ['base', 2e6],
+                            ['zk', 1e6],
+                        ]),
+                    ],
+                }),
+            ]),
+        );
 
         expect(rows).toHaveLength(3);
         expect(rows[2]).toBe('| **Total** (shared layers counted once) |  |  |  | 6 MB |  |');
@@ -113,8 +153,10 @@ describe('renderSummary', () => {
 describe('readBuilds', () => {
     it('reads all build descriptions', () => {
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'docker-builds-'));
-        fs.writeFileSync(path.join(dir, 'kafka.ndjson'),
-            `${JSON.stringify(build({ build: 'a' }))}\n${JSON.stringify(build({ build: 'b' }))}\n`);
+        fs.writeFileSync(
+            path.join(dir, 'kafka.ndjson'),
+            `${JSON.stringify(build({ build: 'a' }))}\n${JSON.stringify(build({ build: 'b' }))}\n`,
+        );
         fs.writeFileSync(path.join(dir, 'docs.ndjson'), `${JSON.stringify(build({ build: 'docs' }))}\n`);
         fs.writeFileSync(path.join(dir, 'other.txt'), 'not a build');
 
