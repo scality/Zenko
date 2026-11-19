@@ -940,14 +940,14 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 statusCode: response.status,
                 data: response.data as unknown,
             };
-            /* eslint-disable */
+            /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (err: any) {
             return {
                 stdout: '',
                 statusCode: err.response.status,
                 err: err.response.data,
             };
-            /* eslint-enable */
+            /* eslint-enable @typescript-eslint/no-explicit-any */
         }
     }
 
@@ -1040,7 +1040,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 statusCode: response.status,
             });
             return { statusCode: response.status, data: response.data as object };
-            /* eslint-disable */
+            /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (err: any) {
             this.logger.debug('Error when making management API request', {
                 method,
@@ -1054,7 +1054,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                 statusCode: err.response.status,
                 err: err.response.data,
             };
-            /* eslint-enable */
+            /* eslint-enable @typescript-eslint/no-explicit-any */
         }
     }
 
