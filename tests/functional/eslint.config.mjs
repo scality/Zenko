@@ -10,15 +10,6 @@ const gitignorePath = path.resolve(__dirname, '.gitignore');
 
 export default tseslint.config(
     includeIgnoreFile(gitignorePath),
-    {
-        ignores: [
-            'configuration_setup/**',
-            'ctst/sorbetctl',
-            'ctst/zenko-drctl',
-            'ctst/reports/**',
-            'ctst/build/**',
-        ],
-    },
     ...scality,
 
     // TypeScript files (ctst)
