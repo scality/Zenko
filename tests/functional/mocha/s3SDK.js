@@ -48,8 +48,7 @@ const scalityIAMClient = new IAMClient({
     requestHandler: sharedHttpHandler,
 });
 
-const verifyCerts = process.env.VERIFY_CERTIFICATES
-    ? process.env.VERIFY_CERTIFICATES : true;
+const verifyCerts = process.env.VERIFY_CERTIFICATES ? process.env.VERIFY_CERTIFICATES : true;
 
 const awsS3Client = createS3Client({
     credentials: {

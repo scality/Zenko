@@ -251,47 +251,59 @@ testAPIs.forEach(testAPI => {
 
     describe(`iam policies - cloudserver - AssumeRoleWithWebIdentity - ${testAPI.API}`, () => {
         before(done => {
-            async.series([
-                // create an account, generateAccountAccessKey for it
-                // get iam client, sts client and s3 client of this account
-                next => clientAdmin.createAccount(accountName, accountInfo, next),
-                next => clientAdmin.generateAccountAccessKey(
-                    accountName,
-                    next,
-                    { externalAccessKey, externalSecretKey },
-                ),
-                next => {
-                    iamClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
-                    stsClient = getSTSClient(externalAccessKey, externalSecretKey);
-                    s3Client = getS3Client(externalAccessKey, externalSecretKey);
-                    next();
-                },
-                // use s3 client to create a bucket and put 2 objects
-                next => {
-                    async.series([
-                        next => {
-                            s3Client.send(new CreateBucketCommand({ Bucket: bucket1 }))
-                                .then(() => next(), next);
-                        },
-                        next => {
-                            s3Client.send(new PutObjectCommand({
-                                Bucket: bucket1,
-                                Key: 'file1',
-                                Body: '',
-                                ContentLength: 0,
-                            }))
-                                .then(() => next(), next);
-                        },
-                    ], next);
-                },
-            ], done);
+            async.series(
+                [
+                    // create an account, generateAccountAccessKey for it
+                    // get iam client, sts client and s3 client of this account
+                    next => clientAdmin.createAccount(accountName, accountInfo, next),
+                    next =>
+                        clientAdmin.generateAccountAccessKey(accountName, next, {
+                            externalAccessKey,
+                            externalSecretKey,
+                        }),
+                    next => {
+                        iamClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
+                        stsClient = getSTSClient(externalAccessKey, externalSecretKey);
+                        s3Client = getS3Client(externalAccessKey, externalSecretKey);
+                        next();
+                    },
+                    // use s3 client to create a bucket and put 2 objects
+                    next => {
+                        async.series(
+                            [
+                                next => {
+                                    s3Client
+                                        .send(new CreateBucketCommand({ Bucket: bucket1 }))
+                                        .then(() => next(), next);
+                                },
+                                next => {
+                                    s3Client
+                                        .send(
+                                            new PutObjectCommand({
+                                                Bucket: bucket1,
+                                                Key: 'file1',
+                                                Body: '',
+                                                ContentLength: 0,
+                                            }),
+                                        )
+                                        .then(() => next(), next);
+                                },
+                            ],
+                            next,
+                        );
+                    },
+                ],
+                done,
+            );
         });
 
         after(async () => {
-            await s3Client.send(new DeleteObjectCommand({
-                Bucket: bucket1,
-                Key: 'file1',
-            }));
+            await s3Client.send(
+                new DeleteObjectCommand({
+                    Bucket: bucket1,
+                    Key: 'file1',
+                }),
+            );
             await s3Client.send(new DeleteBucketCommand({ Bucket: bucket1 }));
             await VaultClient.deleteVaultAccount(clientAdmin, iamClient, accountName);
         });
@@ -325,12 +337,14 @@ testAPIs.forEach(testAPI => {
 
                 const roleRes = await iamClient.send(new GetRoleCommand({ RoleName: test.roleName }));
                 const roleArn = roleRes.Role.Arn;
-                const assumeRoleRes = await stsClient.send(new AssumeRoleWithWebIdentityCommand({
-                    RoleArn: roleArn,
-                    DurationSeconds: duration,
-                    WebIdentityToken: jwtToken,
-                    RoleSessionName: `session-name-test-${i}-${testAPI.API.toLowerCase()}`,
-                }));
+                const assumeRoleRes = await stsClient.send(
+                    new AssumeRoleWithWebIdentityCommand({
+                        RoleArn: roleArn,
+                        DurationSeconds: duration,
+                        WebIdentityToken: jwtToken,
+                        RoleSessionName: `session-name-test-${i}-${testAPI.API.toLowerCase()}`,
+                    }),
+                );
                 const sessionUserCredentials = {
                     accessKeyId: assumeRoleRes.Credentials.AccessKeyId,
                     secretAccessKey: assumeRoleRes.Credentials.SecretAccessKey,
@@ -351,4 +365,3 @@ testAPIs.forEach(testAPI => {
         });
     });
 });
-

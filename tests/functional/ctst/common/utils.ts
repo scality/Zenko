@@ -4,13 +4,7 @@ import http from 'http';
 import { createHash, randomBytes } from 'crypto';
 import { setTimeout as sleep } from 'timers/promises';
 import { Command, IAM, Identity, IdentityEnum } from 'cli-testing';
-import {
-    AttachedPolicy,
-    Group,
-    Policy,
-    Role,
-    User,
-} from '@aws-sdk/client-iam';
+import { AttachedPolicy, Group, Policy, Role, User } from '@aws-sdk/client-iam';
 import { AWSCliOptions } from 'cli-testing';
 import Zenko from 'world/Zenko';
 import fs from 'fs';
@@ -33,8 +27,8 @@ export function isAccessKeys(object: Partial<AWSCredentials>): object is AWSCred
 export function assertBudgetFitsStepTimeout(budgetSeconds: number, stepTimeoutMs: number): void {
     assert.ok(
         budgetSeconds * 1000 < stepTimeoutMs,
-        `budget of ${budgetSeconds}s does not fit the step timeout of ${stepTimeoutMs / 1000}s: `
-        + 'raise the step timeout, or the step will be killed before it can report',
+        `budget of ${budgetSeconds}s does not fit the step timeout of ${stepTimeoutMs / 1000}s: ` +
+            'raise the step timeout, or the step will be killed before it can report',
     );
 }
 
@@ -66,25 +60,34 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
     putObjectTagging: [{ tagging: '{"TagSet":[{"Key":"string","Value":"string"}]}' }],
     putBucketVersioning: [{ versioningConfiguration: 'Status=Enabled' }],
     putObjectLegalHold: [{ legalHold: 'Status=ON' }],
-    putObjectRetention: [{
-        retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
-        bypassGovernanceRetention: 'true',
-    }],
-    putObjectLockConfiguration: [{
-        objectLockConfiguration: '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
-            '{ "DefaultRetention": ' +
-            '{ "Mode": "GOVERNANCE", "Days": 50 }}}',
-    }],
-    deleteObjects: [{
-        delete: JSON.stringify({
-            Objects: [{
-                Key: 'x'.repeat(10),
-            }],
-        }),
-    }],
-    putBucketLifecycleConfiguration: [{
-        lifecycleConfiguration: JSON.stringify(
-            {
+    putObjectRetention: [
+        {
+            retention: 'Mode=GOVERNANCE,RetainUntilDate=2080-01-01T00:00:00Z',
+            bypassGovernanceRetention: 'true',
+        },
+    ],
+    putObjectLockConfiguration: [
+        {
+            objectLockConfiguration:
+                '{ "ObjectLockEnabled": "Enabled", "Rule": ' +
+                '{ "DefaultRetention": ' +
+                '{ "Mode": "GOVERNANCE", "Days": 50 }}}',
+        },
+    ],
+    deleteObjects: [
+        {
+            delete: JSON.stringify({
+                Objects: [
+                    {
+                        Key: 'x'.repeat(10),
+                    },
+                ],
+            }),
+        },
+    ],
+    putBucketLifecycleConfiguration: [
+        {
+            lifecycleConfiguration: JSON.stringify({
                 Rules: [
                     {
                         Prefix: '',
@@ -102,10 +105,11 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
                     },
                 ],
             }),
-    }],
-    putBucketReplication: [{
-        replicationConfiguration: JSON.stringify(
-            {
+        },
+    ],
+    putBucketReplication: [
+        {
+            replicationConfiguration: JSON.stringify({
                 Role: 'arn:aws:iam::123456789012:role/s3-replication-role',
                 Rules: [
                     {
@@ -117,7 +121,8 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
                     },
                 ],
             }),
-    }],
+        },
+    ],
 };
 
 /**
@@ -128,7 +133,13 @@ export const s3FunctionExtraParams: { [key: string]: Record<string, unknown>[] }
  */
 export function parseGoDuration(duration: string): number {
     const units: Record<string, number> = {
-        ns: 1e-9, us: 1e-6, µs: 1e-6, ms: 1e-3, s: 1, m: 60, h: 3600,
+        ns: 1e-9,
+        us: 1e-6,
+        µs: 1e-6,
+        ms: 1e-3,
+        s: 1,
+        m: 60,
+        h: 3600,
     };
     let remaining = duration;
     if (remaining.length === 0) {
@@ -170,12 +181,12 @@ export function paramToCli(params: Record<string, unknown>): string {
     return command.join(' ');
 }
 
-export function safeJsonParse<T>(jsonString: string): { ok: boolean, result: T | null, error?: Error | null } {
+export function safeJsonParse<T>(jsonString: string): { ok: boolean; result: T | null; error?: Error | null } {
     let result: T;
     try {
         result = JSON.parse(jsonString) as T;
     } catch (err) {
-        return { ok: false, result: null, error: (err as Error) };
+        return { ok: false, result: null, error: err as Error };
     }
     return { ok: true, result };
 }
@@ -196,8 +207,10 @@ export function execShellCommand(cmd: string): Promise<string> {
     });
 }
 
-export async function request(options: http.RequestOptions, data: string | undefined):
-    Promise<{response: http.IncomingMessage, body: string}> {
+export async function request(
+    options: http.RequestOptions,
+    data: string | undefined,
+): Promise<{ response: http.IncomingMessage; body: string }> {
     return new Promise((resolve, reject) => {
         const req = http.request(options, res => {
             const chunks: string[] = [];
@@ -247,7 +260,7 @@ export async function listAllEntities<T extends User | Role | Group | Policy>(
         marker = parsedResponse.Marker;
     } while (parsedResponse.IsTruncated);
     return allEntities;
-};
+}
 
 export async function listAttachedPolicies<T extends AttachedPolicy>(
     listFn: (params: AWSCliOptions) => Promise<Command>,
@@ -277,7 +290,7 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
     try {
         await world.deleteAccount(accountName);
     } catch (err) {
-        world.logger?.debug('Account has attached resources',{
+        world.logger?.debug('Account has attached resources', {
             accountName,
             err,
         });
@@ -295,51 +308,65 @@ export async function cleanupAccount(world: Zenko, accountName: string) {
         // Detach attached policies from every user, group and role in parallel.
         await Promise.all([
             ...allUsers.map(async user => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
+                const policies = await listAttachedPolicies<AttachedPolicy>(params =>
+                    IAM.listAttachedUserPolicies({ userName: user.UserName, ...params }),
                 );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachUserPolicy({
-                        userName: user.UserName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                await Promise.all(
+                    policies.map(async policy => {
+                        const result = await IAM.detachUserPolicy({
+                            userName: user.UserName,
+                            policyArn: policy.PolicyArn,
+                        });
+                        if (result.err) {
+                            throw new Error(result.err);
+                        }
+                    }),
+                );
             }),
             ...allGroups.map(async group => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
+                const policies = await listAttachedPolicies<AttachedPolicy>(params =>
+                    IAM.listAttachedGroupPolicies({ groupName: group.GroupName, ...params }),
                 );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachGroupPolicy({
-                        groupName: group.GroupName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                await Promise.all(
+                    policies.map(async policy => {
+                        const result = await IAM.detachGroupPolicy({
+                            groupName: group.GroupName,
+                            policyArn: policy.PolicyArn,
+                        });
+                        if (result.err) {
+                            throw new Error(result.err);
+                        }
+                    }),
+                );
             }),
             ...allRoles.map(async role => {
-                const policies = await listAttachedPolicies<AttachedPolicy>(
-                    params => IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
+                const policies = await listAttachedPolicies<AttachedPolicy>(params =>
+                    IAM.listAttachedRolePolicies({ roleName: role.RoleName, ...params }),
                 );
-                await Promise.all(policies.map(async policy => {
-                    const result = await IAM.detachRolePolicy({
-                        roleName: role.RoleName, policyArn: policy.PolicyArn });
-                    if (result.err) {
-                        throw new Error(result.err);
-                    }
-                }));
+                await Promise.all(
+                    policies.map(async policy => {
+                        const result = await IAM.detachRolePolicy({
+                            roleName: role.RoleName,
+                            policyArn: policy.PolicyArn,
+                        });
+                        if (result.err) {
+                            throw new Error(result.err);
+                        }
+                    }),
+                );
             }),
         ]);
 
         // Delete all policies in parallel.
         const allPolicies = await listAllEntities<Policy>(IAM.listPolicies, 'Policies');
-        await Promise.all(allPolicies.map(async policy => {
-            const result = await IAM.deletePolicy({ policyArn: policy.Arn });
-            if (result.err) {
-                throw new Error(result.err);
-            }
-        }));
+        await Promise.all(
+            allPolicies.map(async policy => {
+                const result = await IAM.deletePolicy({ policyArn: policy.Arn });
+                if (result.err) {
+                    throw new Error(result.err);
+                }
+            }),
+        );
 
         // Delete all roles, groups and users in parallel (independent now that policies are gone).
         await Promise.all([
@@ -387,7 +414,7 @@ export interface PrepareScenarioOptions {
  * Creates accounts, buckets and runs cronjob once for all scenarios
  */
 export async function prepareMetricsScenarios(
-    world: Zenko, 
+    world: Zenko,
     scenarioConfiguration: ITestCaseHookParameter,
     options: PrepareScenarioOptions = {},
 ): Promise<void> {
@@ -403,47 +430,42 @@ export async function prepareMetricsScenarios(
         objectCount = 1,
     } = options;
 
-    await runOnceAcrossWorkers(
-        { lockName: featureName, logger: world.logger },
-        async () => {
-            const output: Record<string, AWSCredentials> = {};
-            const scenarioIds = new Set<string>();
+    await runOnceAcrossWorkers({ lockName: featureName, logger: world.logger }, async () => {
+        const output: Record<string, AWSCredentials> = {};
+        const scenarioIds = new Set<string>();
 
-            for (const scenario of gherkinDocument.feature?.children || []) {
-                for (const example of scenario.scenario?.examples || []) {
-                    for (const values of example.tableBody || []) {
-                        const scenarioWithExampleID = hashStringAndKeepFirst20Characters(`${values.id}`);
-                        scenarioIds.add(scenarioWithExampleID);
-                    }
+        for (const scenario of gherkinDocument.feature?.children || []) {
+            for (const example of scenario.scenario?.examples || []) {
+                for (const values of example.tableBody || []) {
+                    const scenarioWithExampleID = hashStringAndKeepFirst20Characters(`${values.id}`);
+                    scenarioIds.add(scenarioWithExampleID);
                 }
             }
+        }
 
-            for (const scenarioId of scenarioIds) {
-                await world.createAccount(scenarioId, true);
-                await createBucketWithConfiguration(world, scenarioId, versioning);
-                for (let i = 0; i < objectCount; i++) {
-                    await putObject(world, undefined, undefined, objectSize);
-                }
-                output[scenarioId] = Identity.getCurrentCredentials()!;
+        for (const scenarioId of scenarioIds) {
+            await world.createAccount(scenarioId, true);
+            await createBucketWithConfiguration(world, scenarioId, versioning);
+            for (let i = 0; i < objectCount; i++) {
+                await putObject(world, undefined, undefined, objectSize);
             }
+            output[scenarioId] = Identity.getCurrentCredentials()!;
+        }
 
-            await createJobAndWaitForCompletion(world, jobName, jobNamespace);
-            await sleep(2000);
-            fs.writeFileSync(dataFile, JSON.stringify(output));
-        },
-    );
+        await createJobAndWaitForCompletion(world, jobName, jobNamespace);
+        await sleep(2000);
+        fs.writeFileSync(dataFile, JSON.stringify(output));
+    });
 
-    const configuration = JSON.parse(
-        fs.readFileSync(dataFile, 'utf8'),
-    ) as Record<string, AWSCredentials>;
+    const configuration = JSON.parse(fs.readFileSync(dataFile, 'utf8')) as Record<string, AWSCredentials>;
     const key = hashStringAndKeepFirst20Characters(`${pickle.astNodeIds[1]}`);
     world.logger.debug('Scenario key', { key, from: `${pickle.astNodeIds[1]}`, configuration });
-    
+
     world.addToSaved('bucketName', key);
     world.addToSaved('accountName', key);
     world.addToSaved('accountNameForScenario', key);
     world.addToSaved('metricsEnvironmentSetup', true);
-    
+
     if (configuration[key]) {
         Identity.addIdentity(IdentityEnum.ACCOUNT, key, configuration[key], undefined, true, true);
     }

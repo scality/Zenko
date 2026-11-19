@@ -13,20 +13,28 @@ testUtils.deleteAllObjects = async (objList, bucketName) => {
     if (!objList.Contents || objList.Contents.length === 0) {
         return;
     }
-    await Promise.all(objList.Contents.map(obj => scalityS3Client.send(
-        new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key }),
-    )));
+    await Promise.all(
+        objList.Contents.map(obj =>
+            scalityS3Client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key })),
+        ),
+    );
 };
 
 testUtils.abortAllMpus = async (mpuList, bucketName) => {
     if (!mpuList.Uploads || mpuList.Uploads.length === 0) {
         return;
     }
-    await Promise.all(mpuList.Uploads.map(mpu => scalityS3Client.send(new AbortMultipartUploadCommand({
-        Bucket: bucketName,
-        Key: mpu.Key,
-        UploadId: mpu.UploadId,
-    }))));
+    await Promise.all(
+        mpuList.Uploads.map(mpu =>
+            scalityS3Client.send(
+                new AbortMultipartUploadCommand({
+                    Bucket: bucketName,
+                    Key: mpu.Key,
+                    UploadId: mpu.UploadId,
+                }),
+            ),
+        ),
+    );
 };
 
 testUtils.emptyDeleteBucket = async bucketName => {

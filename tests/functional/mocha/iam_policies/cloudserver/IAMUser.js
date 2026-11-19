@@ -40,7 +40,6 @@ function checkResponseAsync(checkResponseFn, credentials, bucket, object) {
 }
 
 testAPIs.forEach(testAPI => {
-
     const userName = `username-policy-test-${testAPI.API.toLowerCase()}`;
 
     const bucketName = `bucket-test-1-${testAPI.API.toLowerCase()}`;
@@ -51,7 +50,6 @@ testAPIs.forEach(testAPI => {
     const denyPolicyName = `deny-policy-${testAPI.API.toLowerCase()}`;
 
     describe(`IAM Policies ${testAPI.API}`, () => {
-
         const userCredentials = {
             accessKeyId: '',
             secretAccessKey: '',
@@ -59,19 +57,23 @@ testAPIs.forEach(testAPI => {
 
         before(async () => {
             await s3.send(new CreateBucketCommand({ Bucket: bucketName }));
-            await s3.send(new PutObjectCommand({
-                Bucket: bucketName,
-                Key: objectName,
-                Body: '',
-                ContentLength: 0,
-            }));
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: bucketName,
+                    Key: objectName,
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
             await s3.send(new CreateBucketCommand({ Bucket: bucketName2 }));
-            await s3.send(new PutObjectCommand({
-                Bucket: bucketName2,
-                Key: objectName2,
-                Body: '',
-                ContentLength: 0,
-            }));
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: bucketName2,
+                    Key: objectName2,
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
             await iam.send(new CreateUserCommand({ UserName: userName }));
             const accessKeyRes = await iam.send(new CreateAccessKeyCommand({ UserName: userName }));
             userCredentials.accessKeyId = accessKeyRes.AccessKey.AccessKeyId;
@@ -86,27 +88,28 @@ testAPIs.forEach(testAPI => {
             await s3.send(new DeleteBucketCommand({ Bucket: bucketName2 }));
         });
 
-        it(
-            `should not be able to ${testAPI.API} without the permission s3:${testAPI.API}`,
-            async () => {
-                const res = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
-                assert.strictEqual(res.statusCode, 403);
-                assert.strictEqual(res.code, errors.AccessDenied.message);
-            },
-        );
+        it(`should not be able to ${testAPI.API} without the permission s3:${testAPI.API}`, async () => {
+            const res = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
+            assert.strictEqual(res.statusCode, 403);
+            assert.strictEqual(res.code, errors.AccessDenied.message);
+        });
 
         it(`should be able to ${testAPI.API} with the permission s3:${testAPI.API} allowed`, async () => {
             const policyArns = [];
             try {
-                const res = await iam.send(new CreatePolicyCommand({
-                    PolicyName: allowPolicyName,
-                    PolicyDocument: createPolicy(`s3:${testAPI.API}`),
-                }));
+                const res = await iam.send(
+                    new CreatePolicyCommand({
+                        PolicyName: allowPolicyName,
+                        PolicyDocument: createPolicy(`s3:${testAPI.API}`),
+                    }),
+                );
                 policyArns.push(res.Policy.Arn);
-                await iam.send(new AttachUserPolicyCommand({
-                    UserName: userName,
-                    PolicyArn: res.Policy.Arn,
-                }));
+                await iam.send(
+                    new AttachUserPolicyCommand({
+                        UserName: userName,
+                        PolicyArn: res.Policy.Arn,
+                    }),
+                );
                 const res2 = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
                 if (testAPI.API === 'RestoreObject') {
                     assert.strictEqual(res2.statusCode, 403);
@@ -115,82 +118,109 @@ testAPIs.forEach(testAPI => {
                     assert.strictEqual(res2.statusCode, 200);
                 }
             } finally {
-                await Promise.all(policyArns.map(async arn => {
-                    await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
-                    await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
-                }));
+                await Promise.all(
+                    policyArns.map(async arn => {
+                        await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
+                        await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
+                    }),
+                );
             }
         });
 
-        it(`should be able to ${testAPI.API} with the permission s3:${testAPI.API} allowed`
-            + 'on specific bucket but not on others', async () => {
-            const policyArns = [];
-            try {
-                const res = await iam.send(new CreatePolicyCommand({
-                    PolicyName: allowPolicyName,
-                    PolicyDocument: createPolicy(
-                        `s3:${testAPI.API}`,
-                        true,
-                        `arn:aws:s3:::${bucketName}${testAPI.resource}`,
-                    ),
-                }));
-                policyArns.push(res.Policy.Arn);
-                await iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: res.Policy.Arn }));
-                const res2 = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
-                if (testAPI.API === 'RestoreObject') {
-                    assert.strictEqual(res2.statusCode, 403);
-                    assert.strictEqual(res2.code, errors.InvalidObjectState.message);
-                } else {
-                    assert.strictEqual(res2.statusCode, 200);
+        it(
+            `should be able to ${testAPI.API} with the permission s3:${testAPI.API} allowed ` +
+                'on specific bucket but not on others',
+            async () => {
+                const policyArns = [];
+                try {
+                    const res = await iam.send(
+                        new CreatePolicyCommand({
+                            PolicyName: allowPolicyName,
+                            PolicyDocument: createPolicy(
+                                `s3:${testAPI.API}`,
+                                true,
+                                `arn:aws:s3:::${bucketName}${testAPI.resource}`,
+                            ),
+                        }),
+                    );
+                    policyArns.push(res.Policy.Arn);
+                    await iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: res.Policy.Arn }));
+                    const res2 = await checkResponseAsync(
+                        testAPI.checkResponse,
+                        userCredentials,
+                        bucketName,
+                        objectName,
+                    );
+                    if (testAPI.API === 'RestoreObject') {
+                        assert.strictEqual(res2.statusCode, 403);
+                        assert.strictEqual(res2.code, errors.InvalidObjectState.message);
+                    } else {
+                        assert.strictEqual(res2.statusCode, 200);
+                    }
+                    const res3 = await checkResponseAsync(
+                        testAPI.checkResponse,
+                        userCredentials,
+                        bucketName2,
+                        objectName2,
+                    );
+                    assert.strictEqual(res3.statusCode, 403);
+                    assert.strictEqual(res3.code, errors.AccessDenied.message);
+                } finally {
+                    await Promise.all(
+                        policyArns.map(async arn => {
+                            await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
+                            await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
+                        }),
+                    );
                 }
-                const res3 = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName2, objectName2);
-                assert.strictEqual(res3.statusCode, 403);
-                assert.strictEqual(res3.code, errors.AccessDenied.message);
-            } finally {
-                await Promise.all(policyArns.map(async arn => {
-                    await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
-                    await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
-                }));
-            }
-        });
+            },
+        );
 
         it(`should not be able to ${testAPI.API} with the permission s3:${testAPI.API} denied`, async () => {
             const policyArns = [];
             try {
-                const res = await iam.send(new CreatePolicyCommand({
-                    PolicyName: denyPolicyName,
-                    PolicyDocument: createPolicy(`s3:${testAPI.API}`, false),
-                }));
+                const res = await iam.send(
+                    new CreatePolicyCommand({
+                        PolicyName: denyPolicyName,
+                        PolicyDocument: createPolicy(`s3:${testAPI.API}`, false),
+                    }),
+                );
                 policyArns.push(res.Policy.Arn);
                 await iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: res.Policy.Arn }));
                 const res2 = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
                 assert.strictEqual(res2.statusCode, 403);
                 assert.strictEqual(res2.code, errors.AccessDenied.message);
             } finally {
-                await Promise.all(policyArns.map(async arn => {
-                    await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
-                    await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
-                }));
+                await Promise.all(
+                    policyArns.map(async arn => {
+                        await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
+                        await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
+                    }),
+                );
             }
         });
 
         it(`should be able to ${testAPI.API} on all buckets except for denied ones`, async () => {
             const policyArns = [];
             try {
-                const res = await iam.send(new CreatePolicyCommand({
-                    PolicyName: allowPolicyName,
-                    PolicyDocument: createPolicy(`s3:${testAPI.API}`),
-                }));
+                const res = await iam.send(
+                    new CreatePolicyCommand({
+                        PolicyName: allowPolicyName,
+                        PolicyDocument: createPolicy(`s3:${testAPI.API}`),
+                    }),
+                );
                 policyArns.push(res.Policy.Arn);
                 await iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: res.Policy.Arn }));
-                const res2 = await iam.send(new CreatePolicyCommand({
-                    PolicyName: denyPolicyName,
-                    PolicyDocument: createPolicy(
-                        `s3:${testAPI.API}`,
-                        false,
-                        `arn:aws:s3:::${bucketName}${testAPI.resource}`,
-                    ),
-                }));
+                const res2 = await iam.send(
+                    new CreatePolicyCommand({
+                        PolicyName: denyPolicyName,
+                        PolicyDocument: createPolicy(
+                            `s3:${testAPI.API}`,
+                            false,
+                            `arn:aws:s3:::${bucketName}${testAPI.resource}`,
+                        ),
+                    }),
+                );
                 policyArns.push(res2.Policy.Arn);
                 await iam.send(new AttachUserPolicyCommand({ UserName: userName, PolicyArn: res2.Policy.Arn }));
                 const res3 = await checkResponseAsync(testAPI.checkResponse, userCredentials, bucketName, objectName);
@@ -204,10 +234,12 @@ testAPIs.forEach(testAPI => {
                     assert.strictEqual(res4.statusCode, 200);
                 }
             } finally {
-                await Promise.all(policyArns.map(async arn => {
-                    await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
-                    await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
-                }));
+                await Promise.all(
+                    policyArns.map(async arn => {
+                        await iam.send(new DetachUserPolicyCommand({ UserName: userName, PolicyArn: arn }));
+                        await iam.send(new DeletePolicyCommand({ PolicyArn: arn }));
+                    }),
+                );
             }
         });
     });

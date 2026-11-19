@@ -30,99 +30,108 @@ describe('Ingestion pause resume', function () {
         scalityUtils.createIngestionBucket(INGESTION_DEST_BUCKET, location, done);
     });
 
-    afterEach(done => series([
-        next => ringS3CUtils.deleteAllVersions(
-            ingestionSrcBucket,
-            null,
-            next,
-        ),
-        next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
-        next => scalityUtils.deleteVersionedBucket(INGESTION_DEST_BUCKET, next),
-    ], done));
-
-    it('should pause and resume ingestion', done => series([
-        next => ringS3CUtils.putObject(ingestionSrcBucket, OBJ_KEY1, null, (err, data) => {
-            assert.ifError(err);
-            OBJ_DATA = data;
-            return next();
-        }),
-        next => scalityUtils.compareObjectsRINGS3C(
-            ingestionSrcBucket,
-            INGESTION_DEST_BUCKET,
-            OBJ_KEY1,
-            OBJ_DATA.VersionId,
-            undefined,
-            next,
-        ),
-        next => backbeatAPIUtils.pauseIngestion(location, next),
-        next => setTimeout(next, 5000),
-        next => backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
-            assert.ifError(err);
-            assert(data[location]);
-            assert.strictEqual(data[location], 'disabled');
-            return next();
-        }),
-        next => ringS3CUtils.putObject(ingestionSrcBucket, OBJ_KEY2, null, (err, data) => {
-            assert.ifError(err);
-            OBJ_DATA = data;
-            return next();
-        }),
-        next => setTimeout(next, 15000),
-        next => scalityUtils.assertNoObject(INGESTION_DEST_BUCKET, OBJ_KEY2, next),
-        next => backbeatAPIUtils.resumeIngestion(location, false, null, next),
-        next => setTimeout(next, 5000),
-        next => backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
-            assert.ifError(err);
-            assert(data[location]);
-            assert.strictEqual(data[location], 'enabled');
-            return next();
-        }),
-        next => scalityUtils.compareObjectsRINGS3C(
-            ingestionSrcBucket,
-            INGESTION_DEST_BUCKET,
-            OBJ_KEY2,
-            OBJ_DATA.VersionId,
-            undefined,
-            next,
-        ),
-    ], done));
-
-    it(
-        'should get 404 error in data for status of non-existent location',
-        done => backbeatAPIUtils.getIngestionStatus(
-            'non-existent-location',
-            (err, data) => {
-                assert.ifError(err);
-                assert.strictEqual(data.RouteNotFound, true);
-                return done();
-            },
+    afterEach(done =>
+        series(
+            [
+                next => ringS3CUtils.deleteAllVersions(ingestionSrcBucket, null, next),
+                next => scalityUtils.waitUntilEmpty(INGESTION_DEST_BUCKET, next),
+                next => scalityUtils.deleteVersionedBucket(INGESTION_DEST_BUCKET, next),
+            ],
+            done,
         ),
     );
 
-    it('should be able to set a ingestion resume schedule', done => series([
-        next => backbeatAPIUtils.pauseIngestion(null, next),
-        next => setTimeout(next, 5000),
-        next => backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
+    it('should pause and resume ingestion', done =>
+        series(
+            [
+                next =>
+                    ringS3CUtils.putObject(ingestionSrcBucket, OBJ_KEY1, null, (err, data) => {
+                        assert.ifError(err);
+                        OBJ_DATA = data;
+                        return next();
+                    }),
+                next =>
+                    scalityUtils.compareObjectsRINGS3C(
+                        ingestionSrcBucket,
+                        INGESTION_DEST_BUCKET,
+                        OBJ_KEY1,
+                        OBJ_DATA.VersionId,
+                        undefined,
+                        next,
+                    ),
+                next => backbeatAPIUtils.pauseIngestion(location, next),
+                next => setTimeout(next, 5000),
+                next =>
+                    backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
+                        assert.ifError(err);
+                        assert(data[location]);
+                        assert.strictEqual(data[location], 'disabled');
+                        return next();
+                    }),
+                next =>
+                    ringS3CUtils.putObject(ingestionSrcBucket, OBJ_KEY2, null, (err, data) => {
+                        assert.ifError(err);
+                        OBJ_DATA = data;
+                        return next();
+                    }),
+                next => setTimeout(next, 15000),
+                next => scalityUtils.assertNoObject(INGESTION_DEST_BUCKET, OBJ_KEY2, next),
+                next => backbeatAPIUtils.resumeIngestion(location, false, null, next),
+                next => setTimeout(next, 5000),
+                next =>
+                    backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
+                        assert.ifError(err);
+                        assert(data[location]);
+                        assert.strictEqual(data[location], 'enabled');
+                        return next();
+                    }),
+                next =>
+                    scalityUtils.compareObjectsRINGS3C(
+                        ingestionSrcBucket,
+                        INGESTION_DEST_BUCKET,
+                        OBJ_KEY2,
+                        OBJ_DATA.VersionId,
+                        undefined,
+                        next,
+                    ),
+            ],
+            done,
+        ));
+
+    it('should get 404 error in data for status of non-existent location', done =>
+        backbeatAPIUtils.getIngestionStatus('non-existent-location', (err, data) => {
             assert.ifError(err);
-            assert(data[location]);
-            assert.strictEqual(data[location], 'disabled');
-            return next();
-        }),
-        next => backbeatAPIUtils.resumeIngestion(location, true, 1, next),
-        next => setTimeout(next, 5000),
-        next => backbeatAPIUtils.getIngestionResumeSchedule(
-            location,
-            (err, data) => {
-                assert.ifError(err);
-                assert(data[location]);
-                const requestTimeMs = Date.now();
-                const resumeTime = new Date(data[location]);
-                const resumeTimeMs = resumeTime.getTime();
-                const timediff = resumeTimeMs - requestTimeMs;
-                const hrdiff = (timediff / 1000) / 3600;
-                assert.strictEqual(Math.round(hrdiff), 1);
-                return next();
-            },
-        ),
-    ], done));
+            assert.strictEqual(data.RouteNotFound, true);
+            return done();
+        }));
+
+    it('should be able to set a ingestion resume schedule', done =>
+        series(
+            [
+                next => backbeatAPIUtils.pauseIngestion(null, next),
+                next => setTimeout(next, 5000),
+                next =>
+                    backbeatAPIUtils.getIngestionStatus(null, (err, data) => {
+                        assert.ifError(err);
+                        assert(data[location]);
+                        assert.strictEqual(data[location], 'disabled');
+                        return next();
+                    }),
+                next => backbeatAPIUtils.resumeIngestion(location, true, 1, next),
+                next => setTimeout(next, 5000),
+                next =>
+                    backbeatAPIUtils.getIngestionResumeSchedule(location, (err, data) => {
+                        assert.ifError(err);
+                        assert(data[location]);
+                        const requestTimeMs = Date.now();
+                        const resumeTime = new Date(data[location]);
+                        const resumeTimeMs = resumeTime.getTime();
+                        const timediff = resumeTimeMs - requestTimeMs;
+                        const hrdiff = timediff / 1000 / 3600;
+                        assert.strictEqual(Math.round(hrdiff), 1);
+                        return next();
+                    }),
+            ],
+            done,
+        ));
 });

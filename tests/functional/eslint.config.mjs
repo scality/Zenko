@@ -1,50 +1,47 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import { defineConfig } from 'eslint/config';
+import scality from '@scality/eslint-config-scality';
+import { mocha } from '@scality/eslint-config-scality/testing';
 import tseslint from 'typescript-eslint';
 import { includeIgnoreFile } from '@eslint/compat';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const gitignorePath = path.resolve(__dirname, '.gitignore');
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
 
-export default tseslint.config(
+export default defineConfig(
     includeIgnoreFile(gitignorePath),
+    ...scality,
     {
-        ignores: [
-            'configuration_setup/**',
-            'ctst/sorbetctl',
-            'ctst/zenko-drctl',
-            'ctst/reports/**',
-            'ctst/build/**',
-        ],
+        files: ['**/*.js'],
+        languageOptions: {
+            sourceType: 'commonjs',
+        },
+    },
+    {
+        // Generates the resource policies features, run as an ES module
+        files: ['ctst/features/resource-policies/regen.js'],
+        languageOptions: {
+            sourceType: 'module',
+        },
+    },
+    {
+        files: [tseslint.globs.ts],
+        extends: [tseslint.configs.recommended],
     },
 
     // TypeScript files (ctst)
     {
         files: ['ctst/**/*.ts'],
-        extends: [
-            ...compat.extends('scality'),
-            ...tseslint.configs.recommended,
-        ],
         rules: {
             // CucumberJS steps start with an uppercase
             'new-cap': 'off',
         },
     },
 
-    // TypeScript files (shared clients)
+    // TypeScript files (shared clients and test resources setup)
     {
-        files: ['clients/**/*.ts'],
-        extends: [
-            ...compat.extends('scality'),
-            ...tseslint.configs.recommended,
-        ],
+        files: ['clients/**/*.ts', 'testResourcesSetup/**/*.ts'],
         rules: {
             // CLI setup scripts report progress to the console
             'no-console': 'off',
@@ -54,21 +51,10 @@ export default tseslint.config(
     // JavaScript files (mocha)
     {
         files: ['mocha/**/*.js'],
-        extends: [
-            ...compat.extends('scality'),
-        ],
         rules: {
-            'prefer-spread': 'off',
-            'no-bitwise': 'off',
-            'class-methods-use-this': 'off',
-            'global-require': 'off',
             'no-param-reassign': 'off',
-            'no-loop-func': 'off',
-            'padded-blocks': 'off',
-            'no-plusplus': 'off',
-            'no-underscore-dangle': 'off',
-            'func-names': 'off',
-            'camelcase': ['error', { 'properties': 'never' }],
+            'camelcase': ['error', { properties: 'never' }],
         },
     },
+    mocha(['mocha/**/*.js']),
 );
