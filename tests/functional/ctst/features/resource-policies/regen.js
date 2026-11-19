@@ -10,11 +10,7 @@
  */
 import fs from 'fs';
 
-const targetFiles = [
-    './AssumeRole.feature',
-    './CrossAccountAssumeRole.feature',
-    './IAMUser.feature',
-];
+const targetFiles = ['./AssumeRole.feature', './CrossAccountAssumeRole.feature', './IAMUser.feature'];
 
 const APIs = [
     'AbortMultipartUpload',
@@ -143,17 +139,17 @@ for (const api of APIs) {
     }
 }
 
-const output = scenarios.map(scenario => {
-    const paddedAction = scenario.action.padEnd(longest.action);
-    const paddedIamPolicyExists = scenario.iamPolicyExists.padEnd(longest.iamPolicyExists);
-    const paddedIamPolicyApplies = scenario.iamPolicyApplies.padEnd(longest.iamPolicyApplies);
-    const paddedIamPolicyEffect = scenario.iamPolicyEffect.padEnd(longest.iamPolicyEffect);
-    const paddedBucketPolicyExists = scenario.bucketPolicyExists.padEnd(longest.bucketPolicyExists);
-    const paddedBucketPolicyApplies = scenario.bucketPolicyApplies.padEnd(longest.bucketPolicyApplies);
-    const paddedBucketPolicyEffect = scenario.bucketPolicyEffect.padEnd(longest.bucketPolicyEffect);
+const output = scenarios
+    .map(scenario => {
+        const paddedAction = scenario.action.padEnd(longest.action);
+        const paddedIamPolicyExists = scenario.iamPolicyExists.padEnd(longest.iamPolicyExists);
+        const paddedIamPolicyApplies = scenario.iamPolicyApplies.padEnd(longest.iamPolicyApplies);
+        const paddedIamPolicyEffect = scenario.iamPolicyEffect.padEnd(longest.iamPolicyEffect);
+        const paddedBucketPolicyExists = scenario.bucketPolicyExists.padEnd(longest.bucketPolicyExists);
+        const paddedBucketPolicyApplies = scenario.bucketPolicyApplies.padEnd(longest.bucketPolicyApplies);
+        const paddedBucketPolicyEffect = scenario.bucketPolicyEffect.padEnd(longest.bucketPolicyEffect);
 
-    return (   
-        '           ',
+        return ('           ',
         paddedAction,
         paddedBucketPolicyExists,
         paddedBucketPolicyApplies,
@@ -161,7 +157,8 @@ const output = scenarios.map(scenario => {
         paddedIamPolicyExists,
         paddedIamPolicyApplies,
         paddedIamPolicyEffect).join(' | ');
-}).join('\n');
+    })
+    .join('\n');
 
 targetFiles.forEach(file => {
     const filePath = `${__dirname}/${file}`;
@@ -169,16 +166,16 @@ targetFiles.forEach(file => {
     const startIndex = fileContent.indexOf('Everything below is generated');
     const startIndexNextLine = fileContent.indexOf('\n', startIndex);
     const endIndex = fileContent.length;
-    
+
     if (startIndex !== -1 && endIndex !== -1) {
-        const newContent =
-            `${fileContent.substring(0, startIndexNextLine)  }\n${  output  }\n${  fileContent.substring(endIndex)}`;
+        const newContent = `${fileContent.substring(0, startIndexNextLine)}\n${output}\n${fileContent.substring(endIndex)}`;
         fs.writeFileSync(filePath, newContent, 'utf-8');
         // eslint-disable-next-line no-console
         console.log(`Content in ${file} replaced.`);
     } else {
         // eslint-disable-next-line no-console
         console.error(
-            `Couldn't find the specified markers in ${file}. Make sure the file contains the markers as specified.`);
+            `Couldn't find the specified markers in ${file}. Make sure the file contains the markers as specified.`,
+        );
     }
 });

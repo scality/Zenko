@@ -4,8 +4,8 @@ Writing integration / behavior tests that runs in parallel is not trivial.
 This page lists all the rules to follow when writing a test that runs in
 parallel with other tests.
 
-*This is specific to Zenko, but the rules are applicable for any suite of*
-*tests in parallel.*
+_This is specific to Zenko, but the rules are applicable for any suite of_
+_tests in parallel._
 
 ## 1. Tests must be idempotent
 

@@ -10,14 +10,15 @@ export async function prepareUtilizationScenarios(world: Zenko, scenarioConfigur
     await prepareMetricsScenarios(world, scenarioConfiguration, {
         versioning: '',
         jobNamespace: 'utilization-setup',
-        jobName: 'end2end-ops-count-items'
+        jobName: 'end2end-ops-count-items',
     });
 }
 
-When('the user retrieves utilization metrics using scubaclient for metric type {string}',
+When(
+    'the user retrieves utilization metrics using scubaclient for metric type {string}',
     async function (this: Zenko, metricType: string) {
         const accountName = this.getSaved<string>('accountName');
-        
+
         const userCredentials = Identity.getCurrentCredentials();
 
         if (!userCredentials) {
@@ -46,17 +47,17 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
         let metricName;
 
         switch (metricType) {
-        case 'bucket':
-            metricName = this.getSaved<string>('bucketName');
-            break;
-        case 'account':
-            metricName = accountName;
-            break;
-        case 'location':
-            metricName = this.getSaved<string>('locationName') || 'us-east-1';
-            break;
-        default:
-            throw new Error(`Unsupported metric type: ${metricType}`);
+            case 'bucket':
+                metricName = this.getSaved<string>('bucketName');
+                break;
+            case 'account':
+                metricName = accountName;
+                break;
+            case 'location':
+                metricName = this.getSaved<string>('locationName') || 'us-east-1';
+                break;
+            default:
+                throw new Error(`Unsupported metric type: ${metricType}`);
         }
 
         try {
@@ -78,21 +79,21 @@ When('the user retrieves utilization metrics using scubaclient for metric type {
                 stderr: message,
             });
         }
+    },
+);
+
+Then('the latest utilization metrics are retrieved', function (this: Zenko) {
+    const result = this.getResult();
+    assert.strictEqual(result.err, '', `Expected no error but got: ${result.err}`);
+
+    this.logger.debug('Utilization metrics', {
+        stdout: result.stdout,
+        stderr: result.stderr,
+        err: result.err,
     });
 
-Then('the latest utilization metrics are retrieved',
-    function (this: Zenko) {
-        const result = this.getResult();
-        assert.strictEqual(result.err, '', `Expected no error but got: ${result.err}`);
-
-        this.logger.debug('Utilization metrics', {
-            stdout: result.stdout,
-            stderr: result.stderr,
-            err: result.err,
-        });
-
-        const response = JSON.parse(result.stdout) as ScubaMetrics;
-        assert.ok(response.objectsTotal >= 0, 'Bucket metrics should contain objectCount');
-        assert.ok(response.bytesTotal >= 0, 'Bucket metrics should contain bytesTotal');
-        assert.ok(response.metricsClass === this.getSaved<string>('metricType'), 'Metric type should match');
-    }); 
+    const response = JSON.parse(result.stdout) as ScubaMetrics;
+    assert.ok(response.objectsTotal >= 0, 'Bucket metrics should contain objectCount');
+    assert.ok(response.bytesTotal >= 0, 'Bucket metrics should contain bytesTotal');
+    assert.ok(response.metricsClass === this.getSaved<string>('metricType'), 'Metric type should match');
+});

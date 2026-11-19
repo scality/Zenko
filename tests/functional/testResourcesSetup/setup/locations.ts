@@ -15,10 +15,7 @@ interface CRRUserCredentials {
     secretKey: string;
 }
 
-async function setupCRRIamResources(
-    accountCreds: AccountCredentials,
-    env: Env,
-): Promise<CRRUserCredentials> {
+async function setupCRRIamResources(accountCreds: AccountCredentials, env: Env): Promise<CRRUserCredentials> {
     const iamClient = new IAMClient({
         credentials: {
             accessKeyId: accountCreds.AccessKeyId,
@@ -32,34 +29,44 @@ async function setupCRRIamResources(
     const userResult = await iamClient.send(new CreateUserCommand({ UserName: 'crr-user' }));
     const accessKeyResult = await iamClient.send(new CreateAccessKeyCommand({ UserName: 'crr-user' }));
 
-    await iamClient.send(new CreateRoleCommand({
-        RoleName: env.CRR_ROLE_NAME,
-        AssumeRolePolicyDocument: JSON.stringify({
-            Version: '2012-10-17',
-            Statement: [{
-                Effect: 'Allow',
-                Principal: { AWS: userResult.User?.Arn },
-                Action: 'sts:AssumeRole',
-            }],
+    await iamClient.send(
+        new CreateRoleCommand({
+            RoleName: env.CRR_ROLE_NAME,
+            AssumeRolePolicyDocument: JSON.stringify({
+                Version: '2012-10-17',
+                Statement: [
+                    {
+                        Effect: 'Allow',
+                        Principal: { AWS: userResult.User?.Arn },
+                        Action: 'sts:AssumeRole',
+                    },
+                ],
+            }),
         }),
-    }));
+    );
 
-    const policyResult = await iamClient.send(new CreatePolicyCommand({
-        PolicyName: 'crr-policy',
-        PolicyDocument: JSON.stringify({
-            Version: '2012-10-17',
-            Statement: [{
-                Effect: 'Allow',
-                Action: 's3:ReplicateObject',
-                Resource: 'arn:aws:s3:::*/*',
-            }],
+    const policyResult = await iamClient.send(
+        new CreatePolicyCommand({
+            PolicyName: 'crr-policy',
+            PolicyDocument: JSON.stringify({
+                Version: '2012-10-17',
+                Statement: [
+                    {
+                        Effect: 'Allow',
+                        Action: 's3:ReplicateObject',
+                        Resource: 'arn:aws:s3:::*/*',
+                    },
+                ],
+            }),
         }),
-    }));
+    );
 
-    await iamClient.send(new AttachRolePolicyCommand({
-        RoleName: env.CRR_ROLE_NAME,
-        PolicyArn: policyResult.Policy?.Arn,
-    }));
+    await iamClient.send(
+        new AttachRolePolicyCommand({
+            RoleName: env.CRR_ROLE_NAME,
+            PolicyArn: policyResult.Policy?.Arn,
+        }),
+    );
 
     if (!accessKeyResult.AccessKey?.AccessKeyId || !accessKeyResult.AccessKey?.SecretAccessKey) {
         throw new Error('CreateAccessKey did not return credentials');
@@ -90,11 +97,14 @@ export async function createLocations(
             if (!env.DEPLOY_CRR_LOCATIONS) {
                 continue;
             }
-            if (!env.CRR_SOURCE_ACCOUNT_NAME || !env.CRR_DESTINATION_ACCOUNT_NAME ||
-                !env.CRR_DESTINATION_LOCATION_NAME) {
+            if (
+                !env.CRR_SOURCE_ACCOUNT_NAME ||
+                !env.CRR_DESTINATION_ACCOUNT_NAME ||
+                !env.CRR_DESTINATION_LOCATION_NAME
+            ) {
                 throw new Error(
                     'CRR_SOURCE_ACCOUNT_NAME, CRR_DESTINATION_ACCOUNT_NAME, and ' +
-                    'CRR_DESTINATION_LOCATION_NAME are required when DEPLOY_CRR_LOCATIONS=true',
+                        'CRR_DESTINATION_LOCATION_NAME are required when DEPLOY_CRR_LOCATIONS=true',
                 );
             }
             const locationAccountMap: Record<string, string | undefined> = {
@@ -107,8 +117,8 @@ export async function createLocations(
             if (!accountName || !accountsCreds[accountName]) {
                 throw new Error(
                     `No credentials found for CRR location "${location.name}" ` +
-                    `(resolved account: "${accountName ?? 'undefined'}"). ` +
-                    'Ensure the corresponding CRR_*_ACCOUNT_NAME env var and k8s secret are set.',
+                        `(resolved account: "${accountName ?? 'undefined'}"). ` +
+                        'Ensure the corresponding CRR_*_ACCOUNT_NAME env var and k8s secret are set.',
                 );
             }
             const userCreds = await setupCRRIamResources(accountsCreds[accountName], env);

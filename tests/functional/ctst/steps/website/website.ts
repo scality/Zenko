@@ -31,12 +31,15 @@ When('the user puts the bucket website configuration', async function (this: Zen
     });
 });
 
-When('the {string} endpoint is added to the overlay', { timeout: 15 * 60 * 1000 },
+When(
+    'the {string} endpoint is added to the overlay',
+    { timeout: 15 * 60 * 1000 },
     async function (this: Zenko, endpoint: string) {
         await this.addWebsiteEndpoint(endpoint);
         await waitForZenkoToStabilize(this, true);
         await waitForDataServicesToStabilize(this);
-    });
+    },
+);
 
 When('the user creates an S3 Bucket policy granting public read access', async function (this: Zenko) {
     const policy = {
@@ -46,12 +49,8 @@ When('the user creates an S3 Bucket policy granting public read access', async f
                 Sid: 'PublicReadGetObject',
                 Effect: 'Allow',
                 Principal: '*',
-                Action: [
-                    's3:GetObject',
-                ],
-                Resource: [
-                    `arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`,
-                ],
+                Action: ['s3:GetObject'],
+                Resource: [`arn:aws:s3:::${this.getSaved<string>('bucketName')}/*`],
             },
         ],
     };
@@ -61,7 +60,8 @@ When('the user creates an S3 Bucket policy granting public read access', async f
     });
 });
 
-Then('the user should be able to load the index.html file from the {string} endpoint',
+Then(
+    'the user should be able to load the index.html file from the {string} endpoint',
     async function (this: Zenko, endpoint: string) {
         const baseUrl = this.parameters.ssl === false ? 'http://' : 'https://';
         // The ingress may take some time to be ready (<60s)
@@ -69,7 +69,7 @@ Then('the user should be able to load the index.html file from the {string} endp
         let response;
         let content;
         let tries = 60;
-        
+
         while (tries > 0) {
             tries--;
             try {
@@ -88,4 +88,5 @@ Then('the user should be able to load the index.html file from the {string} endp
             }
         }
         assert.fail('Failed to fetch the bucket website after 60 tries');
-    });
+    },
+);

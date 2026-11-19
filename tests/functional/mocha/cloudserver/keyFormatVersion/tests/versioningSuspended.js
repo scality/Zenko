@@ -37,23 +37,28 @@ const ownerInfo = {};
 
 async function putObjectVersions(objName, vFormat) {
     for (let i = 0; i < 3; i++) {
-         
-        const result = await s3.send(new PutObjectCommand({
-            Bucket: BUCKET_NAME[vFormat],
-            Key: objName,
-            Body: '',
-            ContentLength: 0,
-        }));
+        const result = await s3.send(
+            new PutObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: objName,
+                Body: '',
+                ContentLength: 0,
+            }),
+        );
         versionIds[vFormat][objName].push(result.VersionId);
     }
 }
 
 async function deleteObjectVersions(objName, vFormat) {
-    const promises = Array.from({ length: 3 }, (_, i) => s3.send(new DeleteObjectCommand({
-        Bucket: BUCKET_NAME[vFormat],
-        Key: objName,
-        VersionId: versionIds[vFormat][objName][i],
-    })));
+    const promises = Array.from({ length: 3 }, (_, i) =>
+        s3.send(
+            new DeleteObjectCommand({
+                Bucket: BUCKET_NAME[vFormat],
+                Key: objName,
+                VersionId: versionIds[vFormat][objName][i],
+            }),
+        ),
+    );
     await Promise.all(promises);
 }
 
@@ -174,39 +179,49 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
 
     ['v0', 'v1'].forEach(vFormat => {
         it(`Should create new null version ${vFormat}`, async () => {
-            await s3.send(new PutObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                Body: '',
-                ContentLength: 0,
-            }));
-            const data = await s3.send(new GetObjectCommand(
-                { Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' },
-            ));
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: 'first-key',
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
+            const data = await s3.send(
+                new GetObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' }),
+            );
             assert.strictEqual(data.VersionId, 'null');
-            await s3.send(new DeleteObjectCommand(
-                { Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' },
-            ));
+            await s3.send(
+                new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' }),
+            );
         });
 
         it(`Should not list DeleteMarkers ${vFormat}`, async () => {
             const key = 'first-key-test-delete-marker';
-            await s3.send(new PutObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: key,
-                Body: '',
-                ContentLength: 0,
-            }));
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: key,
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
 
             const listData1 = await s3.send(new ListObjectsV2Command({ Bucket: BUCKET_NAME[vFormat] }));
             const countObjects = listData1.Contents.length;
-            assert.strictEqual(listData1.Contents.some(c => c.Key === key), true);
+            assert.strictEqual(
+                listData1.Contents.some(c => c.Key === key),
+                true,
+            );
 
             await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: key }));
 
             const listData2 = await s3.send(new ListObjectsV2Command({ Bucket: BUCKET_NAME[vFormat] }));
             assert.strictEqual(listData2.Contents.length, countObjects - 1);
-            assert.strictEqual(listData2.Contents.some(c => c.Key === key), false);
+            assert.strictEqual(
+                listData2.Contents.some(c => c.Key === key),
+                false,
+            );
 
             await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: key, VersionId: 'null' }));
         });
@@ -253,25 +268,31 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
         });
 
         it(`Should delete specified version ${vFormat}`, async () => {
-            const res = await s3.send(new PutObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                Body: '',
-                ContentLength: 0,
-            }));
+            const res = await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: 'first-key',
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
             const tmpVersionId = res.VersionId;
-            await s3.send(new DeleteObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'first-key',
-                VersionId: tmpVersionId,
-            }));
-
-            try {
-                await s3.send(new GetObjectCommand({
+            await s3.send(
+                new DeleteObjectCommand({
                     Bucket: BUCKET_NAME[vFormat],
                     Key: 'first-key',
                     VersionId: tmpVersionId,
-                }));
+                }),
+            );
+
+            try {
+                await s3.send(
+                    new GetObjectCommand({
+                        Bucket: BUCKET_NAME[vFormat],
+                        Key: 'first-key',
+                        VersionId: tmpVersionId,
+                    }),
+                );
                 throw new Error('Expected NoSuchKey error');
             } catch (err) {
                 assert.strictEqual(err.name, 'NoSuchKey');
@@ -279,9 +300,9 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
         });
 
         it(`Should create a delete marker with null versionId ${vFormat}`, async () => {
-            const deleteData = await s3.send(new DeleteObjectCommand(
-                { Bucket: BUCKET_NAME[vFormat], Key: 'first-key' },
-            ));
+            const deleteData = await s3.send(
+                new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key' }),
+            );
             assert(deleteData.DeleteMarker);
             assert.strictEqual(deleteData.VersionId, 'null');
 
@@ -292,9 +313,9 @@ describe('Cloudserver : keyFormatVersion : versioning suspended bucket', () => {
                 assert.strictEqual(err.name, 'NoSuchKey');
             }
 
-            await s3.send(new DeleteObjectCommand(
-                { Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' },
-            ));
+            await s3.send(
+                new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'first-key', VersionId: 'null' }),
+            );
         });
     });
 });

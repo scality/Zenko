@@ -47,11 +47,7 @@ export class KubernetesClient {
         return kc;
     }
 
-    async createSecretIfMissing(
-        namespace: string,
-        name: string,
-        stringData: Record<string, string>,
-    ): Promise<void> {
+    async createSecretIfMissing(namespace: string, name: string, stringData: Record<string, string>): Promise<void> {
         const secret = {
             apiVersion: 'v1',
             kind: 'Secret',
@@ -157,18 +153,13 @@ export class KubernetesClient {
     }
 
     async getPVCFromLabel(label: string, value: string, namespace = 'default') {
-
         const pvcList = await this.coreV1.listNamespacedPersistentVolumeClaim({ namespace });
         const pvc = pvcList.items.find((pvc: V1PersistentVolumeClaim) => pvc.metadata?.labels?.[label] === value);
 
         return pvc;
     }
 
-    async replaceSecret(
-        namespace: string,
-        name: string,
-        stringData: Record<string, string>,
-    ) {
+    async replaceSecret(namespace: string, name: string, stringData: Record<string, string>) {
         const secret = {
             apiVersion: 'v1',
             kind: 'Secret',

@@ -14,7 +14,7 @@ export async function createAzureContainers(env: Env): Promise<void> {
     if (!env.AZURE_CRR_BUCKET_NAME || !env.AZURE_ARCHIVE_BUCKET_NAME || !env.AZURE_ARCHIVE_BUCKET_NAME_2) {
         throw new Error(
             'AZURE_CRR_BUCKET_NAME, AZURE_ARCHIVE_BUCKET_NAME and AZURE_ARCHIVE_BUCKET_NAME_2' +
-            ' are required when Azure credentials are provided',
+                ' are required when Azure credentials are provided',
         );
     }
 
@@ -35,8 +35,12 @@ export async function createAzureContainers(env: Env): Promise<void> {
 }
 
 export async function createAzureQueues(env: Env): Promise<void> {
-    if (!env.AZURE_ACCOUNT_NAME || !env.AZURE_SECRET_KEY ||
-        !env.AZURE_BACKEND_QUEUE_ENDPOINT || !env.AZURE_ARCHIVE_QUEUE_NAME) {
+    if (
+        !env.AZURE_ACCOUNT_NAME ||
+        !env.AZURE_SECRET_KEY ||
+        !env.AZURE_BACKEND_QUEUE_ENDPOINT ||
+        !env.AZURE_ARCHIVE_QUEUE_NAME
+    ) {
         console.log('Skipping Azure queues: missing credentials, endpoint, or queue name');
         return;
     }

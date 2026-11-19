@@ -30,12 +30,6 @@
         },
         "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
     },
-    "include": [
-        "clients/**/*",
-        "ctst/**/*",
-        "testResourcesSetup/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": ["clients/**/*", "ctst/**/*", "testResourcesSetup/**/*"],
+    "exclude": ["node_modules"]
 }

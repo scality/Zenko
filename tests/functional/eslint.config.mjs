@@ -53,7 +53,7 @@ export default defineConfig(
         files: ['mocha/**/*.js'],
         rules: {
             'no-param-reassign': 'off',
-            'camelcase': ['error', { 'properties': 'never' }],
+            'camelcase': ['error', { properties: 'never' }],
         },
     },
     mocha(['mocha/**/*.js']),

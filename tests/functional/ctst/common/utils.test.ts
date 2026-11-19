@@ -18,7 +18,8 @@ const durations: [string, number][] = [
 for (const [input, expected] of durations) {
     const result = parseGoDuration(input);
     assert.strictEqual(
-        Math.abs(result - expected) < 1e-12, true,
+        Math.abs(result - expected) < 1e-12,
+        true,
         `parseGoDuration("${input}") = ${result}, expected ${expected}`,
     );
 }
@@ -53,10 +54,7 @@ const cliParams: [Record<string, unknown>, string][] = [
 
 for (const [params, expected] of cliParams) {
     const result = paramToCli(params);
-    assert.strictEqual(
-        result, expected,
-        `paramToCli(${JSON.stringify(params)}) = "${result}", expected "${expected}"`,
-    );
+    assert.strictEqual(result, expected, `paramToCli(${JSON.stringify(params)}) = "${result}", expected "${expected}"`);
 }
 
 const accessKeysCases: [Record<string, string>, boolean][] = [
@@ -70,8 +68,5 @@ const accessKeysCases: [Record<string, string>, boolean][] = [
 
 for (const [creds, expected] of accessKeysCases) {
     const result = isAccessKeys(creds);
-    assert.strictEqual(
-        result, expected,
-        `isAccessKeys(${JSON.stringify(creds)}) = ${result}, expected ${expected}`,
-    );
+    assert.strictEqual(result, expected, `isAccessKeys(${JSON.stringify(creds)}) = ${result}, expected ${expected}`);
 }

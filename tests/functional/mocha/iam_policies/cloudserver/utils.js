@@ -5,26 +5,35 @@ const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../ut
 const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
 const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
 
- 
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
     const fn = mode === 'GET' ? makeGETRequest : makeUpdateRequest;
-    return fn(query, (err, response) => {
-        if (err) {
-            return cb(err);
-        }
-        const { statusCode } = response;
-        return getResponseBody(response, (err, res) => {
+    return fn(
+        query,
+        (err, response) => {
             if (err) {
                 return cb(err);
             }
-            const r = /<Code>(.*)<\/Code>/;
-            const code = res.match(r);
-            if (code !== null) {
-                return cb(null, { statusCode, code: code[1] });
-            }
-            return cb(null, { statusCode, code });
-        }, true);
-    }, userCredentials, body, mode);
+            const { statusCode } = response;
+            return getResponseBody(
+                response,
+                (err, res) => {
+                    if (err) {
+                        return cb(err);
+                    }
+                    const r = /<Code>(.*)<\/Code>/;
+                    const code = res.match(r);
+                    if (code !== null) {
+                        return cb(null, { statusCode, code: code[1] });
+                    }
+                    return cb(null, { statusCode, code });
+                },
+                true,
+            );
+        },
+        userCredentials,
+        body,
+        mode,
+    );
 }
 
 function metadataSearchResponseCode(userCredentials, bucketName, cb) {
@@ -48,13 +57,7 @@ function restoreObjectResponseCode(userCredentials, bucketName, cb, objectName) 
 }
 
 function putObjectResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'PUT',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('PUT', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
@@ -74,17 +77,21 @@ function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName)
 
     const req = http.request(options, response => {
         const { statusCode } = response;
-        return getResponseBody(response, (err, res) => {
-            if (err) {
-                return cb(err);
-            }
-            const r = /<Code>(.*)<\/Code>/;
-            const code = res.match(r);
-            if (code !== null) {
-                return cb(null, { statusCode, code: code[1] });
-            }
-            return cb(null, { statusCode, code });
-        }, true);
+        return getResponseBody(
+            response,
+            (err, res) => {
+                if (err) {
+                    return cb(err);
+                }
+                const r = /<Code>(.*)<\/Code>/;
+                const code = res.match(r);
+                if (code !== null) {
+                    return cb(null, { statusCode, code: code[1] });
+                }
+                return cb(null, { statusCode, code });
+            },
+            true,
+        );
     });
     req.setHeader('x-scal-s3-version-id', '');
     req.on('error', err => cb(err));
@@ -94,8 +101,7 @@ function putObjectVersionResponseCode(userCredentials, bucketName, cb, fileName)
 function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'PUT',
-        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
-        + '</AccessControlPolicy>',
+        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">' + '</AccessControlPolicy>',
         userCredentials,
         `/${bucketName}/${fileName}?acl`,
         cb,
@@ -105,8 +111,7 @@ function putObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
 function putObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
         'PUT',
-        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
-        + '</AccessControlPolicy>',
+        '<AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">' + '</AccessControlPolicy>',
         userCredentials,
         `/${bucketName}/${fileName}?acl&versionId=0`,
         cb,
@@ -114,133 +119,55 @@ function putObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileNa
 }
 
 function getObjectResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function getObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?versionId=0`, cb);
 }
 
 function getObjectAclResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?acl`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?acl`, cb);
 }
 
 function getObjectVersionAclResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?acl&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?acl&versionId=0`, cb);
 }
 
 function deleteObjectResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'DELETE',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('DELETE', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function deleteObjectVersionResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'DELETE',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('DELETE', null, userCredentials, `/${bucketName}/${fileName}?versionId=0`, cb);
 }
 
 function getBucketVersioningResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?versioning`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?versioning`, cb);
 }
 
 function getBucketCorsResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?cors`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?cors`, cb);
 }
 
 function getBucketAclResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?acl`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?acl`, cb);
 }
 
 function getBucketObjectLockConfResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?object-lock`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?object-lock`, cb);
 }
 
 function getBucketObjectRetentionResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?retention`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?retention`, cb);
 }
 
 function getBucketObjectVersionRetentionResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?retention&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?retention&versionId=0`, cb);
 }
 
 function getBucketTaggingResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?tagging`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?tagging`, cb);
 }
 
 function putBucketTaggingResponseCode(userCredentials, bucketName, cb) {
@@ -254,103 +181,43 @@ function putBucketTaggingResponseCode(userCredentials, bucketName, cb) {
 }
 
 function deleteBucketTaggingResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'DELETE',
-        null,
-        userCredentials,
-        `/${bucketName}/?tagging`,
-        cb,
-    );
+    return makeApiCallGeneric('DELETE', null, userCredentials, `/${bucketName}/?tagging`, cb);
 }
 
 function getObjectLegalHoldResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?legal-hold`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?legal-hold`, cb);
 }
 
 function getObjectVersionLegalHoldResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?legal-hold&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?legal-hold&versionId=0`, cb);
 }
 
 function getObjectTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?tagging`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?tagging`, cb);
 }
 
 function getObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?tagging&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/${fileName}?tagging&versionId=0`, cb);
 }
 
 function putObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'PUT',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?tagging&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('PUT', null, userCredentials, `/${bucketName}/${fileName}?tagging&versionId=0`, cb);
 }
 
 function deleteObjectVersionTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'DELETE',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}?tagging&versionId=0`,
-        cb,
-    );
+    return makeApiCallGeneric('DELETE', null, userCredentials, `/${bucketName}/${fileName}?tagging&versionId=0`, cb);
 }
 
 function listObjectsV2ResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?list-type=2`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?list-type=2`, cb);
 }
 
 function listObjectVersionsResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `${bucketName}/?versions`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `${bucketName}/?versions`, cb);
 }
 
 function copyObjectResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'PUT',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('PUT', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function putObjectRetentionResponseCode(userCredentials, bucketName, cb, fileName) {
@@ -372,7 +239,6 @@ function putObjectVersionRetentionResponseCode(userCredentials, bucketName, cb, 
         cb,
     );
 }
-
 
 function putObjectTaggingResponseCode(userCredentials, bucketName, cb, fileName) {
     return makeApiCallGeneric(
@@ -415,45 +281,20 @@ function putObjectLockConfigurationResponseCode(userCredentials, bucketName, cb,
 }
 
 function headObjectResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'HEAD',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('HEAD', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function deleteObjectsResponseCode(userCredentials, bucketName, cb, fileName) {
-    return makeApiCallGeneric(
-        'DELETE',
-        null,
-        userCredentials,
-        `/${bucketName}/${fileName}`,
-        cb,
-    );
+    return makeApiCallGeneric('DELETE', null, userCredentials, `/${bucketName}/${fileName}`, cb);
 }
 
 function getReplicationConfigurationResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?replication`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?replication`, cb);
 }
 
 function getLifecycleConfigurationResponseCode(userCredentials, bucketName, cb) {
-    return makeApiCallGeneric(
-        'GET',
-        null,
-        userCredentials,
-        `/${bucketName}/?lifecycle`,
-        cb,
-    );
+    return makeApiCallGeneric('GET', null, userCredentials, `/${bucketName}/?lifecycle`, cb);
 }
-
 
 function putLifecycleConfigurationResponseCode(userCredentials, bucketName, cb) {
     return makeApiCallGeneric(
@@ -481,10 +322,8 @@ function createPolicy(action, isAllow = true, resource = '*') {
         Statement: [
             {
                 Sid: 'Stmt1644586763301',
-                Action: [
-                    action,
-                ],
-                Effect: (isAllow ? 'Allow' : 'Deny'),
+                Action: [action],
+                Effect: isAllow ? 'Allow' : 'Deny',
                 Resource: resource,
             },
         ],

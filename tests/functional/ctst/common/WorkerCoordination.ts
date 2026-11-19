@@ -49,10 +49,7 @@ async function waitForCompletion(
  * The first worker to acquire the lock runs the task; others wait for it to complete.
  * If the task fails, the error is propagated to all waiting workers.
  */
-export async function runOnceAcrossWorkers(
-    options: RunOnceOptions,
-    workFunction: () => Promise<void>,
-): Promise<void> {
+export async function runOnceAcrossWorkers(options: RunOnceOptions, workFunction: () => Promise<void>): Promise<void> {
     const { lockName, logger, timeout = -1, pollInterval = 250 } = options;
     const workerId = `worker-${process.pid}`;
     const pendingFile = path.join(LOCK_DIR, `ctst-${lockName}.pending`);
@@ -92,10 +89,9 @@ export async function runOnceAcrossWorkers(
         logger.info(`Work for ${lockName} completed by ${workerId}`);
     } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);
-        await fs.writeFile(
-            completedFile,
-            JSON.stringify({ performedBy: workerId, error: errorMessage }),
-        ).catch(() => {});
+        await fs
+            .writeFile(completedFile, JSON.stringify({ performedBy: workerId, error: errorMessage }))
+            .catch(() => {});
         throw err;
     } finally {
         await fs.unlink(pendingFile).catch(() => {});
