@@ -20,7 +20,7 @@ Then('the bucket should contain {int} objects within {int} seconds', { timeout: 
     async function (this: Zenko, expectedCount: number, seconds: number) {
         const bucketName = this.getSaved<string>('bucketName');
         const deadline = Date.now() + seconds * 1000;
-        let count = -1;
+        let count: number;
         do {
             const res = await S3.listObjectVersions({ bucket: bucketName, maxItems: '1000' });
             const parsed = safeJsonParse<ListObjectVersionsOutput>(res.stdout || '{}');

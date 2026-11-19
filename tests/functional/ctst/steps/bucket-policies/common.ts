@@ -82,7 +82,7 @@ Given('an {string} IAM Policy that {string} with {string} effect for the current
     Identity.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
-    let effect = AuthorizationType.DENY;
+    let effect: AuthorizationType;
     let resources;
     const applies = doesApply === 'applies';
     const bucketName = action.useWildCardBucketName ?
@@ -249,7 +249,7 @@ Given('an {string} S3 Bucket Policy that {string} with {string} effect for the c
     Identity.resetIdentity();
     const authzConfiguration = getAuthorizationConfiguration(this);
     const action = this.getSaved<ActionPermissionsType>('currentAction');
-    let effect = AuthorizationType.DENY;
+    let effect: AuthorizationType;
     let resources;
     const applies = doesApply === 'applies';
     const bucketName = this.getSaved<string>('bucketName');

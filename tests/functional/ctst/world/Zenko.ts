@@ -617,7 +617,7 @@ export default class Zenko extends World<ZenkoWorldParameters> {
     async prepareServiceUser(serviceUserName: string, roleName: string, internal = false) {
         Identity.resetIdentity();
 
-        let roleArnToAssume: string | null = null;
+        let roleArnToAssume: string | null;
         // Getting the role to assume
         this.addCommandParameter({ roleName });
         if (internal) {
@@ -693,10 +693,9 @@ export default class Zenko extends World<ZenkoWorldParameters> {
                         await SuperAdmin.createAccount({ accountName });
                     },
                 );
-                let account = null;
                 // Waiting until the account exists, in case of parallel mode.
                 let remaining = constants.MAX_ACCOUNT_CHECK_RETRIES;
-                account = await SuperAdmin.getAccount({ accountName });
+                let account = await SuperAdmin.getAccount({ accountName });
                 while (!account && remaining > 0) {
                     await sleep(500);
                     account = await SuperAdmin.getAccount({ accountName });
