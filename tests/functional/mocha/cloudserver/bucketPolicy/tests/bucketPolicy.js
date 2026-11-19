@@ -1,5 +1,5 @@
 
-// eslint-disable-line strict
+ 
 
 const assert = require('assert');
 const async = require('async');

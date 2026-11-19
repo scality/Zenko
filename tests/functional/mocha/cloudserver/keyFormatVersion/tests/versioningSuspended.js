@@ -37,7 +37,7 @@ const ownerInfo = {};
 
 async function putObjectVersions(objName, vFormat) {
     for (let i = 0; i < 3; i++) {
-        // eslint-disable-next-line no-await-in-loop
+         
         const result = await s3.send(new PutObjectCommand({
             Bucket: BUCKET_NAME[vFormat],
             Key: objName,

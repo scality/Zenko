@@ -21,7 +21,7 @@ const keyutf8 = `${keyPrefix}/%EA%9D%8崰㈌㒈保轖䳷䀰⺩ቆ楪僷ꈅꓜ퇬
 const REPLICATION_TIMEOUT = 300000;
 
 describe('Replication with AWS backend', function () {
-    // eslint-disable-next-line
+     
     this.timeout(REPLICATION_TIMEOUT);
     this.retries(3);
     const roleArn = 'arn:aws:iam::root:role/s3-replication-role';

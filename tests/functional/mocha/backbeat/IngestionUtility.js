@@ -29,7 +29,7 @@ class IngestionUtility extends ReplicationUtility {
             .then(async (data) => {
                 if (data.Body) {
                     const chunks = [];
-                    // eslint-disable-next-line no-restricted-syntax
+                     
                     for await (const chunk of data.Body) {
                         chunks.push(chunk);
                     }
@@ -49,7 +49,7 @@ class IngestionUtility extends ReplicationUtility {
             .then(async (data) => {
                 if (data.Body) {
                     const chunks = [];
-                    // eslint-disable-next-line no-restricted-syntax
+                     
                     for await (const chunk of data.Body) {
                         chunks.push(chunk);
                     }

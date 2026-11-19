@@ -5,7 +5,7 @@ const { makeGETRequest, getResponseBody, makeUpdateRequest } = require('../../ut
 const DEFAULT_HOST = process.env.CLOUDSERVER_HOST;
 const DEFAULT_PORT = process.env.CLOUDSERVER_PORT || '80';
 
-// eslint-disable-next-line default-param-last
+ 
 function makeApiCallGeneric(mode = 'GET', body, userCredentials, query, cb) {
     const fn = mode === 'GET' ? makeGETRequest : makeUpdateRequest;
     return fn(query, (err, response) => {
