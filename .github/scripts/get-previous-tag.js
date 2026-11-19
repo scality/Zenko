@@ -1,30 +1,31 @@
 
 function getPreviousTag(version, allReleases) {
-    while (version) {
+    let current = version;
+    while (current) {
         // Peel one trailing segment (separator + non-separator chars).
         // Separators are `.` (major.minor.patch) or `-` (hotfix / pre-release
         // modifier).
-        const match = version.match(/([-.])[^-.]+$/);
+        const match = current.match(/([-.])[^-.]+$/);
         if (!match) {
             return undefined;
         }
         const separator = match[1];
-        const prefix = version.substring(0, match.index);
-        version = prefix;
+        const prefix = current.substring(0, match.index);
+        current = prefix;
 
         // Look for a "direct sibling" at this level: a tag shaped exactly
         // `<prefix><separator><segment>` with no further separators. This
         // excludes side-branch tags (hotfix X.Y.Z-N or X.Y.Z.N) from being
         // picked as the predecessor of a main-line release (X.Y.Z).
         const stem = prefix + separator;
-        const previous_tags = allReleases.filter(r =>
+        const previousTags = allReleases.filter(r =>
             r.tag_name.startsWith(stem) &&
             !/[-.]/.test(r.tag_name.substring(stem.length))
         );
-        if (previous_tags.length > 0) {
+        if (previousTags.length > 0) {
             // Use a custom sort function, to ensure 'natural' sort of numeric parts
             const compare = new Intl.Collator(undefined, { numeric: true }).compare;
-            return previous_tags.sort(
+            return previousTags.sort(
                 (a, b) => compare(a.tag_name, b.tag_name)
             ).reverse()[0].tag_name;
         }
@@ -38,6 +39,7 @@ function getPreviousTag(version, allReleases) {
             return prefix;
         }
     }
+    return undefined;
 }
 
 module.exports = {
