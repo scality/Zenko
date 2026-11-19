@@ -100,7 +100,7 @@ export class KubernetesClient {
             return response;
         } catch (err: unknown) {
             this.logger.error('Failed to create and run pod:', { err });
-            throw new Error(`Failed to create and run pod: ${err}`);
+            throw new Error(`Failed to create and run pod: ${err}`, { cause: err });
         }
     }
 

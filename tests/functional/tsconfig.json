@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2019",
+        "lib": ["ES2022"],
         "module": "commonjs",
         "allowJs": false,
         "sourceMap": true,
