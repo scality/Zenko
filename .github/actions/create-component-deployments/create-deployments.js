@@ -2,9 +2,21 @@
 
 /**
  * @typedef {import('@octokit/rest').Octokit} Octokit
- * @typedef {{ info: (msg: string) => void, warning: (msg: string) => void, startGroup: (name: string) => void, endGroup: () => void }} Core
+ * @typedef {{
+ *     info: (msg: string) => void,
+ *     warning: (msg: string) => void,
+ *     startGroup: (name: string) => void,
+ *     endGroup: () => void,
+ * }} Core
  * @typedef {{ repo: string, ref: string, image: string }} Component
- * @typedef {{ token: string, environment: string, description: string, transient: boolean, production: boolean, createOnly: boolean }} DeploymentParams
+ * @typedef {{
+ *     token: string,
+ *     environment: string,
+ *     description: string,
+ *     transient: boolean,
+ *     production: boolean,
+ *     createOnly: boolean,
+ * }} DeploymentParams
  */
 
 const GHCR_REGISTRY = 'https://ghcr.io';
@@ -125,10 +137,17 @@ async function resolveFromManifest(image, tag, token) {
  * @param {boolean} params.createOnly - Skip lookup, always create
  * @returns {Promise<number>} deployment id
  */
-async function findOrCreateDeployment(github, { owner, repo, ref, environment, description, transient, production, createOnly }) {
+async function findOrCreateDeployment(
+    github,
+    { owner, repo, ref, environment, description, transient, production, createOnly },
+) {
     if (!createOnly) {
         const { data: existing } = await github.rest.repos.listDeployments({
-            owner, repo, environment, ref, per_page: 1,
+            owner,
+            repo,
+            environment,
+            ref,
+            per_page: 1,
         });
         if (existing.length > 0) {
             return existing[0].id;
@@ -136,7 +155,9 @@ async function findOrCreateDeployment(github, { owner, repo, ref, environment, d
     }
 
     const { data } = await github.rest.repos.createDeployment({
-        owner, repo, ref,
+        owner,
+        repo,
+        ref,
         environment,
         description,
         auto_merge: false,
@@ -223,7 +244,14 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
     const resolved = await resolveRef(github, repo, ref, image, token, resolve);
     const [owner, repoName] = resolved.repo.split('/');
     const deploymentId = await findOrCreateDeployment(github, {
-        owner, repo: repoName, ref: resolved.ref, environment, description, transient, production, createOnly,
+        owner,
+        repo: repoName,
+        ref: resolved.ref,
+        environment,
+        description,
+        transient,
+        production,
+        createOnly,
     });
 
     return { component: { ...resolved, image }, deploymentId };
@@ -244,8 +272,26 @@ async function resolveDeployment(github, core, resolve, { repo, ref, image }, de
  * @param {string} params.description - Human-readable description
  * @param {string} params.token - GitHub token with packages:read for manifest lookups
  */
-async function createDeployments({ github, core, components, environment, status, transient, production, logUrl, description, token }) {
-    const deployParams = { token, environment, description, transient, production, createOnly: status === 'in_progress' };
+async function createDeployments({
+    github,
+    core,
+    components,
+    environment,
+    status,
+    transient,
+    production,
+    logUrl,
+    description,
+    token,
+}) {
+    const deployParams = {
+        token,
+        environment,
+        description,
+        transient,
+        production,
+        createOnly: status === 'in_progress',
+    };
     let errors = 0;
 
     for (const component of components) {
@@ -253,13 +299,18 @@ async function createDeployments({ github, core, components, environment, status
 
         try {
             const { component: resolved, deploymentId } = await resolveDeployment(
-                github, core, resolveFromManifest, component, deployParams,
+                github,
+                core,
+                resolveFromManifest,
+                component,
+                deployParams,
             );
             const [owner, repoName] = resolved.repo.split('/');
             core.info(`Resolved to ${resolved.repo} @ ${resolved.ref}`);
 
             await github.rest.repos.createDeploymentStatus({
-                owner, repo: repoName,
+                owner,
+                repo: repoName,
                 deployment_id: deploymentId,
                 state: status,
                 log_url: logUrl,
