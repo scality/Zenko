@@ -3,6 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import yaml from 'js-yaml';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { parseDeps, stripDigest } = require('../../.github/actions/create-component-deployments/parse-deps');
 
 /** Convert a YAML file to a temporary JSON file (mirrors the yq step in action.yaml). */

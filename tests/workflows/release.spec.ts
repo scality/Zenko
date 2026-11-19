@@ -508,6 +508,7 @@ test.each([
 
     // Dump the whole result list on failure so CI failures can be debugged from the log.
     if (!result[lastResult].name.startsWith('Main ' + stepName)) {
+        // eslint-disable-next-line no-console
         console.error(
             'expected Main ' +
                 stepName +
