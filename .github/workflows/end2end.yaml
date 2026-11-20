@@ -499,7 +499,6 @@ jobs:
           repositories: |
             cli-testing
             zenko-operator
-            metadata
       - name: Deploy Zenko
         uses: ./.github/actions/deploy
         env:

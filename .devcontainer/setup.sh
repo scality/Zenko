@@ -18,6 +18,11 @@ echo 'export GCP_BACKEND_DESTINATION_LOCATION=' >> "$ZENKO_ENV_FILE"
 # Source now for this session
 source "$ZENKO_ENV_FILE"
 
+if [ -n "${GITHUB_TOKEN}" ] && [ -n "${GITHUB_USER}" ]; then
+    # Login to GHCR for Helm OCI chart pulls (e.g. metadata chart)
+    echo "${GITHUB_TOKEN}" | helm registry login ghcr.io -u "${GITHUB_USER}" --password-stdin
+fi
+
 GITHUB_ENV=$(mktemp /tmp/github_env.XXXXXX)
 
 for input in $(yq '.inputs | to_entries | .[] | .key + "=" + .value.default' .github/actions/deploy/action.yaml); do
