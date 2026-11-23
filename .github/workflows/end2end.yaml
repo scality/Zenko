@@ -338,6 +338,8 @@ jobs:
         run: yarn unused-steps
       - name: Install the dependencies of the workflows tests
         run: yarn --cwd tests/workflows install --frozen-lockfile --ignore-scripts
+      - name: Lint the workflows tests
+        run: yarn --cwd tests/workflows lint
       - name: Check the formatting of the workflows tests
         run: yarn --cwd tests/workflows prettier:check
 
