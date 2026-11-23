@@ -308,7 +308,7 @@ jobs:
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/docker-build-summary.yaml
 
-  lint-functional-tests:
+  lint:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -324,13 +324,13 @@ jobs:
       - name: Build cucumber typescript
         working-directory: tests/functional
         run: yarn build:cucumber
-      - name: Lint all tests
+      - name: Lint the functional tests
         working-directory: tests/functional
         run: yarn lint
-      - name: Check the formatting of the tests
+      - name: Check the formatting of the functional tests
         working-directory: tests/functional
         run: yarn prettier:check
-      - name: Lint the Markdown files of the tests
+      - name: Lint the Markdown files of the functional tests
         working-directory: tests/functional
         run: yarn lint_md
       - name: Check for unused step definitions
@@ -691,7 +691,7 @@ jobs:
       - build-iso
       - build-kafka
       - build-mongodb
-      - lint-functional-tests
+      - lint
       - end2end-2-shards-http
       - end2end-sharded
       - end2end-pra
