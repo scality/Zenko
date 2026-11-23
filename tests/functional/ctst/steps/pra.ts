@@ -3,7 +3,7 @@ import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
 import { displayCRStatus, getDRSink, getDRSource } from './utils/kubernetes';
 import { putObject, restoreObject, verifyObjectLocation } from 'steps/utils/utils';
-import { CacheHelper, Identity, IdentityEnum, S3, SuperAdmin } from 'cli-testing';
+import { Identity, IdentityEnum, S3, SuperAdmin } from 'cli-testing';
 import { createUniqueBucket } from 'common/common';
 import constants from 'common/constants';
 import { safeJsonParse, sleep } from 'common/utils';
@@ -85,7 +85,6 @@ async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local'
         prometheusService: world.parameters.PrometheusService,
         prometheusHostname: 'prom.dr.zenko.local',
         prometheusExternalIpsDiscovery: true,
-        forceRotateServiceCredentials: (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) > 0,
         ...kafkaExternalIpOption,
         timeout,
     });
@@ -190,7 +189,6 @@ Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this
     // timeout to see the command timeout instead of the step timeout
 
     await installPRA(this, undefined, `${(installTimeout - 1000).toString()}ms`);
-    (CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] as number) += 1;
     return;
 });
 

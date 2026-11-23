@@ -36,8 +36,8 @@ for (const input of invalid) {
 const cliParams: [Record<string, unknown>, string][] = [
     // pflag boolean flags must use the "=" form: "--flag false" would set the
     // flag to true and drop "false" as a positional argument.
-    [{ forceRotateServiceCredentials: false }, '--force-rotate-service-credentials=false'],
-    [{ forceRotateServiceCredentials: true }, '--force-rotate-service-credentials=true'],
+    [{ prometheusExternalIpsDiscovery: false }, '--prometheus-external-ips-discovery=false'],
+    [{ prometheusExternalIpsDiscovery: true }, '--prometheus-external-ips-discovery=true'],
     [{ wait: true }, '--wait=true'],
     [{ sinkZenkoInstance: 'end2end-pra' }, '--sink-zenko-instance end2end-pra'],
     [{ kafkaExternalPort: 9092 }, '--kafka-external-port 9092'],

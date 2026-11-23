@@ -158,7 +158,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
 
     static readonly PRIMARY_SITE_NAME = 'admin';
     static readonly SECONDARY_SITE_NAME = 'dradmin';
-    static readonly PRA_INSTALL_COUNT_KEY = 'praInstallCount';
     // Keyed by dlqKey(op, bucketName, objectKey). Array per key handles
     // Kafka at-least-once delivery and retries of the same object.
     static readonly dlqBuffer = new Map<string, DLQMessage[]>();
@@ -202,8 +201,6 @@ export default class Zenko extends World<ZenkoWorldParameters> {
         CacheHelper.cacheParameters({
             ...this.parameters,
         });
-
-        CacheHelper.savedAcrossTests[Zenko.PRA_INSTALL_COUNT_KEY] = 0;
 
         if (this.parameters.AccountName && !Identity.hasIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName)) {
             Identity.addIdentity(IdentityEnum.ACCOUNT, this.parameters.AccountName, {
