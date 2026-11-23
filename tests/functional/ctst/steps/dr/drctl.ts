@@ -52,8 +52,6 @@ type InstallConfig = {
     sinkS3SecretKeyField?: string;
     sinkS3Region?: string;
 
-    forceRotateServiceCredentials?: boolean;
-
     timeout?: string;
 };
 
