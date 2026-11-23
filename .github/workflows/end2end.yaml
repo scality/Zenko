@@ -336,6 +336,10 @@ jobs:
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
+      - name: Install the dependencies of the workflows tests
+        run: yarn --cwd tests/workflows install --frozen-lockfile --ignore-scripts
+      - name: Check the formatting of the workflows tests
+        run: yarn --cwd tests/workflows prettier:check
 
   end2end-pra:
     needs: [build-kafka, build-mongodb]

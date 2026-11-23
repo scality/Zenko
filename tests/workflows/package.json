@@ -4,18 +4,21 @@
   "description": "Tests for GHA workflows",
   "scripts": {
     "postinstall": "yarn --cwd node_modules/@kie/act-js node scripts/postinstall.js 0.2.84",
-    "test": "jest"
+    "test": "jest",
+    "prettier:check": "prettier --check ."
   },
   "license": "Apache-2.0",
   "devDependencies": {
     "@kie/act-js": "^2.6.1",
     "@kie/mock-github": "2.0.1",
     "@octokit/rest": "^22.0.1",
+    "@scality/eslint-config-scality": "scality/Guidelines#8.4.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.6",
     "@types/sinon": "^22.0.0",
     "jest": "^30.5.2",
     "js-yaml": "^5.4.2",
+    "prettier": "^3.10.1",
     "sinon": "^22.1.0",
     "ts-jest": "^29.4.12",
     "tsc": "^2.0.4",
