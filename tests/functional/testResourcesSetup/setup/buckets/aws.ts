@@ -11,7 +11,7 @@ export async function createAwsBuckets(env: Env): Promise<void> {
     if (!env.AWS_FAIL_BUCKET_NAME || !env.AWS_REPLICATION_FAIL_CTST_BUCKET_NAME) {
         throw new Error(
             'AWS_FAIL_BUCKET_NAME and AWS_REPLICATION_FAIL_CTST_BUCKET_NAME' +
-            ' are required when AWS credentials are provided',
+                ' are required when AWS credentials are provided',
         );
     }
 
@@ -27,9 +27,11 @@ export async function createAwsBuckets(env: Env): Promise<void> {
 
     for (const bucketName of [env.AWS_FAIL_BUCKET_NAME, env.AWS_REPLICATION_FAIL_CTST_BUCKET_NAME]) {
         await createBucket(s3, bucketName);
-        await s3.send(new PutBucketVersioningCommand({
-            Bucket: bucketName,
-            VersioningConfiguration: { Status: 'Enabled' },
-        }));
+        await s3.send(
+            new PutBucketVersioningCommand({
+                Bucket: bucketName,
+                VersioningConfiguration: { Status: 'Enabled' },
+            }),
+        );
     }
 }

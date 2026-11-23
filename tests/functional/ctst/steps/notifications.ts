@@ -26,11 +26,11 @@ interface Notification {
     s3: {
         bucket: {
             name: string;
-        }
+        };
         object: {
             key: string;
-        }
-    }
+        };
+    };
     eventName: string;
 }
 
@@ -44,15 +44,15 @@ async function copyObject(world: Zenko, sourceObject: string) {
     world.resetCommand();
     let objName = `notif-s3:objectcreated:copy-target-${randomString()}`.toLocaleLowerCase();
     if (world.getSaved<string>('filterType')) {
-        objName = world.getSaved<string>('filterType') === 'prefix' ?
-            `${world.getSaved<string>('objectNamePrefix') }${objName}` :
-            `${objName}${ world.getSaved<string>('objectNameSufix') }`;
+        objName =
+            world.getSaved<string>('filterType') === 'prefix'
+                ? `${world.getSaved<string>('objectNamePrefix')}${objName}`
+                : `${objName}${world.getSaved<string>('objectNameSufix')}`;
     }
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
     world.addCommandParameter({ key: objName });
     world.addCommandParameter({
-        copySource:
-            `${world.getSaved<string>('bucketName')}/${sourceObject}`,
+        copySource: `${world.getSaved<string>('bucketName')}/${sourceObject}`,
     });
     world.addToSaved('objectName', objName);
     await S3.copyObject(world.getCommandParameters());
@@ -65,8 +65,7 @@ async function deleteObject(world: Zenko, objName: string, putDeleteMarker = fal
     world.addCommandParameter({ key: objName });
     if (world.getSaved<string>('bucketVersioning') !== 'Non versioned' && !putDeleteMarker) {
         const putResult = world.getResult();
-        const versionId =
-            (JSON.parse(putResult.stdout) as AWSVersionObject).VersionId;
+        const versionId = (JSON.parse(putResult.stdout) as AWSVersionObject).VersionId;
         world.addCommandParameter({ versionId });
     }
     await S3.deleteObject(world.getCommandParameters());
@@ -76,10 +75,12 @@ async function putTag(world: Zenko, objName: string) {
     await putObject(world, objName);
     world.resetCommand();
     const tags = JSON.stringify({
-        TagSet: [{
-            Key: 'key',
-            Value: 'value',
-        }],
+        TagSet: [
+            {
+                Key: 'key',
+                Value: 'value',
+            },
+        ],
     });
     world.addCommandParameter({ bucket: world.getSaved<string>('bucketName') });
     world.addCommandParameter({ key: objName });
@@ -156,23 +157,27 @@ Given('two notification destinations', function (this: Zenko) {
     this.addToSaved('notificationDestinations', notificationDestinations);
 });
 
-When('i subscribe to {string} notifications for destination {int}',
+When(
+    'i subscribe to {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
-        const notificationsPerDestination : Record<string, string[]> = {};
+        const notificationsPerDestination: Record<string, string[]> = {};
         notificationsPerDestination[`${destination}`] =
             notificationType !== 'all' ? [notificationType] : allNotificationTypes;
         this.addToSaved('notificationsPerDestination', notificationsPerDestination);
         const destinationConfig = {
             QueueConfigurations: [
                 {
-                    QueueArn: 'arn:scality:bucketnotif:::' +
-                        `${(this.getSaved<Array<NotificationDestination>>('notificationDestinations')[destination])
-                            .destinationName}`,
+                    QueueArn:
+                        'arn:scality:bucketnotif:::' +
+                        `${
+                            this.getSaved<Array<NotificationDestination>>('notificationDestinations')[destination]
+                                .destinationName
+                        }`,
                     Events: notificationsPerDestination[`${destination}`],
                 },
             ],
         };
-        (this).resetCommand();
+        this.resetCommand();
         // Getting and adapting previous notification configuration
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
@@ -186,11 +191,13 @@ When('i subscribe to {string} notifications for destination {int}',
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-    });
+    },
+);
 
-When('i subscribe to {string} notifications for destination {int} with {string} filter',
+When(
+    'i subscribe to {string} notifications for destination {int} with {string} filter',
     async function (this: Zenko, notificationType: string, destination: number, filterType: string) {
-        const notificationsPerDestination : Record<string, string[]> = {};
+        const notificationsPerDestination: Record<string, string[]> = {};
 
         notificationsPerDestination[`${destination}`] =
             notificationType !== 'all' ? [notificationType] : allNotificationTypes;
@@ -202,9 +209,12 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
         const destinationConfig = {
             QueueConfigurations: [
                 {
-                    QueueArn: 'arn:scality:bucketnotif:::' +
-                        `${(this.getSaved<NotificationDestination[]>('notificationDestinations')[destination])
-                            .destinationName}`,
+                    QueueArn:
+                        'arn:scality:bucketnotif:::' +
+                        `${
+                            this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]
+                                .destinationName
+                        }`,
                     Events: notificationsPerDestination[`${destination}`],
                     Filter: {
                         Key: {
@@ -234,9 +244,11 @@ When('i subscribe to {string} notifications for destination {int} with {string} 
             this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(destinationConfig)}'` });
         }
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-    });
+    },
+);
 
-When('i unsubscribe from {string} notifications for destination {int}',
+When(
+    'i unsubscribe from {string} notifications for destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
@@ -244,83 +256,96 @@ When('i unsubscribe from {string} notifications for destination {int}',
         assert.strictEqual(this.checkResults([result]), true);
         const notificationConfiguration = JSON.parse(result.stdout) as NotificationConfig;
         let QueueConfigIdx = -1;
-        const destinationConfiguration = notificationConfiguration
-            .QueueConfigurations
-            .find((conf: QueueConfiguration, idx: number) => {
+        const destinationConfiguration = notificationConfiguration.QueueConfigurations.find(
+            (conf: QueueConfiguration, idx: number) => {
                 const configDestinationName = conf.QueueArn.split(':')[5];
-                if (configDestinationName ===
-                    (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination])
-                        .destinationName) {
+                if (
+                    configDestinationName ===
+                    this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].destinationName
+                ) {
                     QueueConfigIdx = idx;
                     return true;
                 }
                 return false;
-            }) as QueueConfiguration;
+            },
+        ) as QueueConfiguration;
         const excludedNotifications = notificationType !== 'all' ? [notificationType] : allNotificationTypes;
-        const configuredNotifEvents =
-            destinationConfiguration.Events.filter((event: string) => !excludedNotifications.includes(event));
+        const configuredNotifEvents = destinationConfiguration.Events.filter(
+            (event: string) => !excludedNotifications.includes(event),
+        );
         notificationConfiguration.QueueConfigurations[QueueConfigIdx].Events = configuredNotifEvents;
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         this.addCommandParameter({ notificationConfiguration: `'${JSON.stringify(notificationConfiguration)}'` });
         await S3.putBucketNotificationConfiguration(this.getCommandParameters());
-    });
+    },
+);
 
-When('a {string} event is triggered {string} {string}',
+When(
+    'a {string} event is triggered {string} {string}',
     async function (this: Zenko, notificationType: string, enable: string, filterType: string) {
         this.resetCommand();
         this.addToSaved('notificationEventType', notificationType);
         let objName = `notif-${notificationType}-${enable}-${filterType}-${randomString()}`.toLocaleLowerCase();
         if (enable === 'with') {
             this.addToSaved('filterType', filterType);
-            objName = filterType === 'prefix' ? `${this.getSaved<string>('objectNamePrefix')}${objName}` :
-                `${objName}${this.getSaved<string>('objectNameSufix')}`;
+            objName =
+                filterType === 'prefix'
+                    ? `${this.getSaved<string>('objectNamePrefix')}${objName}`
+                    : `${objName}${this.getSaved<string>('objectNameSufix')}`;
         }
         this.addToSaved('objectName', objName);
         switch (notificationType) {
-        case 's3:ObjectCreated:Put':
-            await putObject(this, objName);
-            break;
-        case 's3:ObjectCreated:Copy':
-            await copyObject(this, objName);
-            break;
-        case 's3:ObjectRemoved:Delete':
-            await deleteObject(this, objName);
-            break;
-        case 's3:ObjectTagging:Put':
-            await putTag(this, objName);
-            break;
-        case 's3:ObjectTagging:Delete':
-            await deleteTag(this, objName);
-            break;
-        case 's3:ObjectAcl:Put':
-            await putAcl(this, objName);
-            break;
-        case 's3:ObjectRemoved:DeleteMarkerCreated':
-            await deleteObject(this, objName, true);
-            break;
-        default:
-            break;
+            case 's3:ObjectCreated:Put':
+                await putObject(this, objName);
+                break;
+            case 's3:ObjectCreated:Copy':
+                await copyObject(this, objName);
+                break;
+            case 's3:ObjectRemoved:Delete':
+                await deleteObject(this, objName);
+                break;
+            case 's3:ObjectTagging:Put':
+                await putTag(this, objName);
+                break;
+            case 's3:ObjectTagging:Delete':
+                await deleteTag(this, objName);
+                break;
+            case 's3:ObjectAcl:Put':
+                await putAcl(this, objName);
+                break;
+            case 's3:ObjectRemoved:DeleteMarkerCreated':
+                await deleteObject(this, objName, true);
+                break;
+            default:
+                break;
         }
-    });
+    },
+);
 
-Then('notifications should be enabled for {string} event in destination {int}',
+Then(
+    'notifications should be enabled for {string} event in destination {int}',
     async function (this: Zenko, notificationType: string, destination: number) {
         this.resetCommand();
         this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
         const result = await S3.getBucketNotificationConfiguration(this.getCommandParameters());
         assert.strictEqual(this.checkResults([result]), true);
         const notificationConfiguration = JSON.parse(result.stdout) as NotificationConfig;
-        const destinationConfiguration = notificationConfiguration
-            .QueueConfigurations.find((conf: QueueConfiguration) => {
+        const destinationConfiguration = notificationConfiguration.QueueConfigurations.find(
+            (conf: QueueConfiguration) => {
                 const configDestinationName = conf.QueueArn.split(':')[5];
-                return configDestinationName ===
-                    (this.getSaved<NotificationDestination[]>('notificationDestinations')[destination]).destinationName;
-            }) as QueueConfiguration;
+                return (
+                    configDestinationName ===
+                    this.getSaved<NotificationDestination[]>('notificationDestinations')[destination].destinationName
+                );
+            },
+        ) as QueueConfiguration;
         assert(destinationConfiguration.Events.includes(notificationType));
-    });
+    },
+);
 
-Then('i should {string} a notification for {string} event in destination {int}',
+Then(
+    'i should {string} a notification for {string} event in destination {int}',
     async function (this: Zenko, receive: string, notificationType: string, destination: number) {
         const { topic, hosts } = this.getSaved<NotificationDestination[]>('notificationDestinations')[destination];
         const groupId = `ctst_kafka_consumer_group_${randomString()}`;
@@ -361,12 +386,11 @@ Then('i should {string} a notification for {string} event in destination {int}',
                         value: msg.value,
                     });
                     try {
-                        const notification = (JSON.parse(msg.value as string
-                            || '{"Records":[]}') as { Records: Notification[] }).Records[0];
-                        const bucketNameMatches =
-                            this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
-                        const objectNameMatches =
-                            this.getSaved<string>('objectName') === notification?.s3.object.key;
+                        const notification = (
+                            JSON.parse((msg.value as string) || '{"Records":[]}') as { Records: Notification[] }
+                        ).Records[0];
+                        const bucketNameMatches = this.getSaved<string>('bucketName') === notification?.s3.bucket.name;
+                        const objectNameMatches = this.getSaved<string>('objectName') === notification?.s3.object.key;
                         const eventTypeMatches = notificationType === notification?.eventName;
                         if (bucketNameMatches && objectNameMatches && eventTypeMatches) {
                             receivedNotification = true;
@@ -387,4 +411,5 @@ Then('i should {string} a notification for {string} event in destination {int}',
 
         const expected = receive === 'receive';
         assert.strictEqual(receivedNotification, expected);
-    });
+    },
+);

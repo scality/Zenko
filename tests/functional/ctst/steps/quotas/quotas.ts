@@ -13,11 +13,11 @@ export async function prepareQuotaScenarios(world: Zenko, scenarioConfiguration:
      *
      * The hook is called in the hooks.ts file.
      */
-    const isBucketNonVersioned = scenarioConfiguration.gherkinDocument.feature?.tags?.find(
-        tag => tag.name === 'NonVersioned') === undefined;
-    
+    const isBucketNonVersioned =
+        scenarioConfiguration.gherkinDocument.feature?.tags?.find(tag => tag.name === 'NonVersioned') === undefined;
+
     const versioning = isBucketNonVersioned ? '' : 'with';
-    
+
     await prepareMetricsScenarios(world, scenarioConfiguration, {
         versioning,
         jobNamespace: 'quotas-setup',
@@ -33,9 +33,7 @@ export async function teardownQuotaScenarios(world: Zenko) {
     world.addCommandParameter({
         bucket: world.getSaved<string>('bucketName'),
     });
-    const resultBucket = await Scality.deleteBucketQuota(
-        world.parameters,
-        world.getCommandParameters());
+    const resultBucket = await Scality.deleteBucketQuota(world.parameters, world.getCommandParameters());
     world.logger?.debug('DeleteBucketQuota result', {
         resultBucket,
         parameters: world.getCommandParameters(),
@@ -63,18 +61,14 @@ Given('a bucket quota set to {int} B', async function (this: Zenko, quota: numbe
     });
     // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
+    const result: Command = await Scality.updateBucketQuota(this.parameters, this.getCommandParameters());
 
     this.logger.debug('UpdateBucketQuota result', {
         result,
     });
 
     // Ensure the quota is set
-    const resultGet: Command = await Scality.getBucketQuota(
-        this.parameters,
-        this.getCommandParameters());
+    const resultGet: Command = await Scality.getBucketQuota(this.parameters, this.getCommandParameters());
     this.logger.debug('GetBucketQuota result', {
         resultGet,
     });
@@ -95,9 +89,7 @@ Given('an account quota set to {int} B', async function (this: Zenko, quota: num
     });
     // This API is only valid for storage managers
     this.useSavedIdentity();
-    const result: Command = await Scality.updateAccountQuota(
-        this.parameters,
-        this.getCommandParameters());
+    const result: Command = await Scality.updateAccountQuota(this.parameters, this.getCommandParameters());
 
     this.logger.debug('UpdateAccountQuota result', {
         result,

@@ -1,16 +1,8 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import Zenko from 'world/Zenko';
 import ZenkoDrctl from './dr/drctl';
-import {
-    displayCRStatus,
-    getDRSink,
-    getDRSource,
-} from './utils/kubernetes';
-import {
-    putObject,
-    restoreObject,
-    verifyObjectLocation,
-} from 'steps/utils/utils';
+import { displayCRStatus, getDRSink, getDRSource } from './utils/kubernetes';
+import { putObject, restoreObject, verifyObjectLocation } from 'steps/utils/utils';
 import { CacheHelper, Identity, IdentityEnum, SuperAdmin } from 'cli-testing';
 import constants from 'common/constants';
 import { safeJsonParse, sleep } from 'common/utils';
@@ -41,19 +33,19 @@ interface DrState {
     source: {
         crStatus: {
             phase: ZenkoDrSourcePhases;
-        },
+        };
     };
     sink: {
         crStatus: {
             phase: ZenkoDrSinkPhases;
-        },
+        };
     };
 }
 
 async function installPRA(world: Zenko, sinkS3Endpoint = 'http://s3.zenko.local', timeout = '30m') {
-    const kafkaExternalIpOption = world.parameters.KafkaExternalIps ?
-        { kafkaExternalIps: world.parameters.KafkaExternalIps } :
-        { kafkaExternalIpsDiscovery: true };
+    const kafkaExternalIpOption = world.parameters.KafkaExternalIps
+        ? { kafkaExternalIps: world.parameters.KafkaExternalIps }
+        : { kafkaExternalIpsDiscovery: true };
 
     return world.zenkoDrCtl?.install({
         sourceZenkoDrInstance: 'end2end-source',
@@ -184,29 +176,29 @@ Given('a DR installed', { timeout: installTimeout + 2000 }, async function (this
 Then('the DR sink should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
     let targetPhase;
     switch (state) {
-    case 'New':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseNew;
-        break;
-    case 'Bootstrap:Waiting':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapWaiting;
-        break;
-    case 'Bootstrap:Receiving':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapReceiving;
-        break;
-    case 'Bootstrap:Failed':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapFailed;
-        break;
-    case 'Running':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseRunning;
-        break;
-    case 'Paused':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhasePaused;
-        break;
-    case 'Failover':
-        targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseFailover;
-        break;
-    default:
-        throw new Error(`Unknown state ${state}`);
+        case 'New':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseNew;
+            break;
+        case 'Bootstrap:Waiting':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapWaiting;
+            break;
+        case 'Bootstrap:Receiving':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapReceiving;
+            break;
+        case 'Bootstrap:Failed':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseBootstrapFailed;
+            break;
+        case 'Running':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseRunning;
+            break;
+        case 'Paused':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhasePaused;
+            break;
+        case 'Failover':
+            targetPhase = ZenkoDrSinkPhases.ZenkoDRSinkPhaseFailover;
+            break;
+        default:
+            throw new Error(`Unknown state ${state}`);
     }
 
     const res = await waitForPhase(this, 'sink', targetPhase);
@@ -216,33 +208,34 @@ Then('the DR sink should be in phase {string}', { timeout: 360000 }, async funct
 Then('the DR source should be in phase {string}', { timeout: 360000 }, async function (this: Zenko, state: string) {
     let targetPhase;
     switch (state) {
-    case 'New':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseNew;
-        break;
-    case 'Bootstrap:Waiting':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapWaiting;
-        break;
-    case 'Bootstrap:Sending':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapSending;
-        break;
-    case 'Bootstrap:Failed':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapFailed;
-        break;
-    case 'Running':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseRunning;
-        break;
-    case 'Paused':
-        targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhasePaused;
-        break;
-    default:
-        throw new Error(`Unknown state ${state}`);
+        case 'New':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseNew;
+            break;
+        case 'Bootstrap:Waiting':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapWaiting;
+            break;
+        case 'Bootstrap:Sending':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapSending;
+            break;
+        case 'Bootstrap:Failed':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseBootstrapFailed;
+            break;
+        case 'Running':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhaseRunning;
+            break;
+        case 'Paused':
+            targetPhase = ZenkoDrSourcePhases.ZenkoDRSourcePhasePaused;
+            break;
+        default:
+            throw new Error(`Unknown state ${state}`);
     }
 
     const res = await waitForPhase(this, 'source', targetPhase);
     assert(res);
 });
 
-Then('object {string} should {string} be {string} and have the storage class {string} on {string} site',
+Then(
+    'object {string} should {string} be {string} and have the storage class {string} on {string} site',
     { timeout: 360000 },
     async function (
         this: Zenko,
@@ -250,7 +243,8 @@ Then('object {string} should {string} be {string} and have the storage class {st
         isVerb: string,
         objectTransitionStatus: string,
         storageClass: string,
-        site: string) {
+        site: string,
+    ) {
         this.resetCommand();
         if (site === 'DR') {
             Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
@@ -268,9 +262,12 @@ Then('object {string} should {string} be {string} and have the storage class {st
             }
             assert(err);
         }
-    });
+    },
+);
 
-When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { timeout: 5 * 60 * 1000 },
+When(
+    'the DATA_ACCESSOR user tries to perform PutObject on {string} site',
+    { timeout: 5 * 60 * 1000 },
     async function (this: Zenko, site: string) {
         if (site === 'DR') {
             Identity.useIdentity(IdentityEnum.ACCOUNT, `${Zenko.sites['source'].accountName}-replicated`);
@@ -296,7 +293,8 @@ When('the DATA_ACCESSOR user tries to perform PutObject on {string} site', { tim
         }
 
         await putObject(this);
-    });
+    },
+);
 
 const volumeTimeout = 60000;
 Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async function (this: Zenko) {
@@ -309,7 +307,7 @@ Then('the kafka DR volume exists', { timeout: volumeTimeout + 2000 }, async func
     });
     this.logger.debug('kafka volume from drctl', { volume });
     assert(volume);
-    const volumeParsed = safeJsonParse<{'volume phase': string, 'volume name': string}>(volume);
+    const volumeParsed = safeJsonParse<{ 'volume phase': string; 'volume name': string }>(volume);
     if (!volumeParsed.ok) {
         throw new Error('Failed to parse volume');
     }
@@ -424,7 +422,8 @@ Given('access keys for the replicated account', { timeout: 360000 }, async () =>
     Identity.addIdentity(IdentityEnum.ACCOUNT, `${targetAccount}-replicated`, credentials, undefined, true);
 });
 
-When('i restore object {string} for {int} days on {string} site',
+When(
+    'i restore object {string} for {int} days on {string} site',
     async function (this: Zenko, objectName: string, days: number, site: string) {
         this.resetCommand();
         if (site === 'DR') {
@@ -433,4 +432,5 @@ When('i restore object {string} for {int} days on {string} site',
             Identity.useIdentity(IdentityEnum.ACCOUNT, Zenko.sites['source'].accountName);
         }
         await restoreObject.call(this, objectName, days);
-    });
+    },
+);

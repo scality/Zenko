@@ -33,9 +33,7 @@ Then(
                 return;
             }
             if (Date.now() > deadline) {
-                assert.fail(
-                    `Metric ${metric} never appeared (no series in /api/v1/query)`,
-                );
+                assert.fail(`Metric ${metric} never appeared (no series in /api/v1/query)`);
             }
             await sleep(POLL_MS);
         }

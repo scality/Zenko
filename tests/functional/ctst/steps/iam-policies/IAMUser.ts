@@ -4,7 +4,8 @@ import constants from 'common/constants';
 import { extractPropertyFromResults, randomString } from '../../common/utils';
 import Zenko from 'world/Zenko';
 
-Given('an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
+Given(
+    'an IAM policy attached to the entity {string} with {string} effect to perform {string} {string} on {string}',
     async function (this: Zenko, entity: string, effect: string, service: string, action: string, resource: string) {
         Identity.resetIdentity();
         this.resetCommand();
@@ -23,8 +24,10 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
                 ],
             }),
         });
-        this.addToSaved('policyArn',
-            extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'));
+        this.addToSaved(
+            'policyArn',
+            extractPropertyFromResults(await IAM.createPolicy(this.getCommandParameters()), 'Policy', 'Arn'),
+        );
 
         // attach the IAM policy to the user
         this.resetCommand();
@@ -40,4 +43,5 @@ Given('an IAM policy attached to the entity {string} with {string} effect to per
             await IAM.attachGroupPolicy(this.getCommandParameters());
         }
         this.useSavedIdentity();
-    });
+    },
+);

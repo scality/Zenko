@@ -1,7 +1,4 @@
-import {
-    defineParameterType,
-    Given,
-} from '@cucumber/cucumber';
+import { defineParameterType, Given } from '@cucumber/cucumber';
 import Zenko, { EntityType } from 'world/Zenko';
 
 defineParameterType({
@@ -18,12 +15,16 @@ Given('a {string} AssumeRole user', async function (this: Zenko, crossAccount: s
     await this.prepareAssumeRole(crossAccount === 'cross account');
 });
 
-Given('a service user {string} assuming the role {string} of an internal service account',
+Given(
+    'a service user {string} assuming the role {string} of an internal service account',
     async function (this: Zenko, serviceUserName: string, roleName: string) {
         await this.prepareServiceUser(serviceUserName, roleName, true);
-    });
+    },
+);
 
-Given('a service user {string} assuming the role {string} of a user account',
+Given(
+    'a service user {string} assuming the role {string} of a user account',
     async function (this: Zenko, serviceUserName: string, roleName: string) {
         await this.prepareServiceUser(serviceUserName, roleName);
-    });
+    },
+);

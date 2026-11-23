@@ -10,7 +10,6 @@ const KEYCLOAK_PATH = `/auth/realms/${REALM_NAME}/protocol/openid-connect/token`
 const CLIENT_ID = process.env.KEYCLOAK_TEST_CLIENT_ID || 'zenko-ui';
 const GRANT_TYPE = process.env.KEYCLOAK_TEST_GRANT_TYPE || 'password';
 
-
 /**
  * HTTP client to request JWT token given the username and password.
  *
@@ -24,16 +23,7 @@ const GRANT_TYPE = process.env.KEYCLOAK_TEST_GRANT_TYPE || 'password';
  * @param {function} callback - callback function called with error or result
  * @returns {undefined} undefined
  */
-function getWebIdentityToken(
-    username,
-    password,
-    host,
-    port,
-    path,
-    clientId,
-    grandType,
-    callback,
-) {
+function getWebIdentityToken(username, password, host, port, path, clientId, grandType, callback) {
     // In Zenko, we are using an endpoint as the `KEYCLOAK_TEST_HOST` env variable
     // So we should remove any existing http of https prefix in HOST_1_URL.
     host = host.replace('https://', '').replace('http://', '');
@@ -66,7 +56,7 @@ function getWebIdentityToken(
                 let accessToken = null;
                 let error = null;
                 try {
-                    accessToken = (JSON.parse(Buffer.concat(data))).access_token;
+                    accessToken = JSON.parse(Buffer.concat(data)).access_token;
                 } catch (err) {
                     error = err;
                 }

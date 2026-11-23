@@ -15,19 +15,23 @@ async function putObject(s3: S3Client, bucket: string, key: string, body: Buffer
 
 async function putSinglepartMpu(s3: S3Client, bucket: string, key: string, body: Buffer): Promise<void> {
     const mpu = await s3.send(new CreateMultipartUploadCommand({ Bucket: bucket, Key: key }));
-    const part = await s3.send(new UploadPartCommand({
-        Bucket: bucket,
-        Key: key,
-        PartNumber: 1,
-        UploadId: mpu.UploadId!,
-        Body: body,
-    }));
-    await s3.send(new CompleteMultipartUploadCommand({
-        Bucket: bucket,
-        Key: key,
-        UploadId: mpu.UploadId!,
-        MultipartUpload: { Parts: [{ PartNumber: 1, ETag: part.ETag! }] },
-    }));
+    const part = await s3.send(
+        new UploadPartCommand({
+            Bucket: bucket,
+            Key: key,
+            PartNumber: 1,
+            UploadId: mpu.UploadId!,
+            Body: body,
+        }),
+    );
+    await s3.send(
+        new CompleteMultipartUploadCommand({
+            Bucket: bucket,
+            Key: key,
+            UploadId: mpu.UploadId!,
+            MultipartUpload: { Parts: [{ PartNumber: 1, ETag: part.ETag! }] },
+        }),
+    );
 }
 
 export async function createRingBuckets(env: Env): Promise<void> {
@@ -52,7 +56,7 @@ export async function createRingBuckets(env: Env): Promise<void> {
     if (!env.RING_S3C_INGESTION_SRC_BUCKET_NAME || !env.RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME) {
         throw new Error(
             'RING_S3C_INGESTION_SRC_BUCKET_NAME and RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME' +
-            ' are required when Ring S3C credentials are provided',
+                ' are required when Ring S3C credentials are provided',
         );
     }
 
@@ -81,9 +85,11 @@ export async function createRingBuckets(env: Env): Promise<void> {
 
     console.log('Enabling versioning on Ring S3C buckets...');
     for (const bucket of [versionedBucket, nonVersionedBucket]) {
-        await s3.send(new PutBucketVersioningCommand({
-            Bucket: bucket,
-            VersioningConfiguration: { Status: 'Enabled' },
-        }));
+        await s3.send(
+            new PutBucketVersioningCommand({
+                Bucket: bucket,
+                VersioningConfiguration: { Status: 'Enabled' },
+            }),
+        );
     }
 }

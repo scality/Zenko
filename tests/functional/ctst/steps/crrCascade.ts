@@ -37,10 +37,12 @@ Given('a versioned bucket exists in location {string}', async function (this: Ze
     this.addToSaved('accountName', location);
     const client = this.createS3Client();
     await client.send(new CreateBucketCommand({ Bucket: bucket }));
-    await client.send(new PutBucketVersioningCommand({
-        Bucket: bucket,
-        VersioningConfiguration: { Status: 'Enabled' },
-    }));
+    await client.send(
+        new PutBucketVersioningCommand({
+            Bucket: bucket,
+            VersioningConfiguration: { Status: 'Enabled' },
+        }),
+    );
     const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
     cascadeBuckets[location] = bucket;
 });
@@ -75,20 +77,24 @@ Given(
         ].join(',');
 
         Identity.useIdentity(IdentityEnum.ACCOUNT, srcLocation);
-        await this.createS3Client().send(new PutBucketReplicationCommand({
-            Bucket: cascadeBuckets[srcLocation],
-            ReplicationConfiguration: {
-                Role: role,
-                Rules: [{
-                    Status: 'Enabled',
-                    Prefix: '',
-                    Destination: {
-                        Bucket: `arn:aws:s3:::${cascadeBuckets[dstLocation]}`,
-                        StorageClass: dstLocation as StorageClass,
-                    },
-                }],
-            },
-        }));
+        await this.createS3Client().send(
+            new PutBucketReplicationCommand({
+                Bucket: cascadeBuckets[srcLocation],
+                ReplicationConfiguration: {
+                    Role: role,
+                    Rules: [
+                        {
+                            Status: 'Enabled',
+                            Prefix: '',
+                            Destination: {
+                                Bucket: `arn:aws:s3:::${cascadeBuckets[dstLocation]}`,
+                                StorageClass: dstLocation as StorageClass,
+                            },
+                        },
+                    ],
+                },
+            }),
+        );
     },
 );
 
@@ -99,16 +105,19 @@ async function putCascadeObject(
     bodySize = 0,
 ): Promise<string> {
     const marker = randomString().toLowerCase();
-    await client.send(new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Body: bodySize > 0 ? Buffer.alloc(bodySize) : new Uint8Array(0),
-        Metadata: { marker },
-    }));
+    await client.send(
+        new PutObjectCommand({
+            Bucket: bucket,
+            Key: key,
+            Body: bodySize > 0 ? Buffer.alloc(bodySize) : new Uint8Array(0),
+            Metadata: { marker },
+        }),
+    );
     return marker;
 }
 
-When('an object {string} of {int} bytes is put in location {string}',
+When(
+    'an object {string} of {int} bytes is put in location {string}',
     async function (this: Zenko, objectName: string, bodySize: number, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
@@ -117,20 +126,25 @@ When('an object {string} of {int} bytes is put in location {string}',
         this.addToSaved('cascadeSourceLocation', location);
         this.addToSaved('cascadeLastMarker', marker);
         this.addToSaved('cascadeExpectedContentLength', bodySize);
-    });
+    },
+);
 
-When('tags are put on the object {string} in location {string}',
+When(
+    'tags are put on the object {string} in location {string}',
     async function (this: Zenko, objectName: string, location: string) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
         const tagValue = randomString().toLowerCase();
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        await this.createS3Client().send(new PutObjectTaggingCommand({
-            Bucket: cascadeBuckets[location],
-            Key: objectName,
-            Tagging: { TagSet: [{ Key: 'cascade-test-tag', Value: tagValue }] },
-        }));
+        await this.createS3Client().send(
+            new PutObjectTaggingCommand({
+                Bucket: cascadeBuckets[location],
+                Key: objectName,
+                Tagging: { TagSet: [{ Key: 'cascade-test-tag', Value: tagValue }] },
+            }),
+        );
         this.addToSaved('cascadeTagValue', tagValue);
-    });
+    },
+);
 
 Then(
     'the object at location {string} should have the expected tags within {int} seconds',
@@ -144,20 +158,14 @@ Then(
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         const client = this.createS3Client();
         while (Date.now() < deadline) {
-            const res = await client.send(
-                new GetObjectTaggingCommand({ Bucket: bucket, Key: objectName }),
-            );
-            const found = res.TagSet?.some(
-                tag => tag.Key === 'cascade-test-tag' && tag.Value === tagValue,
-            );
+            const res = await client.send(new GetObjectTaggingCommand({ Bucket: bucket, Key: objectName }));
+            const found = res.TagSet?.some(tag => tag.Key === 'cascade-test-tag' && tag.Value === tagValue);
             if (found) {
                 return;
             }
             await sleep(POLL_MS);
         }
-        assert.fail(
-            `Timeout: tag 'cascade-test-tag=${tagValue}' not found at '${location}' after ${timeoutSeconds}s`,
-        );
+        assert.fail(`Timeout: tag 'cascade-test-tag=${tagValue}' not found at '${location}' after ${timeoutSeconds}s`);
     },
 );
 
@@ -175,20 +183,20 @@ Then(
         let lastStatus = 'unknown';
         while (Date.now() < deadline) {
             try {
-                const res = await client.send(
-                    new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
-                );
+                const res = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: objectName }));
                 lastStatus = res.ReplicationStatus ?? 'unset';
                 if (res.ReplicationStatus === 'PENDING') {
                     await sleep(POLL_MS);
                     continue;
                 }
                 assert.strictEqual(
-                    res.ReplicationStatus, 'REPLICA',
+                    res.ReplicationStatus,
+                    'REPLICA',
                     `Expected ReplicationStatus to be REPLICA at '${location}', got '${res.ReplicationStatus}'`,
                 );
                 assert.strictEqual(
-                    res.ContentLength, expectedContentLength,
+                    res.ContentLength,
+                    expectedContentLength,
                     `Expected ContentLength ${expectedContentLength} at '${location}', got ${res.ContentLength}`,
                 );
                 return;
@@ -202,8 +210,8 @@ Then(
             }
         }
         assert.fail(
-            `Timeout: object '${objectName}' in bucket '${bucket}' did not replicate after `
-            + `${timeoutSeconds}s, last observed ReplicationStatus: ${lastStatus}`,
+            `Timeout: object '${objectName}' in bucket '${bucket}' did not replicate after ` +
+                `${timeoutSeconds}s, last observed ReplicationStatus: ${lastStatus}`,
         );
     },
 );
@@ -220,14 +228,12 @@ Then(
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
         const client = this.createS3Client();
         while (Date.now() < deadline) {
-            const result = await client.send(
-                new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
-            );
+            const result = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: objectName }));
             assert.notStrictEqual(
                 result.ReplicationStatus,
                 'PENDING',
                 `Object at '${location}' was found with ReplicationStatus=PENDING, ` +
-                'indicating the cascade loop wrote back to the source.',
+                    'indicating the cascade loop wrote back to the source.',
             );
             await sleep(STABILITY_INTERVAL_MS);
         }
@@ -242,22 +248,20 @@ async function cascadeUnsettledReason(world: Zenko): Promise<string | undefined>
 
     for (const [location, bucket] of Object.entries(cascadeBuckets)) {
         Identity.useIdentity(IdentityEnum.ACCOUNT, location);
-        const res = await world.createS3Client().send(
-            new HeadObjectCommand({ Bucket: bucket, Key: objectName }),
-        );
+        const res = await world.createS3Client().send(new HeadObjectCommand({ Bucket: bucket, Key: objectName }));
 
         const expectedStatus = location === sourceLocation ? 'COMPLETED' : 'REPLICA';
         if (res.ReplicationStatus !== expectedStatus) {
-            return `Expected ReplicationStatus '${expectedStatus}' at '${location}', `
-                + `got '${res.ReplicationStatus}'`;
+            return `Expected ReplicationStatus '${expectedStatus}' at '${location}', got '${res.ReplicationStatus}'`;
         }
 
-        const pendingBackends = Object.entries(res.Metadata ?? {})
-            .filter(([key, value]) => key.endsWith('-replication-status') && value === 'PENDING');
+        const pendingBackends = Object.entries(res.Metadata ?? {}).filter(
+            ([key, value]) => key.endsWith('-replication-status') && value === 'PENDING',
+        );
         if (pendingBackends.length > 0) {
-            return `Location '${location}' still has PENDING backends: ${
-                pendingBackends.map(([k, v]) => `${k}=${v}`).join(', ')
-            }`;
+            return `Location '${location}' still has PENDING backends: ${pendingBackends
+                .map(([k, v]) => `${k}=${v}`)
+                .join(', ')}`;
         }
     }
     return undefined;
@@ -291,14 +295,16 @@ Then(
             await sleep(STABILITY_INTERVAL_MS);
             const changed = await cascadeUnsettledReason(this);
             assert.strictEqual(
-                changed, undefined,
+                changed,
+                undefined,
                 `cascade states were not settled during the ${holdSeconds}s observation window. ${changed}`,
             );
         }
     },
 );
 
-When('the object {string} is concurrently written {int} times to every cascade location',
+When(
+    'the object {string} is concurrently written {int} times to every cascade location',
     async function (this: Zenko, objectName: string, writesPerLocation: number) {
         const cascadeBuckets = this.getSaved<Record<string, string>>('cascadeBuckets');
 
@@ -321,7 +327,8 @@ When('the object {string} is concurrently written {int} times to every cascade l
 
         this.addToSaved('cascadeObjectName', objectName);
         this.addToSaved('cascadeWrittenMarkers', [...writtenMarkers]);
-    });
+    },
+);
 
 Then(
     'all cascade locations should converge to the same metadata marker within {int} seconds',

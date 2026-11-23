@@ -16,7 +16,10 @@ When('the {string} cronjobs completes without error', { timeout: 1200000 }, asyn
     await runCronjob.call(this, job);
 });
 
-When('the {string} cronjobs completes without error on {string} site', { timeout: 1200000 },
+When(
+    'the {string} cronjobs completes without error on {string} site',
+    { timeout: 1200000 },
     async function (this: Zenko, job: string, site: string) {
         await runCronjob.call(this, job, site);
-    });
+    },
+);

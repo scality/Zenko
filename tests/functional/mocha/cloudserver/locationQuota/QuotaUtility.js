@@ -29,7 +29,8 @@ class QuotaUtility {
         async.each(
             objList.Contents,
             (obj, next) => {
-                this.s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key }))
+                this.s3
+                    .send(new DeleteObjectCommand({ Bucket: bucketName, Key: obj.Key }))
                     .then(() => next())
                     .catch(next);
             },
@@ -41,11 +42,14 @@ class QuotaUtility {
         async.each(
             mpuList.Uploads,
             (mpu, next) => {
-                this.s3.send(new AbortMultipartUploadCommand({
-                    Bucket: bucketName,
-                    Key: mpu.Key,
-                    UploadId: mpu.UploadId,
-                }))
+                this.s3
+                    .send(
+                        new AbortMultipartUploadCommand({
+                            Bucket: bucketName,
+                            Key: mpu.Key,
+                            UploadId: mpu.UploadId,
+                        }),
+                    )
                     .then(() => next())
                     .catch(next);
             },
@@ -54,9 +58,7 @@ class QuotaUtility {
     }
 
     getQuotaError() {
-        const errorString = 'AccessDenied: The assigned storage space limit '
-            + `for location ${quotaLocation} will be exceeded`;
-        return errorString;
+        return `AccessDenied: The assigned storage space limit for location ${quotaLocation} will be exceeded`;
     }
 
     /**
@@ -72,7 +74,8 @@ class QuotaUtility {
                 LocationConstraint: quotaLocation,
             },
         };
-        return this.s3.send(new CreateBucketCommand(params))
+        return this.s3
+            .send(new CreateBucketCommand(params))
             .then(() => cb())
             .catch(cb);
     }
@@ -84,21 +87,27 @@ class QuotaUtility {
      * @return {undefined}
      */
     deleteQuotaBucket(bucketName, cb) {
-        async.series({
-            objList: async () => this.s3.send(new ListObjectsV2Command({ Bucket: bucketName })),
-            mpuList: async () => this.s3.send(new ListMultipartUploadsCommand({ Bucket: bucketName })),
-        }, (err, results) => {
-            assert.ifError(err, `Error listing: ${err}`);
-            async.series([
-                next => this._deleteAllObjects(results.objList, bucketName, next),
-                next => this._abortAllMpus(results.mpuList, bucketName, next),
-                next => {
-                    this.deleteBucket(bucketName)
-                        .then(() => next())
-                        .catch(next);
-                },
-            ], cb);
-        });
+        async.series(
+            {
+                objList: async () => this.s3.send(new ListObjectsV2Command({ Bucket: bucketName })),
+                mpuList: async () => this.s3.send(new ListMultipartUploadsCommand({ Bucket: bucketName })),
+            },
+            (err, results) => {
+                assert.ifError(err, `Error listing: ${err}`);
+                async.series(
+                    [
+                        next => this._deleteAllObjects(results.objList, bucketName, next),
+                        next => this._abortAllMpus(results.mpuList, bucketName, next),
+                        next => {
+                            this.deleteBucket(bucketName)
+                                .then(() => next())
+                                .catch(next);
+                        },
+                    ],
+                    cb,
+                );
+            },
+        );
     }
 
     /**
@@ -112,42 +121,51 @@ class QuotaUtility {
         const bodySize = 10485760;
         const body = Buffer.alloc(bodySize);
         const numberObjs = Math.ceil((this._gbToBytes(quotaSize) * 0.95) / bodySize);
-        const hex = crypto.createHash('md5')
-            .update(Math.random().toString()).digest('hex');
-        async.times(numberObjs, (n, next) => {
-            const key = `${bucketName}/${hex}/quota-object${Date.now()}${n}`;
-            process.stdout.write(`Putting object ${n + 1}/${numberObjs}\n`);
-            this.putObject(bucketName, key, body)
-                .then(() => next())
-                .catch(next);
-        }, cb);
+        const hex = crypto.createHash('md5').update(Math.random().toString()).digest('hex');
+        async.times(
+            numberObjs,
+            (n, next) => {
+                const key = `${bucketName}/${hex}/quota-object${Date.now()}${n}`;
+                process.stdout.write(`Putting object ${n + 1}/${numberObjs}\n`);
+                this.putObject(bucketName, key, body)
+                    .then(() => next())
+                    .catch(next);
+            },
+            cb,
+        );
     }
 
     async putObject(bucketName, objectName, body) {
         const payload = body ?? '';
-        return this.s3.send(new PutObjectCommand({
-            Bucket: bucketName,
-            Key: objectName,
-            Body: payload,
-            ContentLength: Buffer.byteLength(payload),
-        }));
+        return this.s3.send(
+            new PutObjectCommand({
+                Bucket: bucketName,
+                Key: objectName,
+                Body: payload,
+                ContentLength: Buffer.byteLength(payload),
+            }),
+        );
     }
 
     async createMPU(bucketName, objectName) {
-        return this.s3.send(new CreateMultipartUploadCommand({
-            Bucket: bucketName,
-            Key: objectName,
-        }));
+        return this.s3.send(
+            new CreateMultipartUploadCommand({
+                Bucket: bucketName,
+                Key: objectName,
+            }),
+        );
     }
 
     async putPart(bucketName, objectName, body, uploadId, partNumber) {
-        return this.s3.send(new UploadPartCommand({
-            Bucket: bucketName,
-            Key: objectName,
-            Body: body,
-            UploadId: uploadId,
-            PartNumber: partNumber,
-        }));
+        return this.s3.send(
+            new UploadPartCommand({
+                Bucket: bucketName,
+                Key: objectName,
+                Body: body,
+                UploadId: uploadId,
+                PartNumber: partNumber,
+            }),
+        );
     }
 
     async deleteBucket(bucketName) {

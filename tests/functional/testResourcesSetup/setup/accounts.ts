@@ -14,12 +14,14 @@ async function getAccountCredentials(
     token: string,
     accountId: string,
 ): Promise<AccountCredentials> {
-    const result = await stsClient.send(new AssumeRoleWithWebIdentityCommand({
-        RoleArn: `arn:aws:iam::${accountId}:role/scality-internal/storage-manager-role`,
-        RoleSessionName: 'end2end',
-        WebIdentityToken: token,
-        DurationSeconds: 60 * 60 * 12, // 12 hours, max allows by sts assume role
-    }));
+    const result = await stsClient.send(
+        new AssumeRoleWithWebIdentityCommand({
+            RoleArn: `arn:aws:iam::${accountId}:role/scality-internal/storage-manager-role`,
+            RoleSessionName: 'end2end',
+            WebIdentityToken: token,
+            DurationSeconds: 60 * 60 * 12, // 12 hours, max allows by sts assume role
+        }),
+    );
     if (!result.Credentials?.AccessKeyId || !result.Credentials?.SecretAccessKey || !result.Credentials?.SessionToken) {
         throw new Error(`Incomplete credentials returned from STS for account ${accountId}`);
     }

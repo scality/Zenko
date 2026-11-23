@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2019",
+        "lib": ["ES2022"],
         "module": "commonjs",
         "allowJs": false,
         "sourceMap": true,
@@ -29,12 +30,6 @@
         },
         "ignore": ["(?:^|/)node_modules/(?!cli-testing)"]
     },
-    "include": [
-        "clients/**/*",
-        "ctst/**/*",
-        "testResourcesSetup/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": ["clients/**/*", "ctst/**/*", "testResourcesSetup/**/*"],
+    "exclude": ["node_modules"]
 }

@@ -24,20 +24,24 @@ const BUCKET_NAME = {
 const ownerInfo = {};
 
 async function putObjects(bucketName) {
-    await Promise.all(Array.from({ length: 10 }, (_, n) => s3.send(new PutObjectCommand(
-        {
-            Bucket: bucketName,
-            Key: `key-${n}`,
-            Body: '',
-            ContentLength: 0,
-        },
-    ))));
+    await Promise.all(
+        Array.from({ length: 10 }, (_, n) =>
+            s3.send(
+                new PutObjectCommand({
+                    Bucket: bucketName,
+                    Key: `key-${n}`,
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            ),
+        ),
+    );
 }
 
 async function emptyBucket(bucketName) {
-    await Promise.all(Array.from({ length: 10 }, (_, n) => s3.send(new DeleteObjectCommand(
-        { Bucket: bucketName, Key: `key-${n}` },
-    ))));
+    await Promise.all(
+        Array.from({ length: 10 }, (_, n) => s3.send(new DeleteObjectCommand({ Bucket: bucketName, Key: `key-${n}` }))),
+    );
 }
 
 function expectedKeyList(startKey, endKey) {
@@ -167,12 +171,14 @@ describe('Cloudserver : keyFormatVersion : non versioned bucket', () => {
         });
 
         it(`Should remove object from bucket ${vFormat}`, async () => {
-            await s3.send(new PutObjectCommand({
-                Bucket: BUCKET_NAME[vFormat],
-                Key: 'key-to-delete',
-                Body: '',
-                ContentLength: 0,
-            }));
+            await s3.send(
+                new PutObjectCommand({
+                    Bucket: BUCKET_NAME[vFormat],
+                    Key: 'key-to-delete',
+                    Body: '',
+                    ContentLength: 0,
+                }),
+            );
             await s3.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME[vFormat], Key: 'key-to-delete' }));
 
             try {

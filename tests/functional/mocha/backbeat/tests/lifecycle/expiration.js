@@ -39,45 +39,32 @@ const getExpirationObject = (id, expiration, prefix, tag, enabled) => ({
     Expiration: expiration,
 });
 
-const expireDayRule = (prefix, tag, enabled) => getExpirationObject(
-    'day expiration',
-    { Days: 1 },
-    prefix,
-    tag,
-    enabled,
-);
+const expireDayRule = (prefix, tag, enabled) =>
+    getExpirationObject('day expiration', { Days: 1 }, prefix, tag, enabled);
 
-const longExpireDayRule = (prefix, tag, enabled) => getExpirationObject(
-    'day expiration',
-    { Days: 2 },
-    prefix,
-    tag,
-    enabled,
-);
+const longExpireDayRule = (prefix, tag, enabled) =>
+    getExpirationObject('day expiration', { Days: 2 }, prefix, tag, enabled);
 
-const expireDateRule = (prefix, tag, enabled) => getExpirationObject(
-    'date expiration',
-    { Date: new Date(new Date().setUTCHours(0, 0, 0, 0)) }, // today at midnight UTC
-    prefix,
-    tag,
-    enabled,
-);
+const expireDateRule = (prefix, tag, enabled) =>
+    getExpirationObject(
+        'date expiration',
+        { Date: new Date(new Date().setUTCHours(0, 0, 0, 0)) }, // today at midnight UTC
+        prefix,
+        tag,
+        enabled,
+    );
 
-const longExpireDateRule = (prefix, tag, enabled) => getExpirationObject(
-    'date expiration',
-    { Date: new Date(new Date().setUTCHours(24, 0, 0, 0)) }, // tomorrow at midnight UTC
-    prefix,
-    tag,
-    enabled,
-);
+const longExpireDateRule = (prefix, tag, enabled) =>
+    getExpirationObject(
+        'date expiration',
+        { Date: new Date(new Date().setUTCHours(24, 0, 0, 0)) }, // tomorrow at midnight UTC
+        prefix,
+        tag,
+        enabled,
+    );
 
-const expireDeleteMarkerRule = (prefix, tag, enabled) => getExpirationObject(
-    'delete marker expiration',
-    { ExpiredObjectDeleteMarker: true },
-    prefix,
-    tag,
-    enabled,
-);
+const expireDeleteMarkerRule = (prefix, tag, enabled) =>
+    getExpirationObject('delete marker expiration', { ExpiredObjectDeleteMarker: true }, prefix, tag, enabled);
 
 const expireVersionedRule = (prefix, tag, enabled) => ({
     ID: 'versioned object expiration',
@@ -122,19 +109,22 @@ describe('Lifecycle Expiration', function () {
         const bucketName = getBucketName('exp-dis-');
         const objectKey = getObjectKey('exp-disabled-');
 
-        before(done => async.series([
-            next => utils.createVersionedBucket(bucketName, next),
-            next => utils.putObjects(bucketName, [objectKey], 10, next),
-            // // create delete marker
-            next => utils.deleteObject(bucketName, objectKey, undefined, next),
-            next => utils.putObjects(bucketName, [objectKey], 1, next),
-            next => utils.createMultipartUpload(bucketName, objectKey, next),
-            next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
-        ], done));
+        before(done =>
+            async.series(
+                [
+                    next => utils.createVersionedBucket(bucketName, next),
+                    next => utils.putObjects(bucketName, [objectKey], 10, next),
+                    // // create delete marker
+                    next => utils.deleteObject(bucketName, objectKey, undefined, next),
+                    next => utils.putObjects(bucketName, [objectKey], 1, next),
+                    next => utils.createMultipartUpload(bucketName, objectKey, next),
+                    next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
+                ],
+                done,
+            ),
+        );
 
-        after(done => async.series([
-            next => utils.deleteVersionedBucket(bucketName, next),
-        ], done));
+        after(done => async.series([next => utils.deleteVersionedBucket(bucketName, next)], done));
 
         it('when all rules are disabled', done => {
             const lifecycleRules = [
@@ -144,10 +134,13 @@ describe('Lifecycle Expiration', function () {
                 expireVersionedRule(null, null, false),
                 expireMPURule(null, null, false),
             ];
-            async.series([
-                next => utils.putBucketExpiration(bucketName, lifecycleRules, next),
-                next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
-            ], done);
+            async.series(
+                [
+                    next => utils.putBucketExpiration(bucketName, lifecycleRules, next),
+                    next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
+                ],
+                done,
+            );
         });
 
         it('when objects are still fresh', done => {
@@ -157,10 +150,13 @@ describe('Lifecycle Expiration', function () {
                 longExpireVersionedRule(null, null, false),
                 longExpireMPURule(null, null, false),
             ];
-            async.series([
-                next => utils.putBucketExpiration(bucketName, lifecycleRules, next),
-                next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
-            ], done);
+            async.series(
+                [
+                    next => utils.putBucketExpiration(bucketName, lifecycleRules, next),
+                    next => utils.waitUntilBucketState(bucketName, [1, 11, 1, 1], next),
+                ],
+                done,
+            );
         });
     });
 
@@ -171,95 +167,83 @@ describe('Lifecycle Expiration', function () {
             // current, versioned, delete markers, incomplete mpu
             [0, 8, 4, 0],
         ],
-        [
-            'with date expiration (prefix)',
-            [expireDateRule(targetObjectPrefix, null, true)],
-            [2, 8, 2, 0],
-        ],
-        [
-            'with days expiration (no filters)',
-            [expireDayRule(null, null, true)],
-            [0, 8, 4, 0],
-        ],
-        [
-            'with days expiration (prefix)',
-            [expireDayRule(targetObjectPrefix, null, true)],
-            [2, 8, 2, 0],
-        ],
-        [
-            'with non-current version expiration (no filters)',
-            [
-                expireVersionedRule(null, null, true),
-            ],
-            [4, 4, 0, 0],
-        ],
+        ['with date expiration (prefix)', [expireDateRule(targetObjectPrefix, null, true)], [2, 8, 2, 0]],
+        ['with days expiration (no filters)', [expireDayRule(null, null, true)], [0, 8, 4, 0]],
+        ['with days expiration (prefix)', [expireDayRule(targetObjectPrefix, null, true)], [2, 8, 2, 0]],
+        ['with non-current version expiration (no filters)', [expireVersionedRule(null, null, true)], [4, 4, 0, 0]],
         [
             'with non-current version expiration (prefix)',
             [expireVersionedRule(targetObjectPrefix, null, true)],
             [4, 6, 0, 0],
         ],
-    ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-');
+    ].forEach(([description, rules, expected]) =>
+        describe(description, () => {
+            const bucketName = getBucketName('exp-');
 
-        before(done => async.series([
-            next => utils.createVersionedBucket(bucketName, next),
-            next => utils.putObjects(bucketName, getObjectKeys(notTargetObjectPrefix, 2), 2, next),
-            next => utils.putObjects(bucketName, getObjectKeys(targetObjectPrefix, 2), 2, next),
-        ], done));
+            before(done =>
+                async.series(
+                    [
+                        next => utils.createVersionedBucket(bucketName, next),
+                        next => utils.putObjects(bucketName, getObjectKeys(notTargetObjectPrefix, 2), 2, next),
+                        next => utils.putObjects(bucketName, getObjectKeys(targetObjectPrefix, 2), 2, next),
+                    ],
+                    done,
+                ),
+            );
 
-        after(done => async.series([
-            next => utils.deleteVersionedBucket(bucketName, next),
-        ], done));
+            after(done => async.series([next => utils.deleteVersionedBucket(bucketName, next)], done));
 
-        it('should delete expired targets', done => async.series([
-            next => utils.putBucketExpiration(bucketName, rules, next),
-            next => utils.waitUntilBucketState(bucketName, expected, next),
-        ], done));
-
-    }));
+            it('should delete expired targets', done =>
+                async.series(
+                    [
+                        next => utils.putBucketExpiration(bucketName, rules, next),
+                        next => utils.waitUntilBucketState(bucketName, expected, next),
+                    ],
+                    done,
+                ));
+        }),
+    );
 
     [
-        [
-            'with date expiration (tag filter)',
-            [expireDateRule(null, filterTag, true)],
-            [2, 8, 2, 0],
-        ],
-        [
-            'with days expiration (tag filter)',
-            [expireDayRule(null, filterTag, true)],
-            [2, 8, 2, 0],
-        ],
+        ['with date expiration (tag filter)', [expireDateRule(null, filterTag, true)], [2, 8, 2, 0]],
+        ['with days expiration (tag filter)', [expireDayRule(null, filterTag, true)], [2, 8, 2, 0]],
         [
             'with non-current version expiration (tag filter)',
             [expireVersionedRule(null, filterTag, true)],
             [4, 6, 0, 0],
         ],
-    ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-tagged-');
+    ].forEach(([description, rules, expected]) =>
+        describe(description, () => {
+            const bucketName = getBucketName('exp-tagged-');
 
-        before(done => async.series([
-            next => utils.createVersionedBucket(bucketName, next),
-            next => utils.putObjects(bucketName, getObjectKeys(notTargetObjectPrefix, 2), 2, next),
-            next => utils.putObjectsWithTagging(bucketName, getObjectKeys(targetObjectPrefix, 2), 2, next),
-        ], done));
+            before(done =>
+                async.series(
+                    [
+                        next => utils.createVersionedBucket(bucketName, next),
+                        next => utils.putObjects(bucketName, getObjectKeys(notTargetObjectPrefix, 2), 2, next),
+                        next => utils.putObjectsWithTagging(bucketName, getObjectKeys(targetObjectPrefix, 2), 2, next),
+                    ],
+                    done,
+                ),
+            );
 
-        after(done => async.series([
-            next => utils.deleteVersionedBucket(bucketName, next),
-        ], done));
+            after(done => async.series([next => utils.deleteVersionedBucket(bucketName, next)], done));
 
-        it('should delete expired targets', done => async.series([
-            next => utils.putBucketExpiration(bucketName, rules, next),
-            next => utils.waitUntilBucketState(bucketName, expected, next),
-        ], done));
-    }));
+            it('should delete expired targets', done =>
+                async.series(
+                    [
+                        next => utils.putBucketExpiration(bucketName, rules, next),
+                        next => utils.waitUntilBucketState(bucketName, expected, next),
+                    ],
+                    done,
+                ));
+        }),
+    );
 
     [
         [
             'with delete marker expiration (no filter)',
-            [
-                expireVersionedRule(null, null, true),
-                expireDeleteMarkerRule(null, null, true),
-            ],
+            [expireVersionedRule(null, null, true), expireDeleteMarkerRule(null, null, true)],
             [2, 2, 0, 0],
         ],
         [
@@ -270,102 +254,120 @@ describe('Lifecycle Expiration', function () {
             ],
             [2, 3, 1, 0],
         ],
-    ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-');
-        const objectKey = getObjectKey(targetObjectPrefix);
-        const notTargetKey = getObjectKey(notTargetObjectPrefix);
+    ].forEach(([description, rules, expected]) =>
+        describe(description, () => {
+            const bucketName = getBucketName('exp-');
+            const objectKey = getObjectKey(targetObjectPrefix);
+            const notTargetKey = getObjectKey(notTargetObjectPrefix);
 
-        before(done => async.series([
-            next => utils.createVersionedBucket(bucketName, next),
-            next => async.forEach(
-                [objectKey, notTargetKey],
-                (key, tnext) => async.series([
-                    next => utils.putObjects(bucketName, [key], 1, next),
-                    next => utils.deleteObject(bucketName, key, null, next),
-                    next => utils.putObjects(bucketName, [key], 1, next),
-                ], tnext),
-                next,
-            ),
-        ], done));
+            before(done =>
+                async.series(
+                    [
+                        next => utils.createVersionedBucket(bucketName, next),
+                        next =>
+                            async.forEach(
+                                [objectKey, notTargetKey],
+                                (key, tnext) =>
+                                    async.series(
+                                        [
+                                            next => utils.putObjects(bucketName, [key], 1, next),
+                                            next => utils.deleteObject(bucketName, key, null, next),
+                                            next => utils.putObjects(bucketName, [key], 1, next),
+                                        ],
+                                        tnext,
+                                    ),
+                                next,
+                            ),
+                    ],
+                    done,
+                ),
+            );
 
-        after(done => async.series([
-            next => utils.deleteVersionedBucket(bucketName, next),
-        ], done));
+            after(done => async.series([next => utils.deleteVersionedBucket(bucketName, next)], done));
 
-        it('should delete expired targets', done => async.series([
-            next => utils.putBucketExpiration(bucketName, rules, next),
-            next => utils.waitUntilBucketState(bucketName, expected, next),
-        ], done));
-    }));
+            it('should delete expired targets', done =>
+                async.series(
+                    [
+                        next => utils.putBucketExpiration(bucketName, rules, next),
+                        next => utils.waitUntilBucketState(bucketName, expected, next),
+                    ],
+                    done,
+                ));
+        }),
+    );
 
     [
-        [
-            'with mpu expiration (no filter)',
-            [expireMPURule(null, null, true)],
-            [0, 0, 0, 0],
-        ],
-        [
-            'with mpu expiration (prefix)',
-            [expireMPURule(targetObjectPrefix, null, true)],
-            [0, 0, 0, 1],
-        ],
-    ].forEach(([description, rules, expected]) => describe(description, () => {
-        const bucketName = getBucketName('exp-');
-        const objectKey = getObjectKey(targetObjectPrefix);
-        const notTargetKey = getObjectKey(notTargetObjectPrefix);
+        ['with mpu expiration (no filter)', [expireMPURule(null, null, true)], [0, 0, 0, 0]],
+        ['with mpu expiration (prefix)', [expireMPURule(targetObjectPrefix, null, true)], [0, 0, 0, 1]],
+    ].forEach(([description, rules, expected]) =>
+        describe(description, () => {
+            const bucketName = getBucketName('exp-');
+            const objectKey = getObjectKey(targetObjectPrefix);
+            const notTargetKey = getObjectKey(notTargetObjectPrefix);
 
-        before(done => async.series([
-            next => utils.createVersionedBucket(bucketName, next),
-            next => utils.createMultipartUpload(bucketName, objectKey, next),
-            next => utils.createMultipartUpload(bucketName, notTargetKey, next),
-        ], done));
+            before(done =>
+                async.series(
+                    [
+                        next => utils.createVersionedBucket(bucketName, next),
+                        next => utils.createMultipartUpload(bucketName, objectKey, next),
+                        next => utils.createMultipartUpload(bucketName, notTargetKey, next),
+                    ],
+                    done,
+                ),
+            );
 
-        after(done => async.series([
-            next => utils.deleteVersionedBucket(bucketName, next),
-        ], done));
+            after(done => async.series([next => utils.deleteVersionedBucket(bucketName, next)], done));
 
-        it('should delete expired targets', done => async.series([
-            next => utils.putBucketExpiration(bucketName, rules, next),
-            next => utils.waitUntilBucketState(bucketName, expected, next),
-        ], done));
-    }));
+            it('should delete expired targets', done =>
+                async.series(
+                    [
+                        next => utils.putBucketExpiration(bucketName, rules, next),
+                        next => utils.waitUntilBucketState(bucketName, expected, next),
+                    ],
+                    done,
+                ));
+        }),
+    );
 
     describe('with object-lock enabled', () => {
         // NOTE: bucket clean-up cannot be done as per the retention behavior
         // of the object-lock feature
         [
-            [
-                'with governance retention configured',
-                'GOVERNANCE',
-                [0, 4, 2, 0],
-            ],
-            [
-                'with compliance retention configured',
-                'COMPLIANCE',
-                [0, 4, 2, 0],
-            ],
-        ].forEach(([description, mode, expected]) => describe(description, () => {
-            const bucketName = getBucketName('objectlock-');
-            const objectKeyPrefix = 'locked-key-';
-            const rules = [
-                // should delete current
-                expireDayRule(null, null, true),
-                // should not delete versions
-                expireVersionedRule(null, null, true),
-                // should not remove delete markers
-                expireDeleteMarkerRule(null, null, true),
-            ];
+            ['with governance retention configured', 'GOVERNANCE', [0, 4, 2, 0]],
+            ['with compliance retention configured', 'COMPLIANCE', [0, 4, 2, 0]],
+        ].forEach(([description, mode, expected]) =>
+            describe(description, () => {
+                const bucketName = getBucketName('objectlock-');
+                const objectKeyPrefix = 'locked-key-';
+                const rules = [
+                    // should delete current
+                    expireDayRule(null, null, true),
+                    // should not delete versions
+                    expireVersionedRule(null, null, true),
+                    // should not remove delete markers
+                    expireDeleteMarkerRule(null, null, true),
+                ];
 
-            before(done => async.series([
-                next => utils.createObjectLockedBucket(bucketName, mode, next),
-                next => utils.putObjects(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
-            ], done));
+                before(done =>
+                    async.series(
+                        [
+                            next => utils.createObjectLockedBucket(bucketName, mode, next),
+                            next => utils.putObjects(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
+                        ],
+                        done,
+                    ),
+                );
 
-            it('should not delete locked targets', done => async.series([
-                next => utils.putBucketExpiration(bucketName, rules, next),
-                next => utils.waitUntilBucketState(bucketName, expected, next),
-            ], done));
-        }));
+                it('should not delete locked targets', done =>
+                    async.series(
+                        [
+                            next => utils.putBucketExpiration(bucketName, rules, next),
+                            next => utils.waitUntilBucketState(bucketName, expected, next),
+                        ],
+                        done,
+                    ));
+            }),
+        );
 
         describe('with legal-hold defined', () => {
             const bucketName = getBucketName('objectlock-');
@@ -379,16 +381,25 @@ describe('Lifecycle Expiration', function () {
                 expireDeleteMarkerRule(null, null, true),
             ];
 
-            before(done => async.series([
-                next => utils.createObjectLockedBucket(bucketName, null, next),
-                next => utils.putObjectsWithLegalHold(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
-                next => utils.putObjects(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
-            ], done));
+            before(done =>
+                async.series(
+                    [
+                        next => utils.createObjectLockedBucket(bucketName, null, next),
+                        next => utils.putObjectsWithLegalHold(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
+                        next => utils.putObjects(bucketName, getObjectKeys(objectKeyPrefix, 2), 2, next),
+                    ],
+                    done,
+                ),
+            );
 
-            it('should not delete locked targets', done => async.series([
-                next => utils.putBucketExpiration(bucketName, rules, next),
-                next => utils.waitUntilBucketState(bucketName, [0, 4, 2, 0], next),
-            ], done));
+            it('should not delete locked targets', done =>
+                async.series(
+                    [
+                        next => utils.putBucketExpiration(bucketName, rules, next),
+                        next => utils.waitUntilBucketState(bucketName, [0, 4, 2, 0], next),
+                    ],
+                    done,
+                ));
         });
     });
 });

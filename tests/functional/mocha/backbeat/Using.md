@@ -5,26 +5,26 @@
 1. In the hosts file `/etc/hosts` map the ip of the kube node you are testing
    with to `zenko.local`. For example, by adding the line:
 
-   ```
-   <kubernetes-IP> zenko.local
-   ```
+    ```
+    <kubernetes-IP> zenko.local
+    ```
 
-   If you are ssh-ed into one of the kube servers or doing a port-forward to a
-   remote kube instance, the `kube-node-ip` value will be `127.0.0.1`
+    If you are ssh-ed into one of the kube servers or doing a port-forward to a
+    remote kube instance, the `kube-node-ip` value will be `127.0.0.1`
 
 2. Find the Zenko service endpoint for S3 calls to Cloudserver by running:
 
-   ```
-   kubectl get services
-   ```
+    ```
+    kubectl get services
+    ```
 
-   Look for the service named `zenko-cloudserver`, the value under `NAME` should
-   be set as the Zenko endpoint for testing:
+    Look for the service named `zenko-cloudserver`, the value under `NAME` should
+    be set as the Zenko endpoint for testing:
 
-   ```
-   export CLOUDSERVER_ENDPOINT=http://<zenko-cloudserver-IP>
-   export CLOUDSERVER_HOST=<zenko-cloudserver-IP>
-   ```
+    ```
+    export CLOUDSERVER_ENDPOINT=http://<zenko-cloudserver-IP>
+    export CLOUDSERVER_HOST=<zenko-cloudserver-IP>
+    ```
 
 3. Create an account using Orbit.
 4. Export the access key and secret key of that account (for example, in
@@ -39,7 +39,7 @@
 6. Navigate to `Zenko/tests/node_tests/backbeat`.
 7. Install node modules: `npm i`.
 
-### Tests for CRR to AWS:
+### Tests for CRR to AWS
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -52,8 +52,8 @@
    `<destination-azure-container-name>`.
 6. Create a bucket on GCP `<destination-gcp-bucket-name>`.
 7. In Orbit, create a GCP storage location
-  `<destination-gcp-location-name>` with an GCP bucket
-  `<destination-gcp-bucket-name>`.
+   `<destination-gcp-location-name>` with an GCP bucket
+   `<destination-gcp-bucket-name>`.
 8. Export the keys, bucket name, container name, and storage location names
    (for example, in `.env` and `.secrets.env`):
 
@@ -91,9 +91,9 @@
     EOF
     ```
 
-9. Run the test suite: `npm run test_crr`.
+11. Run the test suite: `npm run test_crr`.
 
-### Tests for Backbeat API and CRR Pause Resume:
+### Tests for Backbeat API and CRR Pause Resume
 
 1. Create a bucket on AWS `<destination-aws-bucket-name>` with versioning
    enabled.
@@ -101,8 +101,8 @@
    AWS bucket `<destination-aws-bucket-name>`.
 3. Create a container on Azure `<destination-azure-container-name>`.
 4. In Orbit, create an Azure storage location
-  `<destination-azure-location-name>` with an Azure container
-  `<destination-azure-container-name>`.
+   `<destination-azure-location-name>` with an Azure container
+   `<destination-azure-container-name>`.
 5. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
@@ -137,17 +137,17 @@
 3. Export the keys, AWS bucket name, and AWS location (for example, in `.env`
    and `.secrets.env`):
 
-```
-export AWS_ACCESS_KEY=<aws-access-key>
-export AWS_SECRET_KEY=<aws-secret-key>
-export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
-export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
-```
+    ```
+    export AWS_ACCESS_KEY=<aws-access-key>
+    export AWS_SECRET_KEY=<aws-secret-key>
+    export AWS_S3_FAIL_BACKBEAT_BUCKET_NAME=<destination-fail-aws-bucket-name>
+    export AWS_S3_FAIL_BACKEND_DESTINATION_LOCATION=<destination-fail-aws-bucket-name>
+    ```
 
 4. If using `*.env` files, source the files:
 
-```
-source .env && source .secrets.env
-```
+    ```
+    source .env && source .secrets.env
+    ```
 
 5. Run the test suite: `npm run test_retry`.

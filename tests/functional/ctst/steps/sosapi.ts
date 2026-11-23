@@ -47,25 +47,24 @@ const invalidCapacityXml = `
 
 const veeamPrefix = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/';
 
-When('I PUT the {string} {string} XML file',
-    async function (this: Zenko, isValidObject: string, objectKey: string) {
-        this.resetCommand();
-        CacheHelper.forceMode = 'cli';
-        this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
-        this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
-        let objectBody;
-        if (objectKey === 'system.xml') {
-            objectBody = (isValidObject === 'valid') ? validSystemXml : invalidSystemXml;
-        } else {
-            objectBody = (isValidObject === 'valid') ? validCapacityXml : invalidCapacityXml;
-        }
-        const tempFileName = `${randomString()}_${objectKey}`;
-        this.addToSaved('tempFileName', `/tmp/${tempFileName}`);
-        await saveAsFile(tempFileName, objectBody);
-        this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
-        this.setResult(await S3.putObject(this.getCommandParameters()));
-        CacheHelper.forceMode = null;
-    });
+When('I PUT the {string} {string} XML file', async function (this: Zenko, isValidObject: string, objectKey: string) {
+    this.resetCommand();
+    CacheHelper.forceMode = 'cli';
+    this.addCommandParameter({ bucket: this.getSaved<string>('bucketName') });
+    this.addCommandParameter({ key: `${veeamPrefix}${objectKey}` });
+    let objectBody;
+    if (objectKey === 'system.xml') {
+        objectBody = isValidObject === 'valid' ? validSystemXml : invalidSystemXml;
+    } else {
+        objectBody = isValidObject === 'valid' ? validCapacityXml : invalidCapacityXml;
+    }
+    const tempFileName = `${randomString()}_${objectKey}`;
+    this.addToSaved('tempFileName', `/tmp/${tempFileName}`);
+    await saveAsFile(tempFileName, objectBody);
+    this.addCommandParameter({ body: this.getSaved<string>('tempFileName') });
+    this.setResult(await S3.putObject(this.getCommandParameters()));
+    CacheHelper.forceMode = null;
+});
 
 Then('the request should be {string}', async function (this: Zenko, result: string) {
     this.resetCommand();

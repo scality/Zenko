@@ -3,10 +3,10 @@ type ActionPermissionsType = {
     permissions: string[];
     subAuthorizationChecks?: boolean;
     expectedResultOnAllowTest?: string;
-    excludePermissionOnBucketObjects?: boolean,
-    excludePermissionsOnBucket?: boolean,
-    useWildCardBucketName?: boolean,
-    needsSetup?: boolean,
+    excludePermissionOnBucketObjects?: boolean;
+    excludePermissionsOnBucket?: boolean;
+    useWildCardBucketName?: boolean;
+    needsSetup?: boolean;
 };
 
 const needObjectLock = [
@@ -429,31 +429,18 @@ const preCreatedPolicies = {
             {
                 Effect: 'Allow',
                 Principal: {
-                    AWS: [
-                        'arn:aws:iam::id:root',
-                    ],
+                    AWS: ['arn:aws:iam::id:root'],
                 },
-                Action: [
-                    's3:ListBucket',
-                    's3:GetBucketLocation',
-                ],
-                Resource: [
-                    'arn:aws:s3:::name',
-                ],
+                Action: ['s3:ListBucket', 's3:GetBucketLocation'],
+                Resource: ['arn:aws:s3:::name'],
             },
             {
                 Effect: 'Allow',
                 Principal: {
-                    AWS: [
-                        'arn:aws:iam::id:root',
-                    ],
+                    AWS: ['arn:aws:iam::id:root'],
                 },
-                Action: [
-                    's3:*',
-                ],
-                Resource: [
-                    'arn:aws:s3:::name/*',
-                ],
+                Action: ['s3:*'],
+                Resource: ['arn:aws:s3:::name/*'],
             },
         ],
     },

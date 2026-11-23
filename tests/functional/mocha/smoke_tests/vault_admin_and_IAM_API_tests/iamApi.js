@@ -25,16 +25,22 @@ const randomPath = '/random/path/';
 describe('IAM users: ', () => {
     let iamAccountClient = null;
 
-    beforeEach(done => async.series([
-        next => clientAdmin.createAccount(accountName, accountInfo, next),
-        next => clientAdmin.generateAccountAccessKey(accountName, next, { externalAccessKey, externalSecretKey }),
-    ], err => {
-        if (err) {
-            return done(err);
-        }
-        iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
-        return done();
-    }));
+    beforeEach(done =>
+        async.series(
+            [
+                next => clientAdmin.createAccount(accountName, accountInfo, next),
+                next =>
+                    clientAdmin.generateAccountAccessKey(accountName, next, { externalAccessKey, externalSecretKey }),
+            ],
+            err => {
+                if (err) {
+                    return done(err);
+                }
+                iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
+                return done();
+            },
+        ),
+    );
 
     afterEach(async () => {
         await VaultClient.deleteVaultAccount(clientAdmin, iamAccountClient, accountName);
@@ -53,18 +59,25 @@ describe('IAM user - Access Keys: ', () => {
     let iamAccountClient = null;
     let keyPair = null;
 
-    beforeEach(done => async.series([
-        next => clientAdmin.createAccount(accountName, accountInfo, next),
-        next => clientAdmin.generateAccountAccessKey(accountName, next, { externalAccessKey, externalSecretKey }),
-    ], err => {
-        if (err) {
-            return done(err);
-        }
-        iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
-        return iamAccountClient.send(new CreateUserCommand({ UserName: userName }))
-            .then(() => done())
-            .catch(done);
-    }));
+    beforeEach(done =>
+        async.series(
+            [
+                next => clientAdmin.createAccount(accountName, accountInfo, next),
+                next =>
+                    clientAdmin.generateAccountAccessKey(accountName, next, { externalAccessKey, externalSecretKey }),
+            ],
+            err => {
+                if (err) {
+                    return done(err);
+                }
+                iamAccountClient = VaultClient.getIamClient(externalAccessKey, externalSecretKey);
+                return iamAccountClient
+                    .send(new CreateUserCommand({ UserName: userName }))
+                    .then(() => done())
+                    .catch(done);
+            },
+        ),
+    );
 
     afterEach(async () => {
         await iamAccountClient.send(new DeleteUserCommand({ UserName: userName }));
@@ -75,9 +88,11 @@ describe('IAM user - Access Keys: ', () => {
         const res = await iamAccountClient.send(new CreateAccessKeyCommand({ UserName: userName }));
         keyPair = res.AccessKey;
         await iamAccountClient.send(new ListAccessKeysCommand({ UserName: userName }));
-        await iamAccountClient.send(new DeleteAccessKeyCommand({
-            UserName: userName,
-            AccessKeyId: keyPair.AccessKeyId,
-        }));
+        await iamAccountClient.send(
+            new DeleteAccessKeyCommand({
+                UserName: userName,
+                AccessKeyId: keyPair.AccessKeyId,
+            }),
+        );
     });
 });

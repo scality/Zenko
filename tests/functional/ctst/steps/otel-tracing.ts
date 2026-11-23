@@ -45,7 +45,7 @@ async function fetchTraceById(endpoint: string, traceId: string): Promise<Jaeger
     if (!response.ok) {
         throw new Error(`Jaeger query returned HTTP ${response.status}`);
     }
-    const body = await response.json() as { data: JaegerTrace[] };
+    const body = (await response.json()) as { data: JaegerTrace[] };
     return body.data?.[0] ?? null;
 }
 
@@ -72,7 +72,7 @@ async function pollJaegerForTrace(
 
     throw new Error(
         `pollJaegerForTrace timed out after ${timeoutMs}ms waiting for trace ${traceId}` +
-        `${lastError ? `: ${lastError.message}` : ''}`,
+            `${lastError ? `: ${lastError.message}` : ''}`,
     );
 }
 
@@ -84,25 +84,26 @@ function traceHasSpansFromService(trace: JaegerTrace, serviceName: string): bool
     return trace.spans.some(span => processIds.includes(span.processID));
 }
 
-When('I put an object with an injected traceparent',
-    async function (this: Zenko) {
-        const bucketName = this.getSaved<string>('bucketName');
-        assert.ok(bucketName, 'No bucketName saved from a previous step');
+When('I put an object with an injected traceparent', async function (this: Zenko) {
+    const bucketName = this.getSaved<string>('bucketName');
+    assert.ok(bucketName, 'No bucketName saved from a previous step');
 
-        const { traceparent, traceId } = generateTraceContext();
-        const client = this.createS3Client();
-        injectTraceparent(client, traceparent);
-        await client.send(new PutObjectCommand({
+    const { traceparent, traceId } = generateTraceContext();
+    const client = this.createS3Client();
+    injectTraceparent(client, traceparent);
+    await client.send(
+        new PutObjectCommand({
             Bucket: bucketName,
             Key: TRACED_OBJECT_KEY,
             Body: 'otel-trace-payload',
-        }));
+        }),
+    );
 
-        this.addToSaved('jaegerTraceId', traceId);
-    },
-);
+    this.addToSaved('jaegerTraceId', traceId);
+});
 
-Then('the injected trace should be found in Jaeger',
+Then(
+    'the injected trace should be found in Jaeger',
     { timeout: JAEGER_POLL_TIMEOUT + 10000 },
     async function (this: Zenko) {
         const endpoint = this.parameters.JaegerQueryEndpoint;
@@ -115,17 +116,13 @@ Then('the injected trace should be found in Jaeger',
     },
 );
 
-Then('the trace should contain spans from service {string}',
-    async function (this: Zenko, service: string) {
-        const trace = this.getSaved<JaegerTrace>('jaegerTrace');
-        assert.ok(trace, 'No trace saved from the previous step');
+Then('the trace should contain spans from service {string}', async function (this: Zenko, service: string) {
+    const trace = this.getSaved<JaegerTrace>('jaegerTrace');
+    assert.ok(trace, 'No trace saved from the previous step');
 
-        assert.ok(
-            traceHasSpansFromService(trace, service),
-            `Trace ${trace.traceID} does not contain spans from service "${service}". ` +
-            `Services in trace: ${[...new Set(
-                Object.values(trace.processes).map(p => p.serviceName),
-            )].join(', ')}`,
-        );
-    },
-);
+    assert.ok(
+        traceHasSpansFromService(trace, service),
+        `Trace ${trace.traceID} does not contain spans from service "${service}". ` +
+            `Services in trace: ${[...new Set(Object.values(trace.processes).map(p => p.serviceName))].join(', ')}`,
+    );
+});
