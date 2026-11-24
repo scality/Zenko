@@ -188,7 +188,7 @@ runs:
 
         KAFKA=$(kubectl get pods -n ${NAMESPACE} -lkafka_cr=${ZENKO_NAME}-base-queue -o jsonpath='{.items[0].metadata.name}')
         KAFKA_PATH="/tmp/artifacts/data/${STAGE}/kafka"
-        
+
         mkdir -p ${KAFKA_PATH}
 
         kubectl exec -in ${NAMESPACE} ${KAFKA} -c kafka -- \

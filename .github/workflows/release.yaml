@@ -193,11 +193,11 @@ jobs:
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          environment: "zenko/${{ needs.verify-release.outputs.tag }}"
+          environment: 'zenko/${{ needs.verify-release.outputs.tag }}'
           status: success
           production: 'true'
           log-url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ needs.verify-release.outputs.tag }}
-          description: "Released in zenko ${{ needs.verify-release.outputs.tag }}"
+          description: 'Released in zenko ${{ needs.verify-release.outputs.tag }}'
 
   promote:
     runs-on: ubuntu-24.04
@@ -208,16 +208,16 @@ jobs:
       - create-deployments
       - release
     steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Promote artifacts
-      uses: scality/action-artifacts@v4
-      with:
-        method: promote
-        name: ${{ needs.build-iso.outputs.artifacts-name }}
-        tag: ${{ needs.verify-release.outputs.tag }}
-        url: https://artifacts.scality.net
-        user: ${{ secrets.ARTIFACTS_USER }}
-        password: ${{ secrets.ARTIFACTS_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Promote artifacts
+        uses: scality/action-artifacts@v4
+        with:
+          method: promote
+          name: ${{ needs.build-iso.outputs.artifacts-name }}
+          tag: ${{ needs.verify-release.outputs.tag }}
+          url: https://artifacts.scality.net
+          user: ${{ secrets.ARTIFACTS_USER }}
+          password: ${{ secrets.ARTIFACTS_PASSWORD }}

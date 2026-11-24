@@ -1,11 +1,11 @@
 ---
-name: "Debug wait"
-description: "If debugging is enabled, wait"
+name: 'Debug wait'
+description: 'If debugging is enabled, wait'
 
 runs:
   using: composite
   steps:
-    - name: "Debug: SSH to runner"
+    - name: 'Debug: SSH to runner'
       uses: scality/actions/action-ssh-to-runner@1.8.0
       continue-on-error: true
       with:

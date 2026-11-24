@@ -3,23 +3,23 @@ kind: Role
 metadata:
   name: ${PROMETHEUS_NAME}
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - services
-  - endpoints
-  verbs:
-  - '*'
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+      - services
+      - endpoints
+    verbs:
+      - '*'
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ${PROMETHEUS_NAME}
 subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: default
+  - kind: ServiceAccount
+    name: default
+    namespace: default
 roleRef:
   kind: Role
   name: ${PROMETHEUS_NAME}
@@ -39,16 +39,16 @@ spec:
   serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector:
     matchLabels:
-      metalk8s.scality.com/monitor: ""
+      metalk8s.scality.com/monitor: ''
   podMonitorNamespaceSelector: {}
   podMonitorSelector:
     matchLabels:
-      metalk8s.scality.com/monitor: ""
+      metalk8s.scality.com/monitor: ''
   probeNamespaceSelector: {}
   probeSelector:
     matchLabels:
-      metalk8s.scality.com/monitor: ""
+      metalk8s.scality.com/monitor: ''
   ruleNamespaceSelector: {}
   ruleSelector:
     matchLabels:
-      metalk8s.scality.com/monitor: ""
+      metalk8s.scality.com/monitor: ''

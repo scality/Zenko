@@ -4,12 +4,12 @@
 mongodb-sharded:
   sourceRegistry: ghcr.io
   image: scality/zenko/mongodb-sharded
-  tag: "8.0.13"
+  tag: '8.0.13'
 mongodb-sharded-exporter:
   sourceRegistry: ghcr.io
   image: scality/zenko/mongodb-exporter
-  tag: "0.49.0"
+  tag: '0.49.0'
 mongodb-shell:
   sourceRegistry: ghcr.io
   image: scality/zenko/os-shell
-  tag: "12"
+  tag: '12'

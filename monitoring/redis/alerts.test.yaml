@@ -25,8 +25,8 @@ tests:
           - exp_labels:
               severity: critical
             exp_annotations:
-              summary: "Redis service is down"
-              description: "Redis service is down"
+              summary: 'Redis service is down'
+              description: 'Redis service is down'
 
   - interval: 1m
     input_series:
@@ -50,8 +50,8 @@ tests:
               job: artesca-data-base-cache-metrics
               namespace: zenko
             exp_annotations:
-              summary: "Redis is using a lot of memory"
-              description: "Redis is using more than 0.25% of available memory."
+              summary: 'Redis is using a lot of memory'
+              description: 'Redis is using more than 0.25% of available memory.'
 
   - interval: 1m
     input_series:

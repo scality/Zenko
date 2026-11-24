@@ -36,8 +36,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Extract environment
@@ -52,7 +52,7 @@ jobs:
           build-args: |-
             MONGODB_VERSION=${{ env.MONGODB_SHARDED_TAG }}
           platforms: linux/amd64,linux/arm64
-          tags: "${{ env.MONGODB_SHARDED_IMAGE }}:${{ env.MONGODB_SHARDED_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
+          tags: '${{ env.MONGODB_SHARDED_IMAGE }}:${{ env.MONGODB_SHARDED_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.MONGODB_SHARDED_IMAGE }}:${{ env.MONGODB_SHARDED_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
             type=gha,scope=mongodb-sharded-${{ env.MONGODB_SHARDED_TAG }}
@@ -64,7 +64,7 @@ jobs:
           push: true
           context: ./solution-base/images/mongodb-exporter/debian-12
           platforms: linux/amd64,linux/arm64
-          tags: "${{ env.MONGODB_SHARDED_EXPORTER_IMAGE }}:${{ env.MONGODB_SHARDED_EXPORTER_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
+          tags: '${{ env.MONGODB_SHARDED_EXPORTER_IMAGE }}:${{ env.MONGODB_SHARDED_EXPORTER_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.MONGODB_SHARDED_EXPORTER_IMAGE }}:${{ env.MONGODB_SHARDED_EXPORTER_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
             type=gha,scope=mongodb-exporter-${{ env.MONGODB_SHARDED_EXPORTER_TAG }}
@@ -76,7 +76,7 @@ jobs:
           push: true
           context: ./solution-base/images/os-shell/debian-12
           platforms: linux/amd64,linux/arm64
-          tags: "${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}"
+          tags: '${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.MONGODB_SHARDED_SHELL_IMAGE }}:${{ env.MONGODB_SHARDED_SHELL_TAG }}-${{ env.MONGODB_BUILD_TREE_HASH }}
             type=gha,scope=os-shell-${{ env.MONGODB_SHARDED_SHELL_TAG }}

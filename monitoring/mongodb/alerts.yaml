@@ -32,300 +32,298 @@ x-inputs:
     value: 0.3
 
 groups:
-- name: MongoDb
-  rules:
-
-  - alert: MongoDbDegraded
-    expr: |
-      label_replace(
-        sum(
+  - name: MongoDb
+    rules:
+      - alert: MongoDbDegraded
+        expr: |
           label_replace(
-            up{namespace="${namespace}",pod=~"${service}.*"}
-          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
-        ) by(statefulset)
-          < on(statefulset)
-        kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"}
-      , "job", "$1", "statefulset", "${service}-?(.*)")
-    for: 30s
-    labels:
-      severity: warning
-    annotations:
-      description: >-
-        Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
-      summary: MongoDb {{ $labels.job }} service degraded
+            sum(
+              label_replace(
+                up{namespace="${namespace}",pod=~"${service}.*"}
+              , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+            ) by(statefulset)
+              < on(statefulset)
+            kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"}
+          , "job", "$1", "statefulset", "${service}-?(.*)")
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          description: >-
+            Less than 100% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
+          summary: MongoDb {{ $labels.job }} service degraded
 
-  - alert: MongoDbDegraded
-    expr: |
-      label_replace(
-        sum(
+      - alert: MongoDbDegraded
+        expr: |
           label_replace(
-            up{namespace="${namespace}",pod=~"${service}.*"}
-          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
-        ) by(statefulset)
-          < on(statefulset)
-        kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"} / 2
-      , "job", "$1", "statefulset", "${service}-?(.*)")
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      description: >-
-        Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
-      summary: MongoDb {{ $labels.job }} service critical
+            sum(
+              label_replace(
+                up{namespace="${namespace}",pod=~"${service}.*"}
+              , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+            ) by(statefulset)
+              < on(statefulset)
+            kube_statefulset_replicas{statefulset=~"${service}.*", namespace="${namespace}"} / 2
+          , "job", "$1", "statefulset", "${service}-?(.*)")
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          description: >-
+            Less than 50% of MongoDb {{ $labels.job }} instances are up and healthy: {{ $value }}.
+          summary: MongoDb {{ $labels.job }} service critical
 
-  - alert: NoPrimary
-    expr: |
-      absent_over_time(mongodb_rs_members_state{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}[1m]) == 1
-    for: 0m
-    labels:
-      severity: critical
-    annotations:
-      description: "MongoDb has no PRIMARY."
-      summary: MongoDb down
+      - alert: NoPrimary
+        expr: |
+          absent_over_time(mongodb_rs_members_state{namespace="${namespace}",pod=~"${service}.*",member_state="PRIMARY"}[1m]) == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          description: 'MongoDb has no PRIMARY.'
+          summary: MongoDb down
 
-  - alert: UnhealthyMemberWarning
-    expr: |
-      label_replace(
-        group by(member_idx, member_state) (
-          mongodb_rs_members_health{namespace="${namespace}",pod=~"${service}.*"} != 1
-        )
-      , "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*")
-    for: 30s
-    labels:
-      severity: warning
-    annotations:
-      description: "Member {{ $labels.member_idx }} ({{ $labels.member_state }}) is not healthy."
-      summary: Unhealthy MongoDb member
+      - alert: UnhealthyMemberWarning
+        expr: |
+          label_replace(
+            group by(member_idx, member_state) (
+              mongodb_rs_members_health{namespace="${namespace}",pod=~"${service}.*"} != 1
+            )
+          , "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*")
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          description: 'Member {{ $labels.member_idx }} ({{ $labels.member_state }}) is not healthy.'
+          summary: Unhealthy MongoDb member
 
-  - alert: TooManyElectionsWarning
-    expr: |
-      label_replace(
-        sum(changes(mongodb_rs_members_electionDate{namespace="${namespace}",pod=~"${service}.*"}[10m]))
-            by(job) 
-          > ${tooManyElectionsWarningThreshold}
-      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
-    for: 0s
-    labels:
-      severity: warning
-    annotations:
-      description: >-
-        Number of elections in last 10m is greater than ${tooManyElectionsWarningThreshold}
-        for `{{ $labels.job }}`.
-      summary: Too many elections
+      - alert: TooManyElectionsWarning
+        expr: |
+          label_replace(
+            sum(changes(mongodb_rs_members_electionDate{namespace="${namespace}",pod=~"${service}.*"}[10m]))
+                by(job) 
+              > ${tooManyElectionsWarningThreshold}
+          , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          description: >-
+            Number of elections in last 10m is greater than ${tooManyElectionsWarningThreshold}
+            for `{{ $labels.job }}`.
+          summary: Too many elections
 
-  - alert: ReplicationLagWarning
-    expr: |
-      label_replace(
-        (
-          max by(rs_nm, member_idx) (
+      - alert: ReplicationLagWarning
+        expr: |
+          label_replace(
             (
-              max by(pod, rs_nm) (
-                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
-              )
-              - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
-              )
-            ) / scalar(
-              max by(rs_nm) (
-                (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
-                - on(pod)
-                mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+              max by(rs_nm, member_idx) (
+                (
+                  max by(pod, rs_nm) (
+                    mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+                  )
+                  - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+                    mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+                  )
+                ) / scalar(
+                  max by(rs_nm) (
+                    (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+                    - on(pod)
+                    mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+                    * on(pod) group_left()
+                    (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+                  )
+                )
+              ) * 100 > ${replicationLagWarningThreshold}
+            )
+            AND on(rs_nm)
+            (
+              sum by (rs_nm) (
+                (
+                  mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
+                  / 
+                  mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
+                )
                 * on(pod) group_left()
                 (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-              )
-            )
-          ) * 100 > ${replicationLagWarningThreshold}
-        )
-        AND on(rs_nm)
-        (
-          sum by (rs_nm) (
-            (
-              mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
-              / 
-              mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
-            )
-            * on(pod) group_left()
-            (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-          ) >= ${replicationLagOplogSizeThreshold}
-        ),
-        "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
-      )
-    for: 8m
-    labels:
-      severity: warning
-    annotations:
-      description: "The replication lag for `{{ $labels.member_idx }}` has exceeded ${replicationLagWarningThreshold}% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
-      summary: MongoDB replication lag is high
+              ) >= ${replicationLagOplogSizeThreshold}
+            ),
+            "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
+          )
+        for: 8m
+        labels:
+          severity: warning
+        annotations:
+          description: 'The replication lag for `{{ $labels.member_idx }}` has exceeded ${replicationLagWarningThreshold}% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention.'
+          summary: MongoDB replication lag is high
 
-  - alert: ReplicationLagWarning
-    expr: |
-      label_replace(
-        (
-          max by(rs_nm, member_idx) (
+      - alert: ReplicationLagWarning
+        expr: |
+          label_replace(
             (
-              max by(pod, rs_nm) (
-                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
-              )
-              - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
-                mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
-              )
-            ) / scalar(
-              max by(rs_nm) (
-                (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
-                - on(pod)
-                mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+              max by(rs_nm, member_idx) (
+                (
+                  max by(pod, rs_nm) (
+                    mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="PRIMARY"}
+                  )
+                  - ignoring(member_idx) group_right min by(pod, rs_nm, member_idx) (
+                    mongodb_rs_members_optimeDate{namespace="${namespace}", pod=~"${service}.*", member_state="SECONDARY"}
+                  )
+                ) / scalar(
+                  max by(rs_nm) (
+                    (mongodb_mongod_replset_oplog_head_timestamp{namespace="${namespace}", pod=~"${service}.*"}
+                    - on(pod)
+                    mongodb_mongod_replset_oplog_tail_timestamp{namespace="${namespace}", pod=~"${service}.*"})
+                    * on(pod) group_left()
+                    (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
+                  )
+                )
+              ) * 100 > ${replicationLagCriticalThreshold}
+            )
+            AND on(rs_nm)
+            (
+              sum by (rs_nm) (
+                (
+                  mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
+                  / 
+                  mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
+                )
                 * on(pod) group_left()
                 (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-              )
-            )
-          ) * 100 > ${replicationLagCriticalThreshold}
-        )
-        AND on(rs_nm)
-        (
-          sum by (rs_nm) (
-            (
-              mongodb_oplog_stats_storageStats_size{namespace="${namespace}", pod=~"${service}.*"}
-              / 
-              mongodb_oplog_stats_storageStats_maxSize{namespace="${namespace}", pod=~"${service}.*"}
-            )
-            * on(pod) group_left()
-            (mongodb_mongod_replset_my_state{namespace="${namespace}", pod=~"${service}.*"} == 1)
-          ) >= ${replicationLagOplogSizeThreshold}
-        ),
-        "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
-      )
-    for: 2m
-    labels:
-      severity: critical
-    annotations:
-      description: |
-        Replication lag for `{{ $labels.member_idx }}` exceeds ${replicationLagCriticalThreshold}% of the oplog window. 
-        If this occurs frequently during peak usage, it indicates a potential sizing issue. 
-        Please contact a Scality representative for assistance.
-      summary: MongoDB replication lag is critical
+              ) >= ${replicationLagOplogSizeThreshold}
+            ),
+            "member_idx", "$1", "member_idx", "(${service}[^.]*)\\.${service}.*"
+          )
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          description: |
+            Replication lag for `{{ $labels.member_idx }}` exceeds ${replicationLagCriticalThreshold}% of the oplog window. 
+            If this occurs frequently during peak usage, it indicates a potential sizing issue. 
+            Please contact a Scality representative for assistance.
+          summary: MongoDB replication lag is critical
 
-  - alert: TooManyClientConnectionsWarning
-    expr: |
-      label_replace(
-        sum(mongodb_ss_connections{namespace="${namespace}",pod=~"${service}.*",conn_type="current"})
-            by(job)
-        > ${tooManyClientConnectionsWarningThreshold}
-      , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      description: "Too many client connections on `{{ $labels.job }}`."
-      summary: Too many MongoDB client connections
-
-  - alert: RemainingDiskSpaceWarning
-    expr: |
-      kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
-          / kubelet_volume_stats_capacity_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
-        < ${remainingDiskSpaceWarningThreshold}
-      and
-        predict_linear(kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}[6h], 4 * 24 * 3600) < 0
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      description: 'MongoDb has low disk space'
-      summary: 'MongoDb has low disk space'
-  
-  # mongodb_rs_members_state has one series per (reporting pod, member): every
-  # pod's exporter reports the state of every replica-set member, so a single
-  # recovering member matches once per reporting pod. Aggregate by member_idx
-  # to fire exactly once per recovering member — this also keeps the alert
-  # firing when the recovering member's own exporter cannot be scraped, since
-  # its peers still report it. The pod label is rebuilt from the first DNS
-  # segment of member_idx (the member's pod name).
-  - alert: MongoDbPodRecovering
-    expr: |
-      label_replace(
-        min by (namespace, rs_nm, member_idx) (
-          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
-        ),
-        "pod", "$1", "member_idx", "([^.:]+)[.:].*"
-      ) == 3
-    for: 1h
-    labels:
-      severity: warning
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
-      summary: MongoDB is recovering
-
-  - alert: MongoDbPodRecovering
-    expr: |
-      label_replace(
-        min by (namespace, rs_nm, member_idx) (
-          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
-        ),
-        "pod", "$1", "member_idx", "([^.:]+)[.:].*"
-      ) == 3
-    for: 1d
-    labels:
-      severity: critical
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
-      summary: MongoDB is recovering
-
-  - alert: MongoDbInvalidState
-    expr: |
-      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", rs_state=~"6|8|10"} > 0
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` is in an invalid state state (`{{ $labels.rs_state }}`)."
-      summary: "MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)"
-
-
-  - alert: MongoDbPodStartup2
-    expr: |
-      mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 5
-    for: 1h
-    labels:
-      severity: warning
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
-      summary: MongoDB node in STARTUP2 state for too long
-
-  - alert: MongoDbCreateIndexesFailed
-    expr: |
-      increase(mongodb_ss_metrics_commands_createIndexes_failed{namespace="${namespace}", pod=~"${service}.*"}[5m]) > 0
-    for: 0m
-    labels:
-      severity: warning
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` reported failed createIndexes commands in the last 5 minutes."
-      summary: MongoDB index creation failure
-
-  - alert: MongoDbCompactionNeeded
-    expr: |
-      mongodb_dbstats_totalFreeStorageSize{namespace="${namespace}",pod=~"${service}.*"}
-        > ${reclaimableStorageWarningThreshold} * mongodb_dbstats_fsTotalSize{namespace="${namespace}",pod=~"${service}.*"}
-    for: 1h
-    labels:
-      severity: warning
-    annotations:
-      description: "MongoDB pod `{{ $labels.pod }}` database `{{ $labels.database }}` has accumulated reclaimable storage exceeding ${reclaimableStorageWarningThreshold} of the filesystem capacity. Consider running compaction to recover disk space."
-      summary: MongoDB compaction needed
-
-  - alert: MongoDbRSNotSynced
-    expr: |
-      count by (rs_nm, statefulset) (
-        group by (rs_nm, statefulset, member_idx) (
+      - alert: TooManyClientConnectionsWarning
+        expr: |
           label_replace(
-            mongodb_rs_members_state{member_state="SECONDARY", namespace="${namespace}", pod=~"${service}.*"}
-          , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
-        )
-      )
-        != on(statefulset) group_left
-      kube_statefulset_replicas{namespace="${namespace}", statefulset=~"${service}.*"} - 1
-    for: 10m
-    labels:
-      rs_nm: "{{ $labels.rs_nm }}"
-      severity: warning
-    annotations:
-      description: "MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly."
-      summary: MongoDB replica set out of sync
+            sum(mongodb_ss_connections{namespace="${namespace}",pod=~"${service}.*",conn_type="current"})
+                by(job)
+            > ${tooManyClientConnectionsWarningThreshold}
+          , "job", "$1", "job", "(?:${namespace}/)?${service}-?(.*)")
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: 'Too many client connections on `{{ $labels.job }}`.'
+          summary: Too many MongoDB client connections
+
+      - alert: RemainingDiskSpaceWarning
+        expr: |
+          kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
+              / kubelet_volume_stats_capacity_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}
+            < ${remainingDiskSpaceWarningThreshold}
+          and
+            predict_linear(kubelet_volume_stats_available_bytes{namespace="${namespace}",persistentvolumeclaim=~"${pvc}-.*"}[6h], 4 * 24 * 3600) < 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: 'MongoDb has low disk space'
+          summary: 'MongoDb has low disk space'
+
+      # mongodb_rs_members_state has one series per (reporting pod, member): every
+      # pod's exporter reports the state of every replica-set member, so a single
+      # recovering member matches once per reporting pod. Aggregate by member_idx
+      # to fire exactly once per recovering member — this also keeps the alert
+      # firing when the recovering member's own exporter cannot be scraped, since
+      # its peers still report it. The pod label is rebuilt from the first DNS
+      # segment of member_idx (the member's pod name).
+      - alert: MongoDbPodRecovering
+        expr: |
+          label_replace(
+            min by (namespace, rs_nm, member_idx) (
+              mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
+            ),
+            "pod", "$1", "member_idx", "([^.:]+)[.:].*"
+          ) == 3
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          description: "MongoDB pod `{{ $labels.pod }}` has been in 'RECOVERING' state for more than 1 hour. This may be expected if the 'Resync a Data Services MongoDB Member' procedure has recently been executed."
+          summary: MongoDB is recovering
+
+      - alert: MongoDbPodRecovering
+        expr: |
+          label_replace(
+            min by (namespace, rs_nm, member_idx) (
+              mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"}
+            ),
+            "pod", "$1", "member_idx", "([^.:]+)[.:].*"
+          ) == 3
+        for: 1d
+        labels:
+          severity: critical
+        annotations:
+          description: "MongoDB pod `{{ $labels.pod }}` has been in the 'RECOVERING' state more than 24 hours. The instance may be failing to catch up and recover."
+          summary: MongoDB is recovering
+
+      - alert: MongoDbInvalidState
+        expr: |
+          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*", rs_state=~"6|8|10"} > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: 'MongoDB pod `{{ $labels.pod }}` is in an invalid state state (`{{ $labels.rs_state }}`).'
+          summary: 'MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)'
+
+      - alert: MongoDbPodStartup2
+        expr: |
+          mongodb_rs_members_state{namespace="${namespace}", pod=~"${service}.*"} == 5
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          description: "MongoDB pod `{{ $labels.pod }}` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
+          summary: MongoDB node in STARTUP2 state for too long
+
+      - alert: MongoDbCreateIndexesFailed
+        expr: |
+          increase(mongodb_ss_metrics_commands_createIndexes_failed{namespace="${namespace}", pod=~"${service}.*"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          description: 'MongoDB pod `{{ $labels.pod }}` reported failed createIndexes commands in the last 5 minutes.'
+          summary: MongoDB index creation failure
+
+      - alert: MongoDbCompactionNeeded
+        expr: |
+          mongodb_dbstats_totalFreeStorageSize{namespace="${namespace}",pod=~"${service}.*"}
+            > ${reclaimableStorageWarningThreshold} * mongodb_dbstats_fsTotalSize{namespace="${namespace}",pod=~"${service}.*"}
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          description: 'MongoDB pod `{{ $labels.pod }}` database `{{ $labels.database }}` has accumulated reclaimable storage exceeding ${reclaimableStorageWarningThreshold} of the filesystem capacity. Consider running compaction to recover disk space.'
+          summary: MongoDB compaction needed
+
+      - alert: MongoDbRSNotSynced
+        expr: |
+          count by (rs_nm, statefulset) (
+            group by (rs_nm, statefulset, member_idx) (
+              label_replace(
+                mongodb_rs_members_state{member_state="SECONDARY", namespace="${namespace}", pod=~"${service}.*"}
+              , "statefulset", "$1", "pod", "(${service}-?.*)-\\d+")
+            )
+          )
+            != on(statefulset) group_left
+          kube_statefulset_replicas{namespace="${namespace}", statefulset=~"${service}.*"} - 1
+        for: 10m
+        labels:
+          rs_nm: '{{ $labels.rs_nm }}'
+          severity: warning
+        annotations:
+          description: 'MongoDB replica set `{{ $labels.rs_nm }}` is not in the expected state. It does not have the expected number of SECONDARY members. Please ensure that all instances are running properly.'
+          summary: MongoDB replica set out of sync

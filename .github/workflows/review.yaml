@@ -1,5 +1,5 @@
 name: Code Review
-run-name: 'Code Review for #${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.pull_request.title && format('' : {0}'', github.event.pull_request.title) }}'
+run-name: "Code Review for #${{ github.event.pull_request.number || inputs.pr_number }}${{ github.event.pull_request.title && format(' : {0}', github.event.pull_request.title) }}"
 
 on:
   pull_request:

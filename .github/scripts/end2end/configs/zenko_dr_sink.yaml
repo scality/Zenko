@@ -12,7 +12,7 @@ spec:
     usernameKey: mongodb-username
     passwordKey: mongodb-password
     databaseName: pradb
-    writeConcern: "majority"
+    writeConcern: 'majority'
   kafka:
     managed:
       zkAddresses:
@@ -20,21 +20,21 @@ spec:
       persistence:
         volumeClaimTemplate:
           size: 5Gi
-          storageClassName: "standard"
+          storageClassName: 'standard'
     connect:
       sink:
         replicas: 1
-        sourceDBName: "zenko-database"
+        sourceDBName: 'zenko-database'
     versions:
       cleaner:
-        image:  '${KAFKA_CLEANER_IMAGE}'
-        tag:    '${KAFKA_CLEANER_TAG}'
+        image: '${KAFKA_CLEANER_IMAGE}'
+        tag: '${KAFKA_CLEANER_TAG}'
       cluster:
-        image:  '${KAFKA_IMAGE}'
-        tag:    '${KAFKA_TAG}'
+        image: '${KAFKA_IMAGE}'
+        tag: '${KAFKA_TAG}'
       connect:
-        image: '${KAFKA_CONNECT_IMAGE}' 
-        tag:   '${KAFKA_CONNECT_TAG}'
+        image: '${KAFKA_CONNECT_IMAGE}'
+        tag: '${KAFKA_CONNECT_TAG}'
       cruiseControl:
         image: '${KAFKA_CRUISECONTROL_IMAGE}'
         tag: '${KAFKA_CRUISECONTROL_TAG}'

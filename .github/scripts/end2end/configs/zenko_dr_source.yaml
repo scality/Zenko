@@ -4,7 +4,7 @@ metadata:
   name: end2end-dr-source
 spec:
   locationNames:
-  - e2e-cold
+    - e2e-cold
   mongodb:
     provider: External
     enableSharding: true
@@ -13,8 +13,8 @@ spec:
     userSecretName: mongodb-db-creds
     usernameKey: mongodb-username
     passwordKey: mongodb-password
-    databaseName: "zenko-database"
-    writeConcern: "majority"
+    databaseName: 'zenko-database'
+    writeConcern: 'majority'
   kafka:
     external:
       brokers:
@@ -24,14 +24,14 @@ spec:
         replicas: 1
     versions:
       cleaner:
-        image:  '${KAFKA_CLEANER_IMAGE}'
-        tag:    '${KAFKA_CLEANER_TAG}'
+        image: '${KAFKA_CLEANER_IMAGE}'
+        tag: '${KAFKA_CLEANER_TAG}'
       cluster:
-        image:  '${KAFKA_IMAGE}'
-        tag:    '${KAFKA_TAG}'
+        image: '${KAFKA_IMAGE}'
+        tag: '${KAFKA_TAG}'
       connect:
-        image: '${KAFKA_CONNECT_IMAGE}' 
-        tag:   '${KAFKA_CONNECT_TAG}'
+        image: '${KAFKA_CONNECT_IMAGE}'
+        tag: '${KAFKA_CONNECT_TAG}'
       cruiseControl:
         image: '${KAFKA_CRUISECONTROL_IMAGE}'
         tag: '${KAFKA_CRUISECONTROL_TAG}'

@@ -1,7 +1,7 @@
 ingress:
   enabled: true
   servicePort: https
-  tls: [  ]
+  tls: []
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
     nginx.ingress.kubernetes.io/enable-cors: 'true'

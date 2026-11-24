@@ -23,7 +23,7 @@ on:
 
 permissions:
   contents: read
-  actions: write  # required for gh cache delete
+  actions: write # required for gh cache delete
 
 jobs:
   prune:

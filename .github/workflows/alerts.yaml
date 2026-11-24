@@ -24,7 +24,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: action-prom-render-test
 
-      - name: Render and test mongodb alerts 
+      - name: Render and test mongodb alerts
         uses: scality/action-prom-render-test@1.0.3
         with:
           alert_file_path: monitoring/mongodb/alerts.yaml
@@ -35,7 +35,7 @@ jobs:
             pvc=datadir-mongodb
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - name: Render and test kafka alerts 
+      - name: Render and test kafka alerts
         uses: scality/action-prom-render-test@1.0.3
         with:
           alert_file_path: monitoring/kafka/alerts.yaml
@@ -50,7 +50,7 @@ jobs:
             maxConsumerLagSecondsWarningThreshold=300
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - name: Render and test redis alerts 
+      - name: Render and test redis alerts
         uses: scality/action-prom-render-test@1.0.3
         with:
           alert_file_path: monitoring/redis/alerts.yaml
@@ -60,7 +60,7 @@ jobs:
             service=artesca-data-base-cache-metrics
           github_token: ${{ steps.app-token.outputs.token }}
 
-      - name: Render and test zookeeper alerts 
+      - name: Render and test zookeeper alerts
         uses: scality/action-prom-render-test@1.0.3
         with:
           alert_file_path: monitoring/zookeeper/alerts.yaml
@@ -72,7 +72,7 @@ jobs:
             replicas=3
             quorum=3
           github_token: ${{ steps.app-token.outputs.token }}
-      
+
       - name: Render and test dr alerts
         uses: scality/action-prom-render-test@1.0.3
         with:

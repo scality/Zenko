@@ -1,6 +1,6 @@
 ---
-name: "Docker check"
-description: "check if docker daemon is running"
+name: 'Docker check'
+description: 'check if docker daemon is running'
 
 runs:
   using: composite

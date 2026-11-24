@@ -1,4 +1,5 @@
 # Zenko Codespaces
+
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/scality/Zenko)
 
 A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) is available for Codespaces.
@@ -82,11 +83,12 @@ This is because we do an assume role in accounts.py with a max duration of 12h
 ### Inspecting Codespace creation logs
 
 You can inspect the logs of the Codespace creation in 2 ways way:
-1. When Codespace creation is still running : 
-Use Cmd/Ctrl + Shift + P -> View Creation Log to see full logs 
 
-2. When the setup is finished, dump the logs : 
-a. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-b. Type "Codespaces: Export Logs" and select it
-c. A zip file will be downloaded to your local machine
-d. In the zip, look at the `creation.log` file
+1. When Codespace creation is still running :
+   Use Cmd/Ctrl + Shift + P -> View Creation Log to see full logs
+
+2. When the setup is finished, dump the logs :
+   a. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+   b. Type "Codespaces: Export Logs" and select it
+   c. A zip file will be downloaded to your local machine
+   d. In the zip, look at the `creation.log` file

@@ -89,18 +89,10 @@
         },
         "vscode": {
             "settings": {
-                "cucumber.features": [
-                    "tests/functional/ctst/features/**/*.feature"
-                ],
-                "cucumber.glue": [
-                    "tests/functional/ctst/common/*.ts",
-                    "tests/functional/ctst/steps/**/*.ts"
-                ]
+                "cucumber.features": ["tests/functional/ctst/features/**/*.feature"],
+                "cucumber.glue": ["tests/functional/ctst/common/*.ts", "tests/functional/ctst/steps/**/*.ts"]
             },
-            "extensions": [
-                "ms-kubernetes-tools.vscode-kubernetes-tools",
-                "cucumberopen.cucumber-official"
-            ]
+            "extensions": ["ms-kubernetes-tools.vscode-kubernetes-tools", "cucumberopen.cucumber-official"]
         }
     },
     "containerEnv": {

@@ -4,13 +4,11 @@
 # Render the alerts file with
 # gen-alert render alerts.yaml
 
-
 evaluation_interval: 30s
 rule_files:
   - alerts.rendered.yaml
 
 tests:
-
   #
   # Quorum
   #
@@ -83,7 +81,7 @@ tests:
       - alertname: ZookeeperDown
         eval_time: 1m30s
         exp_alerts: []
-      
+
   #
   # Leaders
   #

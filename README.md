@@ -14,7 +14,7 @@ storage services like [Amazon S3](https://aws.amazon.com/s3),
 [Microsoft Azure Blob storage](https://azure.microsoft.com/en-us/services/storage/blobs/),
 or [Google Cloud Storage](https://cloud.google.com/storage/).
 
-Learn more at  [Zenko.io](http://www.zenko.io/).
+Learn more at [Zenko.io](http://www.zenko.io/).
 
 # Member of SODA foundation
 

@@ -2,7 +2,7 @@
 name: build-iso-and-end2end-test
 
 concurrency:
-  group: "zenko-tests-${{ github.ref_name }}"
+  group: 'zenko-tests-${{ github.ref_name }}'
   cancel-in-progress: true
 
 on:
@@ -16,28 +16,28 @@ env:
   CI_PASS_ON_TEST_FAILURE: 'true'
   WORKER_COUNT: '2'
   OPERATOR_REPO: git@github.com:scality/zenko-operator.git
-  OPERATOR_IMAGE: ""
-  KIND_NODE_IMAGE: "kindest/node:v1.33.4@sha256:25a6018e48dfcaee478f4a59af81157a437f15e6e140bf103f85a2e7cd0cbbf2"
+  OPERATOR_IMAGE: ''
+  KIND_NODE_IMAGE: 'kindest/node:v1.33.4@sha256:25a6018e48dfcaee478f4a59af81157a437f15e6e140bf103f85a2e7cd0cbbf2'
   VOLUME_ROOT: /artifacts
-  OIDC_REALM: "zenko"
-  OIDC_CLIENT_ID: "zenko-ui"
+  OIDC_REALM: 'zenko'
+  OIDC_CLIENT_ID: 'zenko-ui'
   OIDC_USERNAME: 'storage_manager'
   OIDC_PASSWORD: '123'
   OIDC_FIRST_NAME: 'hello'
   OIDC_LAST_NAME: 'world'
-  HTTP_PROXY: ""
-  HTTPS_PROXY: ""
-  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ""
-  BACKBEAT_LCC_CRON_RULE: ""
+  HTTP_PROXY: ''
+  HTTPS_PROXY: ''
+  BACKBEAT_BUCKET_CHECK_TIMEOUT_S: ''
+  BACKBEAT_LCC_CRON_RULE: ''
   # e2e-env
-  VAULT_TEST_IMAGE_NAME: ""
-  VAULT_TEST_IMAGE_TAG: ""
+  VAULT_TEST_IMAGE_NAME: ''
+  VAULT_TEST_IMAGE_TAG: ''
   # http-env
   OIDC_ENDPOINT: 'http://keycloak.zenko.local'
   OIDC_HOST: 'keycloak.zenko.local'
   ENABLE_KEYCLOAK_HTTPS: 'false'
   KEYCLOAK_VERSION: '18.4.4'
-  PROMETHEUS_NAME: "prometheus"
+  PROMETHEUS_NAME: 'prometheus'
   # mock-env
   AZURE_ACCOUNT_NAME: devstoreaccount1
   AZURE_BACKEND_ENDPOINT: https://devstoreaccount1.blob.azure-mock.zenko.local
@@ -46,7 +46,7 @@ env:
   AWS_ENDPOINT: https://aws-mock.zenko.local
   AWS_ACCESS_KEY: accessKey1
   AWS_SECRET_KEY: verySecretKey1
-  VERIFY_CERTIFICATES: "false"
+  VERIFY_CERTIFICATES: 'false'
   # secrets-env
   AWS_BACKEND_SOURCE_LOCATION: awsbackend
   AWS_BACKEND_DESTINATION_LOCATION: awsbackendmismatch
@@ -72,7 +72,7 @@ env:
   GCP_SECRET_KEY: ${{ secrets.AWS_GCP_BACKEND_SECRET_KEY }}
   GCP_BACKEND_SERVICE_KEY: ${{ secrets.GCP_BACKEND_SERVICE_KEY }}
   GCP_BACKEND_SERVICE_EMAIL: ${{ secrets.GCP_BACKEND_SERVICE_EMAIL }}
-  DEPLOY_CRR_LOCATIONS: "true"
+  DEPLOY_CRR_LOCATIONS: 'true'
   CRR_SOURCE_LOCATION_NAME: crr-source-location
   CRR_DESTINATION_LOCATION_NAME: crr-destination-location
   CRR_SOURCE_ACCOUNT_NAME: crr-source-account
@@ -85,7 +85,7 @@ env:
   CRR_ACCOUNT_C_NAME: crr-account-c
   CRR_ROLE_NAME: crr-role
   # Enable this for Ring tests
-  ENABLE_RING_TESTS: "false"
+  ENABLE_RING_TESTS: 'false'
   RING_S3C_ACCESS_KEY: accessKey1
   RING_S3C_SECRET_KEY: verySecretKey1
   RING_S3C_ENDPOINT: http://s3c.local:8000
@@ -95,20 +95,20 @@ env:
   RING_S3C_INGESTION_SRC_NON_VERSIONED_BUCKET_NAME: ingestion-test-src-non-versioned-bucket
   RING_S3C_INGESTION_NON_VERSIONED_OBJECT_COUNT_PER_TYPE: 2
   # CTST end2end tests
-  NOTIF_DEST_NAME: "destination1"
-  NOTIF_DEST_TOPIC: "destination-topic-1"
-  NOTIF_ALT_DEST_NAME: "destination2"
-  NOTIF_ALT_DEST_TOPIC: "destination-topic-2"
-  NOTIF_PLAIN_DEST_NAME: "destination3"
-  NOTIF_AUTH_DEST_TOPIC: "destination-topic-3"
-  NOTIF_AUTH_DEST_USERNAME: "admin"
-  NOTIF_AUTH_DEST_PASSWORD: "admin-secret"
-  NOTIF_SCRAM_DEST_NAME: "destination4"
-  NOTIF_SCRAM_DEST_TOPIC: "destination-topic-4"
-  NOTIF_SCRAM_DEST_USERNAME: "admin"
-  NOTIF_SCRAM_DEST_PASSWORD: "admin-secret"
-  SUBDOMAIN: "zenko.local"
-  DR_SUBDOMAIN: "dr.zenko.local"
+  NOTIF_DEST_NAME: 'destination1'
+  NOTIF_DEST_TOPIC: 'destination-topic-1'
+  NOTIF_ALT_DEST_NAME: 'destination2'
+  NOTIF_ALT_DEST_TOPIC: 'destination-topic-2'
+  NOTIF_PLAIN_DEST_NAME: 'destination3'
+  NOTIF_AUTH_DEST_TOPIC: 'destination-topic-3'
+  NOTIF_AUTH_DEST_USERNAME: 'admin'
+  NOTIF_AUTH_DEST_PASSWORD: 'admin-secret'
+  NOTIF_SCRAM_DEST_NAME: 'destination4'
+  NOTIF_SCRAM_DEST_TOPIC: 'destination-topic-4'
+  NOTIF_SCRAM_DEST_USERNAME: 'admin'
+  NOTIF_SCRAM_DEST_PASSWORD: 'admin-secret'
+  SUBDOMAIN: 'zenko.local'
+  DR_SUBDOMAIN: 'dr.zenko.local'
   ZENKO_ENABLE_SOSAPI: false
   EXPIRE_ONE_DAY_EARLIER: true
   TRANSITION_ONE_DAY_EARLIER: true
@@ -220,10 +220,10 @@ jobs:
       contents: read
       packages: write
     env:
-      ARTIFACTS_USER: "${{ secrets.ARTIFACTS_USER }}"
-      ARTIFACTS_PASSWORD: "${{ secrets.ARTIFACTS_PASSWORD }}"
-      ROOT_DOCUMENTATION_BUILDDIR: "docs/docsource/build"
-      DOCUMENTATION_BUILDDIR: "build"
+      ARTIFACTS_USER: '${{ secrets.ARTIFACTS_USER }}'
+      ARTIFACTS_PASSWORD: '${{ secrets.ARTIFACTS_PASSWORD }}'
+      ROOT_DOCUMENTATION_BUILDDIR: 'docs/docsource/build'
+      DOCUMENTATION_BUILDDIR: 'build'
       DOCKER_BUILD_SUMMARY: false
     steps:
       - name: Checkout
@@ -241,8 +241,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Compute docs builder image tag
@@ -340,7 +340,7 @@ jobs:
     needs: [build-kafka, build-mongodb]
     runs-on: ubuntu-24.04-16core
     env:
-      DEPLOY_CRR_LOCATIONS: "false"
+      DEPLOY_CRR_LOCATIONS: 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -353,8 +353,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
       - name: Setup Node environment
         id: setup-access
@@ -423,8 +423,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
       - name: Setup Node environment
         id: setup-access
@@ -479,7 +479,7 @@ jobs:
     runs-on:
       - ubuntu-24.04-8core
     env:
-      ENABLE_RING_TESTS: "true"
+      ENABLE_RING_TESTS: 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -492,8 +492,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
       - name: Setup Node environment
         id: setup-access
@@ -550,8 +550,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
       - name: Setup Node environment
         id: setup-access

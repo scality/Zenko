@@ -1,4 +1,3 @@
-
 function getPreviousTag(version, allReleases) {
     let current = version;
     while (current) {
@@ -18,16 +17,13 @@ function getPreviousTag(version, allReleases) {
         // excludes side-branch tags (hotfix X.Y.Z-N or X.Y.Z.N) from being
         // picked as the predecessor of a main-line release (X.Y.Z).
         const stem = prefix + separator;
-        const previousTags = allReleases.filter(r =>
-            r.tag_name.startsWith(stem) &&
-            !/[-.]/.test(r.tag_name.substring(stem.length))
+        const previousTags = allReleases.filter(
+            r => r.tag_name.startsWith(stem) && !/[-.]/.test(r.tag_name.substring(stem.length)),
         );
         if (previousTags.length > 0) {
             // Use a custom sort function, to ensure 'natural' sort of numeric parts
             const compare = new Intl.Collator(undefined, { numeric: true }).compare;
-            return previousTags.sort(
-                (a, b) => compare(a.tag_name, b.tag_name)
-            ).reverse()[0].tag_name;
+            return previousTags.sort((a, b) => compare(a.tag_name, b.tag_name)).reverse()[0].tag_name;
         }
 
         // No direct sibling: fall back to the "parent" — the prefix itself as
@@ -43,5 +39,5 @@ function getPreviousTag(version, allReleases) {
 }
 
 module.exports = {
-    getPreviousTag
+    getPreviousTag,
 };

@@ -24,7 +24,7 @@ Image sources live under `solution-base/images/`.
 - Upstream images are vendored, so local code must be synced with upstream changes.
 - If a new MongoDB baseline (8.2, 9.0...) is available upstream, switch to that baseline.
 - Base images are pinned to specific image digests and must be reviewed/updated.
-See `solution-base/images/README.md` for details.
+  See `solution-base/images/README.md` for details.
 
 ### Re-vendoring upstream Bitnami scripts
 
@@ -50,16 +50,16 @@ When upstream Bitnami script changes need to be pulled in, bump the
    target version.
 
 4. Run `make -C solution-base/mongodb vendor-sync`. This:
-   - Ensures the `bitnami-charts` remote is configured.
-   - Fetches upstream `main` and the new chart tag.
-   - Runs `git subtree split` to synthesize the chart's history (slow:
-     ~4 minutes on a warm clone, longer on a fresh fetch).
-   - Runs `git subtree merge --squash` to merge upstream into our
-     prefix.
-   - Re-resolves the `common` library dependency via
-     `helm dependency build`, then extracts the resulting tarball into
-     a directory under `charts/common/` so `solution-base/build.sh`'s
-     `helm template` finds it as a sub-chart.
+    - Ensures the `bitnami-charts` remote is configured.
+    - Fetches upstream `main` and the new chart tag.
+    - Runs `git subtree split` to synthesize the chart's history (slow:
+      ~4 minutes on a warm clone, longer on a fresh fetch).
+    - Runs `git subtree merge --squash` to merge upstream into our
+      prefix.
+    - Re-resolves the `common` library dependency via
+      `helm dependency build`, then extracts the resulting tarball into
+      a directory under `charts/common/` so `solution-base/build.sh`'s
+      `helm template` finds it as a sub-chart.
 
 5. Resolve any merge conflicts that arise where upstream touched lines
    our local commits modified. If new local tweaks are needed
@@ -67,13 +67,13 @@ When upstream Bitnami script changes need to be pulled in, bump the
    **explicit follow-up commits**, not by amending the subtree merge.
    History should look like:
 
-   ```
-   Merge upstream mongodb-sharded/X.Y.Z
-   mongodb: <local tweak 1>
-   mongodb: <local tweak 2>
-   Merge upstream mongodb-sharded/X.Y.Z+1
-   mongodb: <new tweak after upgrade>
-   ```
+    ```
+    Merge upstream mongodb-sharded/X.Y.Z
+    mongodb: <local tweak 1>
+    mongodb: <local tweak 2>
+    Merge upstream mongodb-sharded/X.Y.Z+1
+    mongodb: <new tweak after upgrade>
+    ```
 
 6. Sanity-check by running `solution-base/build.sh` (which calls
    `helm template`) and reviewing the merge commit's diff for

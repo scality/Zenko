@@ -33,8 +33,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Extract environment
@@ -53,7 +53,7 @@ jobs:
           build-args: |-
             scala_version=${{ env.scala_version }}
             kafka_version=${{ env.kafka_version }}
-          tags: "${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}"
+          tags: '${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.KAFKA_IMAGE }}:${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
             type=gha,scope=kafka-${{ env.KAFKA_TAG }}
@@ -70,7 +70,7 @@ jobs:
             KAFKA_IMAGE=${{ env.KAFKA_IMAGE }}
             KAFKA_TAG=${{ env.KAFKA_TAG }}-${{ env.BUILD_TREE_HASH }}
             MONGODB_CONNECTOR_TAG=${{ env.MONGODB_CONNECTOR_TAG }}
-          tags: "${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}"
+          tags: '${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.KAFKA_CONNECT_IMAGE }}:${{ env.KAFKA_CONNECT_TAG }}-${{ env.BUILD_TREE_HASH }}
             type=gha,scope=kafka-connect-${{ env.KAFKA_CONNECT_TAG }}
@@ -97,8 +97,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Extract environment
@@ -112,7 +112,7 @@ jobs:
           context: ./solution/cruise-control
           build-args: |-
             CC_VERSION=${{ env.KAFKA_CRUISECONTROL_TAG }}
-          tags: "${{ env.KAFKA_CRUISECONTROL_IMAGE }}:${{ env.KAFKA_CRUISECONTROL_TAG }}-${{ env.CRUISECONTROL_BUILD_TREE_HASH }}"
+          tags: '${{ env.KAFKA_CRUISECONTROL_IMAGE }}:${{ env.KAFKA_CRUISECONTROL_TAG }}-${{ env.CRUISECONTROL_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.KAFKA_CRUISECONTROL_IMAGE }}:${{ env.KAFKA_CRUISECONTROL_TAG }}-${{ env.CRUISECONTROL_BUILD_TREE_HASH }}
             type=gha,scope=cruise-control-${{ env.KAFKA_CRUISECONTROL_TAG }}
@@ -138,8 +138,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Extract environment
@@ -154,7 +154,7 @@ jobs:
           build-args: |-
             ZK_VERSION=${{ env.ZK_VERSION }}
             ZK_OPERATOR_VERSION=${{ env.ZK_OPERATOR_VERSION }}
-          tags: "${{ env.ZOOKEEPER_IMAGE }}:${{ env.ZOOKEEPER_TAG }}-${{ env.ZOOKEEPER_BUILD_TREE_HASH }}"
+          tags: '${{ env.ZOOKEEPER_IMAGE }}:${{ env.ZOOKEEPER_TAG }}-${{ env.ZOOKEEPER_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.ZOOKEEPER_IMAGE }}:${{ env.ZOOKEEPER_TAG }}-${{ env.ZOOKEEPER_BUILD_TREE_HASH }}
             type=gha,scope=zookeeper-${{ env.ZOOKEEPER_TAG }}
@@ -180,8 +180,8 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v4
         with:
-          username: "${{ github.repository_owner }}"
-          password: "${{ github.token }}"
+          username: '${{ github.repository_owner }}'
+          password: '${{ github.token }}'
           registry: ghcr.io
 
       - name: Extract environment
@@ -195,7 +195,7 @@ jobs:
           context: ./solution/logrotate
           build-args: |-
             LOGROTATE_VERSION=${{ env.LOGROTATE_TAG }}
-          tags: "${{ env.LOGROTATE_IMAGE }}:${{ env.LOGROTATE_TAG }}-${{ env.LOGROTATE_BUILD_TREE_HASH }}"
+          tags: '${{ env.LOGROTATE_IMAGE }}:${{ env.LOGROTATE_TAG }}-${{ env.LOGROTATE_BUILD_TREE_HASH }}'
           cache-from: |
             type=registry,ref=${{ env.LOGROTATE_IMAGE }}:${{ env.LOGROTATE_TAG }}-${{ env.LOGROTATE_BUILD_TREE_HASH }}
             type=gha,scope=logrotate-${{ env.LOGROTATE_TAG }}

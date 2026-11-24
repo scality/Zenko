@@ -52,7 +52,7 @@ postgresql:
       - ReadWriteOnce
     size: 10Gi
     annotations: {}
-    storageClass: "standard"
+    storageClass: 'standard'
     mountPath: /keycloak/postgresql
   postgresqlDataDir: /keycloak/postgresql/data
   metrics:

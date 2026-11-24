@@ -166,7 +166,7 @@ tests:
             exp_labels:
               severity: critical
               kafkaCluster: ${cluster}
-  
+
   # RemainingDiskSpaceWarning
   ##################################################################################################
   - name: Remaining Disk Space
@@ -235,7 +235,7 @@ tests:
               severity: warning
               kafkaCluster: ${cluster}
 
-   # ConsumerLagWarning
+    # ConsumerLagWarning
   ##################################################################################################
   - name: Kafka Zookeeper Sync
     interval: 1m
@@ -251,7 +251,7 @@ tests:
       - series: kafka_consumergroup_group_max_lag{namespace="zenko",cluster_name="artesca-data-base-queue",group="notification"}
         values: 100x20
       - series: kafka_consumergroup_group_max_lag_seconds{namespace="zenko",cluster_name="artesca-data-base-queue",group="notification"}
-        values: 50x10            500x10  
+        values: 50x10            500x10
       # Last two series have no 'group' : so they are ignored
       - series: kafka_consumergroup_group_max_lag{namespace="zenko",cluster_name="artesca-data-base-queue",group=""}
         values: 10000x20
@@ -271,7 +271,7 @@ tests:
         eval_time: 16m
         exp_alerts:
           - exp_annotations:
-              description:  |
+              description: |
                 Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 
@@ -288,7 +288,7 @@ tests:
         eval_time: 20m
         exp_alerts:
           - exp_annotations:
-              description:  |
+              description: |
                 Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 
@@ -302,7 +302,7 @@ tests:
               severity: warning
               kafkaCluster: ${cluster}
           - exp_annotations:
-              description:  |
+              description: |
                 Kafka consumer lag has been more than 300 seconds
                 or more than 1000 messages for 5 minutes.
 

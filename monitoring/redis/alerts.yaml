@@ -14,46 +14,45 @@ x-inputs:
     value: 100
 
 groups:
-- name: RedisBaseCache
-  rules:
+  - name: RedisBaseCache
+    rules:
+      - alert: ServiceDown
+        expr: sum(up{namespace="${namespace}", service="${service}"}) == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          description: 'Redis service is down'
+          summary: 'Redis service is down'
 
-  - alert: ServiceDown
-    expr: sum(up{namespace="${namespace}", service="${service}"}) == 0
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      description: "Redis service is down"
-      summary: "Redis service is down"
+      - alert: HighMemoryUsage
+        expr: |
+          redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
+              / redis_total_system_memory_bytes{namespace="${namespace}", job="${service}"}
+            > ${highMemoryUsageWarningThreshold}
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: 'Redis is using more than ${highMemoryUsageWarningThreshold}% of available memory.'
+          summary: 'Redis is using a lot of memory'
 
-  - alert: HighMemoryUsage
-    expr: |
-      redis_memory_used_bytes{namespace="${namespace}", job="${service}"}
-          / redis_total_system_memory_bytes{namespace="${namespace}", job="${service}"}
-        > ${highMemoryUsageWarningThreshold}
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      description: "Redis is using more than ${highMemoryUsageWarningThreshold}% of available memory."
-      summary: "Redis is using a lot of memory"
+      - alert: TooManyClientConnections
+        expr: |
+          sum(redis_connected_clients{namespace="${namespace}", job="${service}"}) > ${tooManyClientConnectionsWarningThreshold}
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: 'Redis has more than ${tooManyClientConnectionsWarningThreshold} client connections: {{ $value }}'
+          summary: 'Too many Redis client connections'
 
-  - alert: TooManyClientConnections
-    expr: |
-      sum(redis_connected_clients{namespace="${namespace}", job="${service}"}) > ${tooManyClientConnectionsWarningThreshold}
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      description: "Redis has more than ${tooManyClientConnectionsWarningThreshold} client connections: {{ $value }}"
-      summary: "Too many Redis client connections"
-
-  - alert: RejectedClientConnections
-    expr: |
-      sum(increase(redis_rejected_connections_total{namespace="${namespace}", job="${service}"}[5m])) > 1
-    for: 0m
-    labels:
-      severity: critical
-    annotations:
-      description: "Some connections to Redis have been rejected"
-      summary: "Redis rejected connections"
+      - alert: RejectedClientConnections
+        expr: |
+          sum(increase(redis_rejected_connections_total{namespace="${namespace}", job="${service}"}[5m])) > 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          description: 'Some connections to Redis have been rejected'
+          summary: 'Redis rejected connections'

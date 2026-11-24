@@ -13,7 +13,8 @@ function readBuilds(dir) {
     if (!fs.existsSync(dir)) {
         return [];
     }
-    return fs.readdirSync(dir)
+    return fs
+        .readdirSync(dir)
         .filter(file => file.endsWith('.ndjson'))
         .flatMap(file => fs.readFileSync(path.join(dir, file), 'utf8').split('\n'))
         .filter(line => line.trim())
@@ -57,7 +58,7 @@ function totalSizes(builds) {
 
 function formatBuild(build, platforms) {
     const icon = STATUS_ICONS[build.status] || '❔';
-    const cached = build.total > 0 ? Math.round(build.cached * 100 / build.total) : 0;
+    const cached = build.total > 0 ? Math.round((build.cached * 100) / build.total) : 0;
     const record = build.url ? `[${build.record}](${build.url})` : '-';
     const sizes = imageSizes(build);
     return row([
@@ -74,16 +75,19 @@ function renderSummary(builds) {
     const totals = totalSizes(builds);
     const platforms = totals.map(total => total.platform);
 
-    const rows = [...builds]
-        .sort((a, b) => a.build.localeCompare(b.build))
-        .map(build => formatBuild(build, platforms));
+    const rows = [...builds].sort((a, b) => a.build.localeCompare(b.build)).map(build => formatBuild(build, platforms));
 
     if (totals.length > 0) {
-        rows.push(row([
-            '**Total** (shared layers counted once)', '', '', '',
-            ...platforms.map(platform => formatSize(totals, platform)),
-            '',
-        ]));
+        rows.push(
+            row([
+                '**Total** (shared layers counted once)',
+                '',
+                '',
+                '',
+                ...platforms.map(platform => formatSize(totals, platform)),
+                '',
+            ]),
+        );
     }
 
     return [

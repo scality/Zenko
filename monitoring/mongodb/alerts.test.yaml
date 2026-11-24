@@ -42,7 +42,7 @@ tests:
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 2."
+              description: 'Less than 100% of MongoDb shard0-data instances are up and healthy: 2.'
               summary: MongoDb shard0-data service degraded
 
       - alertname: MongoDbDegraded
@@ -53,7 +53,7 @@ tests:
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 1."
+              description: 'Less than 100% of MongoDb shard0-data instances are up and healthy: 1.'
               summary: MongoDb shard0-data service degraded
 
       - alertname: MongoDbDegraded
@@ -64,16 +64,16 @@ tests:
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 0."
+              description: 'Less than 100% of MongoDb shard0-data instances are up and healthy: 0.'
               summary: MongoDb shard0-data service degraded
           - exp_labels:
               severity: critical
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 50% of MongoDb shard0-data instances are up and healthy: 0."
+              description: 'Less than 50% of MongoDb shard0-data instances are up and healthy: 0.'
               summary: MongoDb shard0-data service critical
-      
+
       - alertname: MongoDbDegraded
         eval_time: 180s
         exp_alerts:
@@ -82,14 +82,14 @@ tests:
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 100% of MongoDb shard0-data instances are up and healthy: 1."
+              description: 'Less than 100% of MongoDb shard0-data instances are up and healthy: 1.'
               summary: MongoDb shard0-data service degraded
           - exp_labels:
               severity: critical
               job: shard0-data
               statefulset: data-db-mongodb-sharded-shard0-data
             exp_annotations:
-              description: "Less than 50% of MongoDb shard0-data instances are up and healthy: 1."
+              description: 'Less than 50% of MongoDb shard0-data instances are up and healthy: 1.'
               summary: MongoDb shard0-data service critical
 
   - name: NoPrimary
@@ -110,7 +110,7 @@ tests:
               member_state: PRIMARY
               severity: critical
             exp_annotations:
-              description: "MongoDb has no PRIMARY."
+              description: 'MongoDb has no PRIMARY.'
               summary: MongoDb down
 
   - name: UnhealthyMemberWarning
@@ -234,7 +234,7 @@ tests:
               member_idx: data-db-mongodb-sharded-shard0-data-2
               rs_nm: shard0-data
             exp_annotations:
-              description: "The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
+              description: 'The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention.'
               summary: MongoDB replication lag is high
       - alertname: ReplicationLagWarning
         eval_time: 11m
@@ -244,7 +244,7 @@ tests:
               member_idx: data-db-mongodb-sharded-shard0-data-2
               rs_nm: shard0-data
             exp_annotations:
-              description: "The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention."
+              description: 'The replication lag for `data-db-mongodb-sharded-shard0-data-2` has exceeded 70% of the journal window duration. This condition may occur during periods of elevated load and does not necessitate immediate intervention.'
               summary: MongoDB replication lag is high
           - exp_labels:
               severity: critical
@@ -367,7 +367,6 @@ tests:
             exp_annotations:
               description: MongoDb has low disk space
               summary: MongoDb has low disk space
-    
 
   # mongodb_rs_members_state has one series per (reporting pod, member):
   # every pod's exporter reports the state of every replica-set member. Here
@@ -493,8 +492,8 @@ tests:
               pod: data-db-mongodb-sharded-mongos-0
               rs_state: 6
             exp_annotations:
-              description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` is in an invalid state state (`6`)."
-              summary: "MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)"
+              description: 'MongoDB pod `data-db-mongodb-sharded-mongos-0` is in an invalid state state (`6`).'
+              summary: 'MongoDB node in an invalid state: 6 (UNKNOWN), 8 (DOWN), 10 (REMOVED)'
 
   - name: MongoDbPodStartup2
     interval: 1m
@@ -514,7 +513,7 @@ tests:
             exp_annotations:
               description: "MongoDB pod `data-db-mongodb-sharded-mongos-0` has been in the 'STARTUP2' state for more than 1 hour. Please ensure that the instance is running properly."
               summary: MongoDB node in STARTUP2 state for too long
-    
+
   - name: MongoDbRSNotSynced
     interval: 1m
     input_series:
@@ -657,13 +656,13 @@ tests:
     input_series:
       # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-0" for shard-0
       - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
-        values: 1x20 
+        values: 1x20
       - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-1"}
         values: 2x20
       - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="SECONDARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
-        values: 2x8 stale 
+        values: 2x8 stale
       - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-0", member_state="(not reachable/healthy)", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-2"}
-        values: stale _x8 1x12 
+        values: stale _x8 1x12
 
       # Reported by exporter on pod="data-db-mongodb-sharded-shard0-data-1" for shard-0
       - series: mongodb_rs_members_state{namespace="zenko", pod="data-db-mongodb-sharded-shard0-data-1", member_state="PRIMARY", rs_nm="data-db-mongodb-sharded-shard-0", member_idx="shard0-data-0"}
@@ -717,16 +716,16 @@ tests:
         values: 3x20
     alert_rule_test:
       - alertname: MongoDbRSNotSynced
-        eval_time: 5m 
+        eval_time: 5m
         exp_alerts: []
       - alertname: MongoDbRSNotSynced
-        eval_time: 10m 
+        eval_time: 10m
         exp_alerts: []
       - alertname: MongoDbRSNotSynced
-        eval_time: 18m 
+        eval_time: 18m
         exp_alerts: []
       - alertname: MongoDbRSNotSynced
-        eval_time: 19m 
+        eval_time: 19m
         exp_alerts:
           - exp_labels: # Expected alert for shard-0
               severity: warning
@@ -770,7 +769,7 @@ tests:
               namespace: zenko
               pod: data-db-mongodb-sharded-shard0-data-0
             exp_annotations:
-              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-0` reported failed createIndexes commands in the last 5 minutes."
+              description: 'MongoDB pod `data-db-mongodb-sharded-shard0-data-0` reported failed createIndexes commands in the last 5 minutes.'
               summary: MongoDB index creation failure
       - alertname: MongoDbCreateIndexesFailed
         eval_time: 16m
@@ -807,5 +806,5 @@ tests:
               pod: data-db-mongodb-sharded-shard0-data-0
               database: needs-compaction
             exp_annotations:
-              description: "MongoDB pod `data-db-mongodb-sharded-shard0-data-0` database `needs-compaction` has accumulated reclaimable storage exceeding 0.3 of the filesystem capacity. Consider running compaction to recover disk space."
+              description: 'MongoDB pod `data-db-mongodb-sharded-shard0-data-0` database `needs-compaction` has accumulated reclaimable storage exceeding 0.3 of the filesystem capacity. Consider running compaction to recover disk space.'
               summary: MongoDB compaction needed

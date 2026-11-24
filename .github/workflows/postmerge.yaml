@@ -22,10 +22,10 @@ jobs:
         with:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           app-private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
-          environment: "zenko/${{ github.ref_name }}"
+          environment: 'zenko/${{ github.ref_name }}'
           status: success
           log-url: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-          description: "Integrated in zenko ${{ github.ref_name }}"
+          description: 'Integrated in zenko ${{ github.ref_name }}'
 
   dispatch-cache-warmer:
     runs-on: ubuntu-24.04

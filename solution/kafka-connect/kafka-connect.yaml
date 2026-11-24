@@ -6,17 +6,17 @@ rules:
   - pattern: 'kafka.(.+)<type=app-info, client-id=(.+)><>start-time-ms'
     name: kafka_$1_start_time_seconds
     labels:
-      clientId: "$2"
-    help: "Kafka $1 JMX metric start time seconds"
+      clientId: '$2'
+    help: 'Kafka $1 JMX metric start time seconds'
     type: GAUGE
-    valueFactor: 0.001 
+    valueFactor: 0.001
   - pattern: 'kafka.(.+)<type=app-info, client-id=(.+)><>(commit-id|version): (.+)'
     name: kafka_$1_$3_info
     value: 1
     labels:
-      clientId: "$2"
-      $3: "$4"
-    help: "Kafka $1 JMX metric info version and commit-id"
+      clientId: '$2'
+      $3: '$4'
+    help: 'Kafka $1 JMX metric info version and commit-id'
     type: GAUGE
 
   #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
@@ -24,10 +24,10 @@ rules:
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+), partition=(.+)><>(.+-total|.+-rate|.+-avg|.+-max|.+-min|.+-replica|.+-lag|.+-lead)
     name: kafka_$2_$6
     labels:
-      clientId: "$3"
-      topic: "$4"
-      partition: "$5"
-    help: "Kafka $1 JMX metric type $2"
+      clientId: '$3'
+      topic: '$4'
+      partition: '$5'
+    help: 'Kafka $1 JMX metric type $2'
     type: GAUGE
 
   #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"
@@ -35,9 +35,9 @@ rules:
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+)><>(.+-total|.+-rate|.+-avg)
     name: kafka_$2_$5
     labels:
-      clientId: "$3"
-      topic: "$4"
-    help: "Kafka $1 JMX metric type $2"
+      clientId: '$3'
+      topic: '$4'
+    help: 'Kafka $1 JMX metric type $2'
     type: GAUGE
 
   #kafka.connect:type=connect-node-metrics,client-id="{clientid}",node-id="{nodeid}"
@@ -45,9 +45,9 @@ rules:
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), node-id=(.+)><>(.+-total|.+-avg)
     name: kafka_$2_$5
     labels:
-      clientId: "$3"
-      nodeId: "$4"
-    help: "Kafka $1 JMX metric type $2"
+      clientId: '$3'
+      nodeId: '$4'
+    help: 'Kafka $1 JMX metric type $2'
     type: UNTYPED
 
   #kafka.connect:type=kafka-metrics-count,client-id="{clientid}"
@@ -57,8 +57,8 @@ rules:
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.*)><>(.+-total|.+-avg|.+-bytes|.+-count|.+-ratio|.+-rate|.+-age|.+-flight|.+-threads|.+-connectors|.+-tasks|.+-ago)
     name: kafka_$2_$4
     labels:
-      clientId: "$3"
-    help: "Kafka $1 JMX metric type $2"
+      clientId: '$3'
+    help: 'Kafka $1 JMX metric type $2'
     type: GAUGE
 
   #kafka.connect:type=connector-task-metrics,connector="{connector}",task="{task}<> status"
@@ -66,10 +66,10 @@ rules:
     name: kafka_connect_connector_status
     value: 1
     labels:
-      connector: "$1"
-      task: "$2"
-      status: "$3"
-    help: "Kafka Connect JMX Connector status"
+      connector: '$1'
+      task: '$2'
+      status: '$3'
+    help: 'Kafka Connect JMX Connector status'
     type: GAUGE
 
   #kafka.connect:type=task-error-metrics,connector="{connector}",task="{task}"
@@ -79,9 +79,9 @@ rules:
   - pattern: kafka.connect<type=(.+)-metrics, connector=(.+), task=(.+)><>(.+-total|.+-count-max|.+-count-avg|.+-count|.+-ms|.+-ratio|.+-rate|.+-avg|.+-failures|.+-requests|.+-timestamp|.+-logged|.+-errors|.+-retries|.+-skipped|.+-max|.+-percentage)
     name: kafka_connect_$1_$4
     labels:
-      connector: "$2"
-      task: "$3"
-    help: "Kafka Connect JMX metric type $1"
+      connector: '$2'
+      task: '$3'
+    help: 'Kafka Connect JMX metric type $1'
     type: GAUGE
 
   #kafka.connect:type=connector-metrics,connector="{connector}"
@@ -89,26 +89,26 @@ rules:
   - pattern: kafka.connect<type=connect-worker-metrics, connector=(.+)><>([a-z-]+)
     name: kafka_connect_worker_$2
     labels:
-      connector: "$1"
-    help: "Kafka Connect JMX metric $1"
+      connector: '$1'
+    help: 'Kafka Connect JMX metric $1'
     type: GAUGE
 
   #kafka.connect:type=connect-worker-metrics
   - pattern: kafka.connect<type=connect-worker-metrics><>([a-z-]+)
     name: kafka_connect_worker_$1
-    help: "Kafka Connect JMX metric worker"
+    help: 'Kafka Connect JMX metric worker'
     type: GAUGE
 
   #kafka.connect:type=connect-worker-rebalance-metrics
   - pattern: kafka.connect<type=connect-worker-rebalance-metrics><>([a-z-]+)
     name: kafka_connect_worker_rebalance_$1
-    help: "Kafka Connect JMX metric rebalance information"
+    help: 'Kafka Connect JMX metric rebalance information'
     type: GAUGE
 
   #com.mongodb.kafka.connect:connector=mongodb-source,task=source-task-0,type=source-task-metrics:
-  - pattern: "com.mongodb.kafka.connect<type=(.+)-task-metrics, connector=(.+), task=(.+)><>(.+): (.+)"
+  - pattern: 'com.mongodb.kafka.connect<type=(.+)-task-metrics, connector=(.+), task=(.+)><>(.+): (.+)'
     name: kafka_connect_mongodb_$1_task_metrics_$4
     labels:
-      connector: "$2"
-      task: "$3"
+      connector: '$2'
+      task: '$3'
     type: UNTYPED

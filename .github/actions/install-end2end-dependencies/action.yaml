@@ -1,5 +1,5 @@
-name: "Setup End2End environment"
-description: "installation of dependencies"
+name: 'Setup End2End environment'
+description: 'installation of dependencies'
 
 # Tool versions are pinned here so the action is the single source of truth.
 # Callers (end2end.yaml, cache-warmer.yaml, build-iso) don't set env vars,
@@ -7,22 +7,22 @@ description: "installation of dependencies"
 
 inputs:
   tools:
-    description: "Space-separated list of tools to install"
+    description: 'Space-separated list of tools to install'
     default: kind helm kubectl kustomize tilt
   kind-version:
-    description: "Version of kind to install"
+    description: 'Version of kind to install'
     default: v0.30.0
   helm-version:
-    description: "Version of helm to install"
+    description: 'Version of helm to install'
     default: v3.19.0
   kubectl-version:
-    description: "Version of kubectl to install"
+    description: 'Version of kubectl to install'
     default: v1.32.0
   kustomize-version:
-    description: "Version of kustomize to install"
+    description: 'Version of kustomize to install'
     default: v5.7.1
   tilt-version:
-    description: "Version of tilt to install"
+    description: 'Version of tilt to install'
     default: 0.35.2
 
 runs:

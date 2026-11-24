@@ -10,7 +10,6 @@ the **[Zenko Forum](http://forum.zenko.io/)**.
 _Questions opened as GitHub issues will be summarily closed and moved to the
 [Zenko Forum](http://forum.zenko.io/)._
 
-
 ## Avoid Duplication
 
 Before reporting a new issue or requesting a feature, please search the issue
@@ -19,7 +18,7 @@ the search bar and select "Issues" on the left pane after searching). If the
 issue has already been raised, do not open a new issue. Add a comment to the
 existing issue instead.
 
---------------------------------------------------------------------------------
+---
 
 ## Bug Report Information
 
@@ -53,7 +52,7 @@ Let us know how your deployed example is configured. Tell us your:
 
 Include anything else you think will help us resolve the issue.
 
---------------------------------------------------------------------------------
+---
 
 ## Feature Requests
 
@@ -85,9 +84,9 @@ To serve you better, we'd like to know a little more about you (if you don't
 mind our asking...)
 
 - Is this request for your company?
-  - If it is, for which company?
-  - Is your company using any Scality Enterprise Edition products (RING, Zenko
-    EE)?
+    - If it is, for which company?
+    - Is your company using any Scality Enterprise Edition products (RING, Zenko
+      EE)?
 - Are you willing to contribute this feature yourself?
 - What is your position or title?
 - How did you hear about us?

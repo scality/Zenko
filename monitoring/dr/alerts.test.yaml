@@ -23,7 +23,7 @@ tests:
       - series: kafka_connect_task_error_total_record_failures{drSinkInstance="artesca-data-dr", job="artesca-data-dr-base-queue-connector-metrics"}
         values: 0 1x6
       - series: s3_lifecycle_last_timestamp_ms{ job="artesca-data-backbeat-lifecycle-.*-headless", namespace="zenko"}
-        values: 10000000x3 
+        values: 10000000x3
       - series: mongodb_ss_repl_lastWrite_lastWriteDate{drSinkInstance="artesca-data-dr", job="zenko/data-db-mongodb-sharded-shard.*", namespace="zenko"}
         values: 5000000x3
     alert_rule_test:
@@ -34,23 +34,23 @@ tests:
               severity: warning
             exp_annotations:
               summary: 'DR Resource Paused While Other Running'
-              description: 'One site''s DR resource is paused while the other is not. This could lead to data inconsistency between sites.'
+              description: "One site's DR resource is paused while the other is not. This could lead to data inconsistency between sites."
       - alertname: DrResourcePausedForTooLong
         eval_time: 4m59s
         exp_alerts: []
       - alertname: DrResourcePausedForTooLong
-        eval_time: 5m 
+        eval_time: 5m
         exp_alerts:
           - exp_labels:
-              severity: "warning"
+              severity: 'warning'
             exp_annotations:
               summary: 'DR resource paused for too long'
               description: 'The DR resource has been paused for more than 5 minutes.'
       - alertname: DrResourcePausedForTooLong
-        eval_time: 6m      # Grace period check
+        eval_time: 6m # Grace period check
         exp_alerts:
           - exp_labels:
-              severity: "warning"
+              severity: 'warning'
             exp_annotations:
               summary: 'DR resource paused for too long'
               description: 'The DR resource has been paused for more than 5 minutes.'
