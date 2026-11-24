@@ -44,7 +44,9 @@ runs:
       with:
         node-version: '24'
         cache: yarn
-        cache-dependency-path: tests/functional/yarn.lock
+        cache-dependency-path: |
+          yarn.lock
+          tests/functional/yarn.lock
     - name: Install test dependencies
       shell: bash
       working-directory: tests/functional

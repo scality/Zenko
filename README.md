@@ -30,6 +30,15 @@ If you'd like to contribute, please review the
 If you have suggestions or questions you can leave the comments on the
 [Discussions](https://github.com/scality/Zenko/discussions) in this repository.
 
+Lint and formatting of the whole repository are checked in CI. Run them from
+the root of the repository before pushing:
+
+```bash
+yarn install
+yarn lint
+yarn run prettier --write .
+```
+
 ## Overview
 
 This repository includes installation resources to deploy the full Zenko

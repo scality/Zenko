@@ -86,3 +86,5 @@ jobs:
           repositories: |
             cli-testing
             zenko-operator
+      - name: Warm yarn cache for the lint and formatting tools
+        run: yarn install --frozen-lockfile

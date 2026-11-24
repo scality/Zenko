@@ -18,12 +18,3 @@ test suite has some specifics to consider:
   here by using random bucket/object names.
 - It should be possible to rerun the tests after the end of the CTST test
   suite: tests should not be dependant on environment.
-
-### Formatting
-
-Prettier formatting of tests/functional is checked in CI. Run it there before
-pushing:
-
-```bash
-yarn run prettier --write .
-```

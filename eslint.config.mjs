@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'eslint/config';
-import scality from '@scality/eslint-config-scality';
-import { mocha } from '@scality/eslint-config-scality/testing';
-import tseslint from 'typescript-eslint';
 import { includeIgnoreFile } from '@eslint/compat';
+import scality from '@scality/eslint-config-scality';
+import { jest, mocha } from '@scality/eslint-config-scality/testing';
+import tseslint from 'typescript-eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const gitignorePath = path.resolve(__dirname, '.gitignore');
@@ -20,7 +20,7 @@ export default defineConfig(
     },
     {
         // Generates the resource policies features, run as an ES module
-        files: ['ctst/features/resource-policies/regen.js'],
+        files: ['tests/functional/ctst/features/resource-policies/regen.js'],
         languageOptions: {
             sourceType: 'module',
         },
@@ -29,32 +29,40 @@ export default defineConfig(
         files: [tseslint.globs.ts],
         extends: [tseslint.configs.recommended],
     },
-
-    // TypeScript files (ctst)
     {
-        files: ['ctst/**/*.ts'],
+        files: ['tests/functional/ctst/**/*.ts'],
         rules: {
             // CucumberJS steps start with an uppercase
             'new-cap': 'off',
         },
     },
-
-    // TypeScript files (shared clients and test resources setup)
     {
-        files: ['clients/**/*.ts', 'testResourcesSetup/**/*.ts'],
+        files: ['tests/functional/clients/**/*.ts', 'tests/functional/testResourcesSetup/**/*.ts'],
         rules: {
             // CLI setup scripts report progress to the console
             'no-console': 'off',
         },
     },
-
-    // JavaScript files (mocha)
     {
-        files: ['mocha/**/*.js'],
+        files: ['tests/functional/mocha/**/*.js'],
         rules: {
             'no-param-reassign': 'off',
             'camelcase': ['error', { properties: 'never' }],
         },
     },
-    mocha(['mocha/**/*.js']),
+    mocha(['tests/functional/mocha/**/*.js']),
+    {
+        files: ['tests/workflows/**', '.github/**'],
+        rules: {
+            // The GitHub REST API names its fields in snake case
+            camelcase: ['error', { properties: 'never' }],
+        },
+    },
+    {
+        files: ['tests/workflows/**/*.ts'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
+    jest(['tests/workflows/**/*.spec.ts', 'tests/workflows/**/*.spec.js']),
 );

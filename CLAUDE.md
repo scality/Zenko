@@ -14,6 +14,7 @@
 - `tests/zenko_tests/` — Python + Node.js integration tests
 - `monitoring/` — Prometheus rules, Grafana dashboards
 - `.github/workflows/` — CI pipelines (`end2end`, `release`, `review`, `alerts`)
+- `package.json`, `eslint.config.mjs`, `prettier.config.cjs` — ESLint and Prettier for the whole repository, run from the root (`yarn lint`, `yarn prettier:check`)
 
 ## Toolchains
 

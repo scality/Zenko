@@ -321,27 +321,20 @@ jobs:
           app-id: ${{ vars.ACTIONS_APP_ID }}
           private-key: ${{ secrets.ACTIONS_APP_PRIVATE_KEY }}
           repositories: cli-testing
+      - name: Install the lint and formatting tools
+        run: yarn install --frozen-lockfile
       - name: Build cucumber typescript
         working-directory: tests/functional
         run: yarn build:cucumber
-      - name: Lint the functional tests
-        working-directory: tests/functional
+      - name: Lint the repository
         run: yarn lint
-      - name: Check the formatting of the functional tests
-        working-directory: tests/functional
+      - name: Check the formatting of the repository
         run: yarn prettier:check
       - name: Lint the Markdown files of the functional tests
-        working-directory: tests/functional
         run: yarn lint_md
       - name: Check for unused step definitions
         working-directory: tests/functional
         run: yarn unused-steps
-      - name: Install the dependencies of the workflows tests
-        run: yarn --cwd tests/workflows install --frozen-lockfile --ignore-scripts
-      - name: Lint the workflows tests
-        run: yarn --cwd tests/workflows lint
-      - name: Check the formatting of the workflows tests
-        run: yarn --cwd tests/workflows prettier:check
 
   end2end-pra:
     needs: [build-kafka, build-mongodb]

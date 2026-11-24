@@ -1,0 +1,24 @@
+{
+    "name": "zenko",
+    "description": "Lint and formatting of the Zenko repository",
+    "private": true,
+    "license": "Apache-2.0",
+    "engines": {
+        "node": ">=24"
+    },
+    "scripts": {
+        "lint": "eslint --max-warnings 0 .",
+        "lint_md": "mdlint $(git ls-files 'tests/functional/*.md')",
+        "prettier:check": "prettier --check ."
+    },
+    "devDependencies": {
+        "@eslint/compat": "^2.1.0",
+        "@scality/eslint-config-scality": "scality/Guidelines#8.4.0",
+        "eslint": "^10.14.0",
+        "eslint-plugin-jest": "^29.0.0",
+        "eslint-plugin-mocha": "^11.3.0",
+        "prettier": "^3.10.1",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.67.0"
+    }
+}

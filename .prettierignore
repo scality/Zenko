@@ -1,0 +1,6 @@
+monitoring/**/dashboard.json
+solution-base/mongodb/charts/
+solution-base/images/
+.github/scripts/end2end/configs/zenko.yaml
+docs/docsource/
+.github/copilot-instructions.md
