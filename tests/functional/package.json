@@ -22,7 +22,7 @@
         "@types/node": "^24.3.0",
         "arsenal": "git+https://github.com/scality/arsenal#8.5.12",
         "assert": "^2.1.0",
-        "async": "2.1.2",
+        "async": "2.6.4",
         "aws4": "^1.11.0",
         "aws4-axios": "^3.3.8",
         "cli-testing": "git+https://github.com/scality/cli-testing.git#v1.3.1",
