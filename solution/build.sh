@@ -126,17 +126,17 @@ function copy_yamls()
 
     mkdir -p ${deploy_dir} ${crd_dir}
 
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=$(zenko_operator_tag)" -o ${crd_dir}
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/crd?ref=${ZENKO_OPERATOR_REF:-$(zenko_operator_tag)}" -o ${crd_dir}
     for file in ${crd_dir}/*.yaml ; do 
         mv $file ${file%.yaml}_crd.yaml
     done
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=$(zenko_operator_tag)" |
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/rbac?ref=${ZENKO_OPERATOR_REF:-$(zenko_operator_tag)}" |
         docker run ${DOCKER_OPTS} --rm -i ryane/kfilt:v0.0.5 -k Role,ClusterRole > ${deploy_dir}/role.yaml
 
     env $(dependencies_versions_env) envsubst < zenkoversion.yaml > ${ISO_ROOT}/zenkoversion.yaml
 
     # ignoring errors here as webhooks are only available starting from zenko-operator 1.6.0
-    kustomize build "${zenko_operator_repo}/config/artesca-solution/webhooks?ref=$(zenko_operator_tag)" -o ${deploy_dir}/webhooks.yaml || true
+    kustomize build "${zenko_operator_repo}/config/artesca-solution/webhooks?ref=${ZENKO_OPERATOR_REF:-$(zenko_operator_tag)}" -o ${deploy_dir}/webhooks.yaml || true
 }
 
 function copy_docker_image()

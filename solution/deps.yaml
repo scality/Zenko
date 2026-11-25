@@ -133,10 +133,10 @@ vault:
   tag: 8.12.3
   envsubst: VAULT_TAG
 zenko-operator:
-  sourceRegistry: ghcr.io/scality
+  sourceRegistry: localhost:5000
   dashboard: zenko-operator/zenko-operator-dashboards
   image: zenko-operator
-  tag: v1.9.2
+  tag: v1.9.2-poc
   envsubst: ZENKO_OPERATOR_TAG
 zookeeper:
   sourceRegistry: ghcr.io/scality/zenko
