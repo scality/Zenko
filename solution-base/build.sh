@@ -23,7 +23,8 @@ ISO=${BUILD_ROOT}/${PRODUCT_LOWERNAME}-${VERSION_FULL}.iso
 HARDLINK=hardlink
 SKOPEO=skopeo
 SKOPEO_OPTS="--override-os linux --insecure-policy"
-SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}-${VERSION_FULL}
+# Unversioned, so that an upgrade only restarts MongoDB when its images change
+SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/${PRODUCT_LOWERNAME}
 
 source <( "${SOLUTION_BASE_DIR}/mongodb_build_vars.sh" )
 

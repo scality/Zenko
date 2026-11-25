@@ -265,7 +265,7 @@ mongodb_wait_for_shards() {
 }
 
 mongodb_sharded() {
-    local SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/zenko-base-${VERSION_FULL}
+    local SOLUTION_REGISTRY=metalk8s-registry-from-config.invalid/zenko-base
     local node_count=${NODE_COUNT:-1}
     local shard_count=${MONGODB_SHARD_COUNT}
 
