@@ -37,7 +37,7 @@ RUN set -eux; \
 ####################################################################################################
 # zu.jar, plus the operator's scripts. The JDK only here: the build drives Gradle
 # through the project's own wrapper.
-FROM eclipse-temurin:21.0.13_9-jdk-noble AS zu_build
+FROM eclipse-temurin:21.0.13.1_2-jdk-noble AS zu_build
 
 ARG ZK_OPERATOR_REPO
 ARG ZK_OPERATOR_VERSION
@@ -57,7 +57,7 @@ RUN ./gradlew --console=plain --no-daemon shadowJar
 
 ####################################################################################################
 # runtime
-FROM eclipse-temurin:21.0.13_9-jre-noble
+FROM eclipse-temurin:21.0.13.1_2-jre-noble
 
 # Distrust the compromised eMudhra emSign G1 root, which Temurin still ships (Mozilla trusts it)
 # but OpenJDK removed (JDK-8395690).

@@ -22,7 +22,7 @@ RUN tar -xzf $kafka_distro
 RUN rm -r kafka_$scala_version-$kafka_version/bin/windows
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.13_9-jre-noble
+FROM eclipse-temurin:21.0.13.1_2-jre-noble
 
 # Distrust the compromised eMudhra emSign G1 root, which Temurin still ships (Mozilla trusts it)
 # but OpenJDK removed (JDK-8395690).

@@ -15,7 +15,7 @@ ARG CC_VERSION=3.0.3-adbe-20260722
 ARG CC_COMMIT=c668b8316df9260dc0865e3c3f2274ebc60c5ce8
 
 # The JDK only: the build drives Gradle through the project's own wrapper.
-FROM eclipse-temurin:21.0.13_9-jdk-noble AS build
+FROM eclipse-temurin:21.0.13.1_2-jdk-noble AS build
 
 ARG CC_REPO
 ARG CC_VERSION
@@ -41,7 +41,7 @@ RUN ./gradlew --console=plain --no-daemon clean jar copyDependantLibs && \
           cruise-control/build/dependant-libs/cruise-control-metrics-reporter.jar
 
 ####################################################################################################
-FROM eclipse-temurin:21.0.13_9-jre-noble
+FROM eclipse-temurin:21.0.13.1_2-jre-noble
 
 # Distrust the compromised eMudhra emSign G1 root, which Temurin still ships (Mozilla trusts it)
 # but OpenJDK removed (JDK-8395690).
