@@ -20,7 +20,7 @@ type InstallConfig = {
     kafkaPersistenceStorageClassName?: string;
     kafkaPersistenceAnnotations?: string;
     kafkaPersistenceSelector?: string;
-    locations?: string;
+    filterLocations?: string;
     s3Bucket?: string;
 
     prometheusExternalIps?: string;
@@ -53,43 +53,6 @@ type InstallConfig = {
     sinkS3Region?: string;
 
     timeout?: string;
-};
-
-type BootstrapDumpConfig = {
-    createBucketIfNotExists?: boolean;
-    cleanupBucketBeforeDump?: boolean;
-    locations?: string[];
-    oidcProviders?: string[];
-    s3Bucket?: string;
-    mongodbHosts?: string[];
-    mongodbUsername?: string;
-    mongodbPassword?: string;
-    mongodbDatabase?: string;
-    mongodbReplicaset?: string;
-    mongodbReadPref?: string;
-    mongodbAuthDatabase?: string;
-    s3Endpoint?: string;
-    s3AccessKey?: string;
-    s3SecretKey?: string;
-    s3Region?: string;
-};
-
-type BootstrapLoadConfig = {
-    mongodbSourceDatabase?: string;
-    parallel?: number;
-    dropCollections?: boolean;
-    s3Bucket?: string;
-    mongodbHosts?: string[];
-    mongodbUsername?: string;
-    mongodbPassword?: string;
-    mongodbDatabase?: string;
-    mongodbReplicaset?: string;
-    mongodbReadPref?: string;
-    mongodbAuthDatabase?: string;
-    s3Endpoint?: string;
-    s3AccessKey?: string;
-    s3SecretKey?: string;
-    s3Region?: string;
 };
 
 type VolumeGetConfig = {
@@ -231,14 +194,6 @@ export default class ZenkoDrctl {
 
     async uninstall(config: UninstallConfig) {
         return this.runCommand('uninstall', paramToCli(this.withSourceSinkKubeconfig(config)), true);
-    }
-
-    async bootstrapDump(config: BootstrapDumpConfig) {
-        return this.runCommand('bootstrap dump', paramToCli(config));
-    }
-
-    async bootstrapLoad(config: BootstrapLoadConfig) {
-        return this.runCommand('bootstrap load', paramToCli(config));
     }
 
     async failover(config: FailoverConfig) {
