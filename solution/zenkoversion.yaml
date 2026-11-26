@@ -125,6 +125,19 @@ spec:
       exporter:
         image: ${REDIS_EXPORTER_IMAGE}
         tag: ${REDIS_EXPORTER_TAG}
+    analytics:
+      clickHouse:
+        image: ${CLICKHOUSE_IMAGE}
+        tag: ${CLICKHOUSE_TAG}
+      bootstrap:
+        image: ${CLICKHOUSE_SCHEMA_MANAGER_IMAGE}
+        tag: ${CLICKHOUSE_SCHEMA_MANAGER_TAG}
+      fluentBit:
+        image: ${FLUENT_BIT_IMAGE}
+        tag: ${FLUENT_BIT_TAG}
+      logRotator:
+        image: ${LOGROTATE_IMAGE}
+        tag: ${LOGROTATE_TAG}-${LOGROTATE_BUILD_TREE_HASH}
   defaults:
     backbeatConcurrency:
       lifecycleBucketProcessor: 30
