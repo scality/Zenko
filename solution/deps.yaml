@@ -6,7 +6,7 @@ backbeat:
   dashboard: backbeat/backbeat-dashboards
   image: backbeat
   policy: backbeat/backbeat-policies
-  tag: 9.6.6
+  tag: 9.6.7-dev.9.sha-25b21d6
   envsubst: BACKBEAT_TAG
 busybox:
   image: busybox
@@ -16,7 +16,7 @@ cloudserver:
   sourceRegistry: ghcr.io/scality
   dashboard: cloudserver/cloudserver-dashboards
   image: cloudserver
-  tag: 9.5.3
+  tag: 9.5.11-dev.2.sha-a979521
   envsubst: CLOUDSERVER_TAG
 drctl:
   sourceRegistry: ghcr.io/scality
@@ -118,7 +118,7 @@ sorbet:
   policy: sorbet/sorbet-policies
   dashboard: sorbet/sorbet-dashboards
   image: sorbet
-  tag: v1.3.1
+  tag: 86ea0a3a252c8e61afdfdea3f64cf872466a277e
   envsubst: SORBET_TAG
 stern: # tail any pod logs with pattern matchin
   tag: 1.34.0

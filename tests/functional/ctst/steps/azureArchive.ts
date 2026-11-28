@@ -2,14 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import { safeJsonParse, request, sleep } from '../common/utils';
-import { Given, Then, When } from '@cucumber/cucumber';
+import { After, Given, Then, When } from '@cucumber/cucumber';
 import { S3 } from 'cli-testing';
 import constants from 'common/constants';
 import util from 'util';
 import { exec } from 'child_process';
 import Zenko from 'world/Zenko';
 import { waitForDataServicesToStabilize, waitForZenkoToStabilize } from './utils/kubernetes';
-import { waitForDLQMessage } from './utils/kafka';
+import { coldDeadLetterTopicPrefix, coldGCRequestTopicPrefix, coldTopicName, waitForDLQMessage } from './utils/kafka';
 
 type manifestEntry = {
     'archive-id': string;
@@ -295,14 +295,15 @@ Then(
 );
 
 When(
-    'i run sorbetctl to retry failed restore for {string} location',
+    'i run sorbetctl to retry failed jobs for {string} location',
     { timeout: 10 * 60 * 1000 },
     async function (this: Zenko, location: string) {
+        const instanceId = this.parameters.InstanceID;
         const command = `./ctst/sorbetctl forward list failed --trigger-retry --skip-invalid \
             --limit 300 \
-            --kafka-dead-letter-topic=${this.parameters.KafkaDeadLetterQueueTopic} \
+            --kafka-dead-letter-topic=${coldTopicName(instanceId, coldDeadLetterTopicPrefix, location)} \
             --kafka-object-task-topic=${this.parameters.KafkaObjectTaskTopic} \
-            --kafka-gc-request-topic=${this.parameters.KafkaGCRequestTopic} \
+            --kafka-gc-request-topic=${coldTopicName(instanceId, coldGCRequestTopicPrefix, location)} \
             --kafka-brokers ${this.parameters.KafkaHosts}`;
         try {
             this.logger.debug('Running command', { command, location });
@@ -350,24 +351,51 @@ Then('object {string} should expire in {int} days', async function (this: Zenko,
     );
 });
 
+async function setLifecycleStatus(world: Zenko, status: 'paused' | 'resumed', location: string) {
+    const action = status === 'paused' ? 'pause' : 'resume';
+    await request(
+        {
+            hostname: world.parameters.BackbeatApiHost,
+            port: world.parameters.BackbeatApiPort,
+            method: 'POST',
+            path: `/_/lifecycle/${action}/${location}`,
+        },
+        undefined,
+    );
+    // Cold storage scenarios share the locations: track the pause so it is lifted when the
+    // scenario ends, even if it fails before resuming
+    const paused = new Set(world.getSaved<string[]>('pausedLocations') ?? []);
+    if (status === 'paused') {
+        paused.add(location);
+    } else {
+        paused.delete(location);
+    }
+    world.addToSaved('pausedLocations', [...paused]);
+}
+
 Given(
     'that lifecycle is {string} for the {string} location',
     async function (this: Zenko, status: string, location: string) {
-        let path: string;
+        assert(status === 'paused' || status === 'resumed', `Unknown lifecycle status "${status}"`);
+        await setLifecycleStatus(this, status, location);
         if (status === 'paused') {
-            path = `/_/lifecycle/pause/${location}`;
-        } else {
-            path = `/_/lifecycle/resume/${location}`;
+            // Backbeat and sorbet get the pause through a MongoDB change stream, about a second
+            // later: objects written before then may still be transitioned
+            await sleep(3000);
         }
-        const options = {
-            hostname: this.parameters.BackbeatApiHost,
-            port: this.parameters.BackbeatApiPort,
-            method: 'POST',
-            path,
-        };
-        await request(options, undefined);
     },
 );
+
+After(async function (this: Zenko, { willBeRetried }) {
+    // A retry finds the location already paused, so it does not race the propagation of the
+    // pause to backbeat and sorbet again: only lift it once the scenario is done for good
+    if (willBeRetried) {
+        return;
+    }
+    for (const location of this.getSaved<string[]>('pausedLocations') ?? []) {
+        await setLifecycleStatus(this, 'resumed', location);
+    }
+});
 
 Given(
     'an azure archive location {string}',

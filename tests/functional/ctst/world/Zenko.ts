@@ -93,9 +93,7 @@ export interface ZenkoWorldParameters extends ClientOptions {
     AzureArchiveManifestTier: string;
     AzureArchiveQueue: string;
     TimeProgressionFactor: number;
-    KafkaDeadLetterQueueTopic: string;
     KafkaObjectTaskTopic: string;
-    KafkaGCRequestTopic: string;
     InstanceID: string;
     BackbeatApiHost: string;
     BackbeatApiPort: string;
